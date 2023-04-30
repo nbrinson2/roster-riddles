@@ -1,0 +1,10 @@
+<mat-grid-list cols="9" rowHeight="40px">
+    <div *ngFor="let column of columns" class="tile-container">
+        <mat-grid-tile [colspan]="column.colSpan">
+            <div class="column-content"
+                 [ngClass]="column.class">
+                {{ column.name }}
+            </div>
+        </mat-grid-tile>
+    </div>
+</mat-grid-list>

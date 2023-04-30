@@ -1,0 +1,11 @@
+<div class="home-container">
+    <div class="title">
+        <h1>PICKLE</h1>
+    </div>
+    <div class="search-container">
+        <search></search>
+    </div>
+    <div class="players-container" *ngFor="let player of players">
+        <player [columns]="player"></player>
+    </div>
+</div>

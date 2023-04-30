@@ -1,0 +1,29 @@
+mat-grid-list {
+    width: 100%;
+    font-size: 12px;
+}
+
+.column-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #ccc;
+    border: 1px solid #333;
+    width: 100%;
+}
+
+.team-column {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.b-column {
+    // width: 10px;
+}
+
+.pos-column {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+
