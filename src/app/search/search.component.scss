@@ -4,45 +4,6 @@
   justify-content: center;
 }
 
-.content-container {
-  display: inline-block;
-  position: relative;
-  width: 100%;
-  max-width: 300px;
-}
-
-.autocomplete-options {
-  background-color: gray;
-  border: 1px solid green;
-  border-radius: 5px;
-  list-style-type: none;
-  margin: 0 auto;
-  padding: 0;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  z-index: 1000;
-}
-
-.autocomplete-options li {
-  cursor: pointer;
-  padding: 8px;
-}
-
-.autocomplete-options li:hover {
-  background-color: black;
-  color: white;
-}
-
-input {
-  height: 40px;
-  background-color: black;
-  border: solid green 1px;
-  border-radius: 8px;
-  display: block;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  width: 290px;
-  padding-left: 10px;
+mat-form-field {
+  width: 300px;
 }

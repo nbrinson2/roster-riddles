@@ -6,6 +6,7 @@
         <search></search>
     </div>
     <div class="players-container" *ngFor="let player of players">
-        <player [columns]="player"></player>
+        <player [player]="player"
+                [headers]="headers"></player>
     </div>
 </div>

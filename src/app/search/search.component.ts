@@ -11,7 +11,7 @@ import { Player } from '../home/home.component';
   styleUrls: ['./search.component.scss']
 })
 export class SearchComponent {
-  @Input() players!: Player[];
+  @Input() players?: Player[];
 
   protected guessCount = 0;
   protected maxGuessNum = 9;
@@ -27,22 +27,10 @@ export class SearchComponent {
   }
 
   private _filter(value: string): Player[] {
+    if (!this.players) {
+      return [];
+    }
     const filterValue = value.toLowerCase();
     return this.players.filter((player) => player.name.toLowerCase().includes(filterValue));
   }
-
-  protected onInputFocus(): void {
-    this.showAutoComplete = true;
-  }
-
-  protected onInputBlur(): void {
-    setTimeout(() => {
-      this.showAutoComplete = false;
-    }, 200);
-  }
-
-  protected selectPlayer(player: Player) {
-    console.log(player);
-  }
-
 }

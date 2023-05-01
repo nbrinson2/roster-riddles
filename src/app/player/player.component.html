@@ -1,10 +1,20 @@
 <mat-grid-list cols="9" rowHeight="40px">
-    <div *ngFor="let column of columns" class="tile-container">
-        <mat-grid-tile [colspan]="column.colSpan">
+    <div *ngFor="let header of headers" class="tile-container">
+        <mat-grid-tile [colspan]="header.colSpan">
             <div class="column-content"
-                 [ngClass]="column.class">
-                {{ column.name }}
+                 [ngClass]="header.class">
+                {{ header.name }}
             </div>
         </mat-grid-tile>
     </div>
+    <ng-container *ngIf="player">
+        <div *ngFor="let attr of player | keyvalue" class="tile-container">
+            <mat-grid-tile [colspan]="getColSpan(attr.key)">
+                <div class="column-content"
+                     [ngClass]="getClass(attr.key)">
+                    {{ attr.value }}
+                </div>
+            </mat-grid-tile>
+        </div>
+    </ng-container>
 </mat-grid-list>

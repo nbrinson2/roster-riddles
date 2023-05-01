@@ -1,6 +1,23 @@
 <div class="search-container">
-  <div class="content-container">
-      <input
+  <mat-form-field appearance="outline">
+    <mat-label>Guess today's player</mat-label>
+    <input
+      type="text"
+      matInput
+      [matAutocomplete]="auto"
+      [formControl]="searchControl"
+    />
+    <mat-autocomplete #auto="matAutocomplete">
+      <mat-option
+        *ngFor="let player of filteredPlayers | async"
+        [value]="player"
+      >
+        {{ player.name }}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <!-- <input
         type="text"
         id="search-input"
         placeholder="Guess today's player"
@@ -15,6 +32,5 @@
         <li *ngFor="let player of filteredPlayers | async" (click)="selectPlayer(player)">
           {{ player.name }}
         </li>
-      </ul>
-  </div>
+      </ul> -->
 </div>

@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 
-import { Column } from 'src/app/home/home.component';
+import { Header } from 'src/app/home/home.component';
+import { Player } from 'src/app/home/home.component';
 
 @Component({
   selector: 'player',
@@ -8,5 +9,20 @@ import { Column } from 'src/app/home/home.component';
   styleUrls: ['./player.component.scss']
 })
 export class PlayerComponent {
-  @Input() columns!: Column[];
+  @Input() headers!: Header[];
+  @Input() player?: Player;
+
+  protected getColSpan(attr: string): number {
+    console.log('attr', attr);
+    const header = this.headers.filter((header) => header.name === attr);
+    console.log('header', header);
+    return 1;
+  }
+
+  protected getClass(attr: string): string {
+    const header = this.headers.filter((header) => header.name === attr);
+
+    return attr;
+  }
+
 }
