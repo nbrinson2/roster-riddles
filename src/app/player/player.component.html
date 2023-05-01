@@ -1,20 +1,17 @@
-<mat-grid-list cols="9" rowHeight="40px">
-    <div *ngFor="let header of headers" class="tile-container">
-        <mat-grid-tile [colspan]="header.colSpan">
-            <div class="column-content"
-                 [ngClass]="header.class">
-                {{ header.name }}
-            </div>
+<div class="name-header">
+  <span class="name-text">{{ getPlayerAttr("name") }}</span>
+</div>
+
+<div class="attr-container">
+  <mat-grid-list cols="9" rowHeight="40px">
+    <div *ngFor="let attr of orderedPlayerAttr" class="tile-container">
+      <ng-container *ngIf="attr !== 'name'">
+        <mat-grid-tile [colspan]="getColSpan(attr)">
+          <div class="column-content" [ngClass]="getClass(attr)">
+            {{ getPlayerAttr(attr) }}
+          </div>
         </mat-grid-tile>
+      </ng-container>
     </div>
-    <ng-container *ngIf="player">
-        <div *ngFor="let attr of player | keyvalue" class="tile-container">
-            <mat-grid-tile [colspan]="getColSpan(attr.key)">
-                <div class="column-content"
-                     [ngClass]="getClass(attr.key)">
-                    {{ attr.value }}
-                </div>
-            </mat-grid-tile>
-        </div>
-    </ng-container>
-</mat-grid-list>
+  </mat-grid-list>
+</div>

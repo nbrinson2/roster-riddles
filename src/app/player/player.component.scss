@@ -1,6 +1,15 @@
+.name-header {
+    display: flex;
+    justify-content: center;
+
+    .name-text {
+        font-size: 14px;
+    }
+}
+
 mat-grid-list {
     width: 100%;
-    font-size: 12px;
+    font-size: 10px;
 }
 
 .column-content {
@@ -15,10 +24,6 @@ mat-grid-list {
 .team-column {
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
-}
-
-.b-column {
-    // width: 10px;
 }
 
 .pos-column {
