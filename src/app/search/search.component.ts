@@ -3,7 +3,7 @@ import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
-import { Player } from '../home/home.component';
+import { Header, Player } from '../home/home.component';
 
 @Component({
   selector: 'search',
@@ -11,6 +11,7 @@ import { Player } from '../home/home.component';
   styleUrls: ['./search.component.scss']
 })
 export class SearchComponent {
+  @Input() headers!: Header[];
   @Input() players?: Player[];
 
   protected guessCount = 0;
