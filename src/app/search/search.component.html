@@ -1,19 +1,22 @@
 <div class="search-container">
-  <mat-form-field appearance="outline">
-    <mat-label>Guess today's player</mat-label>
-    <input
-      type="text"
-      matInput
-      [matAutocomplete]="auto"
-      [formControl]="searchControl"
-    />
-    <mat-autocomplete #auto="matAutocomplete">
-      <mat-option
-        *ngFor="let player of filteredPlayers | async"
-        [value]="player.name"
-      >
-        <player [player]="player" [headers]="headers"></player>
-      </mat-option>
-    </mat-autocomplete>
-  </mat-form-field>
+  <form class="search-form">
+    <mat-form-field appearance="outline">
+      <mat-label>Guess today's player</mat-label>
+      <input
+        type="text"
+        matInput
+        #searchInput
+        [matAutocomplete]="auto"
+        [formControl]="searchControl" />
+      <mat-autocomplete #auto="matAutocomplete">
+        <mat-option
+          *ngFor="let player of filteredPlayers | async"
+          [value]="player.name"
+          (click)="searchInput.value != undefined && selectPlayer(player)"
+          #playerOption>
+          <player [player]="player" [headers]="headers"></player>
+        </mat-option>
+      </mat-autocomplete>
+    </mat-form-field>
+  </form>
 </div>

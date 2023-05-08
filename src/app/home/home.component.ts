@@ -65,8 +65,20 @@ const Headers = [
 export class HomeComponent {
   protected headers = Headers;
   // protected players: Player[] = [];
+  // protected playerToGuess: Player;
   protected players = PLAYERS;
+  protected selectedPlayers?: Player[];
+  protected playerToGuess = this.players[0];
 
+  protected selectPlayer(player: Player): void {
+    if (!this.selectedPlayers) {
+      this.selectedPlayers = [];
+    }
+    this.selectedPlayers?.push(player);
+    const indexOfPlayer = this.players.indexOf(player);
+    this.players.splice(indexOfPlayer, 1);
+  }
+  
   private addGuessedPlayer(player: Player): void {
     this.players.push(player);
   }
