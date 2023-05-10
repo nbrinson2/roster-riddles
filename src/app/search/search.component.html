@@ -1,8 +1,9 @@
 <div class="search-container">
   <form class="search-form">
     <mat-form-field appearance="outline">
-      <mat-label>Guess today's player</mat-label>
+      <mat-label>{{ placeHolderText }}</mat-label>
       <input
+        [readonly]="disabled"
         type="text"
         matInput
         #searchInput

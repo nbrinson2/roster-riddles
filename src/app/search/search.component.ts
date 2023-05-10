@@ -5,6 +5,7 @@ import { map, startWith, take, takeUntil } from 'rxjs/operators';
 
 import { Player } from '../home/home.component';
 import { MatOption } from '@angular/material/core';
+import { FloatLabelType } from '@angular/material/form-field';
 
 @Component({
   selector: 'search',
@@ -13,13 +14,14 @@ import { MatOption } from '@angular/material/core';
 })
 export class SearchComponent {
   @Input() players?: Player[];
+  @Input() disabled: boolean = false;
+  @Input() placeHolderText!: string;
 
   @Output() selectPlayerEvent = new EventEmitter<Player>();
 
   @ViewChildren('playerOption') playerOptions!: QueryList<MatOption>;
 
   protected selectedPlayer?: Player;
-
   protected guessCount = 0;
   protected maxGuessNum = 9;
   protected searchControl = new FormControl();
@@ -30,6 +32,11 @@ export class SearchComponent {
       startWith(''),
       map((value) => this._filter(value))
     );
+  }
+
+  protected getFloatLabelValue(): FloatLabelType {
+    const floatControl = new FormControl('never' as FloatLabelType);
+    return floatControl.value || 'auto';
   }
 
   protected selectPlayer(player: Player): void {

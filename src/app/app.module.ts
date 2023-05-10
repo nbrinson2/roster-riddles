@@ -11,6 +11,7 @@ import { SearchComponent } from './search/search.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     AppRoutingModule,
     BrowserAnimationsModule,
     MatGridListModule,
+    MatButtonModule,
     ReactiveFormsModule,
     MatInputModule,
     MatAutocompleteModule,

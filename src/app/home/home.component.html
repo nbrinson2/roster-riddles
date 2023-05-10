@@ -1,22 +1,43 @@
 <div class="home-container">
-  <div class="title">
-    <h1>PICKLE</h1>
+  <div class="content-container">
+    <div class="title">
+      <h1>PICKLE</h1>
+    </div>
+    <div class="search-container">
+      <search [disabled]="isSearchDisabled"
+              [players]="guessablePlayers"
+              [placeHolderText]="searchInputPlaceHolderText"
+              (selectPlayerEvent)="selectPlayer($event)">
+      </search>
+    </div>
+    <div class="attr-header-container">
+        <mat-grid-list cols="9" rowHeight="40px">
+          <div *ngFor="let header of headers" class="tile-container">
+            <mat-grid-tile [colspan]="header.colSpan">
+              <div class="column-content" [ngClass]="header.class">
+                {{ header.name }}
+              </div>
+            </mat-grid-tile>
+          </div>
+        </mat-grid-list>
+    </div>
+    <div class="players-container" *ngFor="let player of selectedPlayers">
+      <player [player]="player"></player>
+    </div>
+    <ng-container *ngIf="endOfGame" class="end-result-container">
+      <div class="end-result-text">
+        <span>{{endResultText}}</span>
+      </div>
+    </ng-container>
   </div>
-  <div class="search-container">
-    <search [players]="players" (selectPlayerEvent)="selectPlayer($event)"></search>
-  </div>
-  <div class="attr-header-container">
-      <mat-grid-list cols="9" rowHeight="40px">
-        <div *ngFor="let header of headers" class="tile-container">
-          <mat-grid-tile [colspan]="header.colSpan">
-            <div class="column-content" [ngClass]="header.class">
-              {{ header.name }}
-            </div>
-          </mat-grid-tile>
-        </div>
-      </mat-grid-list>
-  </div>
-  <div class="players-container" *ngFor="let player of selectedPlayers">
-    <player [player]="player"></player>
+  <div class="new-game-button-container">
+    <button (click)="startNewGame()" mat-raised-button class="new-game-button">
+      <div class="new-game-button-content">
+        <span class="new-game-text">New Game</span>
+        <span class="material-symbols-outlined new-game-icon">
+          refresh
+          </span>
+      </div>
+    </button>
   </div>
 </div>
