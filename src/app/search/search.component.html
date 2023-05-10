@@ -14,7 +14,7 @@
           [value]="player.name"
           (click)="searchInput.value != undefined && selectPlayer(player)"
           #playerOption>
-          <player [player]="player" [headers]="headers"></player>
+          <player [player]="player"></player>
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>

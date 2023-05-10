@@ -3,7 +3,7 @@
     <h1>PICKLE</h1>
   </div>
   <div class="search-container">
-    <search [players]="players" [headers]="headers" (selectPlayerEvent)="selectPlayer($event)"></search>
+    <search [players]="players" (selectPlayerEvent)="selectPlayer($event)"></search>
   </div>
   <div class="attr-header-container">
       <mat-grid-list cols="9" rowHeight="40px">
@@ -17,6 +17,6 @@
       </mat-grid-list>
   </div>
   <div class="players-container" *ngFor="let player of selectedPlayers">
-    <player [player]="player" [headers]="headers"></player>
+    <player [player]="player"></player>
   </div>
 </div>

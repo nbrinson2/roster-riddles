@@ -4,14 +4,12 @@
 
 <div class="attr-container">
   <mat-grid-list cols="9" rowHeight="40px">
-    <div *ngFor="let attr of orderedPlayerAttr" class="tile-container">
-      <ng-container *ngIf="attr !== 'name'">
+    <div *ngFor="let attr of orderedUiPlayerAttr" class="tile-container">
         <mat-grid-tile [colspan]="getColSpan(attr)">
           <div class="column-content" [ngClass]="getClass(attr)">
             {{ getPlayerAttr(attr) }}
           </div>
         </mat-grid-tile>
-      </ng-container>
     </div>
   </mat-grid-list>
 </div>

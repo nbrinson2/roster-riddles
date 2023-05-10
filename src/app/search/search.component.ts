@@ -3,7 +3,7 @@ import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, take, takeUntil } from 'rxjs/operators';
 
-import { Header, Player } from '../home/home.component';
+import { Player } from '../home/home.component';
 import { MatOption } from '@angular/material/core';
 
 @Component({
@@ -12,7 +12,6 @@ import { MatOption } from '@angular/material/core';
   styleUrls: ['./search.component.scss']
 })
 export class SearchComponent {
-  @Input() headers!: Header[];
   @Input() players?: Player[];
 
   @Output() selectPlayerEvent = new EventEmitter<Player>();
