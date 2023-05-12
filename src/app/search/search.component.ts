@@ -3,9 +3,9 @@ import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, take, takeUntil } from 'rxjs/operators';
 
-import { Player } from '../home/home.component';
 import { MatOption } from '@angular/material/core';
 import { FloatLabelType } from '@angular/material/form-field';
+import { UiPlayer } from '../models/models';
 
 @Component({
   selector: 'search',
@@ -13,19 +13,19 @@ import { FloatLabelType } from '@angular/material/form-field';
   styleUrls: ['./search.component.scss']
 })
 export class SearchComponent {
-  @Input() players?: Player[];
+  @Input() players?: UiPlayer[];
   @Input() disabled: boolean = false;
   @Input() placeHolderText!: string;
 
-  @Output() selectPlayerEvent = new EventEmitter<Player>();
+  @Output() selectPlayerEvent = new EventEmitter<UiPlayer>();
 
   @ViewChildren('playerOption') playerOptions!: QueryList<MatOption>;
 
-  protected selectedPlayer?: Player;
+  protected selectedPlayer?: UiPlayer;
   protected guessCount = 0;
   protected maxGuessNum = 9;
   protected searchControl = new FormControl();
-  protected filteredPlayers: Observable<Player[]>;
+  protected filteredPlayers: Observable<UiPlayer[]>;
 
   constructor() {
     this.filteredPlayers = this.searchControl.valueChanges.pipe(
@@ -39,7 +39,7 @@ export class SearchComponent {
     return floatControl.value || 'auto';
   }
 
-  protected selectPlayer(player: Player): void {
+  protected selectPlayer(player: UiPlayer): void {
     if (this.searchControl.value !== null) {
       this.selectPlayerEvent.emit(player);
       this.searchControl.setValue(null);
@@ -50,7 +50,7 @@ export class SearchComponent {
     }
   }
 
-  private _filter(value: string): Player[] {
+  private _filter(value: string): UiPlayer[] {
     if (!this.players) {
       return [];
     }

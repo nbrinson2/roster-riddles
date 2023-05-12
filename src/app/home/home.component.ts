@@ -1,23 +1,12 @@
 import { Component } from '@angular/core';
 
 import { PLAYERS } from '../../test-data';
-import { PlayerAttr, PlayerAttrColor } from '../models/models';
+import { UiPlayer, PlayerAttr, PlayerAttrColor } from '../models/models';
+import { PlayersService } from '../services/players.service';
 
 export interface Column {
   colSpan: number;
   class: string;
-}
-
-export interface Player {
-  name: string;
-  team: string;
-  lgDiv: string;
-  b: string;
-  t: string;
-  born: string;
-  age: string;
-  pos: string;
-  colorMap: Map<PlayerAttr, PlayerAttrColor>;
 }
 
 export interface Header {
@@ -49,7 +38,7 @@ export function getPlayerKeyToHeaderNameMap(): Map<string, string> {
   return playerAttrToHeadersMap;
 }
 
-function getPlayerKeyToBackgroundColorMap(playerToGuess: Player, selectedPlayer: Player, initialize: boolean): Map<PlayerAttr, PlayerAttrColor> {
+function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, selectedPlayer: UiPlayer, initialize: boolean): Map<PlayerAttr, PlayerAttrColor> {
   const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
   const backgroundColors = Object.values(PlayerAttrColor);
   const playerAttrBackgroundColorMap = new Map<PlayerAttr, PlayerAttrColor>();
@@ -133,24 +122,25 @@ export const Headers = [
 })
 export class HomeComponent {
   private numberOfGuesses = 0;
-  private readonly allPlayers: Player[] = PLAYERS;
+  private readonly allPlayers: UiPlayer[] = PLAYERS;
 
   protected headers = Headers;
   // protected players: Player[] = [];
   // protected playerToGuess: Player;
-  protected guessablePlayers: Player[] = [];
-  protected selectedPlayers?: Player[];
+  protected guessablePlayers: UiPlayer[] = [];
+  protected selectedPlayers?: UiPlayer[];
   protected playerToGuess = this.allPlayers[0];
   protected endResultText = EndResultMessage.WIN;
   protected endOfGame = false;
   protected isSearchDisabled = false;
   protected searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
 
-  constructor() {
+  constructor(private playersService: PlayersService) {
+
     this.initializePlayerColorMapAndGuessablePlayers();
   }
 
-  protected selectPlayer(selectedPlayer: Player): void {
+  protected selectPlayer(selectedPlayer: UiPlayer): void {
     this.numberOfGuesses++;
 
     selectedPlayer.colorMap = getPlayerKeyToBackgroundColorMap(this.playerToGuess, selectedPlayer, false);
@@ -192,7 +182,7 @@ export class HomeComponent {
     this.guessablePlayers = Array.from(this.allPlayers);
   }
 
-  private setNewAttrColorForAllGuessablePlayers(selectedPlayer: Player): void {
+  private setNewAttrColorForAllGuessablePlayers(selectedPlayer: UiPlayer): void {
     const coloredPlayerAttributes = [];
     for (const attr of selectedPlayer.colorMap.keys()) {
       if (selectedPlayer.colorMap.get(attr as PlayerAttr) !== PlayerAttrColor.NONE) {

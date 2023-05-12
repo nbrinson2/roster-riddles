@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 
-import { getPlayerKeyToHeaderNameMap, Headers, Player } from 'src/app/home/home.component';
-import { PlayerAttr } from '../models/models';
+import { getPlayerKeyToHeaderNameMap, Headers } from 'src/app/home/home.component';
+import { PlayerAttr, UiPlayer } from '../models/models';
 
 const playerAttrHeaderMap = getPlayerKeyToHeaderNameMap();
 
@@ -11,7 +11,7 @@ const playerAttrHeaderMap = getPlayerKeyToHeaderNameMap();
   styleUrls: ['./player.component.scss']
 })
 export class PlayerComponent {
-  @Input() player!: Player;
+  @Input() player!: UiPlayer;
 
   protected readonly orderedUiPlayerAttr = Object.values(PlayerAttr).filter((attr) => attr !== PlayerAttr.NAME && attr !== PlayerAttr.COLOR_MAP);
 
@@ -35,7 +35,7 @@ export class PlayerComponent {
   }
 
   protected getPlayerAttr(attr: string): string {
-    const attrKey = attr as keyof Player;
+    const attrKey = attr as keyof UiPlayer;
 
     if (!this.player || attrKey === PlayerAttr.COLOR_MAP) {
       return '';
