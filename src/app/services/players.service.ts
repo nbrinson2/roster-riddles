@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, first, forkJoin, map, switchMap } from 'rxjs';
-import { MlbTeam, MlbTeamFullName, Player, PlayerDetailed, PlayerResponse, RosterResponse, Team, TeamsResponse, UiPlayer, UiRosterPlayer, UiRoster, UiPlayerDetailed, PlayerAttr, PlayerAttrColor, LeagueDivisionFullName, LeagueDivision, BattingFullName, Batting, ThrowingFullName, Throwing } from '../models/models';
+import { MlbTeam, MlbTeamFullName, Player, PlayerDetailed, PlayerResponse, RosterResponse, Team, TeamsResponse, UiPlayer, UiRosterPlayer, UiRoster, UiPlayerDetailed, PlayerAttr, PlayerAttrColor, LeagueDivisionFullName, LeagueDivision, BattingFullName, Batting, ThrowingFullName, Throwing, CountryBornFullName, CountryBorn } from '../models/models';
 
 const MlbTeamAbbreviationMap: { [key in MlbTeamFullName]: MlbTeam } = {
   [MlbTeamFullName.ARIZONA_DIAMONDBACKS]: MlbTeam.ARI,
@@ -49,12 +49,39 @@ const BattingAbbreviationMap: { [key in BattingFullName]: Batting} = {
   [BattingFullName.R]: Batting.R,
   [BattingFullName.L]: Batting.L,
   [BattingFullName.S]: Batting.S,
-}
+};
 
 const ThrowingAbbreviationMap: { [key in ThrowingFullName]: Throwing} = {
   [ThrowingFullName.R]: Throwing.R,
   [ThrowingFullName.L]: Throwing.L,
   [ThrowingFullName.B]: Throwing.B,
+};
+
+const CountryBornAbbreviationMap: { [key in CountryBornFullName]: CountryBorn} = {
+  [CountryBornFullName.USA]: CountryBorn.USA,
+  [CountryBornFullName.DR]: CountryBorn.DR,
+  [CountryBornFullName.VEN]: CountryBorn.VEN,
+  [CountryBornFullName.PR]: CountryBorn.PR,
+  [CountryBornFullName.CUB]: CountryBorn.CUB,
+  [CountryBornFullName.CAN]: CountryBorn.CAN,
+  [CountryBornFullName.MEX]: CountryBorn.MEX,
+  [CountryBornFullName.COL]: CountryBorn.COL,
+  [CountryBornFullName.KOR]: CountryBorn.KOR,
+  [CountryBornFullName.JPN]: CountryBorn.JPN,
+  [CountryBornFullName.PAN]: CountryBorn.PAN,
+  [CountryBornFullName.AUS]: CountryBorn.AUS,
+  [CountryBornFullName.BRA]: CountryBorn.BRA,
+  [CountryBornFullName.NIC]: CountryBorn.NIC,
+  [CountryBornFullName.ARU]: CountryBorn.ARU,
+  [CountryBornFullName.BAH]: CountryBorn.BAH,
+  [CountryBornFullName.CUR]: CountryBorn.CUR,
+  [CountryBornFullName.HON]: CountryBorn.HON,
+  [CountryBornFullName.PER]: CountryBorn.PER,
+  [CountryBornFullName.TWN]: CountryBorn.TWN,
+  [CountryBornFullName.GER]: CountryBorn.GER,
+  [CountryBornFullName.MEX_MEX]: CountryBorn.MEX,
+  [CountryBornFullName.ROK]: CountryBorn.KOR,
+  [CountryBornFullName.PCZ]: CountryBorn.PAN
 }
 
 @Injectable({
@@ -113,7 +140,7 @@ export class PlayersService {
       lgDiv: LeagueDivisionAbbreviationMap[player.division as LeagueDivisionFullName],
       b: BattingAbbreviationMap[player.player.batSide.description as BattingFullName],
       t: ThrowingAbbreviationMap[player.player.pitchHand.description as ThrowingFullName],
-      born: player.player.birthCountry,
+      born: CountryBornAbbreviationMap[player.player.birthCountry as CountryBornFullName],
       age: player.player.currentAge.toString(),
       pos: player.player.primaryPosition.abbreviation,
       colorMap: this.initializePlaterAttrColorMap(),

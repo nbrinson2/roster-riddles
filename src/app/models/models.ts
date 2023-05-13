@@ -139,6 +139,33 @@ export enum CountryBorn {
     GER = 'Germany',
 }
 
+export enum CountryBornFullName {
+    USA = 'USA',
+    DR = 'Dominican Republic',
+    VEN = 'Venezuela',
+    PR = 'Puerto Rico',
+    CUB = 'Cuba',
+    CAN = 'Canada',
+    MEX = 'Mexico',
+    MEX_MEX = 'MEX',
+    COL = 'Colombia',
+    KOR = 'South Korea',
+    ROK = 'Republic of Korea',
+    JPN = 'Japan',
+    PAN = 'Panama',
+    PCZ = 'Panama Canal Zone',
+    AUS = 'Australia',
+    BRA = 'Brazil',
+    NIC = 'Nicaragua',
+    ARU = 'Aruba',
+    BAH = 'Bahamas',
+    CUR = 'Curacao',
+    HON = 'Honduras',
+    PER = 'Peru',
+    TWN = 'Taiwan',
+    GER = 'Germany',
+}
+
 export enum PositionEnum {
     SP = 'SP',
     RP = 'RP',
