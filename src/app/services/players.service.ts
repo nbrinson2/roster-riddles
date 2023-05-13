@@ -116,8 +116,18 @@ export class PlayersService {
       born: player.player.birthCountry,
       age: player.player.currentAge.toString(),
       pos: player.player.primaryPosition.abbreviation,
-      colorMap: new Map<PlayerAttr, PlayerAttrColor>(),
+      colorMap: this.initializePlaterAttrColorMap(),
     };
+  }
+
+  private initializePlaterAttrColorMap(): Map<PlayerAttr, PlayerAttrColor> {
+    const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
+    const playerAttrBackgroundColorMap = new Map<PlayerAttr, PlayerAttrColor>();
+  
+    for (const attr of playerAttributes) {
+      playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE);
+    }
+    return playerAttrBackgroundColorMap;
   }
 
   private getAllTeamRosters(): Observable<UiRoster[]> {

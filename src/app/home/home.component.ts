@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 import { PLAYERS } from '../../test-data';
-import { UiPlayer, PlayerAttr, PlayerAttrColor } from '../models/models';
+import { UiPlayer, PlayerAttr, PlayerAttrColor, Player } from '../models/models';
 import { PlayersService } from '../services/players.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { BehaviorSubject, first, map, take } from 'rxjs';
 
 export interface Column {
   colSpan: number;
@@ -13,6 +15,10 @@ export interface Header {
   name: string;
   colSpan: number;
   class: string;
+}
+
+export interface Data {
+  players: UiPlayer[];
 }
 
 enum EndResultMessage {
@@ -122,36 +128,48 @@ export const Headers = [
 })
 export class HomeComponent {
   private numberOfGuesses = 0;
-  private readonly allPlayers: UiPlayer[] = PLAYERS;
+  private allPlayers: UiPlayer[] = [];
 
   protected headers = Headers;
-  // protected players: Player[] = [];
-  // protected playerToGuess: Player;
   protected guessablePlayers: UiPlayer[] = [];
-  protected selectedPlayers?: UiPlayer[];
-  protected playerToGuess = this.allPlayers[0];
+  protected selectedPlayers: UiPlayer[] = [];
+  protected playerToGuess!: UiPlayer;
   protected endResultText = EndResultMessage.WIN;
   protected endOfGame = false;
   protected isSearchDisabled = false;
   protected searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
 
-  constructor(private playersService: PlayersService) {
-
+  constructor(private route: ActivatedRoute, private router: Router) {
     this.initializePlayerColorMapAndGuessablePlayers();
+    this.route.data.pipe(first()).subscribe((d) => {
+      this.allPlayers = (d as Data).players;
+    });
+  }
+
+  private initializePlayerColorMapAndGuessablePlayers(): void {
+    this.route.data.pipe(first()).subscribe((data) => {
+      const players = (data as Data).players;
+      this.guessablePlayers = players;
+      const randomIndex = Math.floor(Math.random() * (data as Data).players.length);
+      this.playerToGuess = players[randomIndex];
+    });
+  }
+
+  protected startNewGame(): void {
+    this.resetColorMaps();
+    this.getNewPlayerToGuess();
+    this.numberOfGuesses = 0;
+    this.endOfGame = false;
+    this.searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
+    this.isSearchDisabled = false;
+    this.selectedPlayers = [];
+    this.updatePlayerAttrColorForAllGuessablePlayers();
   }
 
   protected selectPlayer(selectedPlayer: UiPlayer): void {
     this.numberOfGuesses++;
-
     selectedPlayer.colorMap = getPlayerKeyToBackgroundColorMap(this.playerToGuess, selectedPlayer, false);
-
     const colorMapValuesArray = Array.from(selectedPlayer.colorMap.values());
-
-    this.setNewAttrColorForAllGuessablePlayers(selectedPlayer);
-
-    if (!this.selectedPlayers) {
-      this.selectedPlayers = [];
-    }
     this.selectedPlayers.push(selectedPlayer);
 
     if (!colorMapValuesArray.includes(PlayerAttrColor.NONE) && !colorMapValuesArray.includes(PlayerAttrColor.YELLOW)) {
@@ -170,46 +188,60 @@ export class HomeComponent {
       return;
     }
 
-    const indexOfPlayer = this.guessablePlayers.indexOf(selectedPlayer);
-    this.guessablePlayers.splice(indexOfPlayer, 1);
+    this.setNewAttrColorForAllGuessablePlayers(selectedPlayer);
   }
 
-  private initializePlayerColorMapAndGuessablePlayers(): void {
-    for (const player of this.allPlayers) {
-      player.colorMap = getPlayerKeyToBackgroundColorMap(this.playerToGuess, player, true);
-    }
-
-    this.guessablePlayers = Array.from(this.allPlayers);
+  private getNewPlayerToGuess(): void {
+    const randomIndex = Math.floor(Math.random() * this.allPlayers.length);
+    this.playerToGuess = this.allPlayers[randomIndex];
   }
 
   private setNewAttrColorForAllGuessablePlayers(selectedPlayer: UiPlayer): void {
-    const coloredPlayerAttributes = [];
+    const coloredPlayerAttributes: PlayerAttr[] = [];
     for (const attr of selectedPlayer.colorMap.keys()) {
       if (selectedPlayer.colorMap.get(attr as PlayerAttr) !== PlayerAttrColor.NONE) {
         coloredPlayerAttributes.push(attr);
       }
     }
 
+    this.updatePlayerAttrColorForAllGuessablePlayers(coloredPlayerAttributes, selectedPlayer);
+  }
+
+  private resetColorMaps(): void {
     for (const player of this.guessablePlayers) {
-      for (const attr of coloredPlayerAttributes) {
-        if (player[attr as PlayerAttr] === selectedPlayer[attr as PlayerAttr]) {
-          const selectedPlayerAttrColor = selectedPlayer.colorMap.get(attr as PlayerAttr);
-          player.colorMap.set(attr as PlayerAttr, selectedPlayerAttrColor as PlayerAttrColor);
-        }
-      }
+      player.colorMap = this.initializePlaterAttrColorMap();
     }
   }
 
-  protected startNewGame(): void {    
-    this.initializePlayerColorMapAndGuessablePlayers();
-    this.numberOfGuesses = 6;
-    this.endOfGame = false;
-    this.searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
-    this.isSearchDisabled = false;
-    this.selectedPlayers = [];
+  private initializePlaterAttrColorMap(): Map<PlayerAttr, PlayerAttrColor> {
+    const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
+    const playerAttrBackgroundColorMap = new Map<PlayerAttr, PlayerAttrColor>();
 
-    const numberOfPlayers = this.allPlayers.length;
-    const randomIndex = Math.floor(Math.random() * numberOfPlayers);
-    this.playerToGuess = this.allPlayers[randomIndex];
+    for (const attr of playerAttributes) {
+      playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE);
+    }
+    return playerAttrBackgroundColorMap;
+  }
+
+  private updatePlayerAttrColorForAllGuessablePlayers(attributes?: PlayerAttr[], selectedPlayer?: UiPlayer): void {
+
+    if (!attributes && !selectedPlayer) {
+      for (const player of this.guessablePlayers) {
+        player.colorMap = this.initializePlaterAttrColorMap();
+      }
+      return;
+    }
+
+    if (attributes && selectedPlayer) {
+      for (const player of this.guessablePlayers) {
+        for (const attr of attributes) {
+          if (player[attr as PlayerAttr] === selectedPlayer[attr as PlayerAttr]) {
+            const selectedPlayerAttrColor = selectedPlayer.colorMap.get(attr as PlayerAttr);
+            player.colorMap.set(attr as PlayerAttr, selectedPlayerAttrColor as PlayerAttrColor);
+          }
+        }
+      }
+      return;
+    }
   }
 }
