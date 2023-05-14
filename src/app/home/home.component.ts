@@ -1,10 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
-import { PLAYERS } from '../../test-data';
-import { UiPlayer, PlayerAttr, PlayerAttrColor, Player } from '../models/models';
-import { PlayersService } from '../services/players.service';
+import { UiPlayer, PlayerAttr, PlayerAttrColor } from '../models/models';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, first, map, take } from 'rxjs';
+import { first } from 'rxjs';
 
 export interface Column {
   colSpan: number;

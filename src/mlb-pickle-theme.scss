@@ -2,8 +2,8 @@
 
 @include mat.core();
 
-$mlb-pickle-primary: mat.define-palette(mat.$green-palette, 500);
-$mlb-pickle-accent: mat.define-palette(mat.$gray-palette, A200, A100, A400);
+$mlb-pickle-primary: mat.define-palette(mat.$red-palette, 500);
+$mlb-pickle-accent: mat.define-palette(mat.$yellow-palette, A200, A100, A400);
 $mlb-pickle-warn: mat.define-palette(mat.$red-palette);
 
 $mlb-pickle-theme: mat.define-light-theme(
@@ -21,8 +21,8 @@ $mlb-pickle-theme: mat.define-light-theme(
 // Define a dark theme
 $dark-theme: mat.define-dark-theme((
  color: (
-   primary: mat.define-palette(mat.$green-palette),
-   accent: mat.define-palette(mat.$blue-grey-palette),
+   primary: mat.define-palette(mat.$red-palette, 300),
+   accent: mat.define-palette(mat.$yellow-palette),
  ),
   // Only include `typography` and `density` in the default dark theme.
   typography: mat.define-typography-config(),

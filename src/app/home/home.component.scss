@@ -1,3 +1,5 @@
+@use '../../constants';
+
 .content-container {
   margin: 20px 10px 0px 10px;
 }
@@ -9,8 +11,8 @@
   margin-bottom: 10px;
 
   h1 {
-    color: green;
-    font-family: 'Luckiest Guy', cursive;
+    color: #CC1F41;
+    font-family: constants.$font-family;
     font-size: 28px;
     margin: 0px;
   }
@@ -31,15 +33,15 @@
     background: transparent;
 
     .new-game-button-content {
-        margin-top: 2px;
+        margin-top: 6px;
     }
     .new-game-icon {
-      color: green;
+      color: #CC1F41;
     }
 
     .new-game-text {
+      font-family: constants.$font-family-secondary;
       float: right;
-      margin-top: 4px;
       margin-left: 5px;
     }
   }

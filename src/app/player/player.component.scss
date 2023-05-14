@@ -1,8 +1,12 @@
+@use '../../constants';
+
 .name-header {
   display: flex;
   justify-content: center;
+  margin-top: 5px;
 
   .name-text {
+    font-family: constants.$font-family-secondary;
     font-size: 14px;
   }
 }
@@ -33,11 +37,11 @@ mat-grid-list {
 
 // Background colors
 .green {
-  background-color: rgb(91, 227, 139);
+  background-color: rgb(104, 195, 240);
   color: black;
 }
 
 .yellow {
-  background-color: rgb(255, 199, 0);
+  background-color: rgb(252, 174, 91);
   color: black;
 }
