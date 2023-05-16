@@ -28,9 +28,10 @@ export class SearchComponent {
   protected filteredPlayers: Observable<UiPlayer[]>;
 
   constructor() {
+    // Only include 10 players from filtered list for performance
     this.filteredPlayers = this.searchControl.valueChanges.pipe(
       startWith(''),
-      map((value) => this._filter(value))
+      map((value) => this._filter(value).slice(0, 10))
     );
   }
 
