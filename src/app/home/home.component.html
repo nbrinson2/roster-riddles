@@ -11,24 +11,15 @@
       </search>
     </div>
     <div class="attr-header-container">
-        <mat-grid-list cols="9" rowHeight="40px">
-          <div *ngFor="let header of headers" class="tile-container">
-            <mat-grid-tile [colspan]="header.colSpan">
-              <div class="column-content" [ngClass]="header.class">
-                {{ header.name }}
-              </div>
-            </mat-grid-tile>
-          </div>
-        </mat-grid-list>
+      <attribute-header [attrHeaders]="headers"
+                        [endResultText]="endResultText"
+                        [endOfGame]="endOfGame"></attribute-header>
     </div>
-    <div class="players-container" *ngFor="let player of selectedPlayers">
-      <player [player]="player"></player>
-    </div>
-    <ng-container *ngIf="endOfGame" class="end-result-container">
-      <div class="end-result-text">
-        <span>{{endResultText}}</span>
+    <div class="players-container">
+      <div class="player-container" *ngFor="let player of selectedPlayers">
+        <player [player]="player"></player>
       </div>
-    </ng-container>
+    </div>
   </div>
   <div class="new-game-button-container">
     <button (click)="startNewGame()" mat-raised-button class="new-game-button">

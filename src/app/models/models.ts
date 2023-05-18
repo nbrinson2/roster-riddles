@@ -195,8 +195,8 @@ export enum PlayerAttr {
 }
 
 export enum PlayerAttrColor {
-    GREEN = 'green',
-    YELLOW = 'yellow',
+    BLUE = 'blue',
+    ORANGE = 'orange',
     NONE = 'none',
 }
 

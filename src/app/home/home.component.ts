@@ -4,7 +4,8 @@ import { UiPlayer, PlayerAttr, PlayerAttrColor } from '../models/models';
 import { ActivatedRoute, Router } from '@angular/router';
 import { first } from 'rxjs';
 
-export interface Column {
+export interface Header {
+  name: string;
   colSpan: number;
   class: string;
 }
@@ -19,7 +20,7 @@ export interface Data {
   players: UiPlayer[];
 }
 
-enum EndResultMessage {
+export enum EndResultMessage {
   WIN = "You ol' sandbagger, you beat the game!!",
   LOSE = "Just give up, you DO NOT know baseball.",
 }
@@ -62,7 +63,7 @@ function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, selectedPlaye
       case PlayerAttr.BORN:
       case PlayerAttr.POS:
         if (playerToGuess[attr] === selectedPlayer[attr]) {
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.GREEN)
+          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE)
           break;
         }
 
@@ -74,12 +75,12 @@ function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, selectedPlaye
         const mismatchArray = playerToGuessLgDivArray.filter((elem) => selectedPlayerLgDivArray.indexOf(elem) < 0);
 
         if (mismatchArray.length === 0) {
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.GREEN);
+          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE);
           break;
         }
 
         if (mismatchArray.length === 1) {
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.YELLOW);
+          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.ORANGE);
           break;
         }
 
@@ -90,12 +91,12 @@ function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, selectedPlaye
         const ageDifference = Number(playerToGuess[attr]) - Number(selectedPlayer[attr]);
 
         if (ageDifference === 0) {
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.GREEN);
+          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE);
           break;
         }
 
         if (ageDifference <= 2 && ageDifference >= -2) {
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.YELLOW);
+          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.ORANGE);
           break;
         }
 
@@ -168,9 +169,9 @@ export class HomeComponent {
     this.numberOfGuesses++;
     selectedPlayer.colorMap = getPlayerKeyToBackgroundColorMap(this.playerToGuess, selectedPlayer, false);
     const colorMapValuesArray = Array.from(selectedPlayer.colorMap.values());
-    this.selectedPlayers.push(selectedPlayer);
+    this.selectedPlayers.unshift(selectedPlayer);
 
-    if (!colorMapValuesArray.includes(PlayerAttrColor.NONE) && !colorMapValuesArray.includes(PlayerAttrColor.YELLOW)) {
+    if (!colorMapValuesArray.includes(PlayerAttrColor.NONE) && !colorMapValuesArray.includes(PlayerAttrColor.ORANGE)) {
       this.endResultText = EndResultMessage.WIN;
       this.endOfGame = true;
       this.searchInputPlaceHolderText = InputPlaceHolderText.WIN;
