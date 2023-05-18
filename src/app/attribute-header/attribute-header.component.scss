@@ -1,17 +1,5 @@
 @use '../../constants';
 
-.name-header {
-  display: flex;
-  justify-content: center;
-  margin-top: 8px;
-  margin-bottom: 8px;
-
-  .name-text {
-    font-family: constants.$font-family-secondary;
-    font-size: 18px;
-  }
-}
-
 mat-grid-list {
   width: 100%;
   font-size: 12px;
@@ -21,10 +9,17 @@ mat-grid-list {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(84, 84, 84, 0.5);
   border: 1px solid #333;
   width: 100%;
   height: 80%;
+  
+  &.end-result {
+    border-radius: 8px;
+
+    .end-result-text {
+      font-size: 18px;
+    }  
+  }
 }
 
 .team-column {
@@ -37,13 +32,11 @@ mat-grid-list {
   border-bottom-right-radius: 8px;
 }
 
-// Background colors
+// End result border colors
 .blue {
-  background-color: rgb(104, 195, 240);
-  color: black;
+  border-color: rgb(104, 195, 240);
 }
 
 .orange {
-  background-color: rgb(252, 174, 91);
-  color: black;
+  border-color: rgb(252, 174, 91);
 }

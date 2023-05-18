@@ -1,7 +1,18 @@
 @use '../../constants';
 
+.home-container {
+  height: 100%;
+}
+
 .content-container {
-  margin: 20px 10px 0px 10px;
+  margin: 20px 10px 5px 10px;
+  max-height: 90%;
+}
+
+.attr-header-container {
+  margin: auto;
+  margin-bottom: 10px;
+  max-width: 1000px;
 }
 
 .title {
@@ -51,45 +62,13 @@
   width: 100%;
 }
 
+.player-container {
+  margin: auto;
+  max-width: 1000px;
+}
+
 .players-container {
-  margin: auto;
-  max-width: 1000px;
-}
-
-// PLAYER HEADER STYLING
-.attr-header-container {
-  margin: auto;
-  margin-bottom: 10px;
-  max-width: 1000px;
-}
-
-mat-grid-list {
-  width: 100%;
-  font-size: 10px;
-}
-
-.column-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid #333;
-  width: 100%;
-}
-
-.team-column {
-  border-top-left-radius: 5px;
-  border-bottom-left-radius: 5px;
-}
-
-.pos-column {
-  border-top-right-radius: 5px;
-  border-bottom-right-radius: 5px;
-}
-
-.end-result-text {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 18px;
-  margin-top: 20px;
+  height: auto;
+  max-height: 62vh;
+  overflow: auto;
 }

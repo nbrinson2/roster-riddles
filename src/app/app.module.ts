@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { AttributeHeaderComponent } from './attribute-header/attribute-header.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { MatButtonModule } from '@angular/material/button';
     HomeComponent,
     PlayerComponent,
     SearchComponent,
+    AttributeHeaderComponent,
   ],
   imports: [
     BrowserModule,
