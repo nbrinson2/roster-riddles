@@ -69,6 +69,12 @@
 
 .players-container {
   height: auto;
-  max-height: 62vh;
+  max-height: 66vh;
   overflow: auto;
+}
+
+@media only screen and (max-height: 800px) {
+  .players-container {
+    max-height: 62vh;
+  }
 }
