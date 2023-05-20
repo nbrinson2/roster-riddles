@@ -32,6 +32,16 @@ mat-grid-list {
   border-bottom-left-radius: 8px;
 }
 
+.team-link {
+  text-decoration: underline;
+  
+  &:hover {
+    color: constants.$color-primary;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
+
 .pos-column {
   border-top-right-radius: 8px;
   border-bottom-right-radius: 8px;

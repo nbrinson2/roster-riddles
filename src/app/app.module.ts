@@ -14,6 +14,9 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { AttributeHeaderComponent } from './attribute-header/attribute-header.component';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { ActiveRosterTableComponent } from './active-roster-table/active-roster-table.component';
+import { MatTableModule } from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -22,6 +25,7 @@ import { AttributeHeaderComponent } from './attribute-header/attribute-header.co
     PlayerComponent,
     SearchComponent,
     AttributeHeaderComponent,
+    ActiveRosterTableComponent,
   ],
   imports: [
     BrowserModule,
@@ -29,6 +33,8 @@ import { AttributeHeaderComponent } from './attribute-header/attribute-header.co
     BrowserAnimationsModule,
     MatGridListModule,
     MatButtonModule,
+    MatSidenavModule,
+    MatTableModule,
     ReactiveFormsModule,
     MatInputModule,
     MatAutocompleteModule,
