@@ -1,7 +1,18 @@
 @use '../../constants';
 
 .home-container {
+  height: 100vh;
+}
+
+mat-drawer-container {
   height: 100%;
+  background-color: black;
+}
+
+mat-drawer {
+  width: 90vw;
+  max-width: 500px;
+  background-color: black;
 }
 
 .content-container {

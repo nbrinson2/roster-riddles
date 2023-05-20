@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { getPlayerKeyToHeaderNameMap, Headers } from 'src/app/home/home.component';
 import { PlayerAttr, UiPlayer } from '../models/models';
@@ -12,8 +12,12 @@ const playerAttrHeaderMap = getPlayerKeyToHeaderNameMap();
 })
 export class PlayerComponent {
   @Input() player!: UiPlayer;
+  @Input() inSearchResults = true;
+
+  @Output() selectTeamEvent: EventEmitter<string> = new EventEmitter<string>();
 
   protected readonly orderedUiPlayerAttr = Object.values(PlayerAttr).filter((attr) => attr !== PlayerAttr.NAME && attr !== PlayerAttr.COLOR_MAP);
+  protected readonly PlayerAttr = PlayerAttr;
 
   protected getColSpan(attr: string): number {
     const headerName = playerAttrHeaderMap.get(attr);
@@ -42,5 +46,9 @@ export class PlayerComponent {
     }
 
     return this.player[attrKey];
+  }
+
+  protected selectTeam(player: UiPlayer): void {
+    this.selectTeamEvent.emit(player.team);
   }
 }

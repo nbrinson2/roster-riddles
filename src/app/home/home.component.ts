@@ -137,6 +137,7 @@ export class HomeComponent {
   protected endOfGame = false;
   protected isSearchDisabled = false;
   protected searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
+  protected selectedRoster?: UiPlayer[];
 
   constructor(private route: ActivatedRoute, private router: Router) {
     this.initializePlayerColorMapAndGuessablePlayers();
@@ -188,6 +189,10 @@ export class HomeComponent {
     }
 
     this.setNewAttrColorForAllGuessablePlayers(selectedPlayer);
+  }
+
+  protected selectRoster(team: string): void {
+    this.selectedRoster = this.allPlayers.filter(player => player.team === team);
   }
 
   private getNewPlayerToGuess(): void {
