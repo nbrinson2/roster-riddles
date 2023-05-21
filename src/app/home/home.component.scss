@@ -91,7 +91,7 @@ mat-drawer {
 }
 
 // Mobile browser support
-@media only screen and (max-device-height: 800px) {
+@media only screen and (max-device-height: 1000px) {
   .home-container {
     height: 92vh;
   }
