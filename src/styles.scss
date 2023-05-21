@@ -10,3 +10,11 @@ body {
 .mat-app-background {
   background-color: black;
 }
+
+// Mobile browser support
+@media only screen and (max-height: 800px) {
+ html,
+ body {
+    height: 90vh;
+  }
+}

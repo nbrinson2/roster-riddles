@@ -89,3 +89,14 @@ mat-drawer {
     max-height: 62vh;
   }
 }
+
+// Mobile browser support
+@media only screen and (max-height: 800px) {
+  .home-container {
+    height: 90vh;
+  }
+
+  mat-drawer {
+    height: 90vh;
+  }
+}
