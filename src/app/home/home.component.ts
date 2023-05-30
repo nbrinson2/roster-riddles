@@ -1,10 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-
-import { UiPlayer, PlayerAttr, PlayerAttrColor } from '../models/models';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models';
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
-import { SocialAuthService } from '@abacritt/angularx-social-login';
-import { MatDrawer } from '@angular/material/sidenav';
 
 export interface Header {
   name: string;
@@ -33,22 +30,15 @@ enum InputPlaceHolderText {
   LOSE = "Go home, you lose.",
 }
 
-enum MatDrawerPosition {
-  END = "end",
-  START = "start",
-}
-
-export function getPlayerKeyToHeaderNameMap(): Map<string, string> {
-  const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
-  const headerNames: string[] = Headers.map((header) => header.name);
-  const playerAttrToHeadersMap = new Map<string, string>();
-
-  for (let i = 0; i < playerAttributes.length; i++) {
-    playerAttrToHeadersMap.set(playerAttributes[i], headerNames[i]);
-  }
-
-  return playerAttrToHeadersMap;
-}
+export const Headers = [
+  { name: 'TEAM', colSpan: 1, class: 'team-column' },
+  { name: 'LG./DIV.', colSpan: 2, class: 'lg-div-column' },
+  { name: 'B', colSpan: 1, class: 'b-column' },
+  { name: 'T', colSpan: 1, class: 't-column' },
+  { name: 'BORN', colSpan: 2, class: 'born-column' },
+  { name: 'AGE', colSpan: 1, class: 'age-column' },
+  { name: 'POS.', colSpan: 1, class: 'pos-column' },
+];
 
 function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, selectedPlayer: UiPlayer, initialize: boolean): Map<PlayerAttr, PlayerAttrColor> {
   const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
@@ -117,33 +107,17 @@ function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, selectedPlaye
   return playerAttrBackgroundColorMap;
 }
 
-export const Headers = [
-  { name: 'TEAM', colSpan: 1, class: 'team-column' },
-  { name: 'LG./DIV.', colSpan: 2, class: 'lg-div-column' },
-  { name: 'B', colSpan: 1, class: 'b-column' },
-  { name: 'T', colSpan: 1, class: 't-column' },
-  { name: 'BORN', colSpan: 2, class: 'born-column' },
-  { name: 'AGE', colSpan: 1, class: 'age-column' },
-  { name: 'POS.', colSpan: 1, class: 'pos-column' },
-];
-
 @Component({
   selector: 'home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
+  styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
-  @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
+export class HomeComponent {
+  @Output() selectRosterEvent = new EventEmitter<UiPlayer[]>();
 
   private numberOfGuesses = 0;
   private allPlayers: UiPlayer[] = [];
 
-  protected user = '';
-  protected loggedIn = false;
-  protected viewMenu = true;
-  protected viewProfile = false;
-  protected viewRoster = false;
-  protected matDrawerPosition = MatDrawerPosition.END;
   protected headers = Headers;
   protected guessablePlayers: UiPlayer[] = [];
   protected selectedPlayers: UiPlayer[] = [];
@@ -152,20 +126,11 @@ export class HomeComponent implements OnInit {
   protected endOfGame = false;
   protected isSearchDisabled = false;
   protected searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
-  protected selectedRoster?: UiPlayer[];
 
-  constructor(private route: ActivatedRoute,
-    private authService: SocialAuthService) {
-      this.initializePlayerColorMapAndGuessablePlayers();
-      this.route.data.pipe(first()).subscribe((d) => {
-        this.allPlayers = (d as Data).players;
-      });
-  }
-
-  ngOnInit(): void {
-    this.authService.authState.subscribe((user) => {
-      this.user = user.firstName;
-      this.loggedIn = (user != null);
+  constructor(private route: ActivatedRoute) {
+    this.initializePlayerColorMapAndGuessablePlayers();
+    this.route.data.pipe(first()).subscribe((d) => {
+      this.allPlayers = (d as Data).players;
     });
   }
 
@@ -176,47 +141,6 @@ export class HomeComponent implements OnInit {
       const randomIndex = Math.floor(Math.random() * (data as Data).players.length);
       this.playerToGuess = players[randomIndex];
     });
-  }
-
-  protected openMenu(): void {
-    this.matDrawerPosition = MatDrawerPosition.START;
-    this.viewMenu = true;
-    this.viewProfile = false;
-    this.viewRoster = false;
-    this.drawer.toggle();
-  }
-
-  protected openProfileMenu(): void {
-    this.matDrawerPosition = MatDrawerPosition.END;
-    this.viewMenu = false;
-    this.viewRoster = false;
-    this.viewProfile = true;
-    this.drawer.toggle();
-  }
-
-  protected logout(): void {
-    this.user = '';
-    this.loggedIn = false;
-    this.authService.signOut();
-  }
-
-  protected openLoginMenu(): void {
-    this.matDrawerPosition = MatDrawerPosition.END;
-    this.viewMenu = false;
-    this.viewProfile = false;
-    this.viewRoster = false;
-    this.drawer.toggle();
-  }
-
-  protected startNewGame(): void {
-    this.resetColorMaps();
-    this.getNewPlayerToGuess();
-    this.numberOfGuesses = 0;
-    this.endOfGame = false;
-    this.searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
-    this.isSearchDisabled = false;
-    this.selectedPlayers = [];
-    this.updatePlayerAttrColorForAllGuessablePlayers();
   }
 
   protected selectPlayer(selectedPlayer: UiPlayer): void {
@@ -244,12 +168,20 @@ export class HomeComponent implements OnInit {
     this.setNewAttrColorForAllGuessablePlayers(selectedPlayer);
   }
 
+  protected startNewGame(): void {
+    this.resetColorMaps();
+    this.getNewPlayerToGuess();
+    this.numberOfGuesses = 0;
+    this.endOfGame = false;
+    this.searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
+    this.isSearchDisabled = false;
+    this.selectedPlayers = [];
+    this.updatePlayerAttrColorForAllGuessablePlayers();
+  }
+
   protected selectRoster(team: string): void {
-    this.viewMenu = false;
-    this.viewProfile = false;
-    this.viewRoster = true;
-    this.matDrawerPosition = MatDrawerPosition.START;
-    this.selectedRoster = this.allPlayers.filter(player => player.team === team);
+    const selectedRoster = this.allPlayers.filter(player => player.team === team);
+    this.selectRosterEvent.emit(selectedRoster);
   }
 
   private getNewPlayerToGuess(): void {

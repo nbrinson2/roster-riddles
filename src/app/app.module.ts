@@ -20,6 +20,7 @@ import { MatTableModule } from '@angular/material/table';
 import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig, SocialLoginModule } from '@abacritt/angularx-social-login';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { HowToPlayComponent } from './how-to-play/how-to-play.component';
+import { NavComponent } from './nav/nav.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { HowToPlayComponent } from './how-to-play/how-to-play.component';
     AttributeHeaderComponent,
     ActiveRosterTableComponent,
     HowToPlayComponent,
+    NavComponent,
   ],
   imports: [
     BrowserModule,
