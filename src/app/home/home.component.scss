@@ -1,71 +1,71 @@
 @use '../../constants';
 
 .title {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 20px;
-  
-    h1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+
+  h1 {
+    color: #cc1f41;
+    font-family: constants.$font-family;
+    font-size: 28px;
+    margin: 0px;
+  }
+}
+
+.search-container {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.attr-header-container {
+  margin: auto;
+  margin-bottom: 10px;
+  max-width: 1000px;
+}
+
+.player-container {
+  margin: auto;
+  max-width: 1000px;
+}
+
+.players-container {
+  height: auto;
+  max-height: 66vh;
+  overflow: auto;
+}
+
+.new-game-button-container {
+  position: absolute;
+  cursor: pointer;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+  vertical-align: middle;
+
+  .new-game-button {
+    float: right;
+    margin: 10px;
+    background: transparent;
+
+    .new-game-button-content {
+      margin-top: 6px;
+    }
+    .new-game-icon {
       color: #cc1f41;
-      font-family: constants.$font-family;
-      font-size: 28px;
-      margin: 0px;
     }
-  }
 
-  .search-container {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
-  .attr-header-container {
-    margin: auto;
-    margin-bottom: 10px;
-    max-width: 1000px;
-  }  
-  
-  .player-container {
-    margin: auto;
-    max-width: 1000px;
-  }
-  
-  .players-container {
-    height: auto;
-    max-height: 66vh;
-    overflow: auto;
-  }
-
-  .new-game-button-container {
-    position: absolute;
-    cursor: pointer;
-    bottom: 0;
-    right: 0;
-    margin: auto;
-    vertical-align: middle;
-  
-    .new-game-button {
+    .new-game-text {
+      font-family: constants.$font-family-secondary;
       float: right;
-      margin: 10px;
-      background: transparent;
-  
-      .new-game-button-content {
-        margin-top: 6px;
-      }
-      .new-game-icon {
-        color: #cc1f41;
-      }
-  
-      .new-game-text {
-        font-family: constants.$font-family-secondary;
-        float: right;
-        margin-left: 5px;
-      }
-    }
-  }  
-  
-  @media only screen and (max-height: 800px) {
-    .players-container {
-      max-height: 62vh;
+      margin-left: 5px;
     }
   }
+}
+
+@media only screen and (max-height: 800px) {
+  .players-container {
+    max-height: 62vh;
+  }
+}

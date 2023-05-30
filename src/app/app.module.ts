@@ -21,6 +21,7 @@ import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig,
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { HowToPlayComponent } from './how-to-play/how-to-play.component';
 import { NavComponent } from './nav/nav.component';
+import { ProfileComponent } from './profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { NavComponent } from './nav/nav.component';
     ActiveRosterTableComponent,
     HowToPlayComponent,
     NavComponent,
+    ProfileComponent,
   ],
   imports: [
     BrowserModule,
