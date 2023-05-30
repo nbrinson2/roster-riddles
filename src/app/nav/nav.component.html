@@ -1,0 +1,54 @@
+<div class="home-container">
+  <mat-drawer-container>
+    <mat-drawer #drawer mode="over" [position]="matDrawerPosition">
+      <ng-container *ngIf="selectedRoster && viewRoster">
+        <active-roster-table [roster]="selectedRoster"></active-roster-table>
+      </ng-container>
+      <ng-container *ngIf="viewMenu">
+        <how-to-play></how-to-play>
+      </ng-container>
+      <ng-container *ngIf="loggedIn && viewProfile"> </ng-container>
+      <div
+        *ngIf="!loggedIn && !viewProfile && !viewMenu && !viewRoster"
+        class="login-menu">
+        <div class="login-title">
+          <h1>Login</h1>
+        </div>
+        <div class="login-content">
+          <div class="google-login-button">
+            <asl-google-signin-button
+              logo_alignment="center"
+              theme="outline"
+              type="standard"
+              size="medium"></asl-google-signin-button>
+          </div>
+        </div>
+      </div>
+    </mat-drawer>
+    <mat-drawer-content>
+      <div class="nav-container">
+        <div *ngIf="!loggedIn" class="login-button" (click)="openLoginMenu()">
+          <span class="material-symbols-outlined login-icon"> login </span>
+        </div>
+        <div *ngIf="loggedIn" class="profile-logout-container">
+          <span
+            class="material-symbols-outlined logout-icon"
+            (click)="logout()">
+            logout
+          </span>
+          <span
+            class="material-symbols-outlined profile-icon"
+            (click)="openProfileMenu()">
+            person
+          </span>
+        </div>
+        <div class="menu-icon-container" (click)="openMenu()">
+          <span class="material-symbols-outlined menu-icon"> menu </span>
+        </div>
+      </div>
+      <div class="content-container">
+        <home (selectRosterEvent)="openRosterMenu($event)"></home>
+      </div>
+    </mat-drawer-content>
+  </mat-drawer-container>
+</div>

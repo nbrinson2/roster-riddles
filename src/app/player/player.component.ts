@@ -1,9 +1,21 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { getPlayerKeyToHeaderNameMap, Headers } from 'src/app/home/home.component';
 import { PlayerAttr, UiPlayer } from '../models/models';
+import { Headers } from '../home/home.component';
 
 const playerAttrHeaderMap = getPlayerKeyToHeaderNameMap();
+
+export function getPlayerKeyToHeaderNameMap(): Map<string, string> {
+  const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
+  const headerNames: string[] = Headers.map((header) => header.name);
+  const playerAttrToHeadersMap = new Map<string, string>();
+
+  for (let i = 0; i < playerAttributes.length; i++) {
+    playerAttrToHeadersMap.set(playerAttributes[i], headerNames[i]);
+  }
+
+  return playerAttrToHeadersMap;
+}
 
 @Component({
   selector: 'player',
