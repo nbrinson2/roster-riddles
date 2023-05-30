@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { UiPlayer } from '../models/models';
 import { ActivatedRoute } from '@angular/router';
-import { SocialAuthService } from '@abacritt/angularx-social-login';
+import { GoogleSigninButtonDirective, SocialAuthService } from '@abacritt/angularx-social-login';
 import { MatDrawer } from '@angular/material/sidenav';
 
 enum MatDrawerPosition {
@@ -17,6 +17,7 @@ enum MatDrawerPosition {
 })
 export class NavComponent implements OnInit {
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
+  @ViewChild('google-login', { static: true }) public googleLogin!: GoogleSigninButtonDirective;
 
   protected user = '';
   protected loggedIn = false;
@@ -34,7 +35,10 @@ export class NavComponent implements OnInit {
     this.authService.authState.subscribe((user) => {
       this.user = user.firstName;
       this.loggedIn = (user != null);
-    });
+      if (this.drawer.opened) {
+        this.drawer.toggle();      
+      }
+      });
   }
 
   protected openMenu(): void {

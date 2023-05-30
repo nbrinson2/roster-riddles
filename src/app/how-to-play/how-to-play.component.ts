@@ -18,12 +18,8 @@ export class HowToPlayComponent {
     this.matchPlayer.colorMap.set(PlayerAttr.POS, PlayerAttrColor.BLUE);
     this.matchPlayer.colorMap.set(PlayerAttr.B, PlayerAttrColor.BLUE);
     this.matchPlayer.colorMap.set(PlayerAttr.T, PlayerAttrColor.BLUE);
-
     this.lgDivPlayer.colorMap.set(PlayerAttr.LG_DIV, PlayerAttrColor.ORANGE);
-
     this.agePlayer.colorMap.set(PlayerAttr.AGE, PlayerAttrColor.ORANGE);
-
     this.teamPlayer.colorMap.set(PlayerAttr.TEAM, PlayerAttrColor.BLUE);
   }
-
 }

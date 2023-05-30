@@ -2,110 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models';
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
-
-export interface Header {
-  name: string;
-  colSpan: number;
-  class: string;
-}
-
-export interface Header {
-  name: string;
-  colSpan: number;
-  class: string;
-}
-
-export interface Data {
-  players: UiPlayer[];
-}
-
-export enum EndResultMessage {
-  WIN = "You ol' sandbagger, you beat the game!!",
-  LOSE = "Just give up, you DO NOT know baseball.",
-}
-
-enum InputPlaceHolderText {
-  GUESS = "Guess the mystery player",
-  WIN = "You guessed correctly!",
-  LOSE = "Go home, you lose.",
-}
-
-export const Headers = [
-  { name: 'TEAM', colSpan: 1, class: 'team-column' },
-  { name: 'LG./DIV.', colSpan: 2, class: 'lg-div-column' },
-  { name: 'B', colSpan: 1, class: 'b-column' },
-  { name: 'T', colSpan: 1, class: 't-column' },
-  { name: 'BORN', colSpan: 2, class: 'born-column' },
-  { name: 'AGE', colSpan: 1, class: 'age-column' },
-  { name: 'POS.', colSpan: 1, class: 'pos-column' },
-];
-
-function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, selectedPlayer: UiPlayer, initialize: boolean): Map<PlayerAttr, PlayerAttrColor> {
-  const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
-  const backgroundColors = Object.values(PlayerAttrColor);
-  const playerAttrBackgroundColorMap = new Map<PlayerAttr, PlayerAttrColor>();
-
-  if (initialize) {
-    for (const attr of playerAttributes) {
-      playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE);
-    }
-    return playerAttrBackgroundColorMap;
-  }
-
-  for (const attr of playerAttributes) {
-    switch (attr) {
-      case PlayerAttr.TEAM:
-      case PlayerAttr.B:
-      case PlayerAttr.T:
-      case PlayerAttr.BORN:
-      case PlayerAttr.POS:
-        if (playerToGuess[attr] === selectedPlayer[attr]) {
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE)
-          break;
-        }
-
-        playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE);
-        break;
-      case PlayerAttr.LG_DIV:
-        const playerToGuessLgDivArray = playerToGuess[attr].split(' ');
-        const selectedPlayerLgDivArray = selectedPlayer[attr].split(' ');
-        const mismatchArray = playerToGuessLgDivArray.filter((elem) => selectedPlayerLgDivArray.indexOf(elem) < 0);
-
-        if (mismatchArray.length === 0) {
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE);
-          break;
-        }
-
-        if (mismatchArray.length === 1) {
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.ORANGE);
-          break;
-        }
-
-        playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE);
-
-        break;
-      case PlayerAttr.AGE:
-        const ageDifference = Number(playerToGuess[attr]) - Number(selectedPlayer[attr]);
-
-        if (ageDifference === 0) {
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE);
-          break;
-        }
-
-        if (ageDifference <= 2 && ageDifference >= -2) {
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.ORANGE);
-          break;
-        }
-
-        playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE);
-        break;
-      default:
-        break;
-    }
-  }
-
-  return playerAttrBackgroundColorMap;
-}
+import { Data, EndResultMessage, Headers, InputPlaceHolderText, getPlayerKeyToBackgroundColorMap } from './util/util';
 
 @Component({
   selector: 'home',
@@ -115,8 +12,8 @@ function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, selectedPlaye
 export class HomeComponent {
   @Output() selectRosterEvent = new EventEmitter<UiPlayer[]>();
 
-  private numberOfGuesses = 0;
   private allPlayers: UiPlayer[] = [];
+  private numberOfGuesses = 0;
 
   protected headers = Headers;
   protected guessablePlayers: UiPlayer[] = [];
@@ -125,7 +22,7 @@ export class HomeComponent {
   protected endResultText = EndResultMessage.WIN;
   protected endOfGame = false;
   protected isSearchDisabled = false;
-  protected searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
+  protected searchInputPlaceHolderText: string = InputPlaceHolderText.GUESS;
 
   constructor(private route: ActivatedRoute) {
     this.initializePlayerColorMapAndGuessablePlayers();
@@ -149,22 +46,11 @@ export class HomeComponent {
     const colorMapValuesArray = Array.from(selectedPlayer.colorMap.values());
     this.selectedPlayers.unshift(selectedPlayer);
 
-    if (!colorMapValuesArray.includes(PlayerAttrColor.NONE) && !colorMapValuesArray.includes(PlayerAttrColor.ORANGE)) {
-      this.endResultText = EndResultMessage.WIN;
-      this.endOfGame = true;
-      this.searchInputPlaceHolderText = InputPlaceHolderText.WIN;
-      this.isSearchDisabled = true;
+    if (this.isGameFinished(colorMapValuesArray)) {
       return;
     }
 
-    if (this.numberOfGuesses === 9) {
-      this.endResultText = EndResultMessage.LOSE;
-      this.endOfGame = true;
-      this.searchInputPlaceHolderText = InputPlaceHolderText.LOSE;
-      this.isSearchDisabled = true;
-      return;
-    }
-
+    this.searchInputPlaceHolderText = `${9 - this.numberOfGuesses} ${InputPlaceHolderText.COUNT}`
     this.setNewAttrColorForAllGuessablePlayers(selectedPlayer);
   }
 
@@ -180,8 +66,35 @@ export class HomeComponent {
   }
 
   protected selectRoster(team: string): void {
+    this.numberOfGuesses++;
+    
+    if (this.isGameFinished()) {
+      return;
+    }
+
+    this.searchInputPlaceHolderText = `${9 - this.numberOfGuesses} ${InputPlaceHolderText.COUNT}`
     const selectedRoster = this.allPlayers.filter(player => player.team === team);
     this.selectRosterEvent.emit(selectedRoster);
+  }
+
+  private isGameFinished(colorMapValuesArray?: string[]): boolean {
+    if (!!colorMapValuesArray && !colorMapValuesArray.includes(PlayerAttrColor.NONE) && !colorMapValuesArray.includes(PlayerAttrColor.ORANGE)) {
+      this.endResultText = EndResultMessage.WIN;
+      this.endOfGame = true;
+      this.searchInputPlaceHolderText = InputPlaceHolderText.WIN;
+      this.isSearchDisabled = true;
+      return true;
+    }
+
+    if (this.numberOfGuesses >= 9) {
+      this.endResultText = EndResultMessage.LOSE;
+      this.endOfGame = true;
+      this.searchInputPlaceHolderText = InputPlaceHolderText.LOSE;
+      this.isSearchDisabled = true;
+      return true;
+    }
+
+    return false;
   }
 
   private getNewPlayerToGuess(): void {
