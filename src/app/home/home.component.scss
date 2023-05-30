@@ -30,13 +30,75 @@ mat-drawer {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 
   h1 {
-    color: #CC1F41;
+    color: #cc1f41;
     font-family: constants.$font-family;
     font-size: 28px;
     margin: 0px;
+  }
+}
+
+.login-menu {
+  .login-title {
+    color: #cc1f41;
+    font-family: constants.$font-family;
+    font-size: 22px;
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+
+    h1 {
+      color: #cc1f41;
+      font-family: constants.$font-family;
+      font-size: 28px;
+      margin: 0px;
+    }
+  }
+
+  .login-content {
+    width: 195px;
+    margin: auto;
+
+    .google-login-button {
+      margin-left: 10px;
+    }
+  }
+}
+
+.nav-container {
+  margin-bottom: 20px;
+
+  .menu-icon {
+    color: #cc1f41;
+    margin-top: -3px;
+    font-size: 30px;
+    cursor: pointer;
+  }
+
+  .login-button {
+    float: right;
+    color: #cc1f41;
+    cursor: pointer;
+
+    .login-icon {
+      font-size: 30px;
+    }
+  }
+
+  .profile-logout-container {
+    float: right;
+    color: #cc1f41;
+
+    .logout-icon {
+      font-size: 30px;
+      margin-right: 10px;
+    }
+
+    .profile-icon {
+      font-size: 30px;
+    }
   }
 }
 
@@ -55,10 +117,10 @@ mat-drawer {
     background: transparent;
 
     .new-game-button-content {
-        margin-top: 6px;
+      margin-top: 6px;
     }
     .new-game-icon {
-      color: #CC1F41;
+      color: #cc1f41;
     }
 
     .new-game-text {
@@ -71,6 +133,7 @@ mat-drawer {
 
 .search-container {
   width: 100%;
+  margin-bottom: 10px;
 }
 
 .player-container {
