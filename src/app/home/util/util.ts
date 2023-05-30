@@ -23,6 +23,7 @@ export enum EndResultMessage {
 
 export enum InputPlaceHolderText {
   GUESS = "Guess the mystery player",
+  COUNT = "guesses remaining",
   WIN = "You guessed correctly!",
   LOSE = "Go home, you lose.",
 }
