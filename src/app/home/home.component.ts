@@ -12,8 +12,8 @@ import { Data, EndResultMessage, Headers, InputPlaceHolderText, getPlayerKeyToBa
 export class HomeComponent {
   @Output() selectRosterEvent = new EventEmitter<UiPlayer[]>();
 
-  private numberOfGuesses = 0;
   private allPlayers: UiPlayer[] = [];
+  private numberOfGuesses = 0;
 
   protected headers = Headers;
   protected guessablePlayers: UiPlayer[] = [];
@@ -22,7 +22,7 @@ export class HomeComponent {
   protected endResultText = EndResultMessage.WIN;
   protected endOfGame = false;
   protected isSearchDisabled = false;
-  protected searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
+  protected searchInputPlaceHolderText: string = InputPlaceHolderText.GUESS;
 
   constructor(private route: ActivatedRoute) {
     this.initializePlayerColorMapAndGuessablePlayers();
@@ -46,22 +46,11 @@ export class HomeComponent {
     const colorMapValuesArray = Array.from(selectedPlayer.colorMap.values());
     this.selectedPlayers.unshift(selectedPlayer);
 
-    if (!colorMapValuesArray.includes(PlayerAttrColor.NONE) && !colorMapValuesArray.includes(PlayerAttrColor.ORANGE)) {
-      this.endResultText = EndResultMessage.WIN;
-      this.endOfGame = true;
-      this.searchInputPlaceHolderText = InputPlaceHolderText.WIN;
-      this.isSearchDisabled = true;
+    if (this.isGameFinished(colorMapValuesArray)) {
       return;
     }
 
-    if (this.numberOfGuesses === 9) {
-      this.endResultText = EndResultMessage.LOSE;
-      this.endOfGame = true;
-      this.searchInputPlaceHolderText = InputPlaceHolderText.LOSE;
-      this.isSearchDisabled = true;
-      return;
-    }
-
+    this.searchInputPlaceHolderText = `${9 - this.numberOfGuesses} ${InputPlaceHolderText.COUNT}`
     this.setNewAttrColorForAllGuessablePlayers(selectedPlayer);
   }
 
@@ -77,8 +66,35 @@ export class HomeComponent {
   }
 
   protected selectRoster(team: string): void {
+    this.numberOfGuesses++;
+    
+    if (this.isGameFinished()) {
+      return;
+    }
+
+    this.searchInputPlaceHolderText = `${9 - this.numberOfGuesses} ${InputPlaceHolderText.COUNT}`
     const selectedRoster = this.allPlayers.filter(player => player.team === team);
     this.selectRosterEvent.emit(selectedRoster);
+  }
+
+  private isGameFinished(colorMapValuesArray?: string[]): boolean {
+    if (!!colorMapValuesArray && !colorMapValuesArray.includes(PlayerAttrColor.NONE) && !colorMapValuesArray.includes(PlayerAttrColor.ORANGE)) {
+      this.endResultText = EndResultMessage.WIN;
+      this.endOfGame = true;
+      this.searchInputPlaceHolderText = InputPlaceHolderText.WIN;
+      this.isSearchDisabled = true;
+      return true;
+    }
+
+    if (this.numberOfGuesses >= 9) {
+      this.endResultText = EndResultMessage.LOSE;
+      this.endOfGame = true;
+      this.searchInputPlaceHolderText = InputPlaceHolderText.LOSE;
+      this.isSearchDisabled = true;
+      return true;
+    }
+
+    return false;
   }
 
   private getNewPlayerToGuess(): void {
