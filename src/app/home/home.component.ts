@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { UiPlayer, PlayerAttr, PlayerAttrColor } from '../models/models';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
+import { MatDrawer } from '@angular/material/sidenav';
 
 export interface Header {
   name: string;
@@ -26,9 +28,14 @@ export enum EndResultMessage {
 }
 
 enum InputPlaceHolderText {
-  GUESS = "Guess today's player",
+  GUESS = "Guess the mystery player",
   WIN = "You guessed correctly!",
   LOSE = "Go home, you lose.",
+}
+
+enum MatDrawerPosition {
+  END = "end",
+  START = "start",
 }
 
 export function getPlayerKeyToHeaderNameMap(): Map<string, string> {
@@ -125,10 +132,18 @@ export const Headers = [
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
+  @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
+
   private numberOfGuesses = 0;
   private allPlayers: UiPlayer[] = [];
 
+  protected user = '';
+  protected loggedIn = false;
+  protected viewMenu = true;
+  protected viewProfile = false;
+  protected viewRoster = false;
+  protected matDrawerPosition = MatDrawerPosition.END;
   protected headers = Headers;
   protected guessablePlayers: UiPlayer[] = [];
   protected selectedPlayers: UiPlayer[] = [];
@@ -139,10 +154,18 @@ export class HomeComponent {
   protected searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
   protected selectedRoster?: UiPlayer[];
 
-  constructor(private route: ActivatedRoute, private router: Router) {
-    this.initializePlayerColorMapAndGuessablePlayers();
-    this.route.data.pipe(first()).subscribe((d) => {
-      this.allPlayers = (d as Data).players;
+  constructor(private route: ActivatedRoute,
+    private authService: SocialAuthService) {
+      this.initializePlayerColorMapAndGuessablePlayers();
+      this.route.data.pipe(first()).subscribe((d) => {
+        this.allPlayers = (d as Data).players;
+      });
+  }
+
+  ngOnInit(): void {
+    this.authService.authState.subscribe((user) => {
+      this.user = user.firstName;
+      this.loggedIn = (user != null);
     });
   }
 
@@ -153,6 +176,36 @@ export class HomeComponent {
       const randomIndex = Math.floor(Math.random() * (data as Data).players.length);
       this.playerToGuess = players[randomIndex];
     });
+  }
+
+  protected openMenu(): void {
+    this.matDrawerPosition = MatDrawerPosition.START;
+    this.viewMenu = true;
+    this.viewProfile = false;
+    this.viewRoster = false;
+    this.drawer.toggle();
+  }
+
+  protected openProfileMenu(): void {
+    this.matDrawerPosition = MatDrawerPosition.END;
+    this.viewMenu = false;
+    this.viewRoster = false;
+    this.viewProfile = true;
+    this.drawer.toggle();
+  }
+
+  protected logout(): void {
+    this.user = '';
+    this.loggedIn = false;
+    this.authService.signOut();
+  }
+
+  protected openLoginMenu(): void {
+    this.matDrawerPosition = MatDrawerPosition.END;
+    this.viewMenu = false;
+    this.viewProfile = false;
+    this.viewRoster = false;
+    this.drawer.toggle();
   }
 
   protected startNewGame(): void {
@@ -192,6 +245,10 @@ export class HomeComponent {
   }
 
   protected selectRoster(team: string): void {
+    this.viewMenu = false;
+    this.viewProfile = false;
+    this.viewRoster = true;
+    this.matDrawerPosition = MatDrawerPosition.START;
     this.selectedRoster = this.allPlayers.filter(player => player.team === team);
   }
 

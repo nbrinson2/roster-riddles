@@ -17,6 +17,9 @@ import { AttributeHeaderComponent } from './attribute-header/attribute-header.co
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { ActiveRosterTableComponent } from './active-roster-table/active-roster-table.component';
 import { MatTableModule } from '@angular/material/table';
+import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig, SocialLoginModule } from '@abacritt/angularx-social-login';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { HowToPlayComponent } from './how-to-play/how-to-play.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +29,7 @@ import { MatTableModule } from '@angular/material/table';
     SearchComponent,
     AttributeHeaderComponent,
     ActiveRosterTableComponent,
+    HowToPlayComponent,
   ],
   imports: [
     BrowserModule,
@@ -39,8 +43,27 @@ import { MatTableModule } from '@angular/material/table';
     MatInputModule,
     MatAutocompleteModule,
     HttpClientModule,
+    SocialLoginModule,
+    GoogleSigninButtonModule,
+    MatTooltipModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: 'SocialAuthServiceConfig',
+      useValue: {
+        autoLogin: false,
+        providers: [
+          {
+            id: GoogleLoginProvider.PROVIDER_ID,
+            provider: new GoogleLoginProvider('928161371660-fevd85o3bmo9eqr0fkvt477dakcq7no5.apps.googleusercontent.com'),
+          }
+        ],
+        onError: (err) => {
+          console.error(err);
+        }
+      } as SocialAuthServiceConfig
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
