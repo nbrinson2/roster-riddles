@@ -7,7 +7,9 @@
       <ng-container *ngIf="viewMenu">
         <how-to-play></how-to-play>
       </ng-container>
-      <ng-container *ngIf="loggedIn && viewProfile"> </ng-container>
+      <ng-container *ngIf="loggedIn && viewProfile && user">
+        <profile [user]="user"></profile>
+      </ng-container>
       <div
         *ngIf="!loggedIn && !viewProfile && !viewMenu && !viewRoster"
         class="login-menu">
