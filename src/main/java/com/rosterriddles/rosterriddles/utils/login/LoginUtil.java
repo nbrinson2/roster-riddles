@@ -14,21 +14,23 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.rosterriddles.rosterriddles.domain.model.UserIdData;
-import com.rosterriddles.rosterriddles.domain.service.UserService;
+import com.rosterriddles.rosterriddles.domain.service.JwtUserService;
 import com.rosterriddles.rosterriddles.exceptions.InvalidUserException;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.persistence.EntityManager;
 
+@Component
 public class LoginUtil {
     public static final long JWT_TOKEN_VALIDITY = 7 * 24 * 60 * 60;
 
     @Autowired
-    private UserService userService;
+    private JwtUserService jwtUserService;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -41,7 +43,7 @@ public class LoginUtil {
     public HashMap<String, Object> checkLogin(String email, String dialect, boolean login, EntityManager entityManager)
             throws Exception {
         HashMap<String, Object> response = new HashMap<String, Object>();
-        UserIdData userIdData = userService.getUserIdData(email, entityManager);
+        UserIdData userIdData = jwtUserService.getUserIdData(email, entityManager);
         logger.debug("userdata=" + userIdData.toString());
         boolean isActive = userIdData.is_active;
 

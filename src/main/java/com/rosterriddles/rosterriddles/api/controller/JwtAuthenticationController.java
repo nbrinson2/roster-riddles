@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.rosterriddles.rosterriddles.config.LoginPostRequestConfig;
 import com.rosterriddles.rosterriddles.domain.model.JwtResponse;
 import com.rosterriddles.rosterriddles.domain.model.UserJwtDetails;
-import com.rosterriddles.rosterriddles.domain.service.UserService;
+import com.rosterriddles.rosterriddles.domain.service.JwtUserService;
 import com.rosterriddles.rosterriddles.utils.login.LoginPostRequestValidator;
 import com.rosterriddles.rosterriddles.utils.login.LoginUtil;
 
@@ -24,7 +24,7 @@ import com.rosterriddles.rosterriddles.utils.login.LoginUtil;
 @CrossOrigin(origins = { "http://localhost:4200" })
 public class JwtAuthenticationController {
     @Autowired
-    private UserService userService;
+    private JwtUserService userService;
 
     @Autowired
     private LoginUtil util;
