@@ -8,15 +8,15 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.rosterriddles.rosterriddles.domain.model.ConfirmationToken;
+import com.rosterriddles.rosterriddles.domain.model.AuthenticationConfirmationToken;
 
-public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationToken, Long> {
+public interface AuthenticationConfirmationTokenRepository extends JpaRepository<AuthenticationConfirmationToken, Long> {
 
-    Optional<ConfirmationToken> findByToken(String token);
+    Optional<AuthenticationConfirmationToken> findByToken(String token);
 
     @Transactional
     @Modifying
-    @Query("UPDATE ConfirmationToken c " +
+    @Query("UPDATE AuthenticationConfirmationToken c " +
             "SET c.confirmedAt = ?2 " +
             "WHERE c.token = ?1")
     int updateConfirmedAt(String token,

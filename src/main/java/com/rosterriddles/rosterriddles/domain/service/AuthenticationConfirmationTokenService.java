@@ -5,22 +5,22 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.rosterriddles.rosterriddles.api.repository.ConfirmationTokenRepository;
-import com.rosterriddles.rosterriddles.domain.model.ConfirmationToken;
+import com.rosterriddles.rosterriddles.api.repository.AuthenticationConfirmationTokenRepository;
+import com.rosterriddles.rosterriddles.domain.model.AuthenticationConfirmationToken;
 
 import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class ConfirmationTokenService {
+public class AuthenticationConfirmationTokenService {
 
-    private final ConfirmationTokenRepository repository;
+    private final AuthenticationConfirmationTokenRepository repository;
 
-    public void saveToken(ConfirmationToken token) {
+    public void saveToken(AuthenticationConfirmationToken token) {
         repository.save(token);
     }
 
-    public Optional<ConfirmationToken> getToken(String token) {
+    public Optional<AuthenticationConfirmationToken> getToken(String token) {
         return repository.findByToken(token);
     }
 
