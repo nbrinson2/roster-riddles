@@ -23,6 +23,7 @@ target/
 /nbproject/private/
 /nbbuild/
 /dist/
+/target/
 /nbdist/
 /.nb-gradle/
 build/
@@ -63,4 +64,5 @@ build/
 /src/main/frontend/libpeerconnection.log
 /src/main/frontend/testem.log
 /src/main/frontend/typings
+/src/main/resources/application.properties
 *.swo
