@@ -19,7 +19,7 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-    public static final long JWT_TOKEN_EXPIRATION = 7 * 24 * 60 * 60;
+    public static final long JWT_TOKEN_EXPIRATION = 7 * 24 * 60 * 60 * 60;
 
     @Value("${jwt.secret}")
     private String SECRET_KEY;
