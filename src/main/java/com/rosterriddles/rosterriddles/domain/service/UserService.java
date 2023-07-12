@@ -41,6 +41,7 @@ public class UserService implements UserDetailsService {
         user.setEmail(request.getEmail());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
+        user.setTimesClickedNewGame(Integer.valueOf(request.getTimesClickedNewGame()));
 
         userRepository.save(user);
 

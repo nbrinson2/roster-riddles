@@ -1,17 +1,27 @@
 package com.rosterriddles.rosterriddles.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
+@Data
+@Builder
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class UserResponse {
-    private final String id;
+
+    @JsonProperty("id")
+    private final Long id;
+
+    @JsonProperty("first_name")
     private final String firstName;
+
+    @JsonProperty("last_name")
     private final String lastName;
+
+    @JsonProperty("email")
     private final String email;
+
+    @JsonProperty("times_clicked_new_game")
+    private final int timesClickedNewGame;
 }
