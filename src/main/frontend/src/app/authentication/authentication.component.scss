@@ -1,0 +1,70 @@
+@use '../../constants';
+
+.title {
+  color: constants.$color-header;
+  font-family: constants.$font-family;
+  font-size: 22px;
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
+
+  h1 {
+    color: constants.$color-header;
+    font-family: constants.$font-family;
+    font-size: 28px;
+    margin: 0px;
+  }
+}
+
+.content {
+  width: 275px;
+  margin: auto;
+
+  form a {
+    margin-left: 20px;
+    font-size: 16px;
+    color: constants.$color-secondary;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .mat-mdc-form-field {
+    width: 100%;
+  }
+
+  .password-form-field {
+    margin-bottom: 40px;
+
+    .password-criteria-container {
+      margin-top: -15px;
+      margin-left: 10px;
+    }
+  }
+
+  mat-divider {
+    margin-top: 20px;
+  }
+
+  mat-list {
+    margin-left: 20px;
+
+    .list-item-container {
+      display: flex;
+
+      span {
+        display: inline-block;
+        margin: 10px;
+        padding: 5px;
+      }
+    }
+  }
+}
+
+// Text colors
+.blue {
+  color: constants.$color-secondary;
+}
+
+.orange {
+  color: constants.$color-tertiary;
+}

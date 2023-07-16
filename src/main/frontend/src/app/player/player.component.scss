@@ -49,11 +49,11 @@ mat-grid-list {
 
 // Background colors
 .blue {
-  background-color: rgb(104, 195, 240);
+  background-color: constants.$color-secondary;
   color: black;
 }
 
 .orange {
-  background-color: rgb(252, 174, 91);
+  background-color: constants.$color-tertiary;
   color: black;
 }

@@ -13,18 +13,7 @@
       <div
         *ngIf="!loggedIn && !viewProfile && !viewMenu && !viewRoster"
         class="login-menu">
-        <div class="login-title">
-          <h1>Login</h1>
-        </div>
-        <div class="login-content">
-          <div class="google-login-button">
-            <asl-google-signin-button
-              logo_alignment="center"
-              theme="outline"
-              type="standard"
-              size="medium"></asl-google-signin-button>
-          </div>
-        </div>
+        <authentication></authentication>
       </div>
     </mat-drawer>
     <mat-drawer-content>

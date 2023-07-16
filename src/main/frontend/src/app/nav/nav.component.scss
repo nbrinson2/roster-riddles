@@ -20,33 +20,6 @@ mat-drawer {
   max-height: 90%;
 }
 
-.login-menu {
-  .login-title {
-    color: #cc1f41;
-    font-family: constants.$font-family;
-    font-size: 22px;
-    text-align: center;
-    margin-top: 30px;
-    margin-bottom: 30px;
-
-    h1 {
-      color: #cc1f41;
-      font-family: constants.$font-family;
-      font-size: 28px;
-      margin: 0px;
-    }
-  }
-
-  .login-content {
-    width: 195px;
-    margin: auto;
-
-    .google-login-button {
-      margin-left: 10px;
-    }
-  }
-}
-
 .nav-container {
   margin: 20px 10px 0px 10px;
 

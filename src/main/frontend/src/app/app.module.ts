@@ -22,6 +22,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { HowToPlayComponent } from './how-to-play/how-to-play.component';
 import { NavComponent } from './nav/nav.component';
 import { ProfileComponent } from './profile/profile.component';
+import { AuthenticationComponent } from './authentication/authentication.component';
+import { MatListModule } from '@angular/material/list';
+import { LoginComponent } from './authentication/login/login.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +37,8 @@ import { ProfileComponent } from './profile/profile.component';
     HowToPlayComponent,
     NavComponent,
     ProfileComponent,
+    AuthenticationComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
@@ -50,6 +55,7 @@ import { ProfileComponent } from './profile/profile.component';
     SocialLoginModule,
     GoogleSigninButtonModule,
     MatTooltipModule,
+    MatListModule,
   ],
   providers: [
     {
