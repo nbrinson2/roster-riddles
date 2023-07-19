@@ -25,6 +25,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { AuthenticationComponent } from './authentication/authentication.component';
 import { MatListModule } from '@angular/material/list';
 import { LoginComponent } from './authentication/login/login.component';
+import { UserStatisticsComponent } from './profile/user-statistics/user-statistics.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { LoginComponent } from './authentication/login/login.component';
     ProfileComponent,
     AuthenticationComponent,
     LoginComponent,
+    UserStatisticsComponent,
   ],
   imports: [
     BrowserModule,

@@ -13,7 +13,7 @@
       <div
         *ngIf="!loggedIn && !viewProfile && !viewMenu && !viewRoster"
         class="login-menu">
-        <authentication></authentication>
+        <authentication (openProfile)="loginUser($event)"></authentication>
       </div>
     </mat-drawer>
     <mat-drawer-content>
