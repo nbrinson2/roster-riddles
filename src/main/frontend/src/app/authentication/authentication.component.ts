@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
-import { Title, UserRegisterRequest, RegisterField, RegisterFormKeys, ValidatorColor, ValidatorSymbol, PasswordCriteria } from './authentication-models';
+import { Title, UserRegisterRequest, RegisterField, RegisterFormKeys, ValidatorColor, ValidatorSymbol, PasswordCriteria, UserLoginRequest } from './authentication-models';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { User } from '../services/user.service';
 
 interface Validator {
   name: RegisterField;
@@ -20,6 +21,8 @@ interface PasswordCriteriaObject {
   styleUrls: ['./authentication.component.scss']
 })
 export class AuthenticationComponent {
+
+  @Output() openProfile = new EventEmitter<User>();
 
   protected registerForm!: FormGroup;
   protected title = Title.LOGIN;
@@ -65,13 +68,13 @@ export class AuthenticationComponent {
     this.loginIsValid = false;
     this.isValid = false;
     this.passwordCriteria = this.passwordCriteria.map(criteria => {
-      return {...criteria, color: ValidatorColor.ORANGE};
+      return { ...criteria, color: ValidatorColor.ORANGE };
     });
-    
+
     this.validators = this.validators.map(validator => {
-      return {...validator, symbol: ValidatorSymbol.INVALID, color: ValidatorColor.ORANGE};
+      return { ...validator, symbol: ValidatorSymbol.INVALID, color: ValidatorColor.ORANGE };
     });
-    
+
   }
 
   protected validateLogin(form: FormGroup): void {
@@ -85,8 +88,17 @@ export class AuthenticationComponent {
     }
   }
 
+  protected loginUser(form: FormGroup): void {
+    const request: UserLoginRequest = form.value;
+    this.authenticationService.login(request).subscribe(user => {
+      if (user) {
+        this.openProfile.emit(user);
+      }
+    });
+  }
+
   protected registerUser(request: UserRegisterRequest): void {
-    this.authenticationService.register(request);
+    this.authenticationService.register(request).subscribe(data => data.success);
   }
 
   protected onSubmit() {
@@ -94,7 +106,8 @@ export class AuthenticationComponent {
       return;
     }
 
-    console.log(this.registerForm.value);
+    const request: UserRegisterRequest = this.registerForm.value;
+    const response = this.registerUser(request);
   }
 
   protected validateAndSetColor(registerField: string): void {
@@ -208,6 +221,5 @@ export class AuthenticationComponent {
   private checkIsValid(): void {
     this.isValid = this.passwordCriteria.every(criteria => criteria.color === ValidatorColor.BLUE) &&
       this.validators.every(validator => validator.color === ValidatorColor.BLUE);
-    console.log(this.isValid);
   }
 }

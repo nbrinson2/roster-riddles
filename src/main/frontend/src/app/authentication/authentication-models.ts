@@ -1,3 +1,7 @@
+export interface AuthHeader {
+    "Authorization": string;
+}
+
 export interface UserRegisterRequest {
     firstName: string;
     lastName: string;
@@ -5,8 +9,34 @@ export interface UserRegisterRequest {
     password: string;
 }
 
-export interface AuthenticationResponse {
-    success: boolean;
+export interface UserLoginRequest {
+    email: string;
+    password: string;
+}
+
+export interface RegisterResponse {
+    success: string;
+}
+
+export interface LoginResponse {
+    user_id: number;
+    access_token: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    statistics: UserStatisticsResponse;
+}
+
+export interface UserStatisticsResponse {
+    user_id: number;
+    current_streak: number;
+    max_streak: number;
+    total_wins: number;
+    total_losses: number;
+    win_percentage: number;
+    avg_number_of_guesses_per_game: number;
+    times_viewed_active_roster: number;
+    times_clicked_new_game: number;
 }
 
 export enum Title {

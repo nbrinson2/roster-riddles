@@ -13,6 +13,7 @@ export class LoginComponent {
   @Input() loginIsValid = false;
   @Output() goToRegisterEvent = new EventEmitter();
   @Output() validateEvent = new EventEmitter<FormGroup>();
+  @Output() loginEvent = new EventEmitter<FormGroup>();
 
   protected loginForm!: FormGroup;
 
@@ -33,7 +34,11 @@ export class LoginComponent {
 
     this.validateEvent.emit(this.loginForm);
 
-    console.log(this.loginForm.value);
+    if (!this.loginIsValid) {
+      return;
+    }
+
+    this.loginEvent.emit(this.loginForm);
   }
 
   protected goToRegister() {

@@ -5,11 +5,13 @@ import com.rosterriddles.rosterriddles.api.repository.TokenRepository;
 import com.rosterriddles.rosterriddles.api.repository.UserRepository;
 import com.rosterriddles.rosterriddles.domain.model.AuthenticationRequest;
 import com.rosterriddles.rosterriddles.domain.model.AuthenticationResponse;
+import com.rosterriddles.rosterriddles.domain.model.Game;
 import com.rosterriddles.rosterriddles.domain.model.AuthenticationConfirmationToken;
 import com.rosterriddles.rosterriddles.domain.model.Token;
 import com.rosterriddles.rosterriddles.domain.model.User;
 import com.rosterriddles.rosterriddles.domain.model.UserRegistrationRequest;
 import com.rosterriddles.rosterriddles.domain.model.UserRegistrationResponse;
+import com.rosterriddles.rosterriddles.domain.model.UserStatisticsResponse;
 import com.rosterriddles.rosterriddles.utils.EmailSender;
 import com.rosterriddles.rosterriddles.utils.EmailUtil;
 import com.rosterriddles.rosterriddles.utils.EmailValidator;
@@ -48,6 +50,8 @@ public class AuthenticationService {
     private final EmailValidator emailValidator;
     private final EmailSender emailSender;
     private final UserService userService;
+    private final UserStatisticsService userStatisticsService;
+    private final GameService gameService;
     private final PasswordEncoder encoder;
 
     private final static String INVALID_EMAIL_MSG = "Invalid email : %s";
@@ -84,18 +88,8 @@ public class AuthenticationService {
         String jwtToken = jwtService.generateToken(user);
 
         saveUserToken(saveduser, jwtToken);
-        String token = UUID.randomUUID().toString();
 
-        AuthenticationConfirmationToken confirmationToken = new AuthenticationConfirmationToken(
-                token,
-                LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15),
-                null,
-                user);
-        confirmationTokenService.saveToken(confirmationToken);
-
-        String link = String.format(EMAIL_LINK, token);
-        emailSender.send(request.getEmail(), EmailUtil.buildEmail(request.getFirstName(), link));
+        this.sendConfirmationEmail(saveduser);
 
         return UserRegistrationResponse.builder()
                 .success(success)
@@ -103,12 +97,21 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        User user = this.userService.loadUserByUsername(request.getEmail());
+        LOG.debug("Authenticating user : " + user.getEmail());
+
+        if (!user.isEnabled()) {
+            this.sendConfirmationEmail(user);
+        }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()));
 
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        List<Game> games = gameService.getGamesByUserId(user.getId());
+        UserStatisticsResponse statistics = userStatisticsService.getUserStatistics(user.getId(), games);
+
         String jwtToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
@@ -117,6 +120,11 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .userId(String.valueOf(user.getId()))
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .statistics(statistics)
                 .build();
     }
 
@@ -140,6 +148,21 @@ public class AuthenticationService {
         userService.enableUser(
                 confirmationToken.getUser().getEmail());
         return "confirmed";
+    }
+
+    private void sendConfirmationEmail(User user) {
+        String token = UUID.randomUUID().toString();
+
+        AuthenticationConfirmationToken confirmationToken = new AuthenticationConfirmationToken(
+                token,
+                LocalDateTime.now(),
+                LocalDateTime.now().plusMinutes(15),
+                null,
+                user);
+        confirmationTokenService.saveToken(confirmationToken);
+
+        String link = String.format(EMAIL_LINK, token);
+        emailSender.send(user.getEmail(), EmailUtil.buildEmail(user.getFirstName(), link));
     }
 
     private void saveUserToken(User user, String jwtToken) {
@@ -176,8 +199,7 @@ public class AuthenticationService {
         refreshToken = authHeader.substring(7);
         userEmail = jwtService.extractUsername(refreshToken);
         if (userEmail != null) {
-            var user = this.userRepository.findByEmail(userEmail)
-                    .orElseThrow();
+            var user = this.userService.loadUserByUsername(userEmail);
             if (jwtService.isTokenValid(refreshToken, user)) {
                 var accessToken = jwtService.generateToken(user);
                 revokeAllUserTokens(user);
