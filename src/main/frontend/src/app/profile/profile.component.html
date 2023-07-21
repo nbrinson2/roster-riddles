@@ -1,9 +1,10 @@
 <div class="header">
   <span class="material-symbols-outlined account-icon"> account_circle </span>
-  <h1>{{ user.name }}</h1>
+  <h1>{{ user.firstName }}</h1>
+  <div class="coming-soon">*** Individual game stats coming soon!! ***</div>
 </div>
 <div class="content-container">
   <div class="section">
-    <div class="text">Profile and statistics coming soon!</div>
+    <user-statistics [statistics]="user.statistics"></user-statistics>
   </div>
 </div>

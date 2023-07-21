@@ -1,0 +1,14 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput type="email" id="email" formControlName="email" (keyup)="validate()" />
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Password</mat-label>
+    <input matInput type="password" id="password" formControlName="password" (keyup)="validate()" />
+  </mat-form-field>
+  <button mat-raised-button color="primary" type="submit" [disabled]="!loginIsValid">
+    Login
+  </button>
+  <a (click)="goToRegister()">Register</a>
+</form>

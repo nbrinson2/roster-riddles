@@ -23,6 +23,7 @@ target/
 /nbproject/private/
 /nbbuild/
 /dist/
+/target/
 /nbdist/
 /.nb-gradle/
 build/
@@ -55,6 +56,13 @@ build/
 /src/main/frontend/yarn-debug.log*
 /src/main/frontend/yarn-error.log*
 
+# Miscellaneous
+/src/main/frontend/.angular/cache
+/src/main/frontend/.sass-cache/
+/src/main/frontend/connect.lock
+/src/main/frontend/coverage
+/src/main/frontend/libpeerconnection.log
+/src/main/frontend/testem.log
+/src/main/frontend/typings
+/src/main/resources/application.properties
 *.swo
-
-*/.DS_Store

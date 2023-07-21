@@ -1,0 +1,83 @@
+<div class="title">
+  <h1>{{ title }}</h1>
+</div>
+<div class="content">
+  <div *ngIf="!isLogin" class="register-form">
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline">
+        <mat-label>First Name</mat-label>
+        <input
+          matInput
+          type="text"
+          id="firstName"
+          formControlName="firstName"
+          (keyup)="validateAndSetColor('firstName')" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Last Name</mat-label>
+        <input
+          matInput
+          type="text"
+          id="lastName"
+          formControlName="lastName"
+          (keyup)="validateAndSetColor('lastName')" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          type="email"
+          id="email"
+          formControlName="email"
+          (keyup)="validateAndSetColor('email')" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="password-form-field">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          type="password"
+          id="password"
+          formControlName="password"
+          (keyup)="validateAndSetColor('password')" />
+        <mat-hint>
+          <div class="password-criteria-container">
+            <span
+              *ngFor="let criterion of passwordCriteria"
+              [ngClass]="criterion.color"
+              >{{ criterion.name }}</span
+            >
+          </div>
+        </mat-hint>
+      </mat-form-field>
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="!isValid">
+        Register
+      </button>
+      <a (click)="changeFormTemplate()">Login</a>
+    </form>
+    <mat-divider></mat-divider>
+    <mat-list>
+      <mat-list-item *ngFor="let validator of validators">
+        <div
+          matListItemTitle
+          class="list-item-container"
+          [ngClass]="validator.color">
+          <span class="material-symbols-outlined">{{ validator.symbol }}</span>
+          <div class="validator-text">
+            <span>{{ validator.name }}</span>
+          </div>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div *ngIf="isLogin" class="login-form">
+    <login
+      [loginIsValid]="loginIsValid"
+      (goToRegisterEvent)="changeFormTemplate()"
+      (validateEvent)="validateLogin($event)"
+      (loginEvent)="loginUser($event)"></login>
+  </div>
+</div>
