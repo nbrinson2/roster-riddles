@@ -24,6 +24,7 @@ public class GameController {
     
     private final GameService gameService;
 
+    //Retrieves all games by @id
     @GetMapping("/{id}")
     public ResponseEntity<Game> getGame(@PathVariable Long id) {
         Game game = gameService.getGameById(id);
