@@ -31,7 +31,6 @@ export class AuthenticationService {
           lastName: data.last_name,
           email: data.email,
           statistics: {
-            userId: data.statistics.user_id,
             currentStreak: data.statistics.current_streak,
             maxStreak: data.statistics.max_streak,
             totalWins: data.statistics.total_wins,
