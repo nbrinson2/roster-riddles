@@ -15,6 +15,7 @@ import com.rosterriddles.rosterriddles.domain.model.UserStatisticsResponse;
 import com.rosterriddles.rosterriddles.utils.EmailSender;
 import com.rosterriddles.rosterriddles.utils.EmailUtil;
 import com.rosterriddles.rosterriddles.utils.EmailValidator;
+import com.rosterriddles.rosterriddles.utils.LandingPageUtil;
 import com.rosterriddles.rosterriddles.utils.TokenType;
 import com.rosterriddles.rosterriddles.utils.UserRole;
 
@@ -110,7 +111,7 @@ public class AuthenticationService {
                         request.getPassword()));
 
         List<Game> games = gameService.getGamesByUserId(user.getId());
-        UserStatisticsResponse statistics = userStatisticsService.getUserStatistics(user.getId(), games);
+                UserStatisticsResponse statistics = userStatisticsService.getUserStatistics(user.getId(), games);
 
         String jwtToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -147,7 +148,7 @@ public class AuthenticationService {
         confirmationTokenService.setConfirmedAt(token);
         userService.enableUser(
                 confirmationToken.getUser().getEmail());
-        return "confirmed";
+        return LandingPageUtil.getConfirmationPage("http://localhost:4200");
     }
 
     private void sendConfirmationEmail(User user) {
