@@ -84,6 +84,9 @@ public class UserStatisticsService {
 
     private double calculateWinPercentage(List<Game> games) {
         int count = games.size();
+        if (count == 0) {
+            return 0;
+        }
         int wins = (int) games.stream()
                 .filter(game -> game.getStatus() == GameStatus.WIN).count();
         double winPercentage = (double) wins / count;
@@ -94,6 +97,9 @@ public class UserStatisticsService {
 
     private double calculateAvgNumberOfGuessesPerGame(List<Game> games) {
         int count = games.size();
+        if (count == 0) {
+            return 0;
+        }
         int totalGuesses = games.stream()
                 .mapToInt(Game::getNumberOfGuesses)
                 .sum();

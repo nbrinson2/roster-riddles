@@ -13,7 +13,6 @@ export interface User {
 }
 
 export interface UserStatistics {
-  userId: number;
   currentStreak: number;
   maxStreak: number;
   totalWins: number;

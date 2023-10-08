@@ -3,7 +3,6 @@ import { UserStatistics } from 'src/app/services/user.service';
 import { StatCategory, TableRow } from './models';
 
 const StatisticToTableCategoryMap: { [key in keyof UserStatistics]: StatCategory } = {
-  userId: StatCategory.CURRENT_STREAK,
   currentStreak: StatCategory.CURRENT_STREAK,
   maxStreak: StatCategory.MAX_STREAK,
   totalWins: StatCategory.TOTAL_WINS,

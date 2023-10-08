@@ -24,7 +24,7 @@ public class EmailUtil {
                 "                    </td>\n" +
                 "                    <td style=\"font-size:28px;line-height:1.315789474;Margin-top:4px;padding-left:10px\">\n"
                 +
-                "                      <span style=\"font-family:Helvetica,Arial,sans-serif;font-weight:700;color:#ffffff;text-decoration:none;vertical-align:top;display:inline-block\">Confirm your email</span>\n"
+                "                      <span style=\"font-family:Helvetica,Arial,sans-serif;font-weight:700;color:#CC1F41;text-decoration:none;vertical-align:top;display:inline-block\">Confirm your email</span>\n"
                 +
                 "                    </td>\n" +
                 "                  </tr>\n" +
@@ -46,7 +46,7 @@ public class EmailUtil {
                 "                <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"border-collapse:collapse\">\n"
                 +
                 "                  <tbody><tr>\n" +
-                "                    <td bgcolor=\"#1D70B8\" width=\"100%\" height=\"10\"></td>\n" +
+                "                    <td bgcolor=\"#68C3F0\" width=\"100%\" height=\"10\"></td>\n" +
                 "                  </tr>\n" +
                 "                </tbody></table>\n" +
                 "        \n" +
