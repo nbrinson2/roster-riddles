@@ -18,7 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import com.rosterriddles.rosterriddles.api.repository.UserRepository;
+import com.rosterriddles.rosterriddles.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

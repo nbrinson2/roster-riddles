@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rosterriddles.rosterriddles.domain.model.AuthenticationRequest;
-import com.rosterriddles.rosterriddles.domain.model.AuthenticationResponse;
-import com.rosterriddles.rosterriddles.domain.model.UserRegistrationRequest;
-import com.rosterriddles.rosterriddles.domain.model.UserRegistrationResponse;
-import com.rosterriddles.rosterriddles.domain.service.AuthenticationService;
+import com.rosterriddles.rosterriddles.domain.dto.AuthenticationRequest;
+import com.rosterriddles.rosterriddles.domain.dto.AuthenticationResponse;
+import com.rosterriddles.rosterriddles.domain.dto.UserRegistrationRequest;
+import com.rosterriddles.rosterriddles.domain.dto.UserRegistrationResponse;
+import com.rosterriddles.rosterriddles.service.AuthenticationService;
 
 @CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
