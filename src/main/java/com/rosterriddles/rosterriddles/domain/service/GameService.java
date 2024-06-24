@@ -61,7 +61,9 @@ public class GameService {
                 GameStatus.valueOf(request.getStatus().toUpperCase()),
                 Integer.valueOf(request.getTimesViewedActiveRoster()),
                 Integer.valueOf(request.getNumberOfGuesses()),
-                user
+                user,
+                request.getSport(),
+                request.getGameType()
         );
         gameRepository.save(game);
         return game;

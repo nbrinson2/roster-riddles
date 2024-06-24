@@ -10,6 +10,7 @@ import { RegisterFormKeys } from '../authentication-models';
 })
 export class LoginComponent {
 
+  @Input() activationRequired = false;
   @Input() loginIsValid = false;
   @Output() goToRegisterEvent = new EventEmitter();
   @Output() validateEvent = new EventEmitter<FormGroup>();

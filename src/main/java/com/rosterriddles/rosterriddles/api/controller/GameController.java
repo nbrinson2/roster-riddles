@@ -42,7 +42,7 @@ public class GameController {
         Game newGame = gameService.createGame(request);
         GameCreateResponse response = new GameCreateResponse(
             newGame.getId().toString(),
-            newGame.getCreatedAt().toString(),
+            newGame.getStartTime().toString(),
             newGame.getStatus().toString(),
             String.valueOf(newGame.getTimesViewedActiveRoster()),
             String.valueOf(newGame.getNumberOfGuesses()),

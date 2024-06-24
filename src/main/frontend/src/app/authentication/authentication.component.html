@@ -73,11 +73,12 @@
       </mat-list-item>
     </mat-list>
   </div>
-  <div *ngIf="isLogin" class="login-form">
+  <ng-container *ngIf="isLogin" class="login-form">
     <login
+      [activationRequired]="activationRequired"
       [loginIsValid]="loginIsValid"
       (goToRegisterEvent)="changeFormTemplate()"
       (validateEvent)="validateLogin($event)"
       (loginEvent)="loginUser($event)"></login>
-  </div>
+  </ng-container>
 </div>

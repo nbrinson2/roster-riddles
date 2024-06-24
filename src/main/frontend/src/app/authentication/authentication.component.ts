@@ -1,8 +1,9 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
-import { Title, UserRegisterRequest, RegisterField, RegisterFormKeys, ValidatorColor, ValidatorSymbol, PasswordCriteria, UserLoginRequest } from './authentication-models';
+import { Title, UserRegisterRequest, RegisterField, RegisterFormKeys, ValidatorColor, ValidatorSymbol, PasswordCriteria, UserLoginRequest, ResponseError, RegisterResponse } from './authentication-models';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { User } from '../services/user.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface Validator {
   name: RegisterField;
@@ -24,6 +25,7 @@ export class AuthenticationComponent {
 
   @Output() openProfile = new EventEmitter<User>();
 
+  protected activationRequired = false;
   protected registerForm!: FormGroup;
   protected title = Title.LOGIN;
   protected isValid = false;
@@ -98,16 +100,27 @@ export class AuthenticationComponent {
   }
 
   protected registerUser(request: UserRegisterRequest): void {
-    this.authenticationService.register(request).subscribe(data => data.success);
+    this.authenticationService.register(request).subscribe({ 
+      next: (response: RegisterResponse) => {
+        if (response.success) {
+          this.activationRequired = true;
+          this.changeFormTemplate();
+        }
+      },
+      error: (response: HttpErrorResponse) => {
+        const error: ResponseError = response.error;
+        console.error(error);
+      }
+  });
   }
 
-  protected onSubmit() {
+  protected onSubmit(): void {
     if (this.registerForm.invalid) {
       return;
     }
 
     const request: UserRegisterRequest = this.registerForm.value;
-    const response = this.registerUser(request);
+    this.registerUser(request);
   }
 
   protected validateAndSetColor(registerField: string): void {

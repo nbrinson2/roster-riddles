@@ -36,7 +36,7 @@ public class UserStatisticsService {
 
     private int calculateCurrentStreak(List<Game> games) {
         List<Game> sortedGames = games.stream()
-                .sorted(Comparator.comparing(Game::getCreatedAt).reversed())
+                .sorted(Comparator.comparing(Game::getStartTime).reversed())
                 .collect(Collectors.toList());
         int streak = 0;
         for (Game game : sortedGames) {
@@ -52,7 +52,7 @@ public class UserStatisticsService {
 
     private int calculateMaxStreak(List<Game> games) {
         List<Game> sortedGames = games.stream()
-                .sorted(Comparator.comparing(Game::getCreatedAt))
+                .sorted(Comparator.comparing(Game::getStartTime))
                 .collect(Collectors.toList());
         int streak = 0;
         int maxStreak = 0;

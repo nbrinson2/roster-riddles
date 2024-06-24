@@ -14,4 +14,6 @@ public class GameUpdateRequest {
     private final String timesViewedActiveRoster;
     private final String numberOfGuesses;
     private final String userId;
+    private final Sport sport;
+    private final GameType gameType;
 }
