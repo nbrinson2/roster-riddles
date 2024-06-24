@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rosterriddles.rosterriddles.domain.model.Game;
-import com.rosterriddles.rosterriddles.domain.model.User;
-import com.rosterriddles.rosterriddles.domain.model.UserResponse;
-import com.rosterriddles.rosterriddles.domain.model.UserStatisticsResponse;
-import com.rosterriddles.rosterriddles.domain.model.UserUpdateRequest;
-import com.rosterriddles.rosterriddles.domain.service.GameService;
-import com.rosterriddles.rosterriddles.domain.service.UserService;
-import com.rosterriddles.rosterriddles.domain.service.UserStatisticsService;
+import com.rosterriddles.rosterriddles.domain.dto.UserResponse;
+import com.rosterriddles.rosterriddles.domain.dto.UserStatisticsResponse;
+import com.rosterriddles.rosterriddles.domain.dto.UserUpdateRequest;
+import com.rosterriddles.rosterriddles.domain.entity.Game;
+import com.rosterriddles.rosterriddles.domain.entity.User;
+import com.rosterriddles.rosterriddles.service.GameService;
+import com.rosterriddles.rosterriddles.service.UserService;
+import com.rosterriddles.rosterriddles.service.UserStatisticsService;
 
 import lombok.AllArgsConstructor;
 

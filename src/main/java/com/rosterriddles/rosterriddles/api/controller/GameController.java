@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rosterriddles.rosterriddles.domain.model.Game;
-import com.rosterriddles.rosterriddles.domain.model.GameCreateResponse;
-import com.rosterriddles.rosterriddles.domain.model.GameUpdateRequest;
-import com.rosterriddles.rosterriddles.domain.service.GameService;
+import com.rosterriddles.rosterriddles.domain.dto.GameCreateResponse;
+import com.rosterriddles.rosterriddles.domain.dto.GameUpdateRequest;
+import com.rosterriddles.rosterriddles.domain.entity.Game;
+import com.rosterriddles.rosterriddles.service.GameService;
 
 import lombok.AllArgsConstructor;
 
@@ -42,7 +42,7 @@ public class GameController {
         Game newGame = gameService.createGame(request);
         GameCreateResponse response = new GameCreateResponse(
             newGame.getId().toString(),
-            newGame.getCreatedAt().toString(),
+            newGame.getStartTime().toString(),
             newGame.getStatus().toString(),
             String.valueOf(newGame.getTimesViewedActiveRoster()),
             String.valueOf(newGame.getNumberOfGuesses()),

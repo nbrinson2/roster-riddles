@@ -1,3 +1,6 @@
+<ng-container *ngIf="activationRequired">
+  <p>Check your email to activate your account.</p>
+</ng-container>
 <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
   <mat-form-field appearance="outline">
     <mat-label>Email</mat-label>

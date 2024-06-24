@@ -39,6 +39,14 @@ export interface UserStatisticsResponse {
     times_clicked_new_game: number;
 }
 
+export interface ResponseError {
+    error: string;
+    message: string;
+    path: string;
+    status: number;
+    timestamp: string;
+}
+
 export enum Title {
     LOGIN = 'Login',
     REGISTER = 'Register',
