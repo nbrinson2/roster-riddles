@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, Signal, ViewChild, signal } from '@angular/core';
 
 import { UiPlayer } from '../models/models';
 import { ActivatedRoute } from '@angular/router';
@@ -19,7 +19,10 @@ enum MatDrawerPosition {
 export class NavComponent {
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
 
-  protected user?: User;
+  get user(): Signal<User> {
+    return this._user.asReadonly();
+  }
+
   protected loggedIn = false;
   protected viewMenu = true;
   protected viewProfile = false;
@@ -27,7 +30,9 @@ export class NavComponent {
   protected matDrawerPosition = MatDrawerPosition.END;
   protected selectedRoster?: UiPlayer[];
 
-  constructor(private route: ActivatedRoute, userService: UserService) { }
+  private _user = signal<User>({} as User);
+
+  constructor(private route: ActivatedRoute, private userService: UserService) { }
 
   protected openMenu(): void {
     this.matDrawerPosition = MatDrawerPosition.START;
@@ -38,12 +43,17 @@ export class NavComponent {
   }
 
   protected loginUser(user: User): void {
-    this.user = user;
+    this._user.set(user);
     this.loggedIn = true;
-    this.openProfileMenu();
+    this.openProfileMenu(false);
   }
 
-  protected openProfileMenu(): void {
+  protected openProfileMenu(updateUser: boolean): void {
+    if (updateUser) {
+      this.userService.getUser().subscribe((user) => {
+        this._user.set(user);
+      });
+    }
     this.matDrawerPosition = MatDrawerPosition.END;
     this.viewMenu = false;
     this.viewRoster = false;
@@ -54,7 +64,7 @@ export class NavComponent {
   }
 
   protected logout(): void {
-    this.user = undefined;
+    this._user.set({} as User);
     this.loggedIn = false;
   }
 
