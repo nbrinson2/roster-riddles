@@ -1,6 +1,5 @@
 package com.rosterriddles.rosterriddles.api.controller;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +16,6 @@ import lombok.AllArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 
-@CrossOrigin(origins = {"http://localhost:4200"})
 @RestController
 @AllArgsConstructor
 @RequestMapping(path = "api/v1/users")
@@ -28,13 +26,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         User user = userService.loadUserById(id);
-        UserResponse response = UserResponse.builder()
-                .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .timesClickedNewGame(user.getTimesClickedNewGame())
-                .build();
+        UserResponse response = mapToUserResponse(user);
         return ResponseEntity.ok(response);
     }
 

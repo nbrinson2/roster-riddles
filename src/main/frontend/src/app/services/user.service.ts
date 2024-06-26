@@ -12,14 +12,13 @@ import { UserResponse } from '../authentication/authentication-models';
 })
 export class UserService {
   private readonly baseUrl = environment.baseUrl;
-  private readonly userEndpoint = '/user';
-  private user?: User
+  private readonly userEndpoint = '/users';
 
   constructor(private http: HttpClient, private auth: AuthenticationService) { }
 
-  public getUser(): Observable<User> {
+  public getUser(id: number): Observable<User> {
     const headers = this.auth.getHeaders();
-    const reqUrl = `${this.baseUrl}${this.userEndpoint}`;
+    const reqUrl = `${this.baseUrl}${this.userEndpoint}/${id}`;
     
     return this.http.get<UserResponse>(reqUrl, { headers }).pipe(
       map(response => transformUserResponse(response))

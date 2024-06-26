@@ -50,7 +50,7 @@ export class NavComponent {
 
   protected openProfileMenu(updateUser: boolean): void {
     if (updateUser) {
-      this.userService.getUser().subscribe((user) => {
+      this.userService.getUser(this.user().id).subscribe((user) => {
         this._user.set(user);
       });
     }
