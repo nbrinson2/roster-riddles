@@ -3,7 +3,8 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { UiPlayer } from '../models/models';
 import { ActivatedRoute } from '@angular/router';
 import { MatDrawer } from '@angular/material/sidenav';
-import { User } from '../services/user.service';
+import { User } from '../services/models';
+import { UserService } from '../services/user.service';
 
 enum MatDrawerPosition {
   END = "end",
@@ -26,7 +27,7 @@ export class NavComponent {
   protected matDrawerPosition = MatDrawerPosition.END;
   protected selectedRoster?: UiPlayer[];
 
-  constructor(private route: ActivatedRoute) { }
+  constructor(private route: ActivatedRoute, userService: UserService) { }
 
   protected openMenu(): void {
     this.matDrawerPosition = MatDrawerPosition.START;

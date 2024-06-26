@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { UserStatistics } from 'src/app/services/user.service';
 import { StatCategory, TableRow } from './models';
+import { UserStatistics } from 'src/app/services/models';
 
 const StatisticToTableCategoryMap: { [key in keyof UserStatistics]: StatCategory } = {
   currentStreak: StatCategory.CURRENT_STREAK,

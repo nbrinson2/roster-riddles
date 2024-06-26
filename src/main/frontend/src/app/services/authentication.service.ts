@@ -2,8 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
 import { environment } from 'src/environment';
-import { AuthHeader, LoginResponse, RegisterResponse, UserLoginRequest, UserRegisterRequest, UserResponse } from '../authentication/authentication-models';
-import { User } from './user.service';
+import { LoginResponse, RegisterResponse, UserLoginRequest, UserRegisterRequest, UserResponse } from '../authentication/authentication-models';
+import { User } from './models';
+import { transformUserResponse } from '../util/data.util';
 
 @Injectable({
   providedIn: 'root'
@@ -27,30 +28,7 @@ export class AuthenticationService {
     return this.http.post<LoginResponse>(reqUrl, request).pipe(
       map(data => {
         const userResponse: UserResponse = data.user;
-        const user: User = {
-          id: userResponse.id,
-          firstName: userResponse.first_name,
-          lastName: userResponse.last_name,
-          email: userResponse.email,
-          createdAt: new Date(userResponse.created_at),
-          userRole: userResponse.user_role,
-          locked: userResponse.locked,
-          enabled: userResponse.enabled,
-          lastActive: new Date(userResponse.last_active),
-          statistics: {
-            totalGamesPlayed: userResponse.total_games_played,
-            gamesWon: userResponse.games_won,
-            gamesLost: userResponse.games_lost,
-            totalGuessesMade: userResponse.total_guesses_made,
-            totalRosterLinkClicks: userResponse.total_roster_link_clicks,
-            timesClickedNewGame: userResponse.times_clicked_new_game,
-            currentStreak: userResponse.current_streak,
-            maxStreak: userResponse.max_streak,
-            winPercentage: userResponse.win_percentage,
-            avgNumberOfGuessesPerGame: userResponse.avg_number_of_guesses_per_game,
-            timesViewedActiveRoster: userResponse.total_roster_link_clicks
-          },
-        }
+        const user: User = transformUserResponse(userResponse);
         this.token = data.access_token;
 
         return user;
