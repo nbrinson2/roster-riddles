@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
 import { environment } from 'src/environment';
-import { AuthHeader, LoginResponse, RegisterResponse, UserLoginRequest, UserRegisterRequest } from '../authentication/authentication-models';
+import { AuthHeader, LoginResponse, RegisterResponse, UserLoginRequest, UserRegisterRequest, UserResponse } from '../authentication/authentication-models';
 import { User } from './user.service';
 
 @Injectable({
@@ -13,6 +13,7 @@ export class AuthenticationService {
   private readonly registerEndpoint = '/auth/register';
   private readonly loginEndpoint = '/auth/login';
   private token = '';
+  private user: User | null = null;
 
   constructor(private http: HttpClient) { }
 
@@ -25,22 +26,31 @@ export class AuthenticationService {
     const reqUrl = `${this.baseUrl}${this.loginEndpoint}`;
     return this.http.post<LoginResponse>(reqUrl, request).pipe(
       map(data => {
+        const userResponse: UserResponse = data.user;
         const user: User = {
-          id: data.user_id,
-          firstName: data.first_name,
-          lastName: data.last_name,
-          email: data.email,
+          id: userResponse.id,
+          firstName: userResponse.first_name,
+          lastName: userResponse.last_name,
+          email: userResponse.email,
+          createdAt: new Date(userResponse.created_at),
+          userRole: userResponse.user_role,
+          locked: userResponse.locked,
+          enabled: userResponse.enabled,
+          lastActive: new Date(userResponse.last_active),
           statistics: {
-            currentStreak: data.statistics.current_streak,
-            maxStreak: data.statistics.max_streak,
-            totalWins: data.statistics.total_wins,
-            totalLosses: data.statistics.total_losses,
-            winPercentage: data.statistics.win_percentage,
-            avgNumberOfGuessesPerGame: data.statistics.avg_number_of_guesses_per_game,
-            timesViewedActiveRoster: data.statistics.times_viewed_active_roster,
-            timesClickedNewGame: data.statistics.times_clicked_new_game,
-          }
-        };
+            totalGamesPlayed: userResponse.total_games_played,
+            gamesWon: userResponse.games_won,
+            gamesLost: userResponse.games_lost,
+            totalGuessesMade: userResponse.total_guesses_made,
+            totalRosterLinkClicks: userResponse.total_roster_link_clicks,
+            timesClickedNewGame: userResponse.times_clicked_new_game,
+            currentStreak: userResponse.current_streak,
+            maxStreak: userResponse.max_streak,
+            winPercentage: userResponse.win_percentage,
+            avgNumberOfGuessesPerGame: userResponse.avg_number_of_guesses_per_game,
+            timesViewedActiveRoster: userResponse.total_roster_link_clicks
+          },
+        }
         this.token = data.access_token;
 
         return user;

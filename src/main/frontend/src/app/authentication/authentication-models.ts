@@ -19,25 +19,34 @@ export interface RegisterResponse {
 }
 
 export interface LoginResponse {
-    user_id: number;
     access_token: string;
+    refresh_token: string;
+    user: UserResponse;
+}
+
+export interface UserResponse {
+    id: number;
     first_name: string;
     last_name: string;
     email: string;
-    statistics: UserStatisticsResponse;
-}
-
-export interface UserStatisticsResponse {
-    user_id: number;
+    created_at: string;
+    total_games_played: number;
+    games_won: number;
+    games_lost: number;
+    total_guesses_made: number;
+    total_roster_link_clicks: number;
+    last_active: string;
+    user_role: string;
+    locked: boolean;
+    enabled: boolean;
+    times_clicked_new_game: number;
     current_streak: number;
     max_streak: number;
-    total_wins: number;
-    total_losses: number;
     win_percentage: number;
     avg_number_of_guesses_per_game: number;
     times_viewed_active_roster: number;
-    times_clicked_new_game: number;
-}
+  }
+  
 
 export interface ResponseError {
     error: string;

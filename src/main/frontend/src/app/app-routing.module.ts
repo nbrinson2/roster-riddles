@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { PlayersResolver } from './services/players-resolver';
 import { NavComponent } from './nav/nav.component';
+import { UserResolver } from './services/user-resolver';
 
 const routes: Routes = [
   {path: 'home', component: NavComponent, resolve: { players: PlayersResolver}},

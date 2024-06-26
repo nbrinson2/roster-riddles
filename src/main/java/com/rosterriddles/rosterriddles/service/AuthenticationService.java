@@ -5,11 +5,13 @@ import com.rosterriddles.rosterriddles.domain.dto.AuthenticationRequest;
 import com.rosterriddles.rosterriddles.domain.dto.AuthenticationResponse;
 import com.rosterriddles.rosterriddles.domain.dto.UserRegistrationRequest;
 import com.rosterriddles.rosterriddles.domain.dto.UserRegistrationResponse;
+import com.rosterriddles.rosterriddles.domain.dto.UserResponse;
 import com.rosterriddles.rosterriddles.domain.dto.UserStatisticsResponse;
 import com.rosterriddles.rosterriddles.domain.entity.AuthenticationConfirmationToken;
 import com.rosterriddles.rosterriddles.domain.entity.Game;
 import com.rosterriddles.rosterriddles.domain.entity.Token;
 import com.rosterriddles.rosterriddles.domain.entity.User;
+import com.rosterriddles.rosterriddles.domain.enums.GameStatus;
 import com.rosterriddles.rosterriddles.domain.enums.TokenType;
 import com.rosterriddles.rosterriddles.domain.enums.UserRole;
 import com.rosterriddles.rosterriddles.repository.TokenRepository;
@@ -33,6 +35,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -110,22 +113,16 @@ public class AuthenticationService {
                         request.getEmail(),
                         request.getPassword()));
 
-        List<Game> games = gameService.getGamesByUserId(user.getId());
-                UserStatisticsResponse statistics = userStatisticsService.getUserStatistics(user.getId(), games);
-
         String jwtToken = jwtService.generateToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
+        UserResponse userResponse = mapToUserResponse(user);
 
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
-                .userId(String.valueOf(user.getId()))
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-                .statistics(statistics)
+                .user(userResponse)
                 .build();
     }
 
@@ -149,6 +146,111 @@ public class AuthenticationService {
         userService.enableUser(
                 confirmationToken.getUser().getEmail());
         return LandingPageUtil.getConfirmationPage("http://localhost:4200");
+    }
+
+    public void refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String refreshToken;
+        final String userEmail;
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return;
+        }
+        refreshToken = authHeader.substring(7);
+        userEmail = jwtService.extractUsername(refreshToken);
+        if (userEmail != null) {
+            var user = this.userService.loadUserByUsername(userEmail);
+            if (jwtService.isTokenValid(refreshToken, user)) {
+                var accessToken = jwtService.generateToken(user);
+                revokeAllUserTokens(user);
+                saveUserToken(user, accessToken);
+                var authResponse = AuthenticationResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refreshToken)
+                        .build();
+                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+            }
+        }
+    }
+
+    private UserResponse mapToUserResponse(User user) {
+        List<Game> games = gameService.getGamesByUserId(user.getId());
+        int totalGamesPlayed = games.size();
+        int gamesWon = (int) games.stream().filter(game -> game.getStatus().equals(GameStatus.WIN)).count();
+        int gamesLost = (int) games.stream().filter(game -> game.getStatus().equals(GameStatus.LOSS)).count();
+        int totalGuessesMade = games.stream().mapToInt(Game::getNumberOfGuesses).sum();
+        int totalRosterLinkClicks = user.getTotalRosterLinkClicks();
+        int currentStreak = getCurrentStreak(games);
+        int maxStreak = getMaxWinStreak(games);
+    
+        double winPercentage = totalGamesPlayed > 0 ? (double) gamesWon / totalGamesPlayed : 0;
+        double avgNumberOfGuessesPerGame = totalGamesPlayed > 0 ? (double) totalGuessesMade / totalGamesPlayed : 0;
+    
+        System.out.println("gamesWon: " + gamesWon);
+        System.out.println("totalGamesPlayed: " + totalGamesPlayed);
+        System.out.println("winPercentage: " + winPercentage);
+        System.out.println("avgNumberOfGuessesPerGame: " + avgNumberOfGuessesPerGame);
+        return UserResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .createdAt(user.getCreatedAt())
+                .totalGamesPlayed(totalGamesPlayed)
+                .gamesWon(gamesWon)
+                .gamesLost(gamesLost)
+                .totalGuessesMade(totalGuessesMade)
+                .totalRosterLinkClicks(totalRosterLinkClicks)
+                .lastActive(user.getLastActive())
+                .userRole(user.getUserRole().name())
+                .locked(user.getLocked())
+                .enabled(user.getEnabled())
+                .timesClickedNewGame(user.getTimesClickedNewGame())
+                .currentStreak(currentStreak)
+                .maxStreak(maxStreak)
+                .winPercentage(winPercentage)
+                .avgNumberOfGuessesPerGame(avgNumberOfGuessesPerGame)
+                .timesViewedActiveRoster(totalRosterLinkClicks)
+                .build();
+    }
+    
+
+    private int getCurrentStreak(List<Game> games) {
+        games.sort(Comparator.comparing(Game::getEndTime).reversed());
+
+        int currentStreak = 0;
+
+        for (Game game : games) {
+            if (game.getStatus().equals(GameStatus.WIN)) {
+                currentStreak++;
+            } else {
+                break; // Stop counting when the first non-win status is encountered
+            }
+        }
+
+        return currentStreak;
+    }
+
+    private static int getMaxWinStreak(List<Game> games) {
+        // Sort games by end time in ascending order (oldest first)
+        games.sort(Comparator.comparing(Game::getEndTime));
+
+        int maxStreak = 0;
+        int currentStreak = 0;
+
+        for (Game game : games) {
+            if (game.getStatus().equals(GameStatus.WIN)) {
+                currentStreak++;
+                if (currentStreak > maxStreak) {
+                    maxStreak = currentStreak;
+                }
+            } else {
+                currentStreak = 0;
+            }
+        }
+
+        return maxStreak;
     }
 
     private void sendConfirmationEmail(User user) {
@@ -186,31 +288,5 @@ public class AuthenticationService {
             token.setRevoked(true);
         });
         tokenRepository.saveAll(validUserTokens);
-    }
-
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String userEmail;
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return;
-        }
-        refreshToken = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(refreshToken);
-        if (userEmail != null) {
-            var user = this.userService.loadUserByUsername(userEmail);
-            if (jwtService.isTokenValid(refreshToken, user)) {
-                var accessToken = jwtService.generateToken(user);
-                revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
-                var authResponse = AuthenticationResponse.builder()
-                        .accessToken(accessToken)
-                        .refreshToken(refreshToken)
-                        .build();
-                new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-            }
-        }
     }
 }
