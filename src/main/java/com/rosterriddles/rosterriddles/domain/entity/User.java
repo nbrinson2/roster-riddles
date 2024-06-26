@@ -118,6 +118,7 @@ public class User implements UserDetails {
     }
 
     public User(String firstName, String lastName, String email, String passwordHash, UserRole userRole) {
+        this.createdAt = LocalDateTime.now();
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
