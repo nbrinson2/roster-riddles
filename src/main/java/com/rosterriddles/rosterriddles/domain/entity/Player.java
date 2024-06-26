@@ -24,7 +24,7 @@ public class Player {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long playerId;
+    private Long id;
 
     @Column(nullable = false, length = 255)
     private String name;

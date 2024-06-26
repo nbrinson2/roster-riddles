@@ -25,7 +25,7 @@ public class RosterLinkClick {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long clickId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "guess_id")

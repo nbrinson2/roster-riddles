@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.rosterriddles.rosterriddles.domain.dto.GameCreateRequest;
 import com.rosterriddles.rosterriddles.domain.dto.GameUpdateRequest;
 import com.rosterriddles.rosterriddles.domain.entity.Game;
 import com.rosterriddles.rosterriddles.domain.entity.User;
@@ -54,13 +55,13 @@ public class GameService {
     }
 
     @Transactional
-    public Game createGame(GameUpdateRequest request) {
+    public Game createGame(GameCreateRequest request) {
         User user = userService.loadUserById(Long.valueOf(request.getUserId()));
         Game game = new Game(
                 LocalDateTime.now(),
-                GameStatus.valueOf(request.getStatus().toUpperCase()),
-                Integer.valueOf(request.getTimesViewedActiveRoster()),
-                Integer.valueOf(request.getNumberOfGuesses()),
+                GameStatus.IN_PROCESS,
+                0,
+                0,
                 user,
                 request.getSport(),
                 request.getGameType()

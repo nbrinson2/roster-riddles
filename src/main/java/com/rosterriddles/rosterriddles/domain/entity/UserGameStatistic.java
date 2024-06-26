@@ -23,7 +23,7 @@ public class UserGameStatistic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userGameStatId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "user_id")

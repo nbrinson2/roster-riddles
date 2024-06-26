@@ -25,7 +25,7 @@ public class Guess {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long guessId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "game_id")
