@@ -13,6 +13,7 @@ import com.rosterriddles.rosterriddles.domain.dto.GameCreateRequest;
 import com.rosterriddles.rosterriddles.domain.dto.GameResponse;
 import com.rosterriddles.rosterriddles.domain.dto.GameUpdateRequest;
 import com.rosterriddles.rosterriddles.domain.entity.Game;
+import com.rosterriddles.rosterriddles.domain.mapper.GameResponseMapper;
 import com.rosterriddles.rosterriddles.service.GameService;
 
 import lombok.AllArgsConstructor;
@@ -35,28 +36,14 @@ public class GameController {
     @PostMapping("/{id}")
     public ResponseEntity<GameResponse> updateGame(@PathVariable Long id, @RequestBody GameUpdateRequest request) {
         Game game = gameService.updateGame(request, id);
-        GameResponse response = new GameResponse(
-            game.getId().toString(),
-            game.getStartTime().toString(),
-            game.getStatus().toString(),
-            String.valueOf(game.getTimesViewedActiveRoster()),
-            String.valueOf(game.getNumberOfGuesses()),
-            game.getUser().getId().toString()
-        );
+        GameResponse response = GameResponseMapper.mapToGameResponse(game);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
     public ResponseEntity<GameResponse> createGame(@RequestBody GameCreateRequest request) {
         Game newGame = gameService.createGame(request);
-        GameResponse response = new GameResponse(
-            newGame.getId().toString(),
-            newGame.getStartTime().toString(),
-            newGame.getStatus().toString(),
-            String.valueOf(newGame.getTimesViewedActiveRoster()),
-            String.valueOf(newGame.getNumberOfGuesses()),
-            newGame.getUser().getId().toString()
-        );
+        GameResponse response = GameResponseMapper.mapToGameResponse(newGame);
         return ResponseEntity.ok(response);
     }
 }

@@ -1,7 +1,7 @@
 package com.rosterriddles.rosterriddles.domain.dto;
 
 import com.rosterriddles.rosterriddles.domain.entity.GameType;
-import com.rosterriddles.rosterriddles.domain.entity.Sport;
+import com.rosterriddles.rosterriddles.domain.entity.League;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -17,6 +17,6 @@ public class GameUpdateRequest {
     private final String timesViewedActiveRoster;
     private final String numberOfGuesses;
     private final String userId;
-    private final Sport sport;
+    private final League league;
     private final GameType gameType;
 }

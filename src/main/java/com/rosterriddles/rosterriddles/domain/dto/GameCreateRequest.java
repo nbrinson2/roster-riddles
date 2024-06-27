@@ -11,6 +11,6 @@ import lombok.ToString;
 @ToString
 public class GameCreateRequest {
     private final Long userId;
-    private final Long sportId;
+    private final Long leagueId;
     private final Long gameTypeId;
 }

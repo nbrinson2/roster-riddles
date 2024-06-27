@@ -55,19 +55,19 @@ public class Game {
     private User user;
 
     @ManyToOne
-    @JoinColumn(nullable = false, name = "sport_id")
-    private Sport sport;
+    @JoinColumn(nullable = false, name = "league_id")
+    private League league;
 
     @ManyToOne
     @JoinColumn(nullable = false, name = "game_type_id")
     private GameType gameType;
 
-    public Game(LocalDateTime startTime, GameStatus status, int remainingGuesses, int timesViewedActiveRoster, User user, Sport sport, GameType gameType) {
+    public Game(LocalDateTime startTime, GameStatus status, int remainingGuesses, int timesViewedActiveRoster, User user, League league, GameType gameType) {
         this.startTime = startTime;
         this.status = status;
         this.remainingGuesses = remainingGuesses;
         this.user = user;
-        this.sport = sport;
+        this.league = league;
         this.gameType = gameType;
         this.timesViewedActiveRoster = timesViewedActiveRoster;
     }

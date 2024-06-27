@@ -29,7 +29,7 @@ export class GameService {
             numberOfGuesses: gameResponse.number_of_guesses,
             timesViewedActiveRoster: gameResponse.times_viewed_active_roster,
             userId: gameResponse.user_id,
-            sportId: gameResponse.sport_id,
+            leagueId: gameResponse.league_id,
             gameTypeId: gameResponse.game_type_id,
          };
       }));

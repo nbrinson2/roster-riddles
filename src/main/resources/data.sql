@@ -31,13 +31,13 @@ VALUES
 
 
 
-CREATE TABLE sports (
+CREATE TABLE leagues (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    sport_name VARCHAR(50) NOT NULL
+    league_name VARCHAR(50) NOT NULL
 );
 
--- Insert seed data into sports table
-INSERT INTO sports (id, sport_name) VALUES
+-- Insert seed data into leagues table
+INSERT INTO leagues (id, league_name) VALUES
 (1, 'MLB'),
 (2, 'NBA'),
 (3, 'NFL'),
@@ -66,17 +66,17 @@ CREATE TABLE games (
     number_of_guesses INT NOT NULL DEFAULT 0,
     times_viewed_active_roster INT NOT NULL DEFAULT 0,
     user_id BIGINT NOT NULL,
-    sport_id BIGINT NOT NULL,
+    league_id BIGINT NOT NULL,
     game_type_id BIGINT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (sport_id) REFERENCES sports(id),
+    FOREIGN KEY (league_id) REFERENCES leagues(id),
     FOREIGN KEY (game_type_id) REFERENCES game_types(id)
 );
 
--- Assuming sport_id = 1 and game_type_id = 1 for all games
+-- Assuming league_id = 1 and game_type_id = 1 for all games
 
 -- Harry's games (10 games)
-INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, sport_id, game_type_id) VALUES
+INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, league_id, game_type_id) VALUES
 ('2024-06-10 10:00:00', '2024-06-10 10:30:00', 'WIN', 0, 5, 2, 1, 1, 1),
 ('2024-06-11 11:00:00', '2024-06-11 11:30:00', 'LOSS', 0, 7, 1, 1, 1, 1),
 ('2024-06-12 12:00:00', '2024-06-12 12:30:00', 'WIN', 0, 6, 2, 1, 1, 1),
@@ -89,7 +89,7 @@ INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_gu
 ('2024-06-19 19:00:00', '2024-06-19 19:30:00', 'WIN', 0, 5, 3, 1, 1, 1);
 
 -- Larry's games (20 games)
-INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, sport_id, game_type_id) VALUES
+INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, league_id, game_type_id) VALUES
 ('2024-06-10 10:00:00', '2024-06-10 10:30:00', 'WIN', 0, 5, 2, 2, 1, 1),
 ('2024-06-11 11:00:00', '2024-06-11 11:30:00', 'LOSS', 0, 7, 1, 2, 1, 1),
 ('2024-06-12 12:00:00', '2024-06-12 12:30:00', 'WIN', 0, 6, 2, 2, 1, 1),
@@ -112,7 +112,7 @@ INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_gu
 ('2024-06-29 19:00:00', '2024-06-29 19:30:00', 'WIN', 0, 5, 3, 2, 1, 1);
 
 -- Barry's games (30 games)
-INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, sport_id, game_type_id) VALUES
+INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, league_id, game_type_id) VALUES
 ('2024-06-10 10:00:00', '2024-06-10 10:30:00', 'WIN', 0, 5, 2, 3, 1, 1),
 ('2024-06-11 11:00:00', '2024-06-11 11:30:00', 'LOSS', 0, 7, 1, 3, 1, 1),
 ('2024-06-12 12:00:00', '2024-06-12 12:30:00', 'WIN', 0, 6, 2, 3, 1, 1),
@@ -145,7 +145,7 @@ INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_gu
 ('2024-07-09 19:00:00', '2024-07-09 19:30:00', 'WIN', 0, 5, 3, 3, 1, 1);
 
 -- Perry's games (40 games)
-INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, sport_id, game_type_id) VALUES
+INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, league_id, game_type_id) VALUES
 ('2024-06-10 10:00:00', '2024-06-10 10:30:00', 'WIN', 0, 5, 2, 4, 1, 1),
 ('2024-06-11 11:00:00', '2024-06-11 11:30:00', 'LOSS', 0, 7, 1, 4, 1, 1),
 ('2024-06-12 12:00:00', '2024-06-12 12:30:00', 'WIN', 0, 6, 2, 4, 1, 1),

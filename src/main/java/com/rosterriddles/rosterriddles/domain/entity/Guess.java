@@ -46,8 +46,8 @@ public class Guess {
     private Attribute hint;
 
     @ManyToOne
-    @JoinColumn(nullable = false, name = "sport_id")
-    private Sport sport;
+    @JoinColumn(nullable = false, name = "league_id")
+    private League league;
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
@@ -55,13 +55,13 @@ public class Guess {
     @Column(nullable = true, length = 255)
     private String rosterLink;
 
-    public Guess(Game game, int guessNumber, Player guessedPlayer, boolean correct, Attribute hint, Sport sport, LocalDateTime timestamp, String rosterLink) {
+    public Guess(Game game, int guessNumber, Player guessedPlayer, boolean correct, Attribute hint, League league, LocalDateTime timestamp, String rosterLink) {
         this.game = game;
         this.guessNumber = guessNumber;
         this.guessedPlayer = guessedPlayer;
         this.correct = correct;
         this.hint = hint;
-        this.sport = sport;
+        this.league = league;
         this.timestamp = timestamp;
         this.rosterLink = rosterLink;
     }

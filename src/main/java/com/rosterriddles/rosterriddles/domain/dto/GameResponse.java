@@ -38,8 +38,8 @@ public class GameResponse {
     @JsonProperty("user_id")
     private final Long userId;
 
-    @JsonProperty("sport_id")
-    private final Long sportId;
+    @JsonProperty("league_id")
+    private final Long leagueId;
 
     @JsonProperty("game_type_id")
     private final Long gameTypeId;

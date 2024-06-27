@@ -9,5 +9,5 @@ import com.rosterriddles.rosterriddles.domain.entity.Attribute;
 public interface AttributeRepository extends JpaRepository<Attribute, Long> {
    Attribute findByAttributeName(String attributeName);
 
-   List<Attribute> findAllBySportId(Long sportId);
+   List<Attribute> findAllByLeagueId(Long leagueId);
 }

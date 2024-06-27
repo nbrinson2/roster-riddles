@@ -32,12 +32,12 @@ public class Attribute {
     private String description;
 
     @ManyToOne
-    @JoinColumn(nullable = false, name = "sport_id")
-    private Sport sport;
+    @JoinColumn(nullable = false, name = "league_id")
+    private League league;
 
-    public Attribute(String attributeName, String description, Sport sport) {
+    public Attribute(String attributeName, String description, League league) {
         this.attributeName = attributeName;
         this.description = description;
-        this.sport = sport;
+        this.league = league;
     }
 }

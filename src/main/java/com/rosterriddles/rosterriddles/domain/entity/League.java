@@ -16,17 +16,17 @@ import lombok.Setter;
 @EqualsAndHashCode
 @NoArgsConstructor
 @Entity
-@Table(name = "sports")
-public class Sport {
+@Table(name = "leagues")
+public class League {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 50)
-    private String sportName;
+    private String leagueName;
 
-    public Sport(String sportName) {
-        this.sportName = sportName;
+    public League(String leagueName) {
+        this.leagueName = leagueName;
     }
 }

@@ -27,7 +27,7 @@ export interface UserStatistics {
  
  export interface GameCreateRequest {
     userId: number;
-    sportId: number;
+    leagueId: number;
     gameTypeId: number;
  }
 
@@ -40,7 +40,7 @@ export interface UserStatistics {
   numberOfGuesses: number;
   timesViewedActiveRoster: number;
   userId: number;
-  sportId: number;
+  leagueId: number;
   gameTypeId: number;
 }
 
@@ -59,6 +59,6 @@ export interface GameResponse {
   number_of_guesses: number;
   times_viewed_active_roster: number;
   user_id: number;
-  sport_id: number;
+  league_id: number;
   game_type_id: number;
 }

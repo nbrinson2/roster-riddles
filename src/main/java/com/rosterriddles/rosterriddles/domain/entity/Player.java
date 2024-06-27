@@ -49,10 +49,10 @@ public class Player {
     private String stats;
 
     @ManyToOne
-    @JoinColumn(nullable = false, name = "sport_id")
-    private Sport sport;
+    @JoinColumn(nullable = false, name = "league_id")
+    private League league;
 
-    public Player(String name, String team, String position, int age, String height, int weight, String stats, Sport sport) {
+    public Player(String name, String team, String position, int age, String height, int weight, String stats, League league) {
         this.name = name;
         this.team = team;
         this.position = position;
@@ -60,6 +60,6 @@ public class Player {
         this.height = height;
         this.weight = weight;
         this.stats = stats;
-        this.sport = sport;
+        this.league = league;
     }
 }
