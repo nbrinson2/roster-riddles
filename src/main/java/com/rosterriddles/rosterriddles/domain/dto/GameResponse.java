@@ -1,19 +1,46 @@
 package com.rosterriddles.rosterriddles.domain.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rosterriddles.rosterriddles.domain.enums.GameStatus;
 
-@Getter
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+
+@Data
+@Builder
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class GameResponse {
-    private final String id;
-    private final String createdAt;
-    private final String status;
-    private final String timesViewedRoster;
-    private final String numberOfGuesses;
-    private final String userId;
+
+    @JsonProperty("id")
+    private final Long id;
+
+    @JsonProperty("start_time")
+    private final LocalDateTime startTime;
+
+    @JsonProperty("end_time")
+    private final LocalDateTime endTime;
+
+    @JsonProperty("status")
+    private final GameStatus status;
+
+    @JsonProperty("remaining_guesses")
+    private final int remainingGuesses;
+
+    @JsonProperty("number_of_guesses")
+    private final int numberOfGuesses;
+
+    @JsonProperty("times_viewed_active_roster")
+    private final int timesViewedActiveRoster;
+
+    @JsonProperty("user_id")
+    private final Long userId;
+
+    @JsonProperty("sport_id")
+    private final Long sportId;
+
+    @JsonProperty("game_type_id")
+    private final Long gameTypeId;
 }

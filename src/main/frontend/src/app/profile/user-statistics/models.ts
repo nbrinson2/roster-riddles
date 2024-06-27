@@ -1,6 +1,6 @@
 export interface TableRow {
     category: StatCategory;
-    stat: number;
+    stat: number | string;
 }
 
 export enum StatCategory {

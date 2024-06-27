@@ -3,6 +3,7 @@ import { PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models';
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
 import { Data, EndResultMessage, Headers, InputPlaceHolderText, getPlayerKeyToBackgroundColorMap } from './util/util';
+import { GameService } from '../services/game.service';
 
 @Component({
   selector: 'home',
@@ -24,7 +25,7 @@ export class HomeComponent {
   protected isSearchDisabled = false;
   protected searchInputPlaceHolderText: string = InputPlaceHolderText.GUESS;
 
-  constructor(private route: ActivatedRoute) {
+  constructor(private route: ActivatedRoute, gameService: GameService) {
     this.initializePlayerColorMapAndGuessablePlayers();
     this.route.data.pipe(first()).subscribe((d) => {
       this.allPlayers = (d as Data).players;
