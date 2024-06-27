@@ -1,42 +1,27 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from 'src/environment';
 import { AuthenticationService } from './authentication.service';
-
-export interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  statistics: UserStatistics;
-}
-
-export interface UserStatistics {
-  currentStreak: number;
-  maxStreak: number;
-  totalWins: number;
-  totalLosses: number;
-  winPercentage: number;
-  avgNumberOfGuessesPerGame: number;
-  timesViewedActiveRoster: number;
-  timesClickedNewGame: number;
-}
+import { User } from './models';
+import { transformUserResponse } from '../util/data.util';
+import { UserResponse } from '../authentication/authentication-models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
   private readonly baseUrl = environment.baseUrl;
-  private readonly userEndpoint = '/user';
-  private user?: User;
+  private readonly userEndpoint = '/users';
 
   constructor(private http: HttpClient, private auth: AuthenticationService) { }
 
-  public getUser(): Observable<User> {
+  public getUser(id: number): Observable<User> {
     const headers = this.auth.getHeaders();
-    const reqUrl = `${this.baseUrl}${this.userEndpoint}`;
-    const response = this.http.get<User>(reqUrl, {headers});
-    return response;
+    const reqUrl = `${this.baseUrl}${this.userEndpoint}/${id}`;
+    
+    return this.http.get<UserResponse>(reqUrl, { headers }).pipe(
+      map(response => transformUserResponse(response))
+    );
   }
 }

@@ -1,8 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
-import { PlayersResolver } from './services/players-resolver';
 import { NavComponent } from './nav/nav.component';
+import { PlayersResolver } from './resolvers/players-resolver';
 
 const routes: Routes = [
   {path: 'home', component: NavComponent, resolve: { players: PlayersResolver}},

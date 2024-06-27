@@ -12,4 +12,7 @@ export enum StatCategory {
     AVG_NUMBER_OF_GUESSES_PER_GAME = "Avg Guesses Per Game",
     TIMES_VIEWED_ACTIVE_ROSTER = "Times Viewed Active Roster",
     TIMES_CLICKED_NEW_GAME = "Times Clicked New Game",
+    TOTAL_GAMES_PLAYED = "Total Games Played",
+    TOTAL_GUESSES_MADE = "Total Guesses Made",
+    TOTAL_ROSTER_LINK_CLICKS = "Total Roster Link Clicks",
 }

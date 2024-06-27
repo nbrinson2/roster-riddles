@@ -1,16 +1,19 @@
 import { Component, Input } from '@angular/core';
-import { UserStatistics } from 'src/app/services/user.service';
 import { StatCategory, TableRow } from './models';
+import { UserStatistics } from 'src/app/services/models';
 
 const StatisticToTableCategoryMap: { [key in keyof UserStatistics]: StatCategory } = {
   currentStreak: StatCategory.CURRENT_STREAK,
   maxStreak: StatCategory.MAX_STREAK,
-  totalWins: StatCategory.TOTAL_WINS,
-  totalLosses: StatCategory.TOTAL_LOSSES,
+  gamesWon: StatCategory.TOTAL_WINS,
+  gamesLost: StatCategory.TOTAL_LOSSES,
   winPercentage: StatCategory.WIN_PERCENTAGE,
   avgNumberOfGuessesPerGame: StatCategory.AVG_NUMBER_OF_GUESSES_PER_GAME,
   timesViewedActiveRoster: StatCategory.TIMES_VIEWED_ACTIVE_ROSTER,
   timesClickedNewGame: StatCategory.TIMES_CLICKED_NEW_GAME,
+  totalGamesPlayed: StatCategory.TOTAL_GAMES_PLAYED,
+  totalGuessesMade: StatCategory.TOTAL_GUESSES_MADE,
+  totalRosterLinkClicks: StatCategory.TOTAL_ROSTER_LINK_CLICKS, 
 }
 
 @Component({

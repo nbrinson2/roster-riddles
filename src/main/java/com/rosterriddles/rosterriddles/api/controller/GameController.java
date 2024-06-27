@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rosterriddles.rosterriddles.domain.dto.GameCreateResponse;
+import com.rosterriddles.rosterriddles.domain.dto.GameCreateRequest;
+import com.rosterriddles.rosterriddles.domain.dto.GameResponse;
 import com.rosterriddles.rosterriddles.domain.dto.GameUpdateRequest;
 import com.rosterriddles.rosterriddles.domain.entity.Game;
 import com.rosterriddles.rosterriddles.service.GameService;
@@ -32,15 +33,23 @@ public class GameController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<Game> updateGame(@PathVariable Long id, @RequestBody GameUpdateRequest request) {
+    public ResponseEntity<GameResponse> updateGame(@PathVariable Long id, @RequestBody GameUpdateRequest request) {
         Game game = gameService.updateGame(request, id);
-        return ResponseEntity.ok(game);
+        GameResponse response = new GameResponse(
+            game.getId().toString(),
+            game.getStartTime().toString(),
+            game.getStatus().toString(),
+            String.valueOf(game.getTimesViewedActiveRoster()),
+            String.valueOf(game.getNumberOfGuesses()),
+            game.getUser().getId().toString()
+        );
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
-    public ResponseEntity<GameCreateResponse> createGame(@RequestBody GameUpdateRequest request) {
+    public ResponseEntity<GameResponse> createGame(@RequestBody GameCreateRequest request) {
         Game newGame = gameService.createGame(request);
-        GameCreateResponse response = new GameCreateResponse(
+        GameResponse response = new GameResponse(
             newGame.getId().toString(),
             newGame.getStartTime().toString(),
             newGame.getStatus().toString(),

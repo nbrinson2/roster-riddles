@@ -8,7 +8,7 @@
         <how-to-play></how-to-play>
       </ng-container>
       <ng-container *ngIf="loggedIn && viewProfile && user">
-        <profile [user]="user"></profile>
+        <profile [user]="user()"></profile>
       </ng-container>
       <div
         *ngIf="!loggedIn && !viewProfile && !viewMenu && !viewRoster"
@@ -29,7 +29,7 @@
           </span>
           <span
             class="material-symbols-outlined profile-icon"
-            (click)="openProfileMenu()">
+            (click)="openProfileMenu(true)">
             person
           </span>
         </div>

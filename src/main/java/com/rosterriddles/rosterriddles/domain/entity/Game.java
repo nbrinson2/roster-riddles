@@ -51,7 +51,7 @@ public class Game {
     private int timesViewedActiveRoster = 0;
 
     @ManyToOne
-    @JoinColumn(nullable = false, name = "app_user_id")
+    @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
     @ManyToOne
