@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { PlayerAttr, UiPlayer } from '../models/models';
-import { Headers } from '../home/util/util';
+import { MlbHeaders } from '../home/util/util';
 
 const playerAttrHeaderMap = getPlayerKeyToHeaderNameMap();
 
 export function getPlayerKeyToHeaderNameMap(): Map<string, string> {
   const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
-  const headerNames: string[] = Headers.map((header) => header.name);
+  const headerNames: string[] = MlbHeaders.map((header) => header.name);
   const playerAttrToHeadersMap = new Map<string, string>();
 
   for (let i = 0; i < playerAttributes.length; i++) {
@@ -33,7 +33,7 @@ export class PlayerComponent {
 
   protected getColSpan(attr: string): number {
     const headerName = playerAttrHeaderMap.get(attr);
-    const header = Headers.filter((header) => header.name === headerName);
+    const header = MlbHeaders.filter((header) => header.name === headerName);
     const colSpan = header[0]?.colSpan || 1;
 
     return colSpan;
@@ -42,7 +42,7 @@ export class PlayerComponent {
   protected getClass(attr: string): string {
     const attrKey = attr as PlayerAttr;
     const headerName = playerAttrHeaderMap.get(attr);
-    const header = Headers.filter((header) => header.name === headerName);
+    const header = MlbHeaders.filter((header) => header.name === headerName);
     const attrColor = this.player[PlayerAttr.COLOR_MAP].get(attrKey);
 
     const className = header[0]!.class + ' ' + attrColor;

@@ -44,18 +44,19 @@ public class GameService {
 
     @Transactional
     public Game updateGame(GameUpdateRequest request, Long id) {
-        Optional<Game> gameOptional = gameRepository.findById(id);
-
-        if (gameOptional.isPresent()) {
-            Game existingGame = gameOptional.get();
-            existingGame.setNumberOfGuesses(Integer.valueOf(request.getNumberOfGuesses()));
-            existingGame.setStatus(GameStatus.valueOf(request.getStatus().toUpperCase()));
-            existingGame.setTimesViewedActiveRoster(Integer.valueOf(request.getTimesViewedActiveRoster()));
-            gameRepository.save(existingGame);
-            return existingGame;
-        } else {
-            throw new IllegalStateException("Game with id " + id + " not found");
-        }
+        Game game = gameRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Game with id " + id + " not found"));
+        League league = leagueService.getLeagueById(Long.valueOf(request.getLeagueId()));
+        GameType gameType = gameTypeService.getGameTypeById(Long.valueOf(request.getGameTypeId()));
+        User user = userService.loadUserById(request.getUserId());
+        game.setStatus(GameStatus.valueOf(request.getStatus()));
+        game.setTimesViewedActiveRoster(request.getTimesViewedActiveRoster());
+        game.setNumberOfGuesses(request.getNumberOfGuesses());
+        game.setUser(user);
+        game.setLeague(league);
+        game.setGameType(gameType);
+        gameRepository.save(game);
+        return game;
     }
 
     @Transactional
@@ -70,8 +71,7 @@ public class GameService {
                 0,
                 user,
                 league,
-                gameType
-        );
+                gameType);
         gameRepository.save(game);
         return game;
     }

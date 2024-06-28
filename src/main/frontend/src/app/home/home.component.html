@@ -23,7 +23,7 @@
       (selectTeamEvent)="selectRoster($event)"></player>
   </div>
 </div>
-<div class="new-game-button-container">
+<div *ngIf="showNewGameButton" class="new-game-button-container">
   <button (click)="startNewGame()" mat-raised-button class="new-game-button">
     <div class="new-game-button-content">
       <span class="new-game-text">New Game</span>

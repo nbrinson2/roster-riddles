@@ -6,12 +6,6 @@ export interface Header {
   class: string;
 }
 
-export interface Header {
-  name: string;
-  colSpan: number;
-  class: string;
-}
-
 export interface Data {
   players: UiPlayer[];
 }
@@ -28,7 +22,7 @@ export enum InputPlaceHolderText {
   LOSE = "Go home, you lose.",
 }
 
-export const Headers = [
+export const MlbHeaders: Header[] = [
   { name: 'TEAM', colSpan: 1, class: 'team-column' },
   { name: 'LG./DIV.', colSpan: 2, class: 'lg-div-column' },
   { name: 'B', colSpan: 1, class: 'b-column' },
