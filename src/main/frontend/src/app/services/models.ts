@@ -12,6 +12,7 @@ export interface GameData {
   searchInputPlaceHolderText: string;
   numberOfGuesses: number;
   showNewGameButton: boolean;
+  timesViewedActiveRoster: number;
 }
 
 export interface Header {
@@ -78,7 +79,8 @@ export interface UserStatistics {
 export enum GameStatus {
   WIN = 'WIN',
   LOSS = 'LOSS',
-  IN_PROGRESS = 'IN_PROGRESS',
+  IN_PROCESS = 'IN_PROCESS',
+  ABANDONED = 'ABANDONED',
 }
 
 export interface GameResponse {

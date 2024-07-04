@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, Signal, signal } from '@angular/core';
 import { Observable, map, tap } from 'rxjs';
 import { environment } from 'src/environment';
 import { LoginResponse, RegisterResponse, UserLoginRequest, UserRegisterRequest, UserResponse } from '../authentication/authentication-models';
@@ -10,11 +10,15 @@ import { transformUserResponse } from '../util/data.util';
   providedIn: 'root'
 })
 export class AuthenticationService {
+  get activeUser(): Signal<User> {
+    return this._user.asReadonly();
+  }
+
   private readonly baseUrl = environment.baseUrl;
   private readonly registerEndpoint = '/auth/register';
   private readonly loginEndpoint = '/auth/login';
   private token = '';
-  private user: User | null = null;
+  private _user = signal<User>({id: 1} as User);
 
   constructor(private http: HttpClient) { }
 
@@ -29,6 +33,7 @@ export class AuthenticationService {
       map(data => {
         const userResponse: UserResponse = data.user;
         const user: User = transformUserResponse(userResponse);
+        this._user.set(user);
         this.token = data.access_token;
 
         return user;

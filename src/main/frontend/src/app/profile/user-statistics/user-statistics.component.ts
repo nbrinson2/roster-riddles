@@ -35,7 +35,11 @@ export class UserStatisticsComponent {
     return Object.keys(value).map((key) => {
       const categoryKey = key as keyof UserStatistics
       const category = StatisticToTableCategoryMap[categoryKey]
-      const stat = categoryKey ==='winPercentage' ? value[categoryKey].toFixed(3) : value[categoryKey];
+      const stat =
+        categoryKey === 'winPercentage' ||
+        categoryKey === 'avgNumberOfGuessesPerGame'
+          ? value[categoryKey].toFixed(3)
+          : value[categoryKey]
 
       const row: TableRow = {
         category,

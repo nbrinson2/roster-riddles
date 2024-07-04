@@ -24,10 +24,11 @@ CREATE TABLE users (
 -- Password: Roster1!
 INSERT INTO users (first_name, last_name, email, password_hash, created_at, total_games_played, games_won, games_lost, total_guesses_made, correct_guesses, incorrect_guesses, total_hints_used, total_roster_link_clicks, total_points, last_active, user_role, locked, enabled, times_clicked_new_game)
 VALUES 
+('Guest', 'User', 'guest@example.com', '$2a$10$KRmLzslk2D4PWinBZ3/TG.HiGRPLj4NWhzwVB0Y7Tb9hXnoCwhgdK', NOW(), 0, 0, 0, 0, 0, 0, 0, 0, 0, NOW(), 'USER', FALSE, TRUE, 0),
 ('Harry', 'Miller', 'harry.miller@example.com', '$2a$10$KRmLzslk2D4PWinBZ3/TG.HiGRPLj4NWhzwVB0Y7Tb9hXnoCwhgdK', NOW(), 10, 5, 5, 50, 25, 25, 5, 10, 100, NOW(), 'USER', FALSE, TRUE, 3),
-('Larry', 'Smith', 'larry.smith@example.com', '$2a$10$KRmLzslk2D4PWinBZ3/TG.HiGRPLj4NWhzwVB0Y7Tb9hXnoCwhgdK', NOW(), 20, 10, 10, 100, 50, 50, 10, 20, 200, NOW(), 'ADMIN', FALSE, TRUE, 5),
+('Larry', 'Smith', 'larry.smith@example.com', '$2a$10$KRmLzslk2D4PWinBZ3/TG.HiGRPLj4NWhzwVB0Y7Tb9hXnoCwhgdK', NOW(), 20, 10, 10, 100, 50, 50, 10, 20, 200, NOW(), 'USER', FALSE, TRUE, 5),
 ('Barry', 'Johnson', 'barry.johnson@example.com', '$2a$10$KRmLzslk2D4PWinBZ3/TG.HiGRPLj4NWhzwVB0Y7Tb9hXnoCwhgdK', NOW(), 30, 15, 15, 150, 75, 75, 15, 30, 300, NOW(), 'USER', FALSE, TRUE, 7),
-('Perry', 'Brown', 'perry.brown@example.com', '$2a$10$KRmLzslk2D4PWinBZ3/TG.HiGRPLj4NWhzwVB0Y7Tb9hXnoCwhgdK', NOW(), 40, 20, 20, 200, 100, 100, 20, 40, 400, NOW(), 'MODERATOR', FALSE, TRUE, 9);
+('Perry', 'Brown', 'perry.brown@example.com', '$2a$10$KRmLzslk2D4PWinBZ3/TG.HiGRPLj4NWhzwVB0Y7Tb9hXnoCwhgdK', NOW(), 40, 20, 20, 200, 100, 100, 20, 40, 400, NOW(), 'USER', FALSE, TRUE, 9);
 
 
 
@@ -75,7 +76,7 @@ CREATE TABLE games (
 
 -- Assuming league_id = 1 and game_type_id = 1 for all games
 
--- Harry's games (10 games)
+-- Guest User's games (10 games)
 INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, league_id, game_type_id) VALUES
 ('2024-06-10 10:00:00', '2024-06-10 10:30:00', 'WIN', 0, 5, 2, 1, 1, 1),
 ('2024-06-11 11:00:00', '2024-06-11 11:30:00', 'LOSS', 0, 7, 1, 1, 1, 1),
@@ -88,7 +89,7 @@ INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_gu
 ('2024-06-18 18:00:00', '2024-06-18 18:30:00', 'LOSS', 0, 8, 2, 1, 1, 1),
 ('2024-06-19 19:00:00', '2024-06-19 19:30:00', 'WIN', 0, 5, 3, 1, 1, 1);
 
--- Larry's games (20 games)
+-- Harry's games (10 games)
 INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, league_id, game_type_id) VALUES
 ('2024-06-10 10:00:00', '2024-06-10 10:30:00', 'WIN', 0, 5, 2, 2, 1, 1),
 ('2024-06-11 11:00:00', '2024-06-11 11:30:00', 'LOSS', 0, 7, 1, 2, 1, 1),
@@ -111,7 +112,7 @@ INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_gu
 ('2024-06-28 18:00:00', '2024-06-28 18:30:00', 'LOSS', 0, 8, 2, 2, 1, 1),
 ('2024-06-29 19:00:00', '2024-06-29 19:30:00', 'WIN', 0, 5, 3, 2, 1, 1);
 
--- Barry's games (30 games)
+-- Larry's games (20 games)
 INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, league_id, game_type_id) VALUES
 ('2024-06-10 10:00:00', '2024-06-10 10:30:00', 'WIN', 0, 5, 2, 3, 1, 1),
 ('2024-06-11 11:00:00', '2024-06-11 11:30:00', 'LOSS', 0, 7, 1, 3, 1, 1),
@@ -144,7 +145,7 @@ INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_gu
 ('2024-07-08 18:00:00', '2024-07-08 18:30:00', 'LOSS', 0, 8, 2, 3, 1, 1),
 ('2024-07-09 19:00:00', '2024-07-09 19:30:00', 'WIN', 0, 5, 3, 3, 1, 1);
 
--- Perry's games (40 games)
+-- Barry's games (30 games)
 INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, league_id, game_type_id) VALUES
 ('2024-06-10 10:00:00', '2024-06-10 10:30:00', 'WIN', 0, 5, 2, 4, 1, 1),
 ('2024-06-11 11:00:00', '2024-06-11 11:30:00', 'LOSS', 0, 7, 1, 4, 1, 1),
@@ -186,3 +187,16 @@ INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_gu
 ('2024-07-17 17:00:00', '2024-07-17 17:30:00', 'WIN', 0, 6, 3, 4, 1, 1),
 ('2024-07-18 18:00:00', '2024-07-18 18:30:00', 'LOSS', 0, 8, 2, 4, 1, 1),
 ('2024-07-19 19:00:00', '2024-07-19 19:30:00', 'WIN', 0, 5, 3, 4, 1, 1);
+
+-- Perry's games (40 games)
+INSERT INTO games (start_time, end_time, status, remaining_guesses, number_of_guesses, times_viewed_active_roster, user_id, league_id, game_type_id) VALUES
+('2024-07-01 09:00:00', '2024-07-01 09:30:00', 'WIN', 0, 5, 2, 5, 1, 1),
+('2024-07-02 10:00:00', '2024-07-02 10:30:00', 'LOSS', 0, 7, 1, 5, 1, 1),
+('2024-07-03 11:00:00', '2024-07-03 11:30:00', 'WIN', 0, 6, 2, 5, 1, 1),
+('2024-07-04 12:00:00', '2024-07-04 12:30:00', 'LOSS', 0, 8, 2, 5, 1, 1),
+('2024-07-05 13:00:00', '2024-07-05 13:30:00', 'WIN', 0, 5, 3, 5, 1, 1),
+('2024-07-06 14:00:00', '2024-07-06 14:30:00', 'WIN', 0, 7, 1, 5, 1, 1),
+('2024-07-07 15:00:00', '2024-07-07 15:30:00', 'LOSS', 0, 9, 2, 5, 1, 1),
+('2024-07-08 16:00:00', '2024-07-08 16:30:00', 'WIN', 0, 6, 3, 5, 1, 1),
+('2024-07-09 17:00:00', '2024-07-09 17:30:00', 'LOSS', 0, 8, 2, 5, 1, 1),
+('2024-07-10 18:00:00', '2024-07-10 18:30:00', 'WIN', 0, 5, 3, 5, 1, 1);

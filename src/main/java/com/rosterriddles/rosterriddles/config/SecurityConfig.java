@@ -38,6 +38,7 @@ public class SecurityConfig {
                                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/v*/auth/**").permitAll()
+                                                .requestMatchers("/api/v*/games/**").permitAll()
                                                 .requestMatchers("/h2-console/**").permitAll()
                                                 .requestMatchers("/actuator/**").permitAll()
                                                 .requestMatchers("/error/**").permitAll()

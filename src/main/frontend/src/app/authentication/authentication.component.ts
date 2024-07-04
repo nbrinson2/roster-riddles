@@ -92,10 +92,14 @@ export class AuthenticationComponent {
 
   protected loginUser(form: FormGroup): void {
     const request: UserLoginRequest = form.value;
-    this.authenticationService.login(request).subscribe(user => {
-      if (user) {
+    this.authenticationService.login(request).subscribe({
+      next: (user: User) => {
         this.openProfile.emit(user);
-      }
+      },
+      error: (response: HttpErrorResponse) => {
+        const error: ResponseError = response.error;
+        console.error(error);
+      },
     });
   }
 

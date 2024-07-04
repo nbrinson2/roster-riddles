@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core'
-import { PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models'
+import { UiPlayer } from '../models/models'
 import { ActivatedRoute } from '@angular/router'
 import { first } from 'rxjs'
 import {
@@ -12,6 +12,7 @@ import {
 } from './util/util'
 import { GameService } from '../services/game.service'
 import { GameCreateRequest, GameData, GameStatus, LeagueType } from '../services/models'
+import { AuthenticationService } from '../services/authentication.service'
 
 @Component({
   selector: 'home',
@@ -63,7 +64,7 @@ export class HomeComponent implements OnInit {
 
   private allPlayers: UiPlayer[] = [];
 
-  constructor(private route: ActivatedRoute, private gameService: GameService) {
+  constructor(private route: ActivatedRoute, private gameService: GameService, private authService: AuthenticationService) {
     this.route.data.pipe(first()).subscribe((d) => {
       this.allPlayers = (d as Data).players;
     })
@@ -81,12 +82,12 @@ export class HomeComponent implements OnInit {
 
   protected startNewGame(): void {
     const newGameRequest: GameCreateRequest = {
-      userId: 1,
+      userId: this.authService.activeUser().id,
       leagueId: 1,
       gameTypeId: 1,
     }
 
-    this.gameService.startNewGame(newGameRequest);
+    this.gameService.startNewGame(newGameRequest, this.authService.activeUser().id);
   }
 
   protected selectRoster(team: string): void {
