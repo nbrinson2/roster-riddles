@@ -42,10 +42,6 @@ public class Guess {
     private boolean correct;
 
     @ManyToOne
-    @JoinColumn(nullable = true, name = "hint")
-    private Attribute hint;
-
-    @ManyToOne
     @JoinColumn(nullable = false, name = "league_id")
     private League league;
 
@@ -55,12 +51,11 @@ public class Guess {
     @Column(nullable = true, length = 255)
     private String rosterLink;
 
-    public Guess(Game game, int guessNumber, Player guessedPlayer, boolean correct, Attribute hint, League league, LocalDateTime timestamp, String rosterLink) {
+    public Guess(Game game, int guessNumber, Player guessedPlayer, boolean correct, League league, LocalDateTime timestamp, String rosterLink) {
         this.game = game;
         this.guessNumber = guessNumber;
         this.guessedPlayer = guessedPlayer;
         this.correct = correct;
-        this.hint = hint;
         this.league = league;
         this.timestamp = timestamp;
         this.rosterLink = rosterLink;

@@ -102,3 +102,63 @@ export enum LeagueType {
   NFL = 'NFL',
   MLB = 'MLB',
 }
+
+export interface League {
+  id: number;
+  leagueName: LeagueType;
+}
+
+export interface GuessCreateRequest {
+  player: BaseballPlayerRequest;
+  isCorrect: boolean;
+}
+
+export interface BaseballPlayerRequest extends PlayerRequest {
+  team: string;
+  position: string;
+  battingHand: string;
+  throwingHand: string;
+  leagueDivision: string;
+}
+
+export interface PlayerRequest {
+  type: PlayerType;
+  name: string;
+  age: number;
+  countryOfBirth: string;
+}
+
+export enum PlayerType {
+  BASEBALL = 'baseballPlayer',
+}
+
+export interface GuessResponse {
+  id: number;
+  game_id: number;
+  guess_number: number;
+  guessed_player_id: number;
+  correct: boolean;
+  league_id: number;
+  timestamp: string;
+  roster_link?: string;
+}
+
+export interface Guess {
+  id: number;
+  gameId: number;
+  guessNumber: number;
+  guessedPlayerId: number;
+  correct: boolean;
+  leagueId: number;
+  timestamp: Date;
+  rosterLink?: string;
+}
+
+export interface Player {
+  id: number;
+  name: string;
+  team: string;
+  position: string;
+  age: number;
+  countryOfBirth: string;
+}

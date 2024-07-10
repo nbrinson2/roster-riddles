@@ -39,6 +39,7 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/v*/auth/**").permitAll()
                                                 .requestMatchers("/api/v*/games/**").permitAll()
+                                                .requestMatchers("/api/v*/guesses/**").permitAll()
                                                 .requestMatchers("/h2-console/**").permitAll()
                                                 .requestMatchers("/actuator/**").permitAll()
                                                 .requestMatchers("/error/**").permitAll()

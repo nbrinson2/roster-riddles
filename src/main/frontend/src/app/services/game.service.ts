@@ -4,14 +4,17 @@ import { environment } from 'src/environment'
 import { AuthenticationService } from './authentication.service'
 import { Observable, map } from 'rxjs'
 import {
+  BaseballPlayerRequest,
   Game,
   GameCreateRequest,
   GameData,
   GameResponse,
   GameStatus,
   GameUpdateRequest,
+  GuessCreateRequest,
   LeagueType,
-} from './models'
+  PlayerType,
+  } from './models'
 import { League, PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models'
 import {
   EndResultMessage,
@@ -19,6 +22,7 @@ import {
   MlbHeaders,
   getPlayerKeyToBackgroundColorMap,
 } from '../home/util/util'
+import { GuessService } from './guess.service'
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +46,11 @@ export class GameService {
   private _allPlayers = signal<UiPlayer[]>([])
   private _gameId = signal<number>(0)
 
-  constructor(private http: HttpClient, private auth: AuthenticationService) {}
+  constructor(
+    private http: HttpClient,
+    private auth: AuthenticationService,
+    private guessService: GuessService
+  ) {}
 
   public initializeGameData(league: LeagueType): void {
     this.createGame({
@@ -125,7 +133,31 @@ export class GameService {
     newSelectedPlayers.unshift(selectedPlayer)
     this.updateGameDataField('selectedPlayers', newSelectedPlayers)
 
-    if (this.isGameFinished(colorMapValuesArray)) {
+    const playerRequest: BaseballPlayerRequest = {
+      type: PlayerType.BASEBALL,
+      name: selectedPlayer.name,
+      team: selectedPlayer.team,
+      position: selectedPlayer.pos,
+      age: Number(selectedPlayer.age),
+      countryOfBirth: selectedPlayer.born,
+      battingHand: selectedPlayer.b,
+      throwingHand: selectedPlayer.t,
+      leagueDivision: selectedPlayer.lgDiv
+    }
+    const isGameFinished = this.isGameFinished(colorMapValuesArray)
+
+    const guessRequest: GuessCreateRequest = {
+      player: playerRequest,
+      isCorrect: isGameFinished,
+    }
+
+    this.guessService
+      .createGuess(this.gameId(), guessRequest)
+      .subscribe((response) => {
+        console.log('Guess created:', response)
+      })
+
+    if (isGameFinished) {
       return
     }
 

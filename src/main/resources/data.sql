@@ -46,7 +46,6 @@ INSERT INTO leagues (id, league_name) VALUES
 (5, 'MLS'),
 (6, 'PGA');
 
-
 CREATE TABLE game_types (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     game_type_name VARCHAR(50) NOT NULL
@@ -55,7 +54,6 @@ CREATE TABLE game_types (
 -- Insert seed data into game_types table
 INSERT INTO game_types (id, game_type_name) VALUES
 (1, 'Roster Riddles');
-
 
 
 CREATE TABLE games (
