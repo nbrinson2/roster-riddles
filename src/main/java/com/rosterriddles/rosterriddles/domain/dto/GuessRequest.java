@@ -12,4 +12,5 @@ import lombok.ToString;
 public class GuessRequest {
    private final PlayerRequest player;
    private final Boolean isCorrect;
+   private final String colorMap;
 }

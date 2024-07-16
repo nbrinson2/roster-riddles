@@ -35,4 +35,7 @@ public class GuessResponse {
 
    @JsonProperty("roster_link")
    private final String rosterLink;
+
+   @JsonProperty("color_map")
+   private final String colorMap;
 }

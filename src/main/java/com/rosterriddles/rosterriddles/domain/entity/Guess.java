@@ -39,6 +39,9 @@ public class Guess {
     private Player guessedPlayer;
 
     @Column(nullable = false)
+    private String colorMap;
+
+    @Column(nullable = false)
     private boolean correct;
 
     @ManyToOne
@@ -51,10 +54,11 @@ public class Guess {
     @Column(nullable = true, length = 255)
     private String rosterLink;
 
-    public Guess(Game game, int guessNumber, Player guessedPlayer, boolean correct, League league, LocalDateTime timestamp, String rosterLink) {
+    public Guess(Game game, int guessNumber, Player guessedPlayer, String colorMap, boolean correct, League league, LocalDateTime timestamp, String rosterLink) {
         this.game = game;
         this.guessNumber = guessNumber;
         this.guessedPlayer = guessedPlayer;
+        this.colorMap = colorMap;
         this.correct = correct;
         this.league = league;
         this.timestamp = timestamp;

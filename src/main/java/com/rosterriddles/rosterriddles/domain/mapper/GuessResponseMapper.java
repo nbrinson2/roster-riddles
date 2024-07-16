@@ -10,6 +10,7 @@ public class GuessResponseMapper {
             .gameId(guess.getGame().getId())
             .guessNumber(guess.getGuessNumber())
             .guessedPlayerId(guess.getGuessedPlayer().getId())
+            .colorMap(guess.getColorMap())
             .build();
    }
 }

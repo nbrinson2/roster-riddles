@@ -55,6 +55,7 @@ public class GuessService {
             game,
             guessNumber,
             player,
+            request.getColorMap(),
             request.getIsCorrect(),
             game.getLeague(),
             LocalDateTime.now(),

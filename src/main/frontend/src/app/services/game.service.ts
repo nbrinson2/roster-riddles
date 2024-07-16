@@ -145,10 +145,12 @@ export class GameService {
       leagueDivision: selectedPlayer.lgDiv
     }
     const isGameFinished = this.isGameFinished(colorMapValuesArray)
+    const colorMapString = JSON.stringify(Array.from(selectedPlayer.colorMap.entries()));
 
     const guessRequest: GuessCreateRequest = {
       player: playerRequest,
       isCorrect: isGameFinished,
+      colorMap: colorMapString,
     }
 
     this.guessService

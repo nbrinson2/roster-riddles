@@ -1,5 +1,5 @@
 import { EndResultMessage, InputPlaceHolderText } from "../home/util/util";
-import { UiPlayer } from "../models/models";
+import { PlayerAttr, PlayerAttrColor, UiPlayer } from "../models/models";
 
 export interface GameData {
   headers: Header[];
@@ -111,6 +111,7 @@ export interface League {
 export interface GuessCreateRequest {
   player: BaseballPlayerRequest;
   isCorrect: boolean;
+  colorMap: string;
 }
 
 export interface BaseballPlayerRequest extends PlayerRequest {
@@ -141,6 +142,7 @@ export interface GuessResponse {
   league_id: number;
   timestamp: string;
   roster_link?: string;
+  color_map: string;
 }
 
 export interface Guess {
@@ -152,6 +154,7 @@ export interface Guess {
   leagueId: number;
   timestamp: Date;
   rosterLink?: string;
+  colorMap: Map<PlayerAttr, PlayerAttrColor>;
 }
 
 export interface Player {
