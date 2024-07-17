@@ -1,0 +1,11 @@
+<div [class.show]="isVisible" class="toast" id="toast">
+   <div class="toast-header">
+     <strong class="mr-auto">Notification</strong>
+     <small>Just now</small>
+     <button type="button" class="ml-2 mb-1 close" (click)="hideToast()">&times;</button>
+   </div>
+   <div class="toast-body">
+     {{ message }}
+   </div>
+ </div>
+ 

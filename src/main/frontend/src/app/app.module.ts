@@ -26,6 +26,7 @@ import { AuthenticationComponent } from './authentication/authentication.compone
 import { MatListModule } from '@angular/material/list';
 import { LoginComponent } from './authentication/login/login.component';
 import { UserStatisticsComponent } from './profile/user-statistics/user-statistics.component';
+import { ToastComponent } from './toast/toast.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { UserStatisticsComponent } from './profile/user-statistics/user-statisti
     AuthenticationComponent,
     LoginComponent,
     UserStatisticsComponent,
+    ToastComponent,
   ],
   imports: [
     BrowserModule,

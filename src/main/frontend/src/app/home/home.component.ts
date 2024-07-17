@@ -5,14 +5,12 @@ import { first } from 'rxjs'
 import {
   Data,
   EndResultMessage,
-  MlbHeaders,
-  InputPlaceHolderText,
-  getPlayerKeyToBackgroundColorMap,
   Header,
 } from './util/util'
 import { GameService } from '../services/game.service'
-import { GameCreateRequest, GameData, GameStatus, LeagueType } from '../services/models'
+import { GameCreateRequest, LeagueType } from '../services/models'
 import { AuthenticationService } from '../services/authentication.service'
+import { ToastService } from '../services/toast.service'
 
 @Component({
   selector: 'home',
@@ -64,7 +62,7 @@ export class HomeComponent implements OnInit {
 
   private allPlayers: UiPlayer[] = [];
 
-  constructor(private route: ActivatedRoute, private gameService: GameService, private authService: AuthenticationService) {
+  constructor(private route: ActivatedRoute, private gameService: GameService, private authService: AuthenticationService, private toastService: ToastService) {
     this.route.data.pipe(first()).subscribe((d) => {
       this.allPlayers = (d as Data).players;
     })
@@ -78,6 +76,7 @@ export class HomeComponent implements OnInit {
 
   protected selectPlayer(player: UiPlayer): void {
     this.gameService.selectPlayer(player);
+    this.toastService.showToast('Player selected');
   }
 
   protected startNewGame(): void {
