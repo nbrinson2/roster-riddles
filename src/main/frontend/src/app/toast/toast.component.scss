@@ -1,5 +1,8 @@
 @use '../../constants';
 
+$bottom-pixel-default: 18px;
+$bottom-pixel-mobile: 92px;
+
 .toast {
   visibility: hidden;
   max-width: 1000px;
@@ -10,7 +13,7 @@
   position: fixed;
   z-index: 1;
   right: 20px;
-  bottom: 20px;
+  bottom: $bottom-pixel-default;
   font-size: 14px;
 }
 
@@ -18,8 +21,8 @@
   visibility: visible;
   width: 80%;
   max-width: 1000px;
-  -webkit-animation: fadein 0.5s;
-  animation: fadein 0.5s;
+  -webkit-animation: fadein 0.7s;
+  animation: fadein 0.7s;
 }
 
 .toast-header {
@@ -49,7 +52,7 @@
     opacity: 0;
   }
   to {
-    bottom: 40px;
+    bottom: $bottom-pixel-default;
     opacity: 1;
   }
 }
@@ -60,14 +63,14 @@
     opacity: 0;
   }
   to {
-    bottom: 40px;
+    bottom: $bottom-pixel-default;
     opacity: 1;
   }
 }
 
 @-webkit-keyframes fadeout {
   from {
-    bottom: 40px;
+    bottom: $bottom-pixel-default;
     opacity: 1;
   }
   to {
@@ -78,11 +81,62 @@
 
 @keyframes fadeout {
   from {
-    bottom: 40px;
+    bottom: $bottom-pixel-default;
     opacity: 1;
   }
   to {
     bottom: 0;
     opacity: 0;
+  }
+}
+
+// Media query for mobile devices
+@media only screen and (max-device-height: 1000px) {
+  .toast {
+    bottom: $bottom-pixel-mobile;
+  }
+
+  @-webkit-keyframes fadein {
+    from {
+      bottom: 0;
+      opacity: 0;
+    }
+    to {
+      bottom: $bottom-pixel-mobile;
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadein {
+    from {
+      bottom: 0;
+      opacity: 0;
+    }
+    to {
+      bottom: $bottom-pixel-mobile;
+      opacity: 1;
+    }
+  }
+
+  @-webkit-keyframes fadeout {
+    from {
+      bottom: $bottom-pixel-mobile;
+      opacity: 1;
+    }
+    to {
+      bottom: 0;
+      opacity: 0;
+    }
+  }
+
+  @keyframes fadeout {
+    from {
+      bottom: $bottom-pixel-mobile;
+      opacity: 1;
+    }
+    to {
+      bottom: 0;
+      opacity: 0;
+    }
   }
 }

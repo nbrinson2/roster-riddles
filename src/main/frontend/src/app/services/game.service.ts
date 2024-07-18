@@ -15,7 +15,7 @@ import {
   LeagueType,
   PlayerType,
   } from './models'
-import { League, PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models'
+import { PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models'
 import {
   EndResultMessage,
   InputPlaceHolderText,
@@ -24,6 +24,8 @@ import {
 } from '../home/util/util'
 import { GuessService } from './guess.service'
 import { ToastService } from './toast.service'
+
+export const maxNumberOfGuesses = 1;
 
 @Injectable({
   providedIn: 'root',
@@ -115,7 +117,7 @@ export class GameService {
       return InputPlaceHolderText.LOSE
     }
 
-    return `${2 - numberOfGuesses} ${InputPlaceHolderText.COUNT}`
+    return `${maxNumberOfGuesses - numberOfGuesses} ${InputPlaceHolderText.COUNT}`
   }
 
   public selectPlayer(selectedPlayer: UiPlayer): void {
@@ -250,7 +252,7 @@ export class GameService {
       return true
     }
 
-    if (this.gameData().numberOfGuesses >= 2) {
+    if (this.gameData().numberOfGuesses >= maxNumberOfGuesses) {
       this.updateGameDataField('endResultText', EndResultMessage.LOSE)
       this.updateGameDataField('endOfGame', true)
       this.updateGameDataField(
