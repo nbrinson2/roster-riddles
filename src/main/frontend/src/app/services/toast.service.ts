@@ -1,24 +1,26 @@
 import { Injectable, Signal, signal } from '@angular/core'
+import { UiPlayer } from '../models/models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ToastService {
-  get toastState(): Signal<string> {
-    return this._toastState.asReadonly()
-  }
 
   get isVisible(): Signal<boolean> {
     return this._isVisible.asReadonly()
   }
 
-  private _toastState = signal<string>('')
-  private _isVisible = signal<boolean>(false)
+  get playerCorrectAnswer(): Signal<UiPlayer> {
+    return this._playerCorrectAnswer.asReadonly();
+  }
 
-  showToast(message: string) {
-    this._toastState.set(message)
+  private _isVisible = signal<boolean>(false)
+  private _playerCorrectAnswer = signal<UiPlayer>({} as UiPlayer);
+
+  showToast(player: UiPlayer): void {
+    this._playerCorrectAnswer.set(player);
     this._isVisible.set(true)
-    setTimeout(() => this.hideToast(), 3000)
+    // setTimeout(() => this.hideToast(), 4000)
   }
 
   hideToast() {

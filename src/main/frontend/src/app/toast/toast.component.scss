@@ -1,54 +1,88 @@
+@use '../../constants';
+
 .toast {
-   visibility: hidden;
-   max-width: 350px;
-   background-color: #fff;
-   border: 1px solid #ccc;
-   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-   border-radius: 5px;
-   position: fixed;
-   z-index: 1;
-   right: 20px;
-   bottom: 20px;
-   font-size: 14px;
- }
- 
- .toast.show {
-   visibility: visible;
-   -webkit-animation: fadein 0.5s, fadeout 0.5s 5.5s;
-   animation: fadein 0.5s, fadeout 0.5s 5.5s;
- }
- 
- .toast-header {
-   padding: 10px 15px;
-   background-color: #007bff;
-   color: white;
-   border-bottom: 1px solid #ccc;
-   border-top-left-radius: 5px;
-   border-top-right-radius: 5px;
- }
- 
- .toast-body {
-   padding: 15px;
-   color: #333;
- }
- 
- @-webkit-keyframes fadein {
-   from {bottom: 0; opacity: 0;} 
-   to {bottom: 20px; opacity: 1;}
- }
- 
- @keyframes fadein {
-   from {bottom: 0; opacity: 0;}
-   to {bottom: 20px; opacity: 1;}
- }
- 
- @-webkit-keyframes fadeout {
-   from {bottom: 20px; opacity: 1;} 
-   to {bottom: 0; opacity: 0;}
- }
- 
- @keyframes fadeout {
-   from {bottom: 20px; opacity: 1;}
-   to {bottom: 0; opacity: 0;}
- }
- 
+  visibility: hidden;
+  max-width: 1000px;
+  background-color: black;
+  border: 1px solid #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  position: fixed;
+  z-index: 1;
+  right: 20px;
+  bottom: 20px;
+  font-size: 14px;
+}
+
+.toast.show {
+  visibility: visible;
+  width: 80%;
+  max-width: 1000px;
+  -webkit-animation: fadein 0.5s;
+  animation: fadein 0.5s;
+}
+
+.toast-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background-color: constants.$color-secondary;
+  color: black;
+  border-bottom: 1px solid #333;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.toast-body {
+  padding: 15px;
+}
+
+.close-icon {
+  cursor: pointer;
+  margin-left: auto;
+}
+
+@-webkit-keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: 40px;
+    opacity: 1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: 40px;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    bottom: 40px;
+    opacity: 1;
+  }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    bottom: 40px;
+    opacity: 1;
+  }
+  to {
+    bottom: 0;
+    opacity: 0;
+  }
+}

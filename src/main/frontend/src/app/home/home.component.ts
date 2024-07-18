@@ -76,7 +76,6 @@ export class HomeComponent implements OnInit {
 
   protected selectPlayer(player: UiPlayer): void {
     this.gameService.selectPlayer(player);
-    this.toastService.showToast('Player selected');
   }
 
   protected startNewGame(): void {

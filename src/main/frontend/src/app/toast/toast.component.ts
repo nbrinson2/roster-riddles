@@ -1,5 +1,6 @@
-import { Component, computed } from '@angular/core'
+import { Component, computed, Input } from '@angular/core'
 import { ToastService } from '../services/toast.service'
+import { UiPlayer } from '../models/models'
 
 @Component({
   selector: 'toast',
@@ -7,8 +8,8 @@ import { ToastService } from '../services/toast.service'
   styleUrls: ['./toast.component.scss'],
 })
 export class ToastComponent {
-  get message(): string {
-    return this.toastService.toastState()
+  get player(): UiPlayer {
+    return this.toastService.playerCorrectAnswer();
   }
 
   get isVisible(): boolean {

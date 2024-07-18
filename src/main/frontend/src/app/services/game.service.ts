@@ -23,6 +23,7 @@ import {
   getPlayerKeyToBackgroundColorMap,
 } from '../home/util/util'
 import { GuessService } from './guess.service'
+import { ToastService } from './toast.service'
 
 @Injectable({
   providedIn: 'root',
@@ -49,7 +50,8 @@ export class GameService {
   constructor(
     private http: HttpClient,
     private auth: AuthenticationService,
-    private guessService: GuessService
+    private guessService: GuessService,
+    private toastService: ToastService,
   ) {}
 
   public initializeGameData(league: LeagueType): void {
@@ -113,7 +115,7 @@ export class GameService {
       return InputPlaceHolderText.LOSE
     }
 
-    return `${9 - numberOfGuesses} ${InputPlaceHolderText.COUNT}`
+    return `${2 - numberOfGuesses} ${InputPlaceHolderText.COUNT}`
   }
 
   public selectPlayer(selectedPlayer: UiPlayer): void {
@@ -160,6 +162,11 @@ export class GameService {
       })
 
     if (isGameFinished) {
+      if (this.gameData().endResultText === EndResultMessage.LOSE) {
+        const correctPlayer = this.gameData().playerToGuess;
+        this.resetPlayerColorMap(correctPlayer);
+        this.toastService.showToast(correctPlayer)
+      }
       return
     }
 
@@ -243,7 +250,7 @@ export class GameService {
       return true
     }
 
-    if (this.gameData().numberOfGuesses >= 9) {
+    if (this.gameData().numberOfGuesses >= 2) {
       this.updateGameDataField('endResultText', EndResultMessage.LOSE)
       this.updateGameDataField('endOfGame', true)
       this.updateGameDataField(
@@ -273,6 +280,11 @@ export class GameService {
       },
     })
   }
+
+  public resetPlayerColorMap(player: UiPlayer): void {
+    player.colorMap = this.initializePlaterAttrColorMap();
+  }
+
 
   private createGame(request: GameCreateRequest): Observable<Game> {
     const headers = this.auth.getHeaders()
