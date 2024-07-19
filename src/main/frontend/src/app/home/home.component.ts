@@ -1,16 +1,11 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core'
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { UiPlayer } from '../models/models'
 import { ActivatedRoute } from '@angular/router'
-import { first } from 'rxjs'
-import {
-  Data,
-  EndResultMessage,
-  Header,
-} from './util/util'
+
 import { GameService } from '../services/game.service'
-import { GameCreateRequest, LeagueType } from '../services/models'
+import { Header, LeagueType } from '../services/models'
 import { AuthenticationService } from '../services/authentication.service'
-import { ToastService } from '../services/toast.service'
+import { EndResultMessage } from '../services/constants'
 
 @Component({
   selector: 'home',
@@ -18,6 +13,7 @@ import { ToastService } from '../services/toast.service'
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
+  @Input() allPlayers: UiPlayer[] = []
   @Output() selectRosterEvent = new EventEmitter<UiPlayer[]>()
 
   get headers(): Header[] {
@@ -60,18 +56,12 @@ export class HomeComponent implements OnInit {
     return this.gameService.gameData().guessablePlayers;
   }
 
-  private allPlayers: UiPlayer[] = [];
-
-  constructor(private route: ActivatedRoute, private gameService: GameService, private authService: AuthenticationService, private toastService: ToastService) {
-    this.route.data.pipe(first()).subscribe((d) => {
-      this.allPlayers = (d as Data).players;
-    })
-  }
+  constructor(private route: ActivatedRoute, private gameService: GameService, private authService: AuthenticationService) { }
 
   ngOnInit(): void {
+    this.gameService.setPlayerToGuess(this.allPlayers);
     this.gameService.initializeGameData(LeagueType.MLB);
     this.gameService.updateGameDataField('guessablePlayers', this.allPlayers);
-    this.setPlayerToGuess();
   }
 
   protected selectPlayer(player: UiPlayer): void {
@@ -79,13 +69,7 @@ export class HomeComponent implements OnInit {
   }
 
   protected startNewGame(): void {
-    const newGameRequest: GameCreateRequest = {
-      userId: this.authService.activeUser().id,
-      leagueId: 1,
-      gameTypeId: 1,
-    }
-
-    this.gameService.startNewGame(newGameRequest, this.authService.activeUser().id);
+    this.gameService.startNewGame(this.allPlayers, this.authService.activeUser().id);
   }
 
   protected selectRoster(team: string): void {
@@ -101,12 +85,5 @@ export class HomeComponent implements OnInit {
       (player) => player.team === team
     )
     this.selectRosterEvent.emit(selectedRoster)
-  }
-
-  private setPlayerToGuess(): void {
-    const randomIndex = Math.floor(
-      Math.random() * this.allPlayers.length
-    )
-    this.gameService.setPlayerToGuess(this.allPlayers[randomIndex])
   }
 }

@@ -7,11 +7,10 @@ import {
   LeagueDivisionFullName,
   MlbTeam,
   MlbTeamFullName,
-  PlayerAttr,
   Throwing,
   ThrowingFullName,
 } from '../models/models'
-import { LeagueType } from './models'
+import { Header, LeagueType } from './models'
 
 export const MlbTeamAbbreviationMap: { [key in MlbTeamFullName]: MlbTeam } = {
   [MlbTeamFullName.ARIZONA_DIAMONDBACKS]: MlbTeam.ARI,
@@ -105,3 +104,25 @@ export const LeagueTypeIdMap: { [key in LeagueType]: number } = {
   [LeagueType.NBA]: 3,
   [LeagueType.NFL]: 2,
 }
+
+export enum EndResultMessage {
+  WIN = "You ol' sandbagger, you beat the game!!",
+  LOSE = "Just give up, you DO NOT know baseball.",
+}
+
+export enum InputPlaceHolderText {
+  GUESS = "Guess the mystery player",
+  COUNT = "guesses remaining",
+  WIN = "You guessed correctly!",
+  LOSE = "Go home, you lose.",
+}
+
+export const MlbHeaders: Header[] = [
+  { name: 'TEAM', colSpan: 1, class: 'team-column' },
+  { name: 'LG./DIV.', colSpan: 2, class: 'lg-div-column' },
+  { name: 'B', colSpan: 1, class: 'b-column' },
+  { name: 'T', colSpan: 1, class: 't-column' },
+  { name: 'BORN', colSpan: 2, class: 'born-column' },
+  { name: 'AGE', colSpan: 1, class: 'age-column' },
+  { name: 'POS.', colSpan: 1, class: 'pos-column' },
+];

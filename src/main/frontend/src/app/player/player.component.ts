@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { PlayerAttr, UiPlayer } from '../models/models';
-import { MlbHeaders } from '../home/util/util';
+import { MlbHeaders } from '../services/constants';
 
 const playerAttrHeaderMap = getPlayerKeyToHeaderNameMap();
 

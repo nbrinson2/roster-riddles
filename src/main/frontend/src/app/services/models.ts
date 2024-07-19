@@ -1,5 +1,5 @@
-import { EndResultMessage, InputPlaceHolderText } from "../home/util/util";
 import { PlayerAttr, PlayerAttrColor, UiPlayer } from "../models/models";
+import { EndResultMessage } from "./constants";
 
 export interface GameData {
   headers: Header[];
@@ -52,6 +52,7 @@ export interface UserStatistics {
     userId: number;
     leagueId: number;
     gameTypeId: number;
+    playerToGuess: BaseballPlayerRequest;
  }
 
  export interface GameUpdateRequest {
@@ -164,4 +165,14 @@ export interface Player {
   position: string;
   age: number;
   countryOfBirth: string;
+}
+
+export interface Header {
+  name: string;
+  colSpan: number;
+  class: string;
+}
+
+export interface Data {
+  players: UiPlayer[];
 }

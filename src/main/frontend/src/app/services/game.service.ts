@@ -14,18 +14,14 @@ import {
   GuessCreateRequest,
   LeagueType,
   PlayerType,
-  } from './models'
+} from './models'
 import { PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models'
-import {
-  EndResultMessage,
-  InputPlaceHolderText,
-  MlbHeaders,
-  getPlayerKeyToBackgroundColorMap,
-} from '../home/util/util'
 import { GuessService } from './guess.service'
 import { ToastService } from './toast.service'
+import { GameUtilityService } from './game-utility.service'
+import { EndResultMessage, InputPlaceHolderText, MlbHeaders } from './constants'
 
-export const maxNumberOfGuesses = 1;
+export const maxNumberOfGuesses = 1
 
 @Injectable({
   providedIn: 'root',
@@ -54,30 +50,37 @@ export class GameService {
     private auth: AuthenticationService,
     private guessService: GuessService,
     private toastService: ToastService,
+    private gameUtilityService: GameUtilityService
   ) {}
 
   public initializeGameData(league: LeagueType): void {
+    const playerRequest = this.createPlayerRequest(
+      this.gameData().playerToGuess
+    )
     this.createGame({
       userId: this.auth.activeUser().id,
       leagueId: 1,
       gameTypeId: 1,
+      playerToGuess: playerRequest,
     }).subscribe((game) => {
       this._gameId.set(game.id)
     })
     switch (league) {
       case LeagueType.MLB:
         this._gameData.set({
+          ...this.gameData(),
           headers: MlbHeaders,
           guessablePlayers: [],
           selectedPlayers: [],
-          playerToGuess: {} as UiPlayer,
           endResultText: EndResultMessage.LOSE,
           endOfGame: false,
           isSearchDisabled: false,
-          searchInputPlaceHolderText: this.setSearchInputPlaceHolderText(
-            0,
-            GameStatus.IN_PROCESS
-          ),
+          searchInputPlaceHolderText:
+            this.gameUtilityService.setSearchInputPlaceHolderText(
+              0,
+              maxNumberOfGuesses,
+              GameStatus.IN_PROCESS
+            ),
           numberOfGuesses: 0,
           showNewGameButton: false,
           timesViewedActiveRoster: 0,
@@ -101,61 +104,18 @@ export class GameService {
     this._gameData.set({ ...this.gameData(), [field]: value })
   }
 
-  public setSearchInputPlaceHolderText(
-    numberOfGuesses: number,
-    gameStatus?: GameStatus
-  ): string {
-    if (numberOfGuesses === 0) {
-      return InputPlaceHolderText.GUESS
-    }
-
-    if (gameStatus === GameStatus.WIN) {
-      return InputPlaceHolderText.WIN
-    }
-
-    if (gameStatus === GameStatus.LOSS) {
-      return InputPlaceHolderText.LOSE
-    }
-
-    return `${maxNumberOfGuesses - numberOfGuesses} ${InputPlaceHolderText.COUNT}`
-  }
-
   public selectPlayer(selectedPlayer: UiPlayer): void {
     this.updateGameDataField(
       'numberOfGuesses',
       this.gameData().numberOfGuesses + 1
     )
     this.updateGameDataField('showNewGameButton', true)
-    const playerToGuess = this.gameData().playerToGuess
-    selectedPlayer.colorMap = getPlayerKeyToBackgroundColorMap(
-      playerToGuess,
+
+    const colorMapValuesArray = this.updateSelectedPlayer(selectedPlayer)
+    const guessRequest = this.createGuessRequest(
       selectedPlayer,
-      false
+      colorMapValuesArray
     )
-    const colorMapValuesArray = Array.from(selectedPlayer.colorMap.values())
-    const newSelectedPlayers = this.gameData().selectedPlayers
-    newSelectedPlayers.unshift(selectedPlayer)
-    this.updateGameDataField('selectedPlayers', newSelectedPlayers)
-
-    const playerRequest: BaseballPlayerRequest = {
-      type: PlayerType.BASEBALL,
-      name: selectedPlayer.name,
-      team: selectedPlayer.team,
-      position: selectedPlayer.pos,
-      age: Number(selectedPlayer.age),
-      countryOfBirth: selectedPlayer.born,
-      battingHand: selectedPlayer.b,
-      throwingHand: selectedPlayer.t,
-      leagueDivision: selectedPlayer.lgDiv
-    }
-    const isGameFinished = this.isGameFinished(colorMapValuesArray)
-    const colorMapString = JSON.stringify(Array.from(selectedPlayer.colorMap.entries()));
-
-    const guessRequest: GuessCreateRequest = {
-      player: playerRequest,
-      isCorrect: isGameFinished,
-      colorMap: colorMapString,
-    }
 
     this.guessService
       .createGuess(this.gameId(), guessRequest)
@@ -163,53 +123,52 @@ export class GameService {
         console.log('Guess created:', response)
       })
 
-    if (isGameFinished) {
+    if (this.isGameFinished(colorMapValuesArray)) {
       if (this.gameData().endResultText === EndResultMessage.LOSE) {
-        const correctPlayer = this.gameData().playerToGuess;
-        this.resetPlayerColorMap(correctPlayer);
+        const correctPlayer = this.gameData().playerToGuess
+        this.resetPlayerColorMap(correctPlayer)
         this.toastService.showToast(correctPlayer)
       }
       return
     }
 
     const numberOfGuesses = this.gameData().numberOfGuesses
-    const inputPlaceHolderText = this.setSearchInputPlaceHolderText(
-      numberOfGuesses,
-      GameStatus.IN_PROCESS
-    )
+    const inputPlaceHolderText =
+      this.gameUtilityService.setSearchInputPlaceHolderText(
+        numberOfGuesses,
+        maxNumberOfGuesses,
+        GameStatus.IN_PROCESS
+      )
     this.updateGameDataField('searchInputPlaceHolderText', inputPlaceHolderText)
     this.setNewAttrColorForAllGuessablePlayers(selectedPlayer)
   }
 
-  public startNewGame(newGameRequest: GameCreateRequest, userId: number): void {
+  public startNewGame(players: UiPlayer[], userId: number): void {
+    this.setPlayerToGuess(players)
+    const playerRequest = this.createPlayerRequest(
+      this.gameData().playerToGuess
+    )
+    const newGameRequest: GameCreateRequest = {
+      userId,
+      leagueId: 1,
+      gameTypeId: 1,
+      playerToGuess: playerRequest,
+    }
+
     if (!this.gameData().endOfGame) {
       this.setGameStatusAbandoned(userId)
     }
     this.createGame(newGameRequest).subscribe((game) => {
       this._gameId.set(game.id)
-      this.resetColorMaps()
-      this.updateGameDataField('numberOfGuesses', 0)
-      this.updateGameDataField('showNewGameButton', false)
-      this.updateGameDataField('endOfGame', false)
-      this.updateGameDataField(
-        'searchInputPlaceHolderText',
-        InputPlaceHolderText.GUESS
-      )
-      this.updateGameDataField('isSearchDisabled', false)
-      this.updateGameDataField('selectedPlayers', [])
-      this.updatePlayerAttrColorForAllGuessablePlayers()
+      this.resetGameData()
     })
   }
 
   public setGameStatusAbandoned(userId: number): void {
-    const updateGameRequest: GameUpdateRequest = {
-      status: GameStatus.ABANDONED,
-      timesViewedActiveRoster: this.gameData().timesViewedActiveRoster,
-      numberOfGuesses: this.gameData().numberOfGuesses,
+    const updateGameRequest = this.createUpdateGameRequest(
       userId,
-      leagueId: 1,
-      gameTypeId: 1,
-    }
+      GameStatus.ABANDONED
+    )
     this.updateGame(updateGameRequest, this.gameId()).subscribe({
       error: (err) => {
         console.error('Error updating game: ', err)
@@ -225,41 +184,46 @@ export class GameService {
   }
 
   public setInProgressPlaceHolderText(): void {
-    const inputPlaceHolderText = this.setSearchInputPlaceHolderText(
-      this.gameData().numberOfGuesses,
-      GameStatus.IN_PROCESS
-    )
+    const inputPlaceHolderText =
+      this.gameUtilityService.setSearchInputPlaceHolderText(
+        this.gameData().numberOfGuesses,
+        maxNumberOfGuesses,
+        GameStatus.IN_PROCESS
+      )
     this.updateGameDataField('searchInputPlaceHolderText', inputPlaceHolderText)
   }
 
-  public setPlayerToGuess(player: UiPlayer): void {
-    this.updateGameDataField('playerToGuess', player)
+  public setPlayerToGuess(players: UiPlayer[]): void {
+    const playerToGuess = players[Math.floor(Math.random() * players.length)]
+    this.updateGameDataField('playerToGuess', playerToGuess)
   }
 
   public isGameFinished(colorMapValuesArray?: string[]): boolean {
-    if (
-      !!colorMapValuesArray &&
-      !colorMapValuesArray.includes(PlayerAttrColor.NONE) &&
-      !colorMapValuesArray.includes(PlayerAttrColor.ORANGE)
-    ) {
-      this.updateGameDataField('endResultText', EndResultMessage.WIN)
-      this.updateGameDataField('endOfGame', true)
-      this.updateGameDataField(
-        'searchInputPlaceHolderText',
-        InputPlaceHolderText.WIN
-      )
-      this.updateGameDataField('isSearchDisabled', true)
-      return true
-    }
+    const gameData = this.gameData()
+    const isVictory =
+      !colorMapValuesArray?.includes(PlayerAttrColor.NONE) &&
+      !colorMapValuesArray?.includes(PlayerAttrColor.ORANGE)
 
-    if (this.gameData().numberOfGuesses >= maxNumberOfGuesses) {
-      this.updateGameDataField('endResultText', EndResultMessage.LOSE)
+    if (isVictory || gameData.numberOfGuesses >= maxNumberOfGuesses) {
+      this.updateGameDataField(
+        'endResultText',
+        isVictory ? EndResultMessage.WIN : EndResultMessage.LOSE
+      )
       this.updateGameDataField('endOfGame', true)
       this.updateGameDataField(
         'searchInputPlaceHolderText',
-        InputPlaceHolderText.LOSE
+        isVictory ? InputPlaceHolderText.WIN : InputPlaceHolderText.LOSE
       )
       this.updateGameDataField('isSearchDisabled', true)
+      const updateGameRequest = this.createUpdateGameRequest(
+        this.auth.activeUser().id,
+        isVictory ? GameStatus.WIN : GameStatus.LOSS
+      )
+      this.updateGame(updateGameRequest, this.gameId()).subscribe({
+        error: (err) => {
+          console.error('Error updating game: ', err)
+        },
+      })
       return true
     }
 
@@ -267,15 +231,10 @@ export class GameService {
   }
 
   public updateUser(userId: number): void {
-    const updateGameRequest: GameUpdateRequest = {
-      status: GameStatus.IN_PROCESS,
-      timesViewedActiveRoster: this.gameData().timesViewedActiveRoster,
-      numberOfGuesses: this.gameData().numberOfGuesses,
-      userId: userId,
-      leagueId: 1,
-      gameTypeId: 1,
-    }
-
+    const updateGameRequest = this.createUpdateGameRequest(
+      userId,
+      GameStatus.IN_PROCESS
+    )
     this.updateGame(updateGameRequest, this.gameId()).subscribe({
       error: (err) => {
         console.error('Error updating game: ', err)
@@ -284,9 +243,84 @@ export class GameService {
   }
 
   public resetPlayerColorMap(player: UiPlayer): void {
-    player.colorMap = this.initializePlaterAttrColorMap();
+    player.colorMap = this.gameUtilityService.initializePlayerAttrColorMap()
   }
 
+  private createPlayerRequest(player: UiPlayer): BaseballPlayerRequest {
+    return {
+      name: player.name,
+      team: player.team,
+      position: player.pos,
+      age: Number(player.age),
+      countryOfBirth: player.born,
+      battingHand: player.b,
+      throwingHand: player.t,
+      leagueDivision: player.lgDiv,
+      type: PlayerType.BASEBALL,
+    }
+  }
+
+  private createGuessRequest(
+    selectedPlayer: UiPlayer,
+    colorMapValuesArray: string[]
+  ): GuessCreateRequest {
+    const playerRequest = this.createPlayerRequest(selectedPlayer)
+    const colorMapString = JSON.stringify(
+      Array.from(selectedPlayer.colorMap.entries())
+    )
+    return {
+      player: playerRequest,
+      isCorrect: this.isGameFinished(colorMapValuesArray),
+      colorMap: colorMapString,
+    }
+  }
+
+  private createUpdateGameRequest(
+    userId: number,
+    status: GameStatus
+  ): GameUpdateRequest {
+    const gameData = this.gameData()
+    return {
+      status,
+      timesViewedActiveRoster: gameData.timesViewedActiveRoster,
+      numberOfGuesses: gameData.numberOfGuesses,
+      userId,
+      leagueId: 1,
+      gameTypeId: 1,
+    }
+  }
+
+  private updateSelectedPlayer(selectedPlayer: UiPlayer): string[] {
+    const playerToGuess = this.gameData().playerToGuess
+    selectedPlayer.colorMap =
+      this.gameUtilityService.getPlayerKeyToBackgroundColorMap(
+        playerToGuess,
+        selectedPlayer,
+        false
+      )
+
+    const colorMapValuesArray = Array.from(selectedPlayer.colorMap.values())
+    const newSelectedPlayers = [
+      selectedPlayer,
+      ...this.gameData().selectedPlayers,
+    ]
+    this.updateGameDataField('selectedPlayers', newSelectedPlayers)
+    return colorMapValuesArray
+  }
+
+  private resetGameData(): void {
+    this.updateGameDataField('numberOfGuesses', 0)
+    this.updateGameDataField('showNewGameButton', false)
+    this.updateGameDataField('endOfGame', false)
+    this.updateGameDataField(
+      'searchInputPlaceHolderText',
+      InputPlaceHolderText.GUESS
+    )
+    this.updateGameDataField('isSearchDisabled', false)
+    this.updateGameDataField('selectedPlayers', [])
+    this.resetColorMaps()
+    this.updatePlayerAttrColorForAllGuessablePlayers()
+  }
 
   private createGame(request: GameCreateRequest): Observable<Game> {
     const headers = this.auth.getHeaders()
@@ -362,21 +396,9 @@ export class GameService {
   private resetColorMaps(): void {
     const newGuessablePlayers = this.gameData().guessablePlayers
     for (const player of newGuessablePlayers) {
-      player.colorMap = this.initializePlaterAttrColorMap()
+      player.colorMap = this.gameUtilityService.initializePlayerAttrColorMap()
     }
     this.updateGameDataField('guessablePlayers', newGuessablePlayers)
-  }
-
-  private initializePlaterAttrColorMap(): Map<PlayerAttr, PlayerAttrColor> {
-    const playerAttributes = Object.values(PlayerAttr).filter(
-      (key) => key !== PlayerAttr.NAME
-    )
-    const playerAttrBackgroundColorMap = new Map<PlayerAttr, PlayerAttrColor>()
-
-    for (const attr of playerAttributes) {
-      playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE)
-    }
-    return playerAttrBackgroundColorMap
   }
 
   private updatePlayerAttrColorForAllGuessablePlayers(
@@ -386,7 +408,7 @@ export class GameService {
     if (!attributes && !selectedPlayer) {
       const newGuessablePlayers = this.gameData().guessablePlayers
       for (const player of newGuessablePlayers) {
-        player.colorMap = this.initializePlaterAttrColorMap()
+        player.colorMap = this.gameUtilityService.initializePlayerAttrColorMap()
       }
       this.updateGameDataField('guessablePlayers', newGuessablePlayers)
       return

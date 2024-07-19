@@ -1,11 +1,12 @@
-import { Component, OnInit, Signal, ViewChild, signal } from '@angular/core';
+import { Component, Signal, ViewChild, signal } from '@angular/core';
 
 import { UiPlayer } from '../models/models';
 import { ActivatedRoute } from '@angular/router';
 import { MatDrawer } from '@angular/material/sidenav';
-import { GameCreateRequest, LeagueType, User } from '../services/models';
+import { Data, User } from '../services/models';
 import { UserService } from '../services/user.service';
 import { GameService } from '../services/game.service';
+import { first } from 'rxjs';
 
 enum MatDrawerPosition {
   END = "end",
@@ -30,11 +31,17 @@ export class NavComponent {
   protected viewRoster = false;
   protected matDrawerPosition = MatDrawerPosition.END;
   protected selectedRoster?: UiPlayer[];
+  protected allPlayers: UiPlayer[] = [];
 
   // Default user is the guest user with id 0
   private _user = signal<User>({id: 0} as User);
 
-  constructor(private route: ActivatedRoute, private userService: UserService, private gameService: GameService) { }
+  constructor(private route: ActivatedRoute, private userService: UserService, private gameService: GameService) {
+    this.route.data.pipe(first()).subscribe((d) => {
+      this.allPlayers = (d as Data).players;
+    })
+
+  }
 
   protected openMenu(): void {
     this.matDrawerPosition = MatDrawerPosition.START;
@@ -46,12 +53,7 @@ export class NavComponent {
 
   protected loginUser(user: User): void {
     this._user.set(user);
-    const newGameRequest: GameCreateRequest = {
-      userId: user.id,
-      leagueId: 1,
-      gameTypeId: 1,
-    };
-    this.gameService.startNewGame(newGameRequest, user.id);
+    this.gameService.startNewGame(this.allPlayers, user.id);
     this.loggedIn = true;
     this.openProfileMenu(false);
   }

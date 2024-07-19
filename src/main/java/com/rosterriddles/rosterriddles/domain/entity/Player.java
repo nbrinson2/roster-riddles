@@ -12,10 +12,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@SequenceGenerator(name = "player_seq", sequenceName = "player_sequence", allocationSize = 1)
 public abstract class Player {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "player_seq")
     private Long id;
 
     @Column(nullable = false, length = 255)

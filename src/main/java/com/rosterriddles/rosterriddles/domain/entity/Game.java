@@ -51,6 +51,10 @@ public class Game {
     private int timesViewedActiveRoster = 0;
 
     @ManyToOne
+    @JoinColumn(nullable = false, name = "player_id")
+    private Player playerToGuess;
+
+    @ManyToOne
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 
@@ -62,13 +66,15 @@ public class Game {
     @JoinColumn(nullable = false, name = "game_type_id")
     private GameType gameType;
 
-    public Game(LocalDateTime startTime, GameStatus status, int remainingGuesses, int timesViewedActiveRoster, User user, League league, GameType gameType) {
+    public Game(LocalDateTime startTime, GameStatus status, int remainingGuesses, int numberOfGuesses, int timesViewedActiveRoster, Player playerToGuess, User user, League league, GameType gameType) {
         this.startTime = startTime;
         this.status = status;
         this.remainingGuesses = remainingGuesses;
+        this.numberOfGuesses = numberOfGuesses;
+        this.timesViewedActiveRoster = timesViewedActiveRoster;
+        this.playerToGuess = playerToGuess;
         this.user = user;
         this.league = league;
         this.gameType = gameType;
-        this.timesViewedActiveRoster = timesViewedActiveRoster;
     }
 }

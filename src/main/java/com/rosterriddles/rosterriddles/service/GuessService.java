@@ -1,16 +1,10 @@
 package com.rosterriddles.rosterriddles.service;
 
-import com.rosterriddles.rosterriddles.domain.dto.BaseballPlayerRequest;
 import com.rosterriddles.rosterriddles.domain.dto.GuessRequest;
-import com.rosterriddles.rosterriddles.domain.dto.PlayerRequest;
 import com.rosterriddles.rosterriddles.domain.entity.Game;
 import com.rosterriddles.rosterriddles.domain.entity.Guess;
-import com.rosterriddles.rosterriddles.domain.entity.League;
 import com.rosterriddles.rosterriddles.domain.entity.Player;
-import com.rosterriddles.rosterriddles.domain.entity.BaseballPlayer;
 import com.rosterriddles.rosterriddles.repository.GuessRepository;
-import com.rosterriddles.rosterriddles.repository.BaseballPlayerRepository;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +23,7 @@ public class GuessService {
    private GuessRepository guessRepository;
 
    @Autowired
-   private BaseballPlayerRepository baseballPlayerRepository;
+   private PlayerService playerService;
 
    @Autowired
    private GameService gameService;
@@ -48,8 +42,8 @@ public class GuessService {
       Game game = gameService.getGameById(gameId);
       int guessNumber = guessRepository.findAllByGameId(gameId).size() + 1;
 
-      Player player = createPlayerFromRequest(request.getPlayer(), game.getLeague());
-      player = savePlayer(player);
+      Player player = playerService.createPlayerFromRequest(request.getPlayer(), game.getLeague());
+      player = playerService.savePlayer(player);
 
       Guess guess = new Guess(
             game,
@@ -78,31 +72,4 @@ public class GuessService {
       }).orElse(null);
    }
 
-   private Player createPlayerFromRequest(PlayerRequest playerRequest, League league) {
-      if (playerRequest instanceof BaseballPlayerRequest) {
-         BaseballPlayerRequest baseballRequest = (BaseballPlayerRequest) playerRequest;
-         logger.info("Creating baseball player: {}", baseballRequest);
-         return new BaseballPlayer(
-               baseballRequest.getName(),
-               baseballRequest.getTeam(),
-               baseballRequest.getCountryOfBirth(),
-               baseballRequest.getAge(),
-               league,
-               baseballRequest.getBattingHand(),
-               baseballRequest.getThrowingHand(),
-               baseballRequest.getLeagueDivision(),
-               baseballRequest.getPosition());
-      } else {
-         throw new IllegalArgumentException("Unsupported player type");
-      }
-   }
-
-   private Player savePlayer(Player player) {
-      if (player instanceof BaseballPlayer) {
-         logger.info("Saving baseball player: {}", player);
-         return baseballPlayerRepository.save((BaseballPlayer) player);
-      } else {
-         throw new IllegalArgumentException("Unsupported player type");
-      }
-   }
 }

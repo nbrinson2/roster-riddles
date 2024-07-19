@@ -13,4 +13,5 @@ public class GameCreateRequest {
     private final Long userId;
     private final Long leagueId;
     private final Long gameTypeId;
+    private final PlayerRequest playerToGuess;
 }
