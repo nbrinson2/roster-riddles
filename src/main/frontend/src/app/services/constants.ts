@@ -1,16 +1,17 @@
 import {
-  Batting,
-  BattingFullName,
+  MlbBatting,
+  MlbBattingFullName,
   CountryBorn,
   CountryBornFullName,
-  LeagueDivision,
-  LeagueDivisionFullName,
+  MlbLeagueDivision,
+  MlbLeagueDivisionFullName,
   MlbTeam,
   MlbTeamFullName,
-  Throwing,
-  ThrowingFullName,
-} from '../models/models'
-import { Header, LeagueType } from './models'
+  MlbThrowing,
+  MlbThrowingFullName,
+} from '../shared/mlb-models'
+import { AttrHeader } from '../shared/models'
+import { LeagueType } from '../shared/models'
 
 export const MlbTeamAbbreviationMap: { [key in MlbTeamFullName]: MlbTeam } = {
   [MlbTeamFullName.ARIZONA_DIAMONDBACKS]: MlbTeam.ARI,
@@ -46,27 +47,27 @@ export const MlbTeamAbbreviationMap: { [key in MlbTeamFullName]: MlbTeam } = {
 }
 
 export const LeagueDivisionAbbreviationMap: {
-  [key in LeagueDivisionFullName]: LeagueDivision
+  [key in MlbLeagueDivisionFullName]: MlbLeagueDivision
 } = {
-  [LeagueDivisionFullName.AL_EAST]: LeagueDivision.AL_EAST,
-  [LeagueDivisionFullName.AL_WEST]: LeagueDivision.AL_WEST,
-  [LeagueDivisionFullName.AL_CENTRAL]: LeagueDivision.AL_CENTRAL,
-  [LeagueDivisionFullName.NL_EAST]: LeagueDivision.NL_EAST,
-  [LeagueDivisionFullName.NL_WEST]: LeagueDivision.NL_WEST,
-  [LeagueDivisionFullName.NL_CENTRAL]: LeagueDivision.NL_CENTRAL,
+  [MlbLeagueDivisionFullName.AL_EAST]: MlbLeagueDivision.AL_EAST,
+  [MlbLeagueDivisionFullName.AL_WEST]: MlbLeagueDivision.AL_WEST,
+  [MlbLeagueDivisionFullName.AL_CENTRAL]: MlbLeagueDivision.AL_CENTRAL,
+  [MlbLeagueDivisionFullName.NL_EAST]: MlbLeagueDivision.NL_EAST,
+  [MlbLeagueDivisionFullName.NL_WEST]: MlbLeagueDivision.NL_WEST,
+  [MlbLeagueDivisionFullName.NL_CENTRAL]: MlbLeagueDivision.NL_CENTRAL,
 }
 
-export const BattingAbbreviationMap: { [key in BattingFullName]: Batting } = {
-  [BattingFullName.R]: Batting.R,
-  [BattingFullName.L]: Batting.L,
-  [BattingFullName.S]: Batting.S,
+export const BattingAbbreviationMap: { [key in MlbBattingFullName]: MlbBatting } = {
+  [MlbBattingFullName.R]: MlbBatting.R,
+  [MlbBattingFullName.L]: MlbBatting.L,
+  [MlbBattingFullName.S]: MlbBatting.S,
 }
 
-export const ThrowingAbbreviationMap: { [key in ThrowingFullName]: Throwing } =
+export const ThrowingAbbreviationMap: { [key in MlbThrowingFullName]: MlbThrowing } =
   {
-    [ThrowingFullName.R]: Throwing.R,
-    [ThrowingFullName.L]: Throwing.L,
-    [ThrowingFullName.B]: Throwing.B,
+    [MlbThrowingFullName.R]: MlbThrowing.R,
+    [MlbThrowingFullName.L]: MlbThrowing.L,
+    [MlbThrowingFullName.B]: MlbThrowing.B,
   }
 
 export const CountryBornAbbreviationMap: {
@@ -117,7 +118,7 @@ export enum InputPlaceHolderText {
   LOSE = "Go home, you lose.",
 }
 
-export const MlbHeaders: Header[] = [
+export const MlbHeaders: AttrHeader[] = [
   { name: 'TEAM', colSpan: 1, class: 'team-column' },
   { name: 'LG./DIV.', colSpan: 2, class: 'lg-div-column' },
   { name: 'B', colSpan: 1, class: 'b-column' },

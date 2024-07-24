@@ -1,28 +1,49 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, first, forkJoin, map, switchMap } from 'rxjs';
-import { BattingFullName, CountryBornFullName, LeagueDivisionFullName, MlbTeamFullName, PlayerAttr, PlayerAttrColor, PlayerResponse, RosterResponse, Team, TeamsResponse, ThrowingFullName, UiPlayer, UiPlayerDetailed, UiRoster, UiRosterPlayer } from '../models/models';
-import { BattingAbbreviationMap, CountryBornAbbreviationMap, LeagueDivisionAbbreviationMap, MlbTeamAbbreviationMap, ThrowingAbbreviationMap } from './constants';
+import {
+  MlbBattingFullName,
+  CountryBornFullName,
+  MlbLeagueDivisionFullName,
+  MlbTeamFullName,
+  MlbPlayerAttr,
+  PlayerAttrColor,
+  MlbPlayerResponse,
+  MlbRosterResponse,
+  MlbTeamResponse,
+  MlbTeamsResponse,
+  MlbThrowingFullName,
+  MlbPlayer,
+  MlbPlayerDetailed,
+  MlbRoster,
+  MlbRosterPlayer,
+} from '../shared/mlb-models';
+import {
+  BattingAbbreviationMap,
+  CountryBornAbbreviationMap,
+  LeagueDivisionAbbreviationMap,
+  MlbTeamAbbreviationMap,
+  ThrowingAbbreviationMap,
+} from './constants';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PlayersService {
-  baseUrl = 'https://statsapi.mlb.com/api/v1';
-  teamsEndpoint = '/teams';
-  playerEndpoint = '/people';
+  mlbBaseUrl = 'https://statsapi.mlb.com/api/v1';
+  mlbTeamsEndpoint = '/teams';
+  mlbPlayerEndpoint = '/people';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  public getAllPlayers(): Observable<UiPlayer[]> {
-    return this.getAllTeamRosters().pipe(
-      switchMap((rosters: UiRoster[]) => {
-        const playersWithTeam: UiRosterPlayer[] = [];
+  public getAllMlbPlayers(): Observable<MlbPlayer[]> {
+    return this.getAllMlbTeamRosters().pipe(
+      switchMap((rosters: MlbRoster[]) => {
+        const playersWithTeam: MlbRosterPlayer[] = [];
 
         for (const roster of rosters) {
           for (const player of roster.players) {
             const team = MlbTeamAbbreviationMap[roster.team as MlbTeamFullName];
-
             playersWithTeam.push({
               player: player,
               team: team,
@@ -31,9 +52,9 @@ export class PlayersService {
           }
         }
 
-        const playerObservables = playersWithTeam.map((playerWithTeam: UiRosterPlayer) =>
-          this.getPlayer(playerWithTeam.player.person.id).pipe(
-            map((playerResponse: PlayerResponse) => ({
+        const playerObservables = playersWithTeam.map((playerWithTeam: MlbRosterPlayer) =>
+          this.getMlbPlayer(playerWithTeam.player.person.id).pipe(
+            map((playerResponse: MlbPlayerResponse) => ({
               player: playerResponse.people[0],
               team: playerWithTeam.team,
               division: playerWithTeam.division,
@@ -43,9 +64,9 @@ export class PlayersService {
 
         return forkJoin(playerObservables);
       }),
-      map((playersWithTeamName: UiPlayerDetailed[]) => {
-        const uiPlayers = playersWithTeamName.map(playerWithTeamName =>
-          this.mapPlayerDetailedToUiPlayer(playerWithTeamName)
+      map((playersWithTeamName: MlbPlayerDetailed[]) => {
+        const uiPlayers = playersWithTeamName.map((playerWithTeamName) =>
+          this.mapMlbPlayerDetailedToUiPlayer(playerWithTeamName)
         );
 
         return uiPlayers;
@@ -53,64 +74,66 @@ export class PlayersService {
     );
   }
 
-  private mapPlayerDetailedToUiPlayer(player: UiPlayerDetailed): UiPlayer {
+  private mapMlbPlayerDetailedToUiPlayer(player: MlbPlayerDetailed): MlbPlayer {
     return {
       name: player.player.fullName,
       team: player.team,
-      lgDiv: LeagueDivisionAbbreviationMap[player.division as LeagueDivisionFullName],
-      b: BattingAbbreviationMap[player.player.batSide.description as BattingFullName],
-      t: ThrowingAbbreviationMap[player.player.pitchHand.description as ThrowingFullName],
+      lgDiv: LeagueDivisionAbbreviationMap[player.division as MlbLeagueDivisionFullName],
+      b: BattingAbbreviationMap[player.player.batSide.description as MlbBattingFullName],
+      t: ThrowingAbbreviationMap[player.player.pitchHand.description as MlbThrowingFullName],
       born: CountryBornAbbreviationMap[player.player.birthCountry as CountryBornFullName],
       age: player.player.currentAge.toString(),
       pos: player.player.primaryPosition.abbreviation,
-      colorMap: this.initializePlaterAttrColorMap(),
+      colorMap: this.initializeMlbPlaterAttrColorMap(),
     };
   }
 
-  private initializePlaterAttrColorMap(): Map<PlayerAttr, PlayerAttrColor> {
-    const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
-    const playerAttrBackgroundColorMap = new Map<PlayerAttr, PlayerAttrColor>();
-  
+  private initializeMlbPlaterAttrColorMap(): Map<MlbPlayerAttr, PlayerAttrColor> {
+    const playerAttributes = Object.values(MlbPlayerAttr).filter((key) => key !== MlbPlayerAttr.NAME);
+    const playerAttrBackgroundColorMap = new Map<MlbPlayerAttr, PlayerAttrColor>();
+
     for (const attr of playerAttributes) {
       playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE);
     }
     return playerAttrBackgroundColorMap;
   }
 
-  private getAllTeamRosters(): Observable<UiRoster[]> {
-    return this.getTeams().pipe(
-      map((teamsResponse: TeamsResponse) => teamsResponse.teams),
-      switchMap((teams: Team[]) => {
-        const mlbTeams = teams.filter((team: Team) => team.sport.name === 'Major League Baseball');
-        const rosterObservables = mlbTeams.map((team: Team) => this.getTeamRoster(team.id).pipe(
-          map((rosterResponse: RosterResponse) => ({
-            team: team.name,
-            league: team.league.name!,
-            division: team.division!.name,
-            players: rosterResponse.roster,
-          }))
-        ));
+  private getAllMlbTeamRosters(): Observable<MlbRoster[]> {
+    return this.getMlbTeams().pipe(
+      map((teamsResponse: MlbTeamsResponse) => teamsResponse.teams),
+      switchMap((teams: MlbTeamResponse[]) => {
+        const mlbTeams = teams.filter((team: MlbTeamResponse) => team.sport.name === 'Major League Baseball');
+        const rosterObservables = mlbTeams.map((team: MlbTeamResponse) =>
+          this.getMlbTeamRoster(team.id).pipe(
+            map((rosterResponse: MlbRosterResponse) => ({
+              team: team.name,
+              league: team.league.name!,
+              division: team.division!.name,
+              players: rosterResponse.roster,
+            }))
+          )
+        );
         return forkJoin(rosterObservables);
       }),
-      map((uiRosters: UiRoster[]) => uiRosters)
+      map((uiRosters: MlbRoster[]) => uiRosters)
     );
   }
 
-  private getTeams(): Observable<TeamsResponse> {
-    const reqUrl = this.baseUrl + this.teamsEndpoint;
-    const response = this.http.get<TeamsResponse>(reqUrl);
+  private getMlbTeams(): Observable<MlbTeamsResponse> {
+    const reqUrl = this.mlbBaseUrl + this.mlbTeamsEndpoint;
+    const response = this.http.get<MlbTeamsResponse>(reqUrl);
     return response;
   }
 
-  private getTeamRoster(id: number): Observable<RosterResponse> {
-    const reqUrl = `${this.baseUrl}${this.teamsEndpoint}/${id}/roster`;
-    const response = this.http.get<RosterResponse>(reqUrl);
+  private getMlbTeamRoster(id: number): Observable<MlbRosterResponse> {
+    const reqUrl = `${this.mlbBaseUrl}${this.mlbTeamsEndpoint}/${id}/roster`;
+    const response = this.http.get<MlbRosterResponse>(reqUrl);
     return response;
   }
 
-  private getPlayer(id: number): Observable<PlayerResponse> {
-    const reqUrl = `${this.baseUrl}${this.playerEndpoint}/${id}`;
-    const response = this.http.get<PlayerResponse>(reqUrl);
+  private getMlbPlayer(id: number): Observable<MlbPlayerResponse> {
+    const reqUrl = `${this.mlbBaseUrl}${this.mlbPlayerEndpoint}/${id}`;
+    const response = this.http.get<MlbPlayerResponse>(reqUrl);
     return response;
   }
 }

@@ -12,14 +12,14 @@ import {
   GameStatus,
   GameUpdateRequest,
   GuessCreateRequest,
-  LeagueType,
   PlayerType,
 } from './models'
-import { PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models'
+import { MlbPlayerAttr, PlayerAttrColor, MlbPlayer } from '../shared/mlb-models'
 import { GuessService } from './guess.service'
 import { ToastService } from './toast.service'
 import { GameUtilityService } from './game-utility.service'
 import { EndResultMessage, InputPlaceHolderText, MlbHeaders } from './constants'
+import { LeagueType } from '../shared/models'
 
 export const maxNumberOfGuesses = 1
 
@@ -31,7 +31,7 @@ export class GameService {
     return this._gameData.asReadonly()
   }
 
-  get allPlayers(): Signal<UiPlayer[]> {
+  get allPlayers(): Signal<MlbPlayer[]> {
     return this._allPlayers.asReadonly()
   }
 
@@ -42,7 +42,7 @@ export class GameService {
   private readonly baseUrl = environment.baseUrl
   private readonly gameEndpoint = '/games'
   private _gameData = signal<GameData>({} as GameData)
-  private _allPlayers = signal<UiPlayer[]>([])
+  private _allPlayers = signal<MlbPlayer[]>([])
   private _gameId = signal<number>(0)
 
   constructor(
@@ -89,7 +89,7 @@ export class GameService {
     }
   }
 
-  public setAllPlayers(allPlayers: UiPlayer[]): void {
+  public setAllPlayers(allPlayers: MlbPlayer[]): void {
     this._allPlayers.set(allPlayers)
   }
 
@@ -104,7 +104,7 @@ export class GameService {
     this._gameData.set({ ...this.gameData(), [field]: value })
   }
 
-  public selectPlayer(selectedPlayer: UiPlayer): void {
+  public selectPlayer(selectedPlayer: MlbPlayer): void {
     this.updateGameDataField(
       'numberOfGuesses',
       this.gameData().numberOfGuesses + 1
@@ -143,7 +143,7 @@ export class GameService {
     this.setNewAttrColorForAllGuessablePlayers(selectedPlayer)
   }
 
-  public startNewGame(players: UiPlayer[], userId: number): void {
+  public startNewGame(players: MlbPlayer[], userId: number): void {
     this.setPlayerToGuess(players)
     const playerRequest = this.createPlayerRequest(
       this.gameData().playerToGuess
@@ -193,7 +193,7 @@ export class GameService {
     this.updateGameDataField('searchInputPlaceHolderText', inputPlaceHolderText)
   }
 
-  public setPlayerToGuess(players: UiPlayer[]): void {
+  public setPlayerToGuess(players: MlbPlayer[]): void {
     const playerToGuess = players[Math.floor(Math.random() * players.length)]
     this.updateGameDataField('playerToGuess', playerToGuess)
   }
@@ -242,11 +242,11 @@ export class GameService {
     })
   }
 
-  public resetPlayerColorMap(player: UiPlayer): void {
+  public resetPlayerColorMap(player: MlbPlayer): void {
     player.colorMap = this.gameUtilityService.initializePlayerAttrColorMap()
   }
 
-  private createPlayerRequest(player: UiPlayer): BaseballPlayerRequest {
+  private createPlayerRequest(player: MlbPlayer): BaseballPlayerRequest {
     return {
       name: player.name,
       team: player.team,
@@ -261,7 +261,7 @@ export class GameService {
   }
 
   private createGuessRequest(
-    selectedPlayer: UiPlayer,
+    selectedPlayer: MlbPlayer,
     colorMapValuesArray: string[]
   ): GuessCreateRequest {
     const playerRequest = this.createPlayerRequest(selectedPlayer)
@@ -290,7 +290,7 @@ export class GameService {
     }
   }
 
-  private updateSelectedPlayer(selectedPlayer: UiPlayer): string[] {
+  private updateSelectedPlayer(selectedPlayer: MlbPlayer): string[] {
     const playerToGuess = this.gameData().playerToGuess
     selectedPlayer.colorMap =
       this.gameUtilityService.getPlayerKeyToBackgroundColorMap(
@@ -376,12 +376,12 @@ export class GameService {
   }
 
   private setNewAttrColorForAllGuessablePlayers(
-    selectedPlayer: UiPlayer
+    selectedPlayer: MlbPlayer
   ): void {
-    const coloredPlayerAttributes: PlayerAttr[] = []
+    const coloredPlayerAttributes: MlbPlayerAttr[] = []
     for (const attr of selectedPlayer.colorMap.keys()) {
       if (
-        selectedPlayer.colorMap.get(attr as PlayerAttr) !== PlayerAttrColor.NONE
+        selectedPlayer.colorMap.get(attr as MlbPlayerAttr) !== PlayerAttrColor.NONE
       ) {
         coloredPlayerAttributes.push(attr)
       }
@@ -402,8 +402,8 @@ export class GameService {
   }
 
   private updatePlayerAttrColorForAllGuessablePlayers(
-    attributes?: PlayerAttr[],
-    selectedPlayer?: UiPlayer
+    attributes?: MlbPlayerAttr[],
+    selectedPlayer?: MlbPlayer
   ): void {
     if (!attributes && !selectedPlayer) {
       const newGuessablePlayers = this.gameData().guessablePlayers
@@ -419,13 +419,13 @@ export class GameService {
       for (const player of newGuessablePlayers) {
         for (const attr of attributes) {
           if (
-            player[attr as PlayerAttr] === selectedPlayer[attr as PlayerAttr]
+            player[attr as MlbPlayerAttr] === selectedPlayer[attr as MlbPlayerAttr]
           ) {
             const selectedPlayerAttrColor = selectedPlayer.colorMap.get(
-              attr as PlayerAttr
+              attr as MlbPlayerAttr
             )
             player.colorMap.set(
-              attr as PlayerAttr,
+              attr as MlbPlayerAttr,
               selectedPlayerAttrColor as PlayerAttrColor
             )
           }

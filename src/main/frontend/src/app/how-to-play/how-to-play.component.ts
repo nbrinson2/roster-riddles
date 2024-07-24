@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models';
+import { MlbPlayerAttr, PlayerAttrColor, MlbPlayer } from '../shared/mlb-models';
 import { PLAYERS } from 'src/test-data';
 
 @Component({
@@ -9,17 +9,17 @@ import { PLAYERS } from 'src/test-data';
 })
 export class HowToPlayComponent {
 
-  protected matchPlayer: UiPlayer = PLAYERS[0];
-  protected lgDivPlayer: UiPlayer = PLAYERS[1];
-  protected agePlayer: UiPlayer = PLAYERS[2];
-  protected teamPlayer: UiPlayer = PLAYERS[3];
+  protected matchPlayer: MlbPlayer = PLAYERS[0];
+  protected lgDivPlayer: MlbPlayer = PLAYERS[1];
+  protected agePlayer: MlbPlayer = PLAYERS[2];
+  protected teamPlayer: MlbPlayer = PLAYERS[3];
 
   constructor() {
-    this.matchPlayer.colorMap.set(PlayerAttr.POS, PlayerAttrColor.BLUE);
-    this.matchPlayer.colorMap.set(PlayerAttr.B, PlayerAttrColor.BLUE);
-    this.matchPlayer.colorMap.set(PlayerAttr.T, PlayerAttrColor.BLUE);
-    this.lgDivPlayer.colorMap.set(PlayerAttr.LG_DIV, PlayerAttrColor.ORANGE);
-    this.agePlayer.colorMap.set(PlayerAttr.AGE, PlayerAttrColor.ORANGE);
-    this.teamPlayer.colorMap.set(PlayerAttr.TEAM, PlayerAttrColor.BLUE);
+    this.matchPlayer.colorMap.set(MlbPlayerAttr.POS, PlayerAttrColor.BLUE);
+    this.matchPlayer.colorMap.set(MlbPlayerAttr.B, PlayerAttrColor.BLUE);
+    this.matchPlayer.colorMap.set(MlbPlayerAttr.T, PlayerAttrColor.BLUE);
+    this.lgDivPlayer.colorMap.set(MlbPlayerAttr.LG_DIV, PlayerAttrColor.ORANGE);
+    this.agePlayer.colorMap.set(MlbPlayerAttr.AGE, PlayerAttrColor.ORANGE);
+    this.teamPlayer.colorMap.set(MlbPlayerAttr.TEAM, PlayerAttrColor.BLUE);
   }
 }

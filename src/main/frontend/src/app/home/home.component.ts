@@ -1,11 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
-import { UiPlayer } from '../models/models'
+import { MlbPlayer } from '../shared/mlb-models'
 import { ActivatedRoute } from '@angular/router'
 
 import { GameService } from '../services/game.service'
-import { Header, LeagueType } from '../services/models'
+import { LeagueType } from '../shared/models'
 import { AuthenticationService } from '../services/authentication.service'
 import { EndResultMessage } from '../services/constants'
+import { AttrHeader } from '../shared/models'
 
 @Component({
   selector: 'home',
@@ -13,10 +14,10 @@ import { EndResultMessage } from '../services/constants'
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
-  @Input() allPlayers: UiPlayer[] = []
-  @Output() selectRosterEvent = new EventEmitter<UiPlayer[]>()
+  @Input() allPlayers: MlbPlayer[] = []
+  @Output() selectRosterEvent = new EventEmitter<MlbPlayer[]>()
 
-  get headers(): Header[] {
+  get headers(): AttrHeader[] {
     return this.gameService.gameData().headers;
   }
 
@@ -32,11 +33,11 @@ export class HomeComponent implements OnInit {
     return this.gameService.gameData().showNewGameButton;
   }
 
-  get selectedPlayers(): UiPlayer[] {
+  get selectedPlayers(): MlbPlayer[] {
     return this.gameService.gameData().selectedPlayers;
   }
 
-  get playerToGuess(): UiPlayer {
+  get playerToGuess(): MlbPlayer {
     return this.gameService.gameData().playerToGuess;
   }
   
@@ -52,7 +53,7 @@ export class HomeComponent implements OnInit {
     return this.gameService.gameData().isSearchDisabled;
   }
 
-  get guessablePlayers(): UiPlayer[] {
+  get guessablePlayers(): MlbPlayer[] {
     return this.gameService.gameData().guessablePlayers;
   }
 
@@ -64,7 +65,7 @@ export class HomeComponent implements OnInit {
     this.gameService.updateGameDataField('guessablePlayers', this.allPlayers);
   }
 
-  protected selectPlayer(player: UiPlayer): void {
+  protected selectPlayer(player: MlbPlayer): void {
     this.gameService.selectPlayer(player);
   }
 

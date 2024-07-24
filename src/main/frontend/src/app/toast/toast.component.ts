@@ -1,6 +1,6 @@
 import { Component, computed, Input } from '@angular/core'
 import { ToastService } from '../services/toast.service'
-import { UiPlayer } from '../models/models'
+import { MlbPlayer } from '../shared/mlb-models'
 
 @Component({
   selector: 'toast',
@@ -8,7 +8,7 @@ import { UiPlayer } from '../models/models'
   styleUrls: ['./toast.component.scss'],
 })
 export class ToastComponent {
-  get player(): UiPlayer {
+  get player(): MlbPlayer {
     return this.toastService.playerCorrectAnswer();
   }
 

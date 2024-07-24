@@ -5,7 +5,7 @@ import { map, startWith, take, takeUntil } from 'rxjs/operators';
 
 import { MatOption } from '@angular/material/core';
 import { FloatLabelType } from '@angular/material/form-field';
-import { UiPlayer } from '../models/models';
+import { MlbPlayer } from '../shared/mlb-models';
 
 @Component({
   selector: 'search',
@@ -13,19 +13,19 @@ import { UiPlayer } from '../models/models';
   styleUrls: ['./search.component.scss']
 })
 export class SearchComponent {
-  @Input() players?: UiPlayer[];
+  @Input() players?: MlbPlayer[];
   @Input() disabled: boolean = false;
   @Input() placeHolderText!: string;
 
-  @Output() selectPlayerEvent = new EventEmitter<UiPlayer>();
+  @Output() selectPlayerEvent = new EventEmitter<MlbPlayer>();
 
   @ViewChildren('playerOption') playerOptions!: QueryList<MatOption>;
 
-  protected selectedPlayer?: UiPlayer;
+  protected selectedPlayer?: MlbPlayer;
   protected guessCount = 0;
   protected maxGuessNum = 9;
   protected searchControl = new FormControl();
-  protected filteredPlayers: Observable<UiPlayer[]>;
+  protected filteredPlayers: Observable<MlbPlayer[]>;
 
   constructor() {
     // Only include 10 players from filtered list for performance
@@ -40,7 +40,7 @@ export class SearchComponent {
     return floatControl.value || 'auto';
   }
 
-  protected selectPlayer(player: UiPlayer): void {
+  protected selectPlayer(player: MlbPlayer): void {
     if (this.searchControl.value !== null) {
       this.selectPlayerEvent.emit(player);
       this.searchControl.setValue(null);
@@ -51,7 +51,7 @@ export class SearchComponent {
     }
   }
 
-  private _filter(value: string): UiPlayer[] {
+  private _filter(value: string): MlbPlayer[] {
     if (!this.players) {
       return [];
     }

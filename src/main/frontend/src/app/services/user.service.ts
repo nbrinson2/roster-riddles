@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from 'src/environment';
 import { AuthenticationService } from './authentication.service';
-import { User } from './models';
+import { User } from '../shared/models';
 import { transformUserResponse } from '../util/data.util';
 import { UserResponse } from '../authentication/authentication-models';
 

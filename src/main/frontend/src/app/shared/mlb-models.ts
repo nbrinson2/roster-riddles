@@ -64,7 +64,7 @@ export enum MlbTeamFullName {
     WASHINGTON_NATIONALS = 'Washington Nationals',
 }
 
-export enum LeagueDivision {
+export enum MlbLeagueDivision {
     AL_EAST = 'AL East',
     AL_CENTRAL = 'AL Central',
     AL_WEST = 'AL West',
@@ -73,7 +73,7 @@ export enum LeagueDivision {
     NL_WEST = 'NL West',
 }
 
-export enum LeagueDivisionFullName {
+export enum MlbLeagueDivisionFullName {
     AL_EAST = 'American League East',
     AL_CENTRAL = 'American League Central',
     AL_WEST = 'American League West',
@@ -82,34 +82,30 @@ export enum LeagueDivisionFullName {
     NL_WEST = 'National League West',
 }
 
-export enum LeagueFullName {
+export enum MlbLeagueFullName {
     AMERICAN_LEAGUE = 'American League',
     NATIONAL_LEAGUE = 'National League',
 }
 
-export enum DivsionFullName {
-
-}
-
-export enum Batting {
+export enum MlbBatting {
     R = 'R',
     L = 'L',
     S = 'S',
 }
 
-export enum BattingFullName {
+export enum MlbBattingFullName {
     R = 'Right',
     L = 'Left',
     S = 'Switch',
 }
 
-export enum Throwing {
+export enum MlbThrowing {
     R = 'R',
     L = 'L',
     B = 'B',
 }
 
-export enum ThrowingFullName {
+export enum MlbThrowingFullName {
     R = 'Right',
     L = 'Left',
     B = 'Both',
@@ -166,7 +162,7 @@ export enum CountryBornFullName {
     GER = 'Germany',
 }
 
-export enum PositionEnum {
+export enum MlbPositionEnum {
     SP = 'SP',
     RP = 'RP',
     P = 'P',
@@ -182,7 +178,7 @@ export enum PositionEnum {
     TWP = 'TWP',
 }
 
-export enum PlayerAttr {
+export enum MlbPlayerAttr {
     NAME = 'name',
     TEAM = 'team',
     LG_DIV = 'lgDiv',
@@ -200,7 +196,7 @@ export enum PlayerAttrColor {
     NONE = 'none',
 }
 
-export interface UiPlayer {
+export interface MlbPlayer {
     name: string;
     team: string;
     lgDiv: string;
@@ -209,134 +205,134 @@ export interface UiPlayer {
     born: string;
     age: string;
     pos: string;
-    colorMap: Map<PlayerAttr, PlayerAttrColor>;
+    colorMap: Map<MlbPlayerAttr, PlayerAttrColor>;
 }
 
-export interface UiPlayerDetailed {
-    player: PlayerDetailed;
+export interface MlbPlayerDetailed {
+    player: MlbPlayerDetailedResponse;
     team: string;
     division: string;
 }
 
-export interface UiRoster {
+export interface MlbRoster {
     team: string;
     division: string;
-    players: Player[];
+    players: MlbPlayerResponse[];
 }
 
-export interface UiRosterPlayer {
-    player: Player;
+export interface MlbRosterPlayer {
+    player: MlbPlayerResponse;
     team: string;
     division: string;
 }
 
-export interface TeamsResponse {
+export interface MlbTeamsResponse {
     copyright: string;
-    teams: Team[];
+    teams: MlbTeamResponse[];
 }
 
-export interface Team {
+export interface MlbTeamResponse {
     allStarStatus: string
     id: number
     name: string
     link: string
     season: number
-    venue: Venue
+    venue: MlbVenueResponse
     teamCode: string
     fileCode: string
     abbreviation?: string
     teamName: string
     locationName?: string
     firstYearOfPlay?: string
-    league: League
-    division?: Division
-    sport: Sport
+    league: MlbLeagueResponse
+    division?: MlbDivisionResponse
+    sport: MlbSportResponse
     shortName: string
     parentOrgName?: string
     parentOrgId?: number
     franchiseName?: string
     clubName?: string
     active: boolean
-    springLeague?: SpringLeague
-    springVenue?: SpringVenue
+    springLeague?: MlbSpringLeagueResponse
+    springVenue?: MlbSpringVenueResponse
 }
 
-export interface Venue {
+export interface MlbVenueResponse {
     id: number
     name?: string
     link: string
 }
 
-export interface League {
+export interface MlbLeagueResponse {
     id?: number
     name?: string
     link: string
 }
 
-export interface Division {
+export interface MlbDivisionResponse {
     id: number
     name: string
     link: string
 }
 
-export interface Sport {
+export interface MlbSportResponse {
     id: number
     link: string
     name: string
 }
 
-export interface SpringLeague {
+export interface MlbSpringLeagueResponse {
     id: number
     name: string
     link: string
     abbreviation: string
 }
 
-export interface SpringVenue {
+export interface MlbSpringVenueResponse {
     id: number
     link: string
 }
 
-export interface RosterResponse {
+export interface MlbRosterResponse {
     copyright: string
-    roster: Player[]
+    roster: MlbPlayerResponse[]
     link: string
     teamId: number
     rosterType: string
 }
 
-export interface Player {
-    person: Person
+export interface MlbPlayerResponse {
+    person: MlbPersonResponse
     jerseyNumber: string
-    position: Position
-    status: Status
+    position: MlbPositionResponse
+    status: MlbStatusResponse
     parentTeamId: number
 }
 
-export interface Person {
+export interface MlbPersonResponse {
     id: number
     fullName: string
     link: string
 }
 
-export interface Position {
+export interface MlbPositionResponse {
     code: string
     name: string
     type: string
     abbreviation: string
 }
 
-export interface Status {
+export interface MlbStatusResponse {
     code: string
     description: string
 }
 
-export interface PlayerResponse {
+export interface MlbPlayerResponse {
     copyright: string
-    people: PlayerDetailed[]
+    people: MlbPlayerDetailedResponse[]
 }
 
-export interface PlayerDetailed {
+export interface MlbPlayerDetailedResponse {
     id: number
     fullName: string
     link: string
@@ -351,7 +347,7 @@ export interface PlayerDetailed {
     height: string
     weight: number
     active: boolean
-    primaryPosition: PrimaryPosition
+    primaryPosition: MlbPrimaryPositionResponse
     useName: string
     useLastName: string
     middleName: string
@@ -360,8 +356,8 @@ export interface PlayerDetailed {
     isPlayer: boolean
     isVerified: boolean
     draftYear: number
-    batSide: BatSide
-    pitchHand: PitchHand
+    batSide: MlbBatSideResponse
+    pitchHand: MlbPitchHandResponse
     nameFirstLast: string
     nameSlug: string
     firstLastName: string
@@ -374,19 +370,19 @@ export interface PlayerDetailed {
     strikeZoneBottom: number
 }
 
-export interface PrimaryPosition {
+export interface MlbPrimaryPositionResponse {
     code: string
     name: string
     type: string
     abbreviation: string
 }
 
-export interface BatSide {
+export interface MlbBatSideResponse {
     code: string
     description: string
 }
 
-export interface PitchHand {
+export interface MlbPitchHandResponse {
     code: string
     description: string
 }

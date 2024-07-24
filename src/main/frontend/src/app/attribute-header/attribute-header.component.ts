@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { PlayerAttrColor } from '../models/models';
-import { Header } from '../services/models';
+import { PlayerAttrColor } from '../shared/mlb-models';
+import { AttrHeader } from '../shared/models';
 import { EndResultMessage } from '../services/constants';
 
 @Component({
@@ -9,7 +9,7 @@ import { EndResultMessage } from '../services/constants';
   styleUrls: ['./attribute-header.component.scss']
 })
 export class AttributeHeaderComponent {
-  @Input() attrHeaders!: Header[];
+  @Input() attrHeaders!: AttrHeader[];
   @Input() endResultText!: string;
   @Input() endOfGame!: boolean;
 

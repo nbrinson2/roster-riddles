@@ -40,7 +40,9 @@
       <div class="content-container">
         <home [allPlayers]="allPlayers" (selectRosterEvent)="openRosterMenu($event)"></home>
       </div>
-      <toast id="toast"></toast>
+      <ng-container *ngIf="isToastVisible">
+        <toast id="toast"></toast>
+      </ng-container>
     </mat-drawer-content>
   </mat-drawer-container>
 </div>

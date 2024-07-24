@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 
-import { PlayerAttr, PlayerAttrColor, UiPlayer } from '../models/models'
+import { MlbPlayerAttr, PlayerAttrColor, MlbPlayer } from '../shared/mlb-models'
 import { GameStatus } from './models'
 import { InputPlaceHolderText } from './constants'
 
@@ -8,11 +8,11 @@ import { InputPlaceHolderText } from './constants'
   providedIn: 'root',
 })
 export class GameUtilityService {
-  initializePlayerAttrColorMap(): Map<PlayerAttr, PlayerAttrColor> {
-    const playerAttributes = Object.values(PlayerAttr).filter(
-      (key) => key !== PlayerAttr.NAME
+  initializePlayerAttrColorMap(): Map<MlbPlayerAttr, PlayerAttrColor> {
+    const playerAttributes = Object.values(MlbPlayerAttr).filter(
+      (key) => key !== MlbPlayerAttr.NAME
     )
-    const playerAttrBackgroundColorMap = new Map<PlayerAttr, PlayerAttrColor>()
+    const playerAttrBackgroundColorMap = new Map<MlbPlayerAttr, PlayerAttrColor>()
 
     for (const attr of playerAttributes) {
       playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE)
@@ -44,15 +44,15 @@ export class GameUtilityService {
 
   
   getPlayerKeyToBackgroundColorMap(
-    playerToGuess: UiPlayer,
-    selectedPlayer: UiPlayer,
+    playerToGuess: MlbPlayer,
+    selectedPlayer: MlbPlayer,
     initialize: boolean
-  ): Map<PlayerAttr, PlayerAttrColor> {
-    const playerAttributes = Object.values(PlayerAttr).filter(
-      (key) => key !== PlayerAttr.NAME
+  ): Map<MlbPlayerAttr, PlayerAttrColor> {
+    const playerAttributes = Object.values(MlbPlayerAttr).filter(
+      (key) => key !== MlbPlayerAttr.NAME
     )
     const backgroundColors = Object.values(PlayerAttrColor)
-    const playerAttrBackgroundColorMap = new Map<PlayerAttr, PlayerAttrColor>()
+    const playerAttrBackgroundColorMap = new Map<MlbPlayerAttr, PlayerAttrColor>()
 
     if (initialize) {
       for (const attr of playerAttributes) {
@@ -63,11 +63,11 @@ export class GameUtilityService {
 
     for (const attr of playerAttributes) {
       switch (attr) {
-        case PlayerAttr.TEAM:
-        case PlayerAttr.B:
-        case PlayerAttr.T:
-        case PlayerAttr.BORN:
-        case PlayerAttr.POS:
+        case MlbPlayerAttr.TEAM:
+        case MlbPlayerAttr.B:
+        case MlbPlayerAttr.T:
+        case MlbPlayerAttr.BORN:
+        case MlbPlayerAttr.POS:
           if (playerToGuess[attr] === selectedPlayer[attr]) {
             playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE)
             break
@@ -75,7 +75,7 @@ export class GameUtilityService {
 
           playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE)
           break
-        case PlayerAttr.LG_DIV:
+        case MlbPlayerAttr.LG_DIV:
           const playerToGuessLgDivArray = playerToGuess[attr].split(' ')
           const selectedPlayerLgDivArray = selectedPlayer[attr].split(' ')
           const mismatchArray = playerToGuessLgDivArray.filter(
@@ -95,7 +95,7 @@ export class GameUtilityService {
           playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE)
 
           break
-        case PlayerAttr.AGE:
+        case MlbPlayerAttr.AGE:
           const ageDifference =
             Number(playerToGuess[attr]) - Number(selectedPlayer[attr])
 

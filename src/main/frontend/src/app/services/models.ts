@@ -1,11 +1,12 @@
-import { PlayerAttr, PlayerAttrColor, UiPlayer } from "../models/models";
+import { MlbPlayerAttr, PlayerAttrColor, MlbPlayer } from "../shared/mlb-models";
+import { AttrHeader } from "../shared/models";
 import { EndResultMessage } from "./constants";
 
 export interface GameData {
-  headers: Header[];
-  guessablePlayers: UiPlayer[];
-  selectedPlayers: UiPlayer[];
-  playerToGuess: UiPlayer;
+  headers: AttrHeader[];
+  guessablePlayers: MlbPlayer[];
+  selectedPlayers: MlbPlayer[];
+  playerToGuess: MlbPlayer;
   endResultText: EndResultMessage;
   endOfGame: boolean;
   isSearchDisabled: boolean;
@@ -14,39 +15,6 @@ export interface GameData {
   showNewGameButton: boolean;
   timesViewedActiveRoster: number;
 }
-
-export interface Header {
-  name: string;
-  colSpan: number;
-  class: string;
-}
-
-export interface UserStatistics {
-   totalGamesPlayed: number;
-   currentStreak: number;
-   maxStreak: number;
-   gamesWon: number;
-   gamesLost: number;
-   winPercentage: number;
-   totalGuessesMade: number;
-   avgNumberOfGuessesPerGame: number;
-   timesViewedActiveRoster: number;
-   totalRosterLinkClicks: number;
-   timesClickedNewGame: number;
- }
- 
- export interface User {
-   id: number;
-   firstName: string;
-   lastName: string;
-   email: string;
-   createdAt: Date;
-   userRole: string;
-   locked: boolean;
-   enabled: boolean;
-   lastActive: Date;
-   statistics: UserStatistics;
- }
  
  export interface GameCreateRequest {
     userId: number;
@@ -97,18 +65,6 @@ export interface GameResponse {
   game_type_id: number;
 }
 
-export enum LeagueType {
-  NHL = 'NHL',
-  NBA = 'NBA',
-  NFL = 'NFL',
-  MLB = 'MLB',
-}
-
-export interface League {
-  id: number;
-  leagueName: LeagueType;
-}
-
 export interface GuessCreateRequest {
   player: BaseballPlayerRequest;
   isCorrect: boolean;
@@ -155,9 +111,10 @@ export interface Guess {
   leagueId: number;
   timestamp: Date;
   rosterLink?: string;
-  colorMap: Map<PlayerAttr, PlayerAttrColor>;
+  colorMap: Map<MlbPlayerAttr, PlayerAttrColor>;
 }
 
+// To be used when individual game statistics are implemented
 export interface Player {
   id: number;
   name: string;
@@ -165,14 +122,4 @@ export interface Player {
   position: string;
   age: number;
   countryOfBirth: string;
-}
-
-export interface Header {
-  name: string;
-  colSpan: number;
-  class: string;
-}
-
-export interface Data {
-  players: UiPlayer[];
 }

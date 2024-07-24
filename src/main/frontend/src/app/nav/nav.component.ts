@@ -1,16 +1,21 @@
 import { Component, Signal, ViewChild, signal } from '@angular/core';
 
-import { UiPlayer } from '../models/models';
+import { MlbPlayer } from '../shared/mlb-models';
 import { ActivatedRoute } from '@angular/router';
 import { MatDrawer } from '@angular/material/sidenav';
-import { Data, User } from '../services/models';
 import { UserService } from '../services/user.service';
 import { GameService } from '../services/game.service';
 import { first } from 'rxjs';
+import { ToastService } from '../services/toast.service';
+import { User } from '../shared/models';
 
 enum MatDrawerPosition {
   END = "end",
   START = "start",
+}
+
+interface Data {
+  players: MlbPlayer[];
 }
 
 @Component({
@@ -25,18 +30,23 @@ export class NavComponent {
     return this._user.asReadonly();
   }
 
+  get isToastVisible(): boolean {
+    return this.toastService.isVisible();
+  }
+
+
   protected loggedIn = false;
   protected viewMenu = true;
   protected viewProfile = false;
   protected viewRoster = false;
   protected matDrawerPosition = MatDrawerPosition.END;
-  protected selectedRoster?: UiPlayer[];
-  protected allPlayers: UiPlayer[] = [];
+  protected selectedRoster?: MlbPlayer[];
+  protected allPlayers: MlbPlayer[] = [];
 
   // Default user is the guest user with id 0
   private _user = signal<User>({id: 0} as User);
 
-  constructor(private route: ActivatedRoute, private userService: UserService, private gameService: GameService) {
+  constructor(private route: ActivatedRoute, private userService: UserService, private gameService: GameService, private toastService: ToastService) {
     this.route.data.pipe(first()).subscribe((d) => {
       this.allPlayers = (d as Data).players;
     })
@@ -74,7 +84,7 @@ export class NavComponent {
   }
 
   protected logout(): void {
-    this._user.set({} as User);
+    this._user.set({id: 0} as User);
     this.loggedIn = false;
   }
 
@@ -86,7 +96,7 @@ export class NavComponent {
     this.drawer.toggle();
   }
 
-  protected openRosterMenu(roster: UiPlayer[]): void {
+  protected openRosterMenu(roster: MlbPlayer[]): void {
     this.viewMenu = false;
     this.viewProfile = false;
     this.viewRoster = true;

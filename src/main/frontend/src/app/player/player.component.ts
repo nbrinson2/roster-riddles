@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { PlayerAttr, UiPlayer } from '../models/models';
+import { MlbPlayerAttr, MlbPlayer } from '../shared/mlb-models';
 import { MlbHeaders } from '../services/constants';
 
 const playerAttrHeaderMap = getPlayerKeyToHeaderNameMap();
 
 export function getPlayerKeyToHeaderNameMap(): Map<string, string> {
-  const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
+  const playerAttributes = Object.values(MlbPlayerAttr).filter((key) => key !== MlbPlayerAttr.NAME);
   const headerNames: string[] = MlbHeaders.map((header) => header.name);
   const playerAttrToHeadersMap = new Map<string, string>();
 
@@ -23,13 +23,13 @@ export function getPlayerKeyToHeaderNameMap(): Map<string, string> {
   styleUrls: ['./player.component.scss']
 })
 export class PlayerComponent {
-  @Input() player!: UiPlayer;
+  @Input() player!: MlbPlayer;
   @Input() inSearchResults = true;
 
   @Output() selectTeamEvent: EventEmitter<string> = new EventEmitter<string>();
 
-  protected readonly orderedUiPlayerAttr = Object.values(PlayerAttr).filter((attr) => attr !== PlayerAttr.NAME && attr !== PlayerAttr.COLOR_MAP);
-  protected readonly PlayerAttr = PlayerAttr;
+  protected readonly orderedUiPlayerAttr = Object.values(MlbPlayerAttr).filter((attr) => attr !== MlbPlayerAttr.NAME && attr !== MlbPlayerAttr.COLOR_MAP);
+  protected readonly PlayerAttr = MlbPlayerAttr;
 
   protected getColSpan(attr: string): number {
     const headerName = playerAttrHeaderMap.get(attr);
@@ -40,10 +40,10 @@ export class PlayerComponent {
   }
 
   protected getClass(attr: string): string {
-    const attrKey = attr as PlayerAttr;
+    const attrKey = attr as MlbPlayerAttr;
     const headerName = playerAttrHeaderMap.get(attr);
     const header = MlbHeaders.filter((header) => header.name === headerName);
-    const attrColor = this.player[PlayerAttr.COLOR_MAP].get(attrKey);
+    const attrColor = this.player[MlbPlayerAttr.COLOR_MAP].get(attrKey);
 
     const className = header[0]!.class + ' ' + attrColor;
 
@@ -51,16 +51,16 @@ export class PlayerComponent {
   }
 
   protected getPlayerAttr(attr: string): string {
-    const attrKey = attr as keyof UiPlayer;
+    const attrKey = attr as keyof MlbPlayer;
 
-    if (!this.player || attrKey === PlayerAttr.COLOR_MAP) {
+    if (!this.player || attrKey === MlbPlayerAttr.COLOR_MAP) {
       return '';
     }
 
     return this.player[attrKey];
   }
 
-  protected selectTeam(player: UiPlayer): void {
+  protected selectTeam(player: MlbPlayer): void {
     this.selectTeamEvent.emit(player.team);
   }
 }

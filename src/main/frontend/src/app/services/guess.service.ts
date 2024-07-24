@@ -4,7 +4,7 @@ import { AuthenticationService } from './authentication.service'
 import { environment } from 'src/environment'
 import { Observable, map } from 'rxjs'
 import { Guess, GuessCreateRequest, GuessResponse } from './models'
-import { PlayerAttr, PlayerAttrColor } from '../models/models'
+import { MlbPlayerAttr, PlayerAttrColor } from '../shared/mlb-models'
 
 @Injectable({
   providedIn: 'root',
@@ -40,8 +40,8 @@ export class GuessService {
     }))
   }
 
-  private getColorMap(colorMap: string): Map<PlayerAttr, PlayerAttrColor> {
-    const parsedArray: [PlayerAttr, PlayerAttrColor][] = JSON.parse(colorMap);  
-    return new Map<PlayerAttr, PlayerAttrColor>(parsedArray);
+  private getColorMap(colorMap: string): Map<MlbPlayerAttr, PlayerAttrColor> {
+    const parsedArray: [MlbPlayerAttr, PlayerAttrColor][] = JSON.parse(colorMap);  
+    return new Map<MlbPlayerAttr, PlayerAttrColor>(parsedArray);
   }
 }

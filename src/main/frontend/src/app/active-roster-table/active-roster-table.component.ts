@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { MlbTeam, MlbTeamFullName, PlayerAttr, UiPlayer } from '../models/models';
+import { MlbTeam, MlbTeamFullName, MlbPlayerAttr, MlbPlayer } from '../shared/mlb-models';
 import { PLAYERS } from 'src/test-data';
 
 const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName } = {
@@ -42,35 +42,35 @@ const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName } = {
 })
 export class ActiveRosterTableComponent {
   @Input() 
-  set roster(value: UiPlayer[]) {
+  set roster(value: MlbPlayer[]) {
     this._roster = this.formatAndSortRoster(value);
     if (value) {
       this.teamName = MlbAbbreviationToFullNameMap[this.roster[0].team as MlbTeam];
     }
   }
 
-  get roster(): UiPlayer[] {
+  get roster(): MlbPlayer[] {
     return this._roster;
   }
 
-  private _roster: UiPlayer[] = [];
+  private _roster: MlbPlayer[] = [];
 
-  protected displayedAttributes = Object.values(PlayerAttr).filter(
-    attr => attr !== PlayerAttr.TEAM && 
-    attr !== PlayerAttr.LG_DIV && 
-    attr !== PlayerAttr.COLOR_MAP
+  protected displayedAttributes = Object.values(MlbPlayerAttr).filter(
+    attr => attr !== MlbPlayerAttr.TEAM && 
+    attr !== MlbPlayerAttr.LG_DIV && 
+    attr !== MlbPlayerAttr.COLOR_MAP
   ).map(attr => attr.toUpperCase());
   protected teamName?: MlbTeamFullName;
 
-  protected getAttr(player: UiPlayer, attrValue: string): string {
-    const attr = attrValue.toLowerCase() as PlayerAttr;
-    if (attr === PlayerAttr.COLOR_MAP) {
+  protected getAttr(player: MlbPlayer, attrValue: string): string {
+    const attr = attrValue.toLowerCase() as MlbPlayerAttr;
+    if (attr === MlbPlayerAttr.COLOR_MAP) {
       return '';
     }
     return player[attr];
   }
 
-  private formatAndSortRoster(roster: UiPlayer[]): UiPlayer[] {
+  private formatAndSortRoster(roster: MlbPlayer[]): MlbPlayer[] {
     const sortedRoster = roster.sort((playerOne, playerTwo) => {
       // Compare by position
       const positionComparison = playerOne.pos.localeCompare(playerTwo.pos);
