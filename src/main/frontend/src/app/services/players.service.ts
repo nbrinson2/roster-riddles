@@ -6,8 +6,7 @@ import {
   CountryBornFullName,
   MlbLeagueDivisionFullName,
   MlbTeamFullName,
-  MlbPlayerAttr,
-  PlayerAttrColor,
+  PlayerAttributeColor,
   MlbPlayerResponse,
   MlbRosterResponse,
   MlbTeamResponse,
@@ -25,6 +24,9 @@ import {
   MlbTeamAbbreviationMap,
   ThrowingAbbreviationMap,
 } from './constants';
+import { AttributeHeader, LeagueType } from '../shared/models';
+import { MlbHeaders, NflHeaders } from '../shared/constants/attribute-headers';
+import { MlbPlayerAttributes, NflPlayerAttributes } from '../shared/enumeration/attributes';
 
 @Injectable({
   providedIn: 'root',
@@ -74,6 +76,28 @@ export class PlayersService {
     );
   }
 
+  public getPlayerHeaders(leagueType: LeagueType): AttributeHeader[] {
+    switch (leagueType) {
+      case LeagueType.MLB:
+        return MlbHeaders;
+      case LeagueType.NFL:
+        return NflHeaders;
+      default:
+        return [];
+    }
+  }
+
+  public getPlayerAttributes(leagueType: LeagueType): any {
+    switch (leagueType) {
+      case LeagueType.MLB:
+        return MlbPlayerAttributes;
+      case LeagueType.NFL:
+        return NflPlayerAttributes;
+      default:
+        return [];
+    }
+  }
+
   private mapMlbPlayerDetailedToUiPlayer(player: MlbPlayerDetailed): MlbPlayer {
     return {
       name: player.player.fullName,
@@ -88,12 +112,14 @@ export class PlayersService {
     };
   }
 
-  private initializeMlbPlaterAttrColorMap(): Map<MlbPlayerAttr, PlayerAttrColor> {
-    const playerAttributes = Object.values(MlbPlayerAttr).filter((key) => key !== MlbPlayerAttr.NAME);
-    const playerAttrBackgroundColorMap = new Map<MlbPlayerAttr, PlayerAttrColor>();
+  private initializeMlbPlaterAttrColorMap(): Map<MlbPlayerAttributes, PlayerAttributeColor> {
+    const playerAttributes = Object.values(MlbPlayerAttributes).filter(
+      (key) => key !== MlbPlayerAttributes.NAME
+    );
+    const playerAttrBackgroundColorMap = new Map<MlbPlayerAttributes, PlayerAttributeColor>();
 
     for (const attr of playerAttributes) {
-      playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE);
+      playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.NONE);
     }
     return playerAttrBackgroundColorMap;
   }
@@ -102,7 +128,9 @@ export class PlayersService {
     return this.getMlbTeams().pipe(
       map((teamsResponse: MlbTeamsResponse) => teamsResponse.teams),
       switchMap((teams: MlbTeamResponse[]) => {
-        const mlbTeams = teams.filter((team: MlbTeamResponse) => team.sport.name === 'Major League Baseball');
+        const mlbTeams = teams.filter(
+          (team: MlbTeamResponse) => team.sport.name === 'Major League Baseball'
+        );
         const rosterObservables = mlbTeams.map((team: MlbTeamResponse) =>
           this.getMlbTeamRoster(team.id).pipe(
             map((rosterResponse: MlbRosterResponse) => ({

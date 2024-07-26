@@ -1,14 +1,17 @@
-import { MlbPlayerAttr, PlayerAttrColor } from "./app/shared/mlb-models";
+import { MlbPlayerAttributes, NflPlayerAttributes } from "./app/shared/enumeration/attributes";
+import { PlayerAttributeColor } from "./app/shared/mlb-models";
 
-export const PLAYERS = [
-  { name: 'Johnny Player', team: 'CWS', lgDiv: 'AL East', b: 'R', t: 'L', born: 'Venez', age: '33', pos: 'C', colorMap: new Map<MlbPlayerAttr, PlayerAttrColor>() },
-  { name: 'Johnny Player', team: 'CWS', lgDiv: 'AL East', b: 'R', t: 'L', born: 'Venez', age: '33', pos: 'C', colorMap: new Map<MlbPlayerAttr, PlayerAttrColor>() },
-  { name: 'Johnny Player', team: 'CWS', lgDiv: 'AL East', b: 'R', t: 'L', born: 'Venez', age: '33', pos: 'C', colorMap: new Map<MlbPlayerAttr, PlayerAttrColor>() },
-  { name: 'Johnny Player', team: 'CWS', lgDiv: 'AL East', b: 'R', t: 'L', born: 'Venez', age: '33', pos: 'C', colorMap: new Map<MlbPlayerAttr, PlayerAttrColor>() },
-  { name: 'Player 5', team: 'CWS', lgDiv: 'AL Cental', b: 'B5', t: 'T5', born: 'Venez', age: '29', pos: 'P5', colorMap: new Map<MlbPlayerAttr, PlayerAttrColor>() },
-  { name: 'Player 6', team: 'CWS', lgDiv: 'AL Cental', b: 'B6', t: 'T6', born: 'Venez', age: '28', pos: 'P6', colorMap: new Map<MlbPlayerAttr, PlayerAttrColor>() },
-  { name: 'Player 7', team: 'CWS', lgDiv: 'AL Cental', b: 'B7', t: 'T7', born: 'Venez', age: '27', pos: 'P7', colorMap: new Map<MlbPlayerAttr, PlayerAttrColor>() },
-  { name: 'Player 8', team: 'CWS', lgDiv: 'AL Cental', b: 'B8', t: 'T8', born: 'Venez', age: '26', pos: 'P8', colorMap: new Map<MlbPlayerAttr, PlayerAttrColor>() },
-  { name: 'Player 9', team: 'CWS', lgDiv: 'AL Cental', b: 'B9', t: 'T9', born: 'Venez', age: '25', pos: 'P9', colorMap: new Map<MlbPlayerAttr, PlayerAttrColor>() },
-  { name: 'Player 10', team: 'CWS', lgDiv: 'AL Cental', b: 'B10', t: 'T10', born: 'Venez', age: '24', pos: 'P10', colorMap: new Map<MlbPlayerAttr, PlayerAttrColor>() },
+export const MLB_PLAYERS = [
+  { name: 'Mike Trout', team: 'LAA', lgDiv: 'AL West', b: 'R', t: 'R', born: 'USA', age: '29', pos: 'CF', colorMap: new Map<MlbPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Mookie Betts', team: 'LAD', lgDiv: 'NL West', b: 'R', t: 'R', born: 'USA', age: '28', pos: 'RF', colorMap: new Map<MlbPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Jacob deGrom', team: 'NYM', lgDiv: 'NL East', b: 'L', t: 'R', born: 'USA', age: '33', pos: 'SP', colorMap: new Map<MlbPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Fernando Tatis Jr.', team: 'SD', lgDiv: 'NL West', b: 'R', t: 'R', born: 'DR', age: '22', pos: 'SS', colorMap: new Map<MlbPlayerAttributes, PlayerAttributeColor>() },
+];
+
+export const NFL_PLAYERS = [
+  { name: 'Tom Brady', team: 'TB', lgDiv: 'NFC South', jerseyNumber: '12', college: 'Michigan', draftYear: '2000', age: '44', position: 'QB', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Aaron Donald', team: 'LA', lgDiv: 'NFC West', jerseyNumber: '99', college: 'Pittsburgh', draftYear: '2014', age: '30', position: 'DT', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Davante Adams', team: 'LV', lgDiv: 'AFC West', jerseyNumber: '17', college: 'Fresno State', draftYear: '2014', age: '28', position: 'WR', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Derrick Henry', team: 'TEN', lgDiv: 'AFC South', jerseyNumber: '22', college: 'Alabama', draftYear: '2016', age: '27', position: 'RB', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Patrick Mahomes', team: 'KC', lgDiv: 'AFC West', jerseyNumber: '15', college: 'Texas Tech', draftYear: '2017', age: '26', position: 'QB', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
 ];

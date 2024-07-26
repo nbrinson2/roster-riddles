@@ -1,66 +1,102 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, computed, EventEmitter, Input, Output } from '@angular/core';
 
-import { MlbPlayerAttr, MlbPlayer } from '../shared/mlb-models';
-import { MlbHeaders } from '../services/constants';
-
-const playerAttrHeaderMap = getPlayerKeyToHeaderNameMap();
-
-export function getPlayerKeyToHeaderNameMap(): Map<string, string> {
-  const playerAttributes = Object.values(MlbPlayerAttr).filter((key) => key !== MlbPlayerAttr.NAME);
-  const headerNames: string[] = MlbHeaders.map((header) => header.name);
-  const playerAttrToHeadersMap = new Map<string, string>();
-
-  for (let i = 0; i < playerAttributes.length; i++) {
-    playerAttrToHeadersMap.set(playerAttributes[i], headerNames[i]);
-  }
-
-  return playerAttrToHeadersMap;
-}
+import { MlbHeaders, NflHeaders } from '../shared/constants/attribute-headers';
+import { MlbPlayerAttributes, NflPlayerAttributes } from '../shared/enumeration/attributes';
+import { AttributeHeader, LeagueType, Player } from '../shared/models';
+import { GameService } from '../services/game.service';
 
 @Component({
   selector: 'player',
   templateUrl: './player.component.html',
-  styleUrls: ['./player.component.scss']
+  styleUrls: ['./player.component.scss'],
 })
 export class PlayerComponent {
-  @Input() player!: MlbPlayer;
+  @Input() player!: Player;
   @Input() inSearchResults = true;
 
   @Output() selectTeamEvent: EventEmitter<string> = new EventEmitter<string>();
 
-  protected readonly orderedUiPlayerAttr = Object.values(MlbPlayerAttr).filter((attr) => attr !== MlbPlayerAttr.NAME && attr !== MlbPlayerAttr.COLOR_MAP);
-  protected readonly PlayerAttr = MlbPlayerAttr;
+  get leagueType(): LeagueType {
+    return this.gameService.leagueType();
+  }
 
-  protected getColSpan(attr: string): number {
-    const headerName = playerAttrHeaderMap.get(attr);
-    const header = MlbHeaders.filter((header) => header.name === headerName);
+  get leagueSpecificPlayerAttributes(): any {
+    switch (this.gameService.leagueType()) {
+      case LeagueType.MLB:
+        return MlbPlayerAttributes;
+      case LeagueType.NFL:
+        return NflPlayerAttributes;
+      default:
+        return [];
+    }
+  }
+
+  get leagueSpecificPlayerHeaders(): AttributeHeader[] {
+    switch (this.gameService.leagueType()) {
+      case LeagueType.MLB:
+        return MlbHeaders;
+      case LeagueType.NFL:
+        return NflHeaders;
+      default:
+        return [];
+    }
+  }
+
+  get visibleAttributes(): any {
+    return Object.values(this.leagueSpecificPlayerAttributes).filter(
+      (attr) =>
+        attr !== this.leagueSpecificPlayerAttributes.NAME &&
+        attr !== this.leagueSpecificPlayerAttributes.COLOR_MAP
+    );
+  }
+
+  get playerAttrHeaderMap(): Map<string, string> {
+    return this.getPlayerKeyToHeaderNameMap();
+  }
+
+  constructor(private gameService: GameService) {}
+
+  protected getColSpan(attribute: string): number {
+    const headerName = this.playerAttrHeaderMap.get(attribute);
+    const header = this.leagueSpecificPlayerHeaders.filter((header) => header.name === headerName);
     const colSpan = header[0]?.colSpan || 1;
 
     return colSpan;
   }
 
-  protected getClass(attr: string): string {
-    const attrKey = attr as MlbPlayerAttr;
-    const headerName = playerAttrHeaderMap.get(attr);
-    const header = MlbHeaders.filter((header) => header.name === headerName);
-    const attrColor = this.player[MlbPlayerAttr.COLOR_MAP].get(attrKey);
+  protected getClass(attribute: string): string {
+    const headerName = this.playerAttrHeaderMap.get(attribute);
+    const header = this.leagueSpecificPlayerHeaders.filter((header) => header.name === headerName);
+    const attrColor = this.player[this.leagueSpecificPlayerAttributes.COLOR_MAP].get(attribute);
 
     const className = header[0]!.class + ' ' + attrColor;
 
     return className;
   }
 
-  protected getPlayerAttr(attr: string): string {
-    const attrKey = attr as keyof MlbPlayer;
-
-    if (!this.player || attrKey === MlbPlayerAttr.COLOR_MAP) {
+  protected getPlayerAttr(attribute: string): string {
+    if (!this.player || attribute === this.leagueSpecificPlayerAttributes.COLOR_MAP) {
       return '';
     }
 
-    return this.player[attrKey];
+    return this.player[attribute];
   }
 
-  protected selectTeam(player: MlbPlayer): void {
-    this.selectTeamEvent.emit(player.team);
+  protected selectTeam(player: Player): void {
+    this.selectTeamEvent.emit(player['team']);
+  }
+
+  private getPlayerKeyToHeaderNameMap(): Map<string, string> {
+    const filteredPlayerAttributes = Object.values(this.leagueSpecificPlayerAttributes).filter(
+      (key) => key !== this.leagueSpecificPlayerAttributes.NAME
+    );
+    const headerNames: string[] = this.leagueSpecificPlayerHeaders.map((header) => header.name);
+    const playerAttrToHeadersMap = new Map<string, string>();
+
+    for (let i = 0; i < filteredPlayerAttributes.length; i++) {
+      playerAttrToHeadersMap.set(filteredPlayerAttributes[i] as string, headerNames[i]);
+    }
+
+    return playerAttrToHeadersMap;
   }
 }

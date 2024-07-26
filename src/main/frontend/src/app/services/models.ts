@@ -1,9 +1,10 @@
-import { MlbPlayerAttr, PlayerAttrColor, MlbPlayer } from "../shared/mlb-models";
-import { AttrHeader } from "../shared/models";
-import { EndResultMessage } from "./constants";
+import { MlbPlayerAttributes } from '../shared/enumeration/attributes';
+import { PlayerAttributeColor, MlbPlayer } from '../shared/mlb-models';
+import { AttributeHeader } from '../shared/models';
+import { EndResultMessage } from './constants';
 
 export interface GameData {
-  headers: AttrHeader[];
+  headers: AttributeHeader[];
   guessablePlayers: MlbPlayer[];
   selectedPlayers: MlbPlayer[];
   playerToGuess: MlbPlayer;
@@ -15,24 +16,24 @@ export interface GameData {
   showNewGameButton: boolean;
   timesViewedActiveRoster: number;
 }
- 
- export interface GameCreateRequest {
-    userId: number;
-    leagueId: number;
-    gameTypeId: number;
-    playerToGuess: BaseballPlayerRequest;
- }
 
- export interface GameUpdateRequest {
+export interface GameCreateRequest {
+  userId: number;
+  leagueId: number;
+  gameTypeId: number;
+  playerToGuess: BaseballPlayerRequest;
+}
+
+export interface GameUpdateRequest {
   status: string;
   timesViewedActiveRoster: number;
   numberOfGuesses: number;
   userId: number;
   leagueId: number;
   gameTypeId: number;
- }
+}
 
- export interface Game {
+export interface Game {
   id: number;
   startTime: Date;
   endTime: Date | null;
@@ -111,7 +112,7 @@ export interface Guess {
   leagueId: number;
   timestamp: Date;
   rosterLink?: string;
-  colorMap: Map<MlbPlayerAttr, PlayerAttrColor>;
+  colorMap: Map<MlbPlayerAttributes, PlayerAttributeColor>;
 }
 
 // To be used when individual game statistics are implemented

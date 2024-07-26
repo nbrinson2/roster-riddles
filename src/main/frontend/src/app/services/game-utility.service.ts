@@ -1,23 +1,24 @@
-import { Injectable } from '@angular/core'
+import { Injectable } from '@angular/core';
 
-import { MlbPlayerAttr, PlayerAttrColor, MlbPlayer } from '../shared/mlb-models'
-import { GameStatus } from './models'
-import { InputPlaceHolderText } from './constants'
+import { PlayerAttributeColor, MlbPlayer } from '../shared/mlb-models';
+import { GameStatus } from './models';
+import { InputPlaceHolderText } from './constants';
+import { MlbPlayerAttributes } from '../shared/enumeration/attributes';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameUtilityService {
-  initializePlayerAttrColorMap(): Map<MlbPlayerAttr, PlayerAttrColor> {
-    const playerAttributes = Object.values(MlbPlayerAttr).filter(
-      (key) => key !== MlbPlayerAttr.NAME
-    )
-    const playerAttrBackgroundColorMap = new Map<MlbPlayerAttr, PlayerAttrColor>()
+  initializePlayerAttrColorMap(): Map<MlbPlayerAttributes, PlayerAttributeColor> {
+    const playerAttributes = Object.values(MlbPlayerAttributes).filter(
+      (key) => key !== MlbPlayerAttributes.NAME
+    );
+    const playerAttrBackgroundColorMap = new Map<MlbPlayerAttributes, PlayerAttributeColor>();
 
     for (const attr of playerAttributes) {
-      playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE)
+      playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.NONE);
     }
-    return playerAttrBackgroundColorMap
+    return playerAttrBackgroundColorMap;
   }
 
   setSearchInputPlaceHolderText(
@@ -26,96 +27,92 @@ export class GameUtilityService {
     gameStatus?: GameStatus
   ): string {
     if (numberOfGuesses === 0) {
-      return InputPlaceHolderText.GUESS
+      return InputPlaceHolderText.GUESS;
     }
 
     if (gameStatus === GameStatus.WIN) {
-      return InputPlaceHolderText.WIN
+      return InputPlaceHolderText.WIN;
     }
 
     if (gameStatus === GameStatus.LOSS) {
-      return InputPlaceHolderText.LOSE
+      return InputPlaceHolderText.LOSE;
     }
 
-    return `${maxNumberOfGuesses - numberOfGuesses} ${
-      InputPlaceHolderText.COUNT
-    }`
+    return `${maxNumberOfGuesses - numberOfGuesses} ${InputPlaceHolderText.COUNT}`;
   }
 
-  
   getPlayerKeyToBackgroundColorMap(
     playerToGuess: MlbPlayer,
     selectedPlayer: MlbPlayer,
     initialize: boolean
-  ): Map<MlbPlayerAttr, PlayerAttrColor> {
-    const playerAttributes = Object.values(MlbPlayerAttr).filter(
-      (key) => key !== MlbPlayerAttr.NAME
-    )
-    const backgroundColors = Object.values(PlayerAttrColor)
-    const playerAttrBackgroundColorMap = new Map<MlbPlayerAttr, PlayerAttrColor>()
+  ): Map<MlbPlayerAttributes, PlayerAttributeColor> {
+    const playerAttributes = Object.values(MlbPlayerAttributes).filter(
+      (key) => key !== MlbPlayerAttributes.NAME
+    );
+    const backgroundColors = Object.values(PlayerAttributeColor);
+    const playerAttrBackgroundColorMap = new Map<MlbPlayerAttributes, PlayerAttributeColor>();
 
     if (initialize) {
       for (const attr of playerAttributes) {
-        playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE)
+        playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.NONE);
       }
-      return playerAttrBackgroundColorMap
+      return playerAttrBackgroundColorMap;
     }
 
     for (const attr of playerAttributes) {
       switch (attr) {
-        case MlbPlayerAttr.TEAM:
-        case MlbPlayerAttr.B:
-        case MlbPlayerAttr.T:
-        case MlbPlayerAttr.BORN:
-        case MlbPlayerAttr.POS:
+        case MlbPlayerAttributes.TEAM:
+        case MlbPlayerAttributes.B:
+        case MlbPlayerAttributes.T:
+        case MlbPlayerAttributes.BORN:
+        case MlbPlayerAttributes.POS:
           if (playerToGuess[attr] === selectedPlayer[attr]) {
-            playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE)
-            break
+            playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.BLUE);
+            break;
           }
 
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE)
-          break
-        case MlbPlayerAttr.LG_DIV:
-          const playerToGuessLgDivArray = playerToGuess[attr].split(' ')
-          const selectedPlayerLgDivArray = selectedPlayer[attr].split(' ')
+          playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.NONE);
+          break;
+        case MlbPlayerAttributes.LG_DIV:
+          const playerToGuessLgDivArray = playerToGuess[attr].split(' ');
+          const selectedPlayerLgDivArray = selectedPlayer[attr].split(' ');
           const mismatchArray = playerToGuessLgDivArray.filter(
             (elem) => selectedPlayerLgDivArray.indexOf(elem) < 0
-          )
+          );
 
           if (mismatchArray.length === 0) {
-            playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE)
-            break
+            playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.BLUE);
+            break;
           }
 
           if (mismatchArray.length === 1) {
-            playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.ORANGE)
-            break
+            playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.ORANGE);
+            break;
           }
 
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE)
+          playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.NONE);
 
-          break
-        case MlbPlayerAttr.AGE:
-          const ageDifference =
-            Number(playerToGuess[attr]) - Number(selectedPlayer[attr])
+          break;
+        case MlbPlayerAttributes.AGE:
+          const ageDifference = Number(playerToGuess[attr]) - Number(selectedPlayer[attr]);
 
           if (ageDifference === 0) {
-            playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE)
-            break
+            playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.BLUE);
+            break;
           }
 
           if (ageDifference <= 2 && ageDifference >= -2) {
-            playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.ORANGE)
-            break
+            playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.ORANGE);
+            break;
           }
 
-          playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE)
-          break
+          playerAttrBackgroundColorMap.set(attr, PlayerAttributeColor.NONE);
+          break;
         default:
-          break
+          break;
       }
     }
 
-    return playerAttrBackgroundColorMap
+    return playerAttrBackgroundColorMap;
   }
 }

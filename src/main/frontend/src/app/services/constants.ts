@@ -9,9 +9,8 @@ import {
   MlbTeamFullName,
   MlbThrowing,
   MlbThrowingFullName,
-} from '../shared/mlb-models'
-import { AttrHeader } from '../shared/models'
-import { LeagueType } from '../shared/models'
+} from '../shared/mlb-models';
+import { LeagueType } from '../shared/models';
 
 export const MlbTeamAbbreviationMap: { [key in MlbTeamFullName]: MlbTeam } = {
   [MlbTeamFullName.ARIZONA_DIAMONDBACKS]: MlbTeam.ARI,
@@ -44,10 +43,10 @@ export const MlbTeamAbbreviationMap: { [key in MlbTeamFullName]: MlbTeam } = {
   [MlbTeamFullName.TEXAS_RANGERS]: MlbTeam.TEX,
   [MlbTeamFullName.TORONTO_BLUE_JAYS]: MlbTeam.TOR,
   [MlbTeamFullName.WASHINGTON_NATIONALS]: MlbTeam.WSN,
-}
+};
 
 export const LeagueDivisionAbbreviationMap: {
-  [key in MlbLeagueDivisionFullName]: MlbLeagueDivision
+  [key in MlbLeagueDivisionFullName]: MlbLeagueDivision;
 } = {
   [MlbLeagueDivisionFullName.AL_EAST]: MlbLeagueDivision.AL_EAST,
   [MlbLeagueDivisionFullName.AL_WEST]: MlbLeagueDivision.AL_WEST,
@@ -55,23 +54,22 @@ export const LeagueDivisionAbbreviationMap: {
   [MlbLeagueDivisionFullName.NL_EAST]: MlbLeagueDivision.NL_EAST,
   [MlbLeagueDivisionFullName.NL_WEST]: MlbLeagueDivision.NL_WEST,
   [MlbLeagueDivisionFullName.NL_CENTRAL]: MlbLeagueDivision.NL_CENTRAL,
-}
+};
 
 export const BattingAbbreviationMap: { [key in MlbBattingFullName]: MlbBatting } = {
   [MlbBattingFullName.R]: MlbBatting.R,
   [MlbBattingFullName.L]: MlbBatting.L,
   [MlbBattingFullName.S]: MlbBatting.S,
-}
+};
 
-export const ThrowingAbbreviationMap: { [key in MlbThrowingFullName]: MlbThrowing } =
-  {
-    [MlbThrowingFullName.R]: MlbThrowing.R,
-    [MlbThrowingFullName.L]: MlbThrowing.L,
-    [MlbThrowingFullName.B]: MlbThrowing.B,
-  }
+export const ThrowingAbbreviationMap: { [key in MlbThrowingFullName]: MlbThrowing } = {
+  [MlbThrowingFullName.R]: MlbThrowing.R,
+  [MlbThrowingFullName.L]: MlbThrowing.L,
+  [MlbThrowingFullName.B]: MlbThrowing.B,
+};
 
 export const CountryBornAbbreviationMap: {
-  [key in CountryBornFullName]: CountryBorn
+  [key in CountryBornFullName]: CountryBorn;
 } = {
   [CountryBornFullName.USA]: CountryBorn.USA,
   [CountryBornFullName.DR]: CountryBorn.DR,
@@ -97,33 +95,23 @@ export const CountryBornAbbreviationMap: {
   [CountryBornFullName.MEX_MEX]: CountryBorn.MEX,
   [CountryBornFullName.ROK]: CountryBorn.KOR,
   [CountryBornFullName.PCZ]: CountryBorn.PAN,
-}
+};
 
 export const LeagueTypeIdMap: { [key in LeagueType]: number } = {
   [LeagueType.MLB]: 1,
   [LeagueType.NHL]: 4,
   [LeagueType.NBA]: 3,
   [LeagueType.NFL]: 2,
-}
+};
 
 export enum EndResultMessage {
   WIN = "You ol' sandbagger, you beat the game!!",
-  LOSE = "Just give up, you DO NOT know baseball.",
+  LOSE = 'Just give up, you DO NOT know baseball.',
 }
 
 export enum InputPlaceHolderText {
-  GUESS = "Guess the mystery player",
-  COUNT = "guesses remaining",
-  WIN = "You guessed correctly!",
-  LOSE = "Go home, you lose.",
+  GUESS = 'Guess the mystery player',
+  COUNT = 'guesses remaining',
+  WIN = 'You guessed correctly!',
+  LOSE = 'Go home, you lose.',
 }
-
-export const MlbHeaders: AttrHeader[] = [
-  { name: 'TEAM', colSpan: 1, class: 'team-column' },
-  { name: 'LG./DIV.', colSpan: 2, class: 'lg-div-column' },
-  { name: 'B', colSpan: 1, class: 'b-column' },
-  { name: 'T', colSpan: 1, class: 't-column' },
-  { name: 'BORN', colSpan: 2, class: 'born-column' },
-  { name: 'AGE', colSpan: 1, class: 'age-column' },
-  { name: 'POS.', colSpan: 1, class: 'pos-column' },
-];

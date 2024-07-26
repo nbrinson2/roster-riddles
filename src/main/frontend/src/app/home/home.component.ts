@@ -1,12 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
-import { MlbPlayer } from '../shared/mlb-models'
-import { ActivatedRoute } from '@angular/router'
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { MlbPlayer } from '../shared/mlb-models';
+import { ActivatedRoute } from '@angular/router';
 
-import { GameService } from '../services/game.service'
-import { LeagueType } from '../shared/models'
-import { AuthenticationService } from '../services/authentication.service'
-import { EndResultMessage } from '../services/constants'
-import { AttrHeader } from '../shared/models'
+import { GameService } from '../services/game.service';
+import { LeagueType } from '../shared/models';
+import { AuthenticationService } from '../services/authentication.service';
+import { EndResultMessage } from '../services/constants';
+import { AttributeHeader } from '../shared/models';
 
 @Component({
   selector: 'home',
@@ -14,10 +14,10 @@ import { AttrHeader } from '../shared/models'
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
-  @Input() allPlayers: MlbPlayer[] = []
-  @Output() selectRosterEvent = new EventEmitter<MlbPlayer[]>()
+  @Input() allPlayers: MlbPlayer[] = [];
+  @Output() selectRosterEvent = new EventEmitter<MlbPlayer[]>();
 
-  get headers(): AttrHeader[] {
+  get headers(): AttributeHeader[] {
     return this.gameService.gameData().headers;
   }
 
@@ -40,7 +40,7 @@ export class HomeComponent implements OnInit {
   get playerToGuess(): MlbPlayer {
     return this.gameService.gameData().playerToGuess;
   }
-  
+
   get endResultText(): EndResultMessage {
     return this.gameService.gameData().endResultText;
   }
@@ -57,7 +57,11 @@ export class HomeComponent implements OnInit {
     return this.gameService.gameData().guessablePlayers;
   }
 
-  constructor(private route: ActivatedRoute, private gameService: GameService, private authService: AuthenticationService) { }
+  constructor(
+    private route: ActivatedRoute,
+    private gameService: GameService,
+    private authService: AuthenticationService
+  ) {}
 
   ngOnInit(): void {
     this.gameService.setPlayerToGuess(this.allPlayers);
@@ -82,9 +86,7 @@ export class HomeComponent implements OnInit {
 
     this.gameService.setInProgressPlaceHolderText();
 
-    const selectedRoster = this.allPlayers.filter(
-      (player) => player.team === team
-    )
-    this.selectRosterEvent.emit(selectedRoster)
+    const selectedRoster = this.allPlayers.filter((player) => player.team === team);
+    this.selectRosterEvent.emit(selectedRoster);
   }
 }

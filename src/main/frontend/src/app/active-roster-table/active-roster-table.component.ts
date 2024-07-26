@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { MlbTeam, MlbTeamFullName, MlbPlayerAttr, MlbPlayer } from '../shared/mlb-models';
-import { PLAYERS } from 'src/test-data';
+import { MlbTeam, MlbTeamFullName, MlbPlayer } from '../shared/mlb-models';
+import { MlbPlayerAttributes } from '../shared/enumeration/attributes';
 
 const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName } = {
   [MlbTeam.ARI]: MlbTeamFullName.ARIZONA_DIAMONDBACKS,
@@ -38,10 +38,10 @@ const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName } = {
 @Component({
   selector: 'active-roster-table',
   templateUrl: './active-roster-table.component.html',
-  styleUrls: ['./active-roster-table.component.scss']
+  styleUrls: ['./active-roster-table.component.scss'],
 })
 export class ActiveRosterTableComponent {
-  @Input() 
+  @Input()
   set roster(value: MlbPlayer[]) {
     this._roster = this.formatAndSortRoster(value);
     if (value) {
@@ -55,16 +55,19 @@ export class ActiveRosterTableComponent {
 
   private _roster: MlbPlayer[] = [];
 
-  protected displayedAttributes = Object.values(MlbPlayerAttr).filter(
-    attr => attr !== MlbPlayerAttr.TEAM && 
-    attr !== MlbPlayerAttr.LG_DIV && 
-    attr !== MlbPlayerAttr.COLOR_MAP
-  ).map(attr => attr.toUpperCase());
+  protected displayedAttributes = Object.values(MlbPlayerAttributes)
+    .filter(
+      (attr) =>
+        attr !== MlbPlayerAttributes.TEAM &&
+        attr !== MlbPlayerAttributes.LG_DIV &&
+        attr !== MlbPlayerAttributes.COLOR_MAP
+    )
+    .map((attr) => attr.toUpperCase());
   protected teamName?: MlbTeamFullName;
 
   protected getAttr(player: MlbPlayer, attrValue: string): string {
-    const attr = attrValue.toLowerCase() as MlbPlayerAttr;
-    if (attr === MlbPlayerAttr.COLOR_MAP) {
+    const attr = attrValue.toLowerCase() as MlbPlayerAttributes;
+    if (attr === MlbPlayerAttributes.COLOR_MAP) {
       return '';
     }
     return player[attr];
@@ -74,7 +77,7 @@ export class ActiveRosterTableComponent {
     const sortedRoster = roster.sort((playerOne, playerTwo) => {
       // Compare by position
       const positionComparison = playerOne.pos.localeCompare(playerTwo.pos);
-      
+
       if (positionComparison !== 0) {
         // Positions are not equal, return the result of this comparison
         return positionComparison;
@@ -83,12 +86,12 @@ export class ActiveRosterTableComponent {
         return playerOne.name.localeCompare(playerTwo.name);
       }
     });
-    
+
     return sortedRoster.map((player) => {
       const nameArray = player.name.split(' ');
       const firstNameInitial = nameArray[0][0];
       const lastName = nameArray[nameArray.length - 1];
-      return {...player, name: `${firstNameInitial}. ${lastName}`};
+      return { ...player, name: `${firstNameInitial}. ${lastName}` };
     });
   }
 }

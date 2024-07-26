@@ -25,20 +25,26 @@ export interface UserStatistics {
   timesClickedNewGame: number;
 }
 
-export interface AttrHeader {
+export interface AttributeHeader {
   name: string;
   colSpan: number;
   class: string;
 }
 
 export enum LeagueType {
-    NHL = 'NHL',
-    NBA = 'NBA',
-    NFL = 'NFL',
-    MLB = 'MLB',
-  }
-  
-  export interface League {
-    id: number;
-    leagueName: LeagueType;
-  }
+  NHL = 'NHL',
+  NBA = 'NBA',
+  NFL = 'NFL',
+  MLB = 'MLB',
+}
+
+export interface League {
+  id: number;
+  leagueName: LeagueType;
+}
+
+export interface Player {
+  name: string;
+  age: string;
+  [key: string]: any;
+}
