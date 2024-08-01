@@ -40,8 +40,8 @@ CREATE TABLE leagues (
 -- Insert seed data into leagues table
 INSERT INTO leagues (id, league_name) VALUES
 (1, 'MLB'),
-(2, 'NBA'),
-(3, 'NFL'),
+(2, 'NFL'),
+(3, 'NBA'),
 (4, 'NHL'),
 (5, 'MLS'),
 (6, 'PGA');

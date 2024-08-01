@@ -9,9 +9,10 @@ export const MLB_PLAYERS = [
 ];
 
 export const NFL_PLAYERS = [
-  { name: 'Tom Brady', team: 'TB', lgDiv: 'NFC South', jerseyNumber: '12', college: 'Michigan', draftYear: '2000', age: '44', position: 'QB', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
-  { name: 'Aaron Donald', team: 'LA', lgDiv: 'NFC West', jerseyNumber: '99', college: 'Pittsburgh', draftYear: '2014', age: '30', position: 'DT', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
-  { name: 'Davante Adams', team: 'LV', lgDiv: 'AFC West', jerseyNumber: '17', college: 'Fresno State', draftYear: '2014', age: '28', position: 'WR', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
-  { name: 'Derrick Henry', team: 'TEN', lgDiv: 'AFC South', jerseyNumber: '22', college: 'Alabama', draftYear: '2016', age: '27', position: 'RB', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
-  { name: 'Patrick Mahomes', team: 'KC', lgDiv: 'AFC West', jerseyNumber: '15', college: 'Texas Tech', draftYear: '2017', age: '26', position: 'QB', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Tom Brady', team: 'TB', lgDiv: 'NFC South', '#': '12', college: 'Michigan', draftYear: '2000', age: '44', position: 'QB', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Aaron Donald', team: 'LA', lgDiv: 'NFC West', '#': '99', college: 'Pittsburgh', draftYear: '2014', age: '30', position: 'DT', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Davante Adams', team: 'LV', lgDiv: 'AFC West', '#': '17', college: 'Fresno State', draftYear: '2014', age: '28', position: 'WR', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Derrick Henry', team: 'TEN', lgDiv: 'AFC South', '#': '22', college: 'Alabama', draftYear: '2016', age: '27', position: 'RB', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Patrick Mahomes', team: 'KC', lgDiv: 'AFC West', '#': '15', college: 'Texas Tech', draftYear: '2017', age: '26', position: 'QB', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
+  { name: 'Jalen Ramsey', team: 'MIA', lgDiv: 'AFC East', '#': '5', college: 'Florida State', draftYear: '2016', age: '28', position: 'CB', colorMap: new Map<NflPlayerAttributes, PlayerAttributeColor>() },
 ];

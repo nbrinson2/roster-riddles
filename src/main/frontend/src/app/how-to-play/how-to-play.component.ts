@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { PlayerAttributeColor, MlbPlayer } from '../shared/mlb-models';
-import { MLB_PLAYERS } from 'src/test-data';
-import { MlbPlayerAttributes } from '../shared/enumeration/attributes';
+import { MLB_PLAYERS, NFL_PLAYERS } from 'src/test-data';
+import { MlbPlayerAttributes, NflPlayerAttributes } from '../shared/enumeration/attributes';
 import { LeagueType, Player } from '../shared/models';
 import { GameService } from '../services/game.service';
 
@@ -11,17 +11,41 @@ interface HowToPlayExamplePlayer {
 }
 
 const mlbExplanationMap = new Map<MlbPlayer, string>([
-  [MLB_PLAYERS[0], `<span class="blue">Blue</span> in any column indicates a match!`],
+  [MLB_PLAYERS[0], `<font color="#68C3F0">Blue</font> in any column indicates a match!`],
   [
     MLB_PLAYERS[1],
-    `Lg/Div: <span class="orange">Orange</span> indicates that the player plays in either the revealed League or Division.`,
+    `Lg/Div: <font color="FCAE5B">Orange</font> indicates that the player plays in either the revealed League or Division.`,
   ],
   [
     MLB_PLAYERS[2],
-    `Age: <span class="orange">Orange</span> indicates 2 years within the mystery player's age.`,
+    `Age: <font color="FCAE5B">Orange</font> indicates 2 years within the mystery player's age.`,
   ],
   [
     MLB_PLAYERS[3],
+    `Team: Click on the team to reveal the active roster, BUT it will cost you a guess!`,
+  ],
+]);
+
+const nflExplanationMap = new Map<Player, string>([
+  [NFL_PLAYERS[0], `<font color="#68C3F0">Blue</font> in any column indicates a match!`],
+  [
+    NFL_PLAYERS[1],
+    `Lg/Div: <font color="FCAE5B">Orange</font> indicates that the player plays in either the revealed League or Division.`,
+  ],
+  [
+    NFL_PLAYERS[2],
+    `Age: <font color="FCAE5B">Orange</font> indicates 2 years within the mystery player's age.`,
+  ],
+  [
+    NFL_PLAYERS[3],
+    `Draft Year: <font color="FCAE5B">Orange</font> indicates 2 years within the mystery player's draft year.`,
+  ],
+  [
+    NFL_PLAYERS[4],
+    `Jersey Number: <font color="#FCAE5B">Orange</font> indicates 2 numbers within the mystery player's jersey number.`,
+  ],
+  [
+    NFL_PLAYERS[5],
     `Team: Click on the team to reveal the active roster, BUT it will cost you a guess!`,
   ],
 ]);
@@ -38,22 +62,17 @@ export class HowToPlayComponent implements AfterViewInit {
 
   protected playerExamples: HowToPlayExamplePlayer[] = [];
 
-  protected matchPlayer: MlbPlayer = MLB_PLAYERS[0];
-  protected lgDivPlayer: MlbPlayer = MLB_PLAYERS[1];
-  protected agePlayer: MlbPlayer = MLB_PLAYERS[2];
-  protected teamPlayer: MlbPlayer = MLB_PLAYERS[3];
-
   constructor(private gameService: GameService, private cdr: ChangeDetectorRef) {}
 
   ngAfterViewInit(): void {
-    this.setColorMaps();
+    this.setPlayerColorMaps();
+    this.populatePlayerExampleList();
     this.cdr.detectChanges();
   }
 
-  private setColorMaps(): void {
+  private populatePlayerExampleList(): void {
     switch (this.leagueType) {
       case LeagueType.MLB:
-        this.setMlbColorMaps();
         for (const player of MLB_PLAYERS) {
           this.playerExamples.push({
             player: player,
@@ -61,10 +80,18 @@ export class HowToPlayComponent implements AfterViewInit {
           });
         }
         break;
+      case LeagueType.NFL:
+        for (const player of NFL_PLAYERS) {
+          this.playerExamples.push({
+            player: player,
+            explanation: nflExplanationMap.get(player) || '',
+          });
+        }
+        break;
     }
   }
 
-  private setMlbColorMaps(): void {
+  private setPlayerColorMaps(): void {
     switch (this.leagueType) {
       case LeagueType.MLB:
         MLB_PLAYERS[0].colorMap.set(MlbPlayerAttributes.POS, PlayerAttributeColor.BLUE);
@@ -75,7 +102,14 @@ export class HowToPlayComponent implements AfterViewInit {
         MLB_PLAYERS[3].colorMap.set(MlbPlayerAttributes.TEAM, PlayerAttributeColor.BLUE);
         break;
       case LeagueType.NFL:
-        return;
+        NFL_PLAYERS[0].colorMap.set(NflPlayerAttributes.POSITION, PlayerAttributeColor.BLUE);
+        NFL_PLAYERS[0].colorMap.set(NflPlayerAttributes.COLLEGE, PlayerAttributeColor.BLUE);
+        NFL_PLAYERS[1].colorMap.set(NflPlayerAttributes.LG_DIV, PlayerAttributeColor.ORANGE);
+        NFL_PLAYERS[2].colorMap.set(NflPlayerAttributes.AGE, PlayerAttributeColor.ORANGE);
+        NFL_PLAYERS[3].colorMap.set(NflPlayerAttributes.DRAFT_YEAR, PlayerAttributeColor.ORANGE);
+        NFL_PLAYERS[4].colorMap.set(NflPlayerAttributes.JERSEY_NUMBER, PlayerAttributeColor.ORANGE);
+        NFL_PLAYERS[5].colorMap.set(NflPlayerAttributes.TEAM, PlayerAttributeColor.BLUE);
+        break;
     }
   }
 }

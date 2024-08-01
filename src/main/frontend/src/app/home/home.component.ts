@@ -65,7 +65,7 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.gameService.setPlayerToGuess(this.allPlayers);
-    this.gameService.initializeGameData(LeagueType.MLB);
+    this.gameService.initializeGameData();
     this.gameService.updateGameDataField('guessablePlayers', this.allPlayers);
   }
 

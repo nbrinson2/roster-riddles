@@ -13,9 +13,10 @@ export const MlbHeaders: AttributeHeader[] = [
 export const NflHeaders: AttributeHeader[] = [
   { name: 'TEAM', colSpan: 1, class: 'team-column' },
   { name: 'LG./DIV.', colSpan: 2, class: 'lg-div-column' },
-  { name: 'JERSEY NUMBER', colSpan: 1, class: 'jersey-number-column' },
+  { name: '#', colSpan: 1, class: 'jersey-number-column' },
   { name: 'COLLEGE', colSpan: 2, class: 'college-column' },
-  { name: 'DRAFT YEAR', colSpan: 1, class: 'draft-year-column' },
+  { name: 'DRAFT', colSpan: 1, class: 'draft-year-column' },
   { name: 'AGE', colSpan: 1, class: 'age-column' },
-  { name: 'POSITION', colSpan: 1, class: 'position-column' },
+  { name: 'POS', colSpan: 1, class: 'pos-column' },
 ];
+

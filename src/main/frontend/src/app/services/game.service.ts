@@ -18,9 +18,9 @@ import { PlayerAttributeColor, MlbPlayer } from '../shared/mlb-models';
 import { GuessService } from './guess.service';
 import { ToastService } from './toast.service';
 import { GameUtilityService } from './game-utility.service';
-import { EndResultMessage, InputPlaceHolderText } from './constants';
+import { EndResultMessage, InputPlaceHolderText, LeagueTypeIdMap } from './constants';
 import { LeagueType } from '../shared/models';
-import { MlbHeaders } from '../shared/constants/attribute-headers';
+import { MlbHeaders, NflHeaders } from '../shared/constants/attribute-headers';
 import { MlbPlayerAttributes } from '../shared/enumeration/attributes';
 
 export const maxNumberOfGuesses = 1;
@@ -50,7 +50,7 @@ export class GameService {
   private _gameData = signal<GameData>({} as GameData);
   private _allPlayers = signal<MlbPlayer[]>([]);
   private _gameId = signal<number>(0);
-  private _leagueType = signal<LeagueType>(LeagueType.MLB);
+  private _leagueType = signal<LeagueType>(LeagueType.NFL);
 
   constructor(
     private http: HttpClient,
@@ -60,17 +60,17 @@ export class GameService {
     private gameUtilityService: GameUtilityService
   ) {}
 
-  public initializeGameData(league: LeagueType): void {
+  public initializeGameData(): void {
     const playerRequest = this.createPlayerRequest(this.gameData().playerToGuess);
     this.createGame({
       userId: this.auth.activeUser().id,
-      leagueId: 1,
+      leagueId: LeagueTypeIdMap[this.leagueType()],
       gameTypeId: 1,
       playerToGuess: playerRequest,
     }).subscribe((game) => {
       this._gameId.set(game.id);
     });
-    switch (league) {
+    switch (this.leagueType()) {
       case LeagueType.MLB:
         this._gameData.set({
           ...this.gameData(),
@@ -90,6 +90,24 @@ export class GameService {
           timesViewedActiveRoster: 0,
         });
         break;
+      case LeagueType.NFL:
+        this._gameData.set({
+          ...this.gameData(),
+          headers: NflHeaders,
+          guessablePlayers: [],
+          selectedPlayers: [],
+          endResultText: EndResultMessage.LOSE,
+          endOfGame: false,
+          isSearchDisabled: false,
+          searchInputPlaceHolderText: this.gameUtilityService.setSearchInputPlaceHolderText(
+            0,
+            maxNumberOfGuesses,
+            GameStatus.IN_PROCESS
+          ),
+          numberOfGuesses: 0,
+          showNewGameButton: false,
+          timesViewedActiveRoster: 0,
+        });
     }
   }
 
