@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable, switchMap } from 'rxjs';
+import { forkJoin, Observable, of, switchMap } from 'rxjs';
 import { nflTeamToDivisionMap } from 'src/app/shared/constants/league';
 import { NflPlayerAttributes } from 'src/app/shared/enumeration/attributes';
 import { NflTeam } from 'src/app/shared/enumeration/nfl-enums';
@@ -27,7 +27,18 @@ export class NflPlayersService extends BasePlayersService {
 
         for (const roster of rosters) {
           for (const athletes of roster.athletes) {
+            if (athletes.position !== 'offense') {
+              continue;
+            }
             for (const player of athletes.items) {
+              if (
+                player.position.abbreviation !== 'QB' &&
+                player.position.abbreviation !== 'RB' &&
+                player.position.abbreviation !== 'WR' &&
+                player.position.abbreviation !== 'TE'
+              ) {
+                continue;
+              }
               const team = roster.team.abbreviation;
               const lgDiv = nflTeamToDivisionMap[roster.team.abbreviation as NflTeam];
               playersWithTeam.push({
@@ -37,7 +48,7 @@ export class NflPlayersService extends BasePlayersService {
                 '#': player.jersey,
                 college: player.college?.name || 'N/A',
                 draftYear: player.debutYear?.toString() || 'R',
-                age: player.age.toString(),
+                age: player.age?.toString() || 'N/A',
                 position: player.position.abbreviation,
                 colorMap: this.initializeNflPlayerColorMap(),
               });
@@ -45,7 +56,7 @@ export class NflPlayersService extends BasePlayersService {
           }
         }
 
-        return forkJoin([playersWithTeam]);
+        return of(playersWithTeam);
       })
     );
   }

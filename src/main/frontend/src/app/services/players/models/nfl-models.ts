@@ -26,7 +26,7 @@ export interface NflPlayerResponse {
   displayWeight: string;
   height: number;
   displayHeight: string;
-  age: number;
+  age?: number;
   dateOfBirth?: string;
   links: Link[];
   birthPlace: BirthPlace;
