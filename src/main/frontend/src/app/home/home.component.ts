@@ -1,11 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { MlbPlayer } from '../shared/mlb-models';
 import { ActivatedRoute } from '@angular/router';
+import { MlbPlayer } from '../shared/mlb-models';
 
-import { GameService } from '../services/game.service';
-import { LeagueType } from '../shared/models';
 import { AuthenticationService } from '../services/authentication.service';
 import { EndResultMessage } from '../services/constants';
+import { GameService } from '../services/game.service';
 import { AttributeHeader } from '../shared/models';
 
 @Component({
