@@ -9,10 +9,10 @@ export interface NflRosterResponse {
 
 export interface Athlete {
   position: string;
-  items: Item[];
+  items: NflPlayerResponse[];
 }
 
-export interface Item {
+export interface NflPlayerResponse {
   id: string;
   uid: string;
   guid: string;
@@ -26,14 +26,14 @@ export interface Item {
   displayWeight: string;
   height: number;
   displayHeight: string;
-  age?: number;
+  age: number;
   dateOfBirth?: string;
   links: Link[];
   birthPlace: BirthPlace;
   college?: College;
   slug: string;
   headshot?: Headshot;
-  jersey?: string;
+  jersey: string;
   position: Position;
   injuries: Injury[];
   contracts: any[];
@@ -42,6 +42,7 @@ export interface Item {
   debutYear?: number;
   hand?: Hand;
 }
+
 
 export interface AlternateIds {
   sdr: string;

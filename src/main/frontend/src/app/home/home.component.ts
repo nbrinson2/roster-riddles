@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MlbPlayer } from '../shared/mlb-models';
+import { MlbPlayer } from '../shared/models/mlb-models';
 
 import { AuthenticationService } from '../services/authentication.service';
 import { EndResultMessage } from '../services/constants';
 import { GameService } from '../services/game.service';
-import { AttributeHeader } from '../shared/models';
+import { AttributeHeader } from '../shared/models/models';
 
 @Component({
   selector: 'home',

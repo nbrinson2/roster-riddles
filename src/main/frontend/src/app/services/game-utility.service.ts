@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { PlayerAttributeColor, MlbPlayer } from '../shared/mlb-models';
+import { PlayerAttributeColor, MlbPlayer } from '../shared/models/mlb-models';
 import { GameStatus } from './models';
 import { InputPlaceHolderText } from './constants';
 import { MlbPlayerAttributes } from '../shared/enumeration/attributes';

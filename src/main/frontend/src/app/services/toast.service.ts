@@ -1,5 +1,5 @@
 import { Injectable, Signal, signal } from '@angular/core'
-import { MlbPlayer } from '../shared/mlb-models';
+import { MlbPlayer } from '../shared/models/mlb-models';
 
 @Injectable({
   providedIn: 'root',

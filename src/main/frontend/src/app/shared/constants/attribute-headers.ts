@@ -1,4 +1,4 @@
-import { AttributeHeader } from '../models';
+import { AttributeHeader } from '../models/models';
 
 export const MlbHeaders: AttributeHeader[] = [
   { name: 'TEAM', colSpan: 1, class: 'team-column' },

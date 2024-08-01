@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { AuthenticationService } from '../services/authentication.service';
 import { Title, UserRegisterRequest, RegisterField, RegisterFormKeys, ValidatorColor, ValidatorSymbol, PasswordCriteria, UserLoginRequest, ResponseError, RegisterResponse } from './authentication-models';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { User } from '../shared/models';
+import { User } from '../shared/models/models';
 import { HttpErrorResponse } from '@angular/common/http';
 
 interface Validator {

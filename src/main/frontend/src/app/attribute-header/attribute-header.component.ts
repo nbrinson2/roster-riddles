@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { PlayerAttributeColor } from '../shared/mlb-models';
-import { AttributeHeader } from '../shared/models';
+import { PlayerAttributeColor } from '../shared/models/mlb-models';
+import { AttributeHeader } from '../shared/models/models';
 import { EndResultMessage } from '../services/constants';
 
 @Component({

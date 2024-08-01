@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { MlbTeam, MlbTeamFullName, MlbPlayer } from '../shared/mlb-models';
+import { MlbTeam, MlbTeamFullName, MlbPlayer } from '../shared/models/mlb-models';
 import { MlbPlayerAttributes } from '../shared/enumeration/attributes';
 
 const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName } = {

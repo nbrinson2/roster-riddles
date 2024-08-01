@@ -1,5 +1,5 @@
 import { MlbPlayerAttributes, NflPlayerAttributes } from "./app/shared/enumeration/attributes";
-import { PlayerAttributeColor } from "./app/shared/mlb-models";
+import { PlayerAttributeColor } from "./app/shared/models/mlb-models";
 
 export const MLB_PLAYERS = [
   { name: 'Mike Trout', team: 'LAA', lgDiv: 'AL West', b: 'R', t: 'R', born: 'USA', age: '29', pos: 'CF', colorMap: new Map<MlbPlayerAttributes, PlayerAttributeColor>() },

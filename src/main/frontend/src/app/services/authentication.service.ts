@@ -4,7 +4,7 @@ import { Observable, map, tap } from 'rxjs';
 import { environment } from 'src/environment';
 import { LoginResponse, RegisterResponse, UserLoginRequest, UserRegisterRequest, UserResponse } from '../authentication/authentication-models';
 import { transformUserResponse } from '../util/data.util';
-import { User } from '../shared/models';
+import { User } from '../shared/models/models';
 
 @Injectable({
   providedIn: 'root'

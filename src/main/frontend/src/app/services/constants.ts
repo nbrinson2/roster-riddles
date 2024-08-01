@@ -9,8 +9,8 @@ import {
   MlbTeamFullName,
   MlbThrowing,
   MlbThrowingFullName,
-} from '../shared/mlb-models';
-import { LeagueType } from '../shared/models';
+} from '../shared/models/mlb-models';
+import { LeagueType } from '../shared/models/models';
 
 export const MlbTeamAbbreviationMap: { [key in MlbTeamFullName]: MlbTeam } = {
   [MlbTeamFullName.ARIZONA_DIAMONDBACKS]: MlbTeam.ARI,

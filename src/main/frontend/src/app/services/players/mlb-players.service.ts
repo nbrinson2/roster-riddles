@@ -16,7 +16,7 @@ import {
   MlbTeamsResponse,
   MlbThrowingFullName,
   PlayerAttributeColor,
-} from 'src/app/shared/mlb-models';
+} from 'src/app/shared/models/mlb-models';
 import {
   BattingAbbreviationMap,
   CountryBornAbbreviationMap,

@@ -4,7 +4,7 @@ import { AuthenticationService } from './authentication.service';
 import { environment } from 'src/environment';
 import { Observable, map } from 'rxjs';
 import { Guess, GuessCreateRequest, GuessResponse } from './models';
-import { PlayerAttributeColor } from '../shared/mlb-models';
+import { PlayerAttributeColor } from '../shared/models/mlb-models';
 import { MlbPlayerAttributes } from '../shared/enumeration/attributes';
 
 @Injectable({

@@ -1,6 +1,6 @@
 import { Component, computed, Input } from '@angular/core'
 import { ToastService } from '../services/toast.service'
-import { MlbPlayer } from '../shared/mlb-models'
+import { MlbPlayer } from '../shared/models/mlb-models'
 
 @Component({
   selector: 'toast',

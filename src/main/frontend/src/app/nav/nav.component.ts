@@ -1,13 +1,13 @@
 import { Component, Signal, ViewChild, signal } from '@angular/core';
 
-import { MlbPlayer } from '../shared/mlb-models';
+import { MlbPlayer } from '../shared/models/mlb-models';
 import { ActivatedRoute } from '@angular/router';
 import { MatDrawer } from '@angular/material/sidenav';
 import { UserService } from '../services/user.service';
 import { GameService } from '../services/game.service';
 import { first } from 'rxjs';
 import { ToastService } from '../services/toast.service';
-import { User } from '../shared/models';
+import { User } from '../shared/models/models';
 
 enum MatDrawerPosition {
   END = "end",

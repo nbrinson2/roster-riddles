@@ -5,7 +5,7 @@ import { map, startWith, take, takeUntil } from 'rxjs/operators';
 
 import { MatOption } from '@angular/material/core';
 import { FloatLabelType } from '@angular/material/form-field';
-import { MlbPlayer } from '../shared/mlb-models';
+import { MlbPlayer } from '../shared/models/mlb-models';
 
 @Component({
   selector: 'search',

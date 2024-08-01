@@ -1,8 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { PlayerAttributeColor, MlbPlayer } from '../shared/mlb-models';
+import { PlayerAttributeColor, MlbPlayer } from '../shared/models/mlb-models';
 import { MLB_PLAYERS, NFL_PLAYERS } from 'src/test-data';
 import { MlbPlayerAttributes, NflPlayerAttributes } from '../shared/enumeration/attributes';
-import { LeagueType, Player } from '../shared/models';
+import { LeagueType, Player } from '../shared/models/models';
 import { GameService } from '../services/game.service';
 
 interface HowToPlayExamplePlayer {

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MlbHeaders, NflHeaders } from '../../shared/constants/attribute-headers';
 import { MlbPlayerAttributes, NflPlayerAttributes } from '../../shared/enumeration/attributes';
-import { AttributeHeader, LeagueType } from '../../shared/models';
+import { AttributeHeader, LeagueType } from '../../shared/models/models';
 
 @Injectable({
   providedIn: 'root',

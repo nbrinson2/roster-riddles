@@ -14,12 +14,12 @@ import {
   GuessCreateRequest,
   PlayerType,
 } from './models';
-import { PlayerAttributeColor, MlbPlayer } from '../shared/mlb-models';
+import { PlayerAttributeColor, MlbPlayer } from '../shared/models/mlb-models';
 import { GuessService } from './guess.service';
 import { ToastService } from './toast.service';
 import { GameUtilityService } from './game-utility.service';
 import { EndResultMessage, InputPlaceHolderText, LeagueTypeIdMap } from './constants';
-import { LeagueType } from '../shared/models';
+import { LeagueType } from '../shared/models/models';
 import { MlbHeaders, NflHeaders } from '../shared/constants/attribute-headers';
 import { MlbPlayerAttributes } from '../shared/enumeration/attributes';
 

@@ -1,4 +1,4 @@
-import { MlbPlayerAttributes } from './enumeration/attributes';
+import { MlbPlayerAttributes } from '../enumeration/attributes';
 
 export enum MlbTeam {
   ARI = 'ARI', // Arizona Diamondbacks

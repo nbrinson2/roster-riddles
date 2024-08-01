@@ -1,6 +1,6 @@
 import { MlbPlayerAttributes } from '../shared/enumeration/attributes';
-import { PlayerAttributeColor, MlbPlayer } from '../shared/mlb-models';
-import { AttributeHeader } from '../shared/models';
+import { PlayerAttributeColor, MlbPlayer } from '../shared/models/mlb-models';
+import { AttributeHeader } from '../shared/models/models';
 import { EndResultMessage } from './constants';
 
 export interface GameData {

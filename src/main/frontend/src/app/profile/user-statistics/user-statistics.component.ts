@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core'
 import { StatCategory, TableRow } from './models'
-import { UserStatistics } from 'src/app/shared/models'
+import { UserStatistics } from 'src/app/shared/models/models'
 
 const StatisticToTableCategoryMap: {
   [key in keyof UserStatistics]: StatCategory

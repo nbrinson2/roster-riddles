@@ -1,5 +1,5 @@
 import { UserResponse } from '../authentication/authentication-models'
-import { User } from '../shared/models'
+import { User } from '../shared/models/models'
 
 export function transformUserResponse(response: UserResponse): User {
   return {

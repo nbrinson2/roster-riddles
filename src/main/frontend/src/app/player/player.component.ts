@@ -2,7 +2,7 @@ import { Component, computed, EventEmitter, Input, Output } from '@angular/core'
 
 import { MlbHeaders, NflHeaders } from '../shared/constants/attribute-headers';
 import { MlbPlayerAttributes, NflPlayerAttributes } from '../shared/enumeration/attributes';
-import { AttributeHeader, LeagueType, Player } from '../shared/models';
+import { AttributeHeader, LeagueType, Player } from '../shared/models/models';
 import { GameService } from '../services/game.service';
 
 @Component({
