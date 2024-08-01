@@ -50,7 +50,7 @@ export class GameService {
   private _gameData = signal<GameData>({} as GameData);
   private _allPlayers = signal<MlbPlayer[]>([]);
   private _gameId = signal<number>(0);
-  private _leagueType = signal<LeagueType>(LeagueType.NFL);
+  private _leagueType = signal<LeagueType>(LeagueType.MLB);
 
   constructor(
     private http: HttpClient,

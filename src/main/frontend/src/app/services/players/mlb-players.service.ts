@@ -1,42 +1,43 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, first, forkJoin, map, switchMap } from 'rxjs';
+import { forkJoin, map, Observable, switchMap } from 'rxjs';
+import { MlbPlayerAttributes } from 'src/app/shared/enumeration/attributes';
 import {
-  MlbBattingFullName,
   CountryBornFullName,
+  MlbBattingFullName,
   MlbLeagueDivisionFullName,
-  MlbTeamFullName,
-  PlayerAttributeColor,
+  MlbPlayer,
+  MlbPlayerDetailed,
   MlbPlayerResponse,
+  MlbRoster,
+  MlbRosterPlayer,
   MlbRosterResponse,
+  MlbTeamFullName,
   MlbTeamResponse,
   MlbTeamsResponse,
   MlbThrowingFullName,
-  MlbPlayer,
-  MlbPlayerDetailed,
-  MlbRoster,
-  MlbRosterPlayer,
-} from '../shared/mlb-models';
+  PlayerAttributeColor,
+} from 'src/app/shared/mlb-models';
 import {
   BattingAbbreviationMap,
   CountryBornAbbreviationMap,
   LeagueDivisionAbbreviationMap,
   MlbTeamAbbreviationMap,
   ThrowingAbbreviationMap,
-} from './constants';
-import { AttributeHeader, LeagueType } from '../shared/models';
-import { MlbHeaders, NflHeaders } from '../shared/constants/attribute-headers';
-import { MlbPlayerAttributes, NflPlayerAttributes } from '../shared/enumeration/attributes';
+} from '../constants';
+import { HttpClient } from '@angular/common/http';
+import { BasePlayersService } from './base-players.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class PlayersService {
+export class MlbPlayersService extends BasePlayersService {
   mlbBaseUrl = 'https://statsapi.mlb.com/api/v1';
   mlbTeamsEndpoint = '/teams';
   mlbPlayerEndpoint = '/people';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    super();
+  }
 
   public getAllMlbPlayers(): Observable<MlbPlayer[]> {
     return this.getAllMlbTeamRosters().pipe(
@@ -74,28 +75,6 @@ export class PlayersService {
         return uiPlayers;
       })
     );
-  }
-
-  public getPlayerHeaders(leagueType: LeagueType): AttributeHeader[] {
-    switch (leagueType) {
-      case LeagueType.MLB:
-        return MlbHeaders;
-      case LeagueType.NFL:
-        return NflHeaders;
-      default:
-        return [];
-    }
-  }
-
-  public getPlayerAttributes(leagueType: LeagueType): any {
-    switch (leagueType) {
-      case LeagueType.MLB:
-        return MlbPlayerAttributes;
-      case LeagueType.NFL:
-        return NflPlayerAttributes;
-      default:
-        return [];
-    }
   }
 
   private mapMlbPlayerDetailedToUiPlayer(player: MlbPlayerDetailed): MlbPlayer {

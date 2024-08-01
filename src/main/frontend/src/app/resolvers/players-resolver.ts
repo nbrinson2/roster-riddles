@@ -1,15 +1,15 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { Observable } from "rxjs";
+import { MlbPlayersService } from "../services/players/mlb-players.service";
 import { MlbPlayer } from "../shared/mlb-models";
-import { PlayersService } from "../services/players.service";
 
 
 @Injectable({providedIn: 'root'})
 export class PlayersResolver {
-    constructor(private playersService: PlayersService) {}
+    constructor(private mlbPlayersService: MlbPlayersService) {}
 
     resolve(route: ActivatedRouteSnapshot): Observable<MlbPlayer[]> {
-        return this.playersService.getAllMlbPlayers();
+        return this.mlbPlayersService.getAllMlbPlayers();
     }
 }
