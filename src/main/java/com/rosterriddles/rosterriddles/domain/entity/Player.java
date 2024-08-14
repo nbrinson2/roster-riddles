@@ -22,9 +22,6 @@ public abstract class Player {
     @Column(nullable = false, length = 255)
     private String name;
 
-    @Column(nullable = false, length = 100)
-    private String countryOfBirth;
-
     @Column(nullable = false)
     private int age;
 
@@ -32,9 +29,8 @@ public abstract class Player {
     @JoinColumn(nullable = false, name = "league_id")
     private League league;
 
-    public Player(String name, String countryOfBirth, int age, League league) {
+    public Player(String name, int age, League league) {
         this.name = name;
-        this.countryOfBirth = countryOfBirth;
         this.age = age;
         this.league = league;
     }

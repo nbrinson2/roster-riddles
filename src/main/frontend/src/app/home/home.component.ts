@@ -4,7 +4,7 @@ import { MlbPlayer } from '../shared/models/mlb-models';
 
 import { AuthenticationService } from '../services/authentication.service';
 import { EndResultMessage } from '../services/constants';
-import { GameService } from '../services/game.service';
+import { GameService } from '../services/games/game.service';
 import { AttributeHeader } from '../shared/models/models';
 
 @Component({
@@ -13,8 +13,11 @@ import { AttributeHeader } from '../shared/models/models';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
-  @Input() allPlayers: MlbPlayer[] = [];
   @Output() selectRosterEvent = new EventEmitter<MlbPlayer[]>();
+
+  get allPlayers(): MlbPlayer[] {
+    return this.gameService.allPlayers();
+  }
 
   get headers(): AttributeHeader[] {
     return this.gameService.gameData().headers;
@@ -73,7 +76,7 @@ export class HomeComponent implements OnInit {
   }
 
   protected startNewGame(): void {
-    this.gameService.startNewGame(this.allPlayers, this.authService.activeUser().id);
+    this.gameService.startNewGame(this.authService.activeUser().id);
   }
 
   protected selectRoster(team: string): void {

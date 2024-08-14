@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Signal, signal } from '@angular/core';
 import { environment } from 'src/environment';
-import { AuthenticationService } from './authentication.service';
+import { AuthenticationService } from '../authentication.service';
 import { Observable, map } from 'rxjs';
 import {
   BaseballPlayerRequest,
@@ -13,15 +13,15 @@ import {
   GameUpdateRequest,
   GuessCreateRequest,
   PlayerType,
-} from './models';
-import { PlayerAttributeColor, MlbPlayer } from '../shared/models/mlb-models';
-import { GuessService } from './guess.service';
-import { ToastService } from './toast.service';
+} from '../models';
+import { PlayerAttributeColor, MlbPlayer } from '../../shared/models/mlb-models';
+import { GuessService } from '../guess.service';
+import { ToastService } from '../toast.service';
+import { EndResultMessage, InputPlaceHolderText, LeagueTypeIdMap } from '../constants';
+import { LeagueType } from '../../shared/models/models';
+import { MlbHeaders, NflHeaders } from '../../shared/constants/attribute-headers';
+import { MlbPlayerAttributes } from '../../shared/enumeration/attributes';
 import { GameUtilityService } from './game-utility.service';
-import { EndResultMessage, InputPlaceHolderText, LeagueTypeIdMap } from './constants';
-import { LeagueType } from '../shared/models/models';
-import { MlbHeaders, NflHeaders } from '../shared/constants/attribute-headers';
-import { MlbPlayerAttributes } from '../shared/enumeration/attributes';
 
 export const maxNumberOfGuesses = 1;
 
@@ -153,8 +153,8 @@ export class GameService {
     this.setNewAttrColorForAllGuessablePlayers(selectedPlayer);
   }
 
-  public startNewGame(players: MlbPlayer[], userId: number): void {
-    this.setPlayerToGuess(players);
+  public startNewGame(userId: number): void {
+    this.setPlayerToGuess(this.allPlayers());
     const playerRequest = this.createPlayerRequest(this.gameData().playerToGuess);
     const newGameRequest: GameCreateRequest = {
       userId,
@@ -241,7 +241,7 @@ export class GameService {
   }
 
   public resetPlayerColorMap(player: MlbPlayer): void {
-    player.colorMap = this.gameUtilityService.initializePlayerAttrColorMap();
+    player.colorMap = this.gameUtilityService.initializePlayerAttrColorMap(this.leagueType());
   }
 
   private createPlayerRequest(player: MlbPlayer): BaseballPlayerRequest {

@@ -75,6 +75,7 @@ CREATE TABLE baseball_players (
     FOREIGN KEY (league_id) REFERENCES leagues(id)
 );
 
+-- 50 players
 INSERT INTO baseball_players (name, country_of_birth, age, league_id, team, batting_hand, throwing_hand, league_division, position)
 VALUES
 ('John Doe', 'USA', 25, 1, 'Yankees', 'R', 'R', 'AL East', 'Pitcher'),
@@ -127,6 +128,74 @@ VALUES
 ('Beverly Bell', 'Mexico', 27, 1, 'Marlins', 'L', 'L', 'NL East', 'First Base'),
 ('Carl Bailey', 'USA', 23, 1, 'Yankees', 'R', 'R', 'AL East', 'Second Base'),
 ('Ruth Rivera', 'South Korea', 31, 1, 'Blue Jays', 'R', 'L', 'AL East', 'Third Base');
+
+
+CREATE TABLE football_players (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    age INT NOT NULL,
+    league_id BIGINT NOT NULL,
+    team VARCHAR(10) NOT NULL,
+    jersey_number INT NOT NULL,
+    college VARCHAR(255) NOT NULL,
+    draft_year INT NOT NULL,
+    league_division VARCHAR(50) NOT NULL,
+    position VARCHAR(50) NOT NULL,
+    FOREIGN KEY (league_id) REFERENCES leagues(id)
+);
+
+
+-- 50 players
+INSERT INTO football_players (name, age, league_id, team, jersey_number, college, draft_year, league_division, position)
+VALUES
+('John Doe', 24, 1, 'Falcons', 12, 'University of Alabama', 2021, 'NFC South', 'Quarterback'),
+('Mike Smith', 22, 2, 'Giants', 45, 'Ohio State University', 2022, 'NFC East', 'Running Back'),
+('David Johnson', 25, 1, 'Cowboys', 32, 'University of Texas', 2020, 'NFC East', 'Wide Receiver'),
+('James Brown', 23, 2, 'Patriots', 56, 'Clemson University', 2021, 'AFC East', 'Linebacker'),
+('Chris Davis', 21, 3, 'Seahawks', 78, 'University of Oregon', 2023, 'NFC West', 'Tight End'),
+('Brian Lee', 26, 1, '49ers', 9, 'LSU', 2019, 'NFC West', 'Defensive Back'),
+('Matt Wilson', 22, 3, 'Bears', 10, 'University of Michigan', 2022, 'NFC North', 'Offensive Tackle'),
+('Justin Taylor', 24, 2, 'Dolphins', 33, 'University of Florida', 2021, 'AFC East', 'Cornerback'),
+('Kevin White', 23, 1, 'Packers', 55, 'University of Wisconsin', 2022, 'NFC North', 'Safety'),
+('Eric Harris', 27, 3, 'Broncos', 70, 'University of Colorado', 2018, 'AFC West', 'Center'),
+('Adam Martinez', 22, 2, 'Eagles', 17, 'Penn State University', 2023, 'NFC East', 'Guard'),
+('Alex Gonzalez', 24, 1, 'Vikings', 44, 'University of Minnesota', 2021, 'NFC North', 'Defensive End'),
+('Ryan Lewis', 25, 3, 'Ravens', 21, 'University of Maryland', 2020, 'AFC North', 'Punter'),
+('Jacob Hall', 23, 1, 'Raiders', 88, 'University of Nevada', 2022, 'AFC West', 'Kicker'),
+('Ethan Clark', 21, 2, 'Rams', 66, 'USC', 2023, 'NFC West', 'Fullback'),
+('Kyle Robinson', 26, 1, 'Chiefs', 7, 'University of Missouri', 2019, 'AFC West', 'Long Snapper'),
+('Brandon Hill', 22, 2, 'Steelers', 18, 'University of Pittsburgh', 2022, 'AFC North', 'Quarterback'),
+('Sean King', 24, 3, 'Bills', 40, 'Syracuse University', 2021, 'AFC East', 'Wide Receiver'),
+('Aaron Wright', 23, 1, 'Titans', 61, 'Vanderbilt University', 2022, 'AFC South', 'Running Back'),
+('Nathan Green', 27, 2, 'Texans', 99, 'Texas A&M University', 2018, 'AFC South', 'Linebacker'),
+('Tyler Scott', 21, 1, 'Browns', 15, 'Ohio University', 2023, 'AFC North', 'Tight End'),
+('Dylan Baker', 25, 2, 'Saints', 20, 'Tulane University', 2020, 'NFC South', 'Defensive Back'),
+('Cameron Adams', 22, 3, 'Panthers', 11, 'University of North Carolina', 2022, 'NFC South', 'Offensive Tackle'),
+('Joshua Nelson', 24, 1, 'Lions', 53, 'University of Michigan State', 2021, 'NFC North', 'Cornerback'),
+('Isaiah Carter', 23, 2, 'Buccaneers', 37, 'University of South Florida', 2022, 'NFC South', 'Safety'),
+('Mason Mitchell', 27, 1, 'Colts', 75, 'Purdue University', 2018, 'AFC South', 'Center'),
+('Jordan Perez', 21, 3, 'Bengals', 12, 'University of Cincinnati', 2023, 'AFC North', 'Guard'),
+('Luke Roberts', 24, 2, 'Chargers', 42, 'UCLA', 2021, 'AFC West', 'Defensive End'),
+('Hunter Evans', 22, 1, 'Commanders', 14, 'University of Virginia', 2022, 'NFC East', 'Punter'),
+('Brayden Murphy', 26, 3, 'Jaguars', 58, 'University of Florida State', 2019, 'AFC South', 'Kicker'),
+('Elijah Collins', 23, 2, 'Cardinals', 90, 'Arizona State University', 2022, 'NFC West', 'Fullback'),
+('Nicholas Reed', 21, 1, 'Jets', 13, 'Rutgers University', 2023, 'AFC East', 'Long Snapper'),
+('Chase Morgan', 24, 3, 'Falcons', 31, 'University of Georgia', 2021, 'NFC South', 'Quarterback'),
+('Isaac Bell', 23, 2, 'Cowboys', 77, 'Texas Tech University', 2022, 'NFC East', 'Wide Receiver'),
+('Landon Reed', 27, 1, 'Dolphins', 65, 'University of Miami', 2018, 'AFC East', 'Running Back'),
+('Christian Hayes', 22, 2, 'Eagles', 16, 'Temple University', 2022, 'NFC East', 'Linebacker'),
+('Jonathan Bennett', 21, 3, '49ers', 19, 'Stanford University', 2023, 'NFC West', 'Tight End'),
+('Gabriel Brooks', 25, 2, 'Seahawks', 54, 'University of Washington', 2020, 'NFC West', 'Defensive Back'),
+('Charles Foster', 22, 3, 'Bears', 67, 'Northwestern University', 2022, 'NFC North', 'Offensive Tackle'),
+('Jordan Butler', 24, 1, 'Patriots', 36, 'Boston College', 2021, 'AFC East', 'Cornerback'),
+('Austin Sanders', 23, 2, 'Ravens', 85, 'University of Maryland', 2022, 'AFC North', 'Safety'),
+('Thomas Flores', 27, 1, 'Packers', 71, 'University of Wisconsin', 2018, 'NFC North', 'Center'),
+('Evan Barnes', 21, 3, 'Chiefs', 29, 'Kansas State University', 2023, 'AFC West', 'Guard'),
+('Jason Foster', 25, 2, 'Titans', 80, 'University of Tennessee', 2020, 'AFC South', 'Defensive End'),
+('Anthony Perry', 24, 1, 'Bills', 22, 'University of New York', 2021, 'AFC East', 'Punter'),
+('Henry Barnes', 23, 2, 'Texans', 64, 'Rice University', 2022, 'AFC South', 'Kicker'),
+('Christopher Ward', 22, 3, 'Raiders', 10, 'University of Nevada', 2022, 'AFC West', 'Fullback'),
+('Blake Ross', 21, 1, 'Rams', 6, 'UCLA', 2023, 'NFC West', 'Long Snapper');
 
 
 

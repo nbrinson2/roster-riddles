@@ -3,7 +3,7 @@ import { PlayerAttributeColor, MlbPlayer } from '../shared/models/mlb-models';
 import { MLB_PLAYERS, NFL_PLAYERS } from 'src/test-data';
 import { MlbPlayerAttributes, NflPlayerAttributes } from '../shared/enumeration/attributes';
 import { LeagueType, Player } from '../shared/models/models';
-import { GameService } from '../services/game.service';
+import { GameService } from '../services/games/game.service';
 
 interface HowToPlayExamplePlayer {
   player: Player;

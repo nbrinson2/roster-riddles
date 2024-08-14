@@ -19,9 +19,9 @@ import lombok.ToString;
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = BaseballPlayerRequest.class, name = "baseballPlayer"),
+    @JsonSubTypes.Type(value = FootballPlayerRequest.class, name = "footballPlayer")
 })
 public abstract class PlayerRequest {
    private final String name;
    private final int age;
-   private final String countryOfBirth;
 }

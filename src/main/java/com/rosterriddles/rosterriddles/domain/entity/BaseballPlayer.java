@@ -31,13 +31,17 @@ public class BaseballPlayer extends Player {
    @Column(nullable = false, length = 50)
    private String position;
 
+   @Column(nullable = false, length = 100)
+   private String countryOfBirth;
+
    public BaseballPlayer(String name, String team, String countryOfBirth, int age, League league,
          String battingHand, String throwingHand, String leagueDivision, String position) {
-      super(name, countryOfBirth, age, league);
+      super(name, age, league);
       this.team = team;
       this.battingHand = battingHand;
       this.throwingHand = throwingHand;
       this.leagueDivision = leagueDivision;
       this.position = position;
+      this.countryOfBirth = countryOfBirth;
    }
 }

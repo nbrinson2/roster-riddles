@@ -38,7 +38,7 @@
         </div>
       </div>
       <div class="content-container">
-        <home [allPlayers]="allPlayers" (selectRosterEvent)="openRosterMenu($event)"></home>
+        <home (selectRosterEvent)="openRosterMenu($event)"></home>
       </div>
       <ng-container *ngIf="isToastVisible">
         <toast id="toast"></toast>

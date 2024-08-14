@@ -21,7 +21,7 @@ export interface GameCreateRequest {
   userId: number;
   leagueId: number;
   gameTypeId: number;
-  playerToGuess: BaseballPlayerRequest;
+  playerToGuess: BaseballPlayerRequest | FootballPlayerRequest;
 }
 
 export interface GameUpdateRequest {
@@ -78,13 +78,21 @@ export interface BaseballPlayerRequest extends PlayerRequest {
   battingHand: string;
   throwingHand: string;
   leagueDivision: string;
+  countryOfBirth: string;
 }
 
+export interface FootballPlayerRequest extends PlayerRequest {
+  team: string;
+  jerseyNumber: string;
+  college: string;
+  draftYear: string;
+  position: string;
+  leagueDivision: string;
+}
 export interface PlayerRequest {
   type: PlayerType;
   name: string;
   age: number;
-  countryOfBirth: string;
 }
 
 export enum PlayerType {
@@ -113,14 +121,4 @@ export interface Guess {
   timestamp: Date;
   rosterLink?: string;
   colorMap: Map<MlbPlayerAttributes, PlayerAttributeColor>;
-}
-
-// To be used when individual game statistics are implemented
-export interface Player {
-  id: number;
-  name: string;
-  team: string;
-  position: string;
-  age: number;
-  countryOfBirth: string;
 }
