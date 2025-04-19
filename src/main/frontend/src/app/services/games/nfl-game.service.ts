@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { NflHeaders } from 'src/app/shared/constants/attribute-headers';
 import { NflPlayer } from 'src/app/shared/models/nfl-models';
-import { GuessCreateRequest } from '../models';
+import { FootballPlayerRequest, GuessCreateRequest } from '../models';
 
 @Injectable({
   providedIn: 'root',
 })
-export class NflGameService extends BaseGameService {
+export class NflGameService {
   getHeaders() {
     return NflHeaders;
   }

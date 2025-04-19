@@ -11,7 +11,7 @@ import { MlbPlayerAttributes } from 'src/app/shared/enumeration/attributes';
 @Injectable({
   providedIn: 'root',
 })
-export class MlbGameService extends BaseGameService {
+export class MlbGameService {
   getHeaders() {
     return MlbHeaders;
   }

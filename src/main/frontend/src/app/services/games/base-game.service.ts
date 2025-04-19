@@ -1,7 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, Signal, signal } from '@angular/core';
+import { computed, Injectable, Signal, signal } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { AttributeHeader, LeagueType } from 'src/app/shared/models/models';
+import { MlbPlayerAttributes, NflPlayerAttributes } from 'src/app/shared/enumeration/attributes';
+import { MlbPlayer } from 'src/app/shared/models/mlb-models';
+import { LeagueType } from 'src/app/shared/models/models';
+import { NflPlayer } from 'src/app/shared/models/nfl-models';
 import { environment } from 'src/environment';
 import { AuthenticationService } from '../authentication.service';
 import { EndResultMessage, InputPlaceHolderText, LeagueTypeIdMap } from '../constants';
@@ -19,20 +22,20 @@ import {
 } from '../models';
 import { ToastService } from '../toast.service';
 import { GameUtilityService } from './game-utility.service';
-import { MlbPlayer, PlayerAttributeColor } from 'src/app/shared/models/mlb-models';
-import { NflPlayer } from 'src/app/shared/models/nfl-models';
-import { MlbPlayerAttributes, NflPlayerAttributes } from 'src/app/shared/enumeration/attributes';
+import { MlbGameService } from './mlb-game.service';
+import { NflGameService } from './nfl-game.service';
+import { MlbHeaders, NflHeaders } from 'src/app/shared/constants/attribute-headers';
 
 export type PlayerType = MlbPlayer | NflPlayer;
 export type PlayerAttributesType = MlbPlayerAttributes | NflPlayerAttributes;
 export type PlayerRequest = BaseballPlayerRequest | FootballPlayerRequest;
+export type LeagueService = MlbGameService | NflGameService;
 
 @Injectable({
   providedIn: 'root',
 })
 export abstract class BaseGameService {
-  abstract getHeaders(): AttributeHeader[];
-  abstract initializeGameData(): void;
+  getHeaders = computed(() => this.leagueType() === LeagueType.MLB ? MlbHeaders : NflHeaders);
   abstract createPlayerRequest(player: PlayerType): PlayerRequest;
   abstract updateSelectedPlayer(selectedPlayer: PlayerType): string[];
   abstract setPlayerToGuess(players: PlayerType[]): void;
@@ -67,6 +70,22 @@ export abstract class BaseGameService {
   get leagueType(): Signal<LeagueType> {
     return this._leagueType.asReadonly();
   }
+
+  protected initializeGameData(): void {
+    this.updateGameDataField('headers', this.getHeaders());
+    this.updateGameDataField('guessablePlayers', []);
+    this.updateGameDataField('selectedPlayers', []);
+    this.updateGameDataField('endResultText', EndResultMessage.LOSE);
+    this.updateGameDataField('endOfGame', false);
+    this.updateGameDataField('isSearchDisabled', false);
+    this.updateGameDataField(
+      'searchInputPlaceHolderText',
+      this.gameUtilityService.setSearchInputPlaceHolderText(0, 1, GameStatus.IN_PROCESS)
+    );
+    this.updateGameDataField('numberOfGuesses', 0);
+    this.updateGameDataField('showNewGameButton', false);
+    this.updateGameDataField('timesViewedActiveRoster', 0);
+  };
 
   protected createGame(request: GameCreateRequest): Observable<Game> {
     const headers = this.auth.getHeaders();
