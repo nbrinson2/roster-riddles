@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { EndResultMessage, Header } from '../home/home.component';
-import { PlayerAttrColor } from '../models/models';
+import { PlayerAttrColor } from 'src/app/shared/models/models';
+import { EndResultMessage, Header } from 'src/app/home/util/util';
 
 @Component({
   selector: 'attribute-header',

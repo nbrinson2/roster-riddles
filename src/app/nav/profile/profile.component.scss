@@ -1,0 +1,35 @@
+@use '../../../constants';
+
+.header {
+  color: #cc1f41;
+  font-family: constants.$font-family;
+  font-size: 22px;
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
+
+  h1 {
+    color: #cc1f41;
+    font-family: constants.$font-family;
+    font-size: 28px;
+    margin: 0px;
+    margin-top: 15px;
+  }
+
+  .account-icon {
+    font-size: 150px;
+  }
+}
+
+.content-container {
+  margin: 5px;
+
+  .section {
+    margin-top: 40px;
+
+    .text {
+      font-family: constants.$font-family-secondary;
+      margin-top: 10px;
+    }
+  }
+}

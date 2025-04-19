@@ -1,4 +1,4 @@
-@use '../../constants';
+@use '../../../constants';
 
 .name-header {
   display: flex;
@@ -30,6 +30,16 @@ mat-grid-list {
 .team-column {
   border-top-left-radius: 8px;
   border-bottom-left-radius: 8px;
+}
+
+.team-link {
+  text-decoration: underline;
+  
+  &:hover {
+    color: constants.$color-primary;
+    text-decoration: underline;
+    cursor: pointer;
+  }
 }
 
 .pos-column {

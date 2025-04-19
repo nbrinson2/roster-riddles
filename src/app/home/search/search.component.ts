@@ -5,7 +5,7 @@ import { map, startWith, take, takeUntil } from 'rxjs/operators';
 
 import { MatOption } from '@angular/material/core';
 import { FloatLabelType } from '@angular/material/form-field';
-import { UiPlayer } from '../models/models';
+import { UiPlayer } from 'src/app/shared/models/models';
 
 @Component({
   selector: 'search',
