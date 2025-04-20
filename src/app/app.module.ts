@@ -2,9 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 
-import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './home/home.component';
 import { PlayerComponent } from './home/player/player.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -22,6 +20,8 @@ import { ProfileComponent } from './nav/profile/profile.component';
 import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
 import { ActiveRosterTableComponent } from './nav/active-roster-table/active-roster-table.component';
 import { AttributeHeaderComponent } from './home/attribute-header/attribute-header.component';
+import { AppRoutingModule } from './app-routing.module';
+import { HomeComponent } from './home/home.component';
 
 @NgModule({
   declarations: [
