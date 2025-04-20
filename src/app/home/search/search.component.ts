@@ -21,7 +21,7 @@ export class SearchComponent {
 
   @ViewChildren('playerOption') playerOptions!: QueryList<MatOption>;
 
-  protected selectedPlayer?: UiPlayer;
+  protected selectedPlayers: UiPlayer[] = [];
   protected guessCount = 0;
   protected maxGuessNum = 9;
   protected searchControl = new FormControl();
@@ -43,6 +43,7 @@ export class SearchComponent {
   protected selectPlayer(player: UiPlayer): void {
     if (this.searchControl.value !== null) {
       this.selectPlayerEvent.emit(player);
+      this.selectedPlayers.push(player);
       this.searchControl.setValue(null);
     }
 
@@ -67,9 +68,13 @@ export class SearchComponent {
       return [];
     }
     if (!value) {
-      return this.players;
+      return this.players.filter(player => !this.selectedPlayers.includes(player));
     }
     const filterValue = value.toLowerCase();
-    return this.players.filter((player) => player.name.toLowerCase().includes(filterValue));
+    return this.players.filter(
+      player => 
+        !this.selectedPlayers.includes(player) && 
+        player.name.toLowerCase().includes(filterValue)
+    );
   }
 }
