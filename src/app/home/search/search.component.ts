@@ -51,6 +51,17 @@ export class SearchComponent {
     }
   }
 
+  protected handleEnterKey(event: Event): void {
+    event.preventDefault();
+    const searchValue = this.searchControl.value;
+    if (!searchValue) return;
+
+    const matchingPlayer = this._filter(searchValue).find(player => player.name === searchValue);
+    if (matchingPlayer) {
+      this.selectPlayer(matchingPlayer);
+    }
+  }
+
   private _filter(value: string): UiPlayer[] {
     if (!this.players) {
       return [];

@@ -8,7 +8,8 @@
         matInput
         #searchInput
         [matAutocomplete]="auto"
-        [formControl]="searchControl" />
+        [formControl]="searchControl"
+        (keydown.enter)="handleEnterKey($event)" />
       <mat-autocomplete #auto="matAutocomplete">
         <ng-container *ngIf="searchInput.value">
           <mat-option
