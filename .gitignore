@@ -1,68 +1,10 @@
 HELP.md
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+.angular/cache
+dist/
+node_modules/
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/target/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
 
-# frontend dependencies
-/src/main/frontend/node
-/src/main/frontend/node_modules
-/src/main/frontend/.pnp
-/src/main/frontend/.pnp.js
-
-# frontend testing
-/src/main/frontend/coverage
-
-# frontend production
-/src/main/frontend/build
-
-# frontend misc
-/src/main/frontend/.DS_Store
-/src/main/frontend/.env
-/src/main/frontend/.env.development.local
-/src/main/frontend/.env.test.local
-/src/main/frontend/.env.production.local
-
-/src/main/frontend/npm-debug.log*
-/src/main/frontend/yarn-debug.log*
-/src/main/frontend/yarn-error.log*
-
-# Miscellaneous
-/src/main/frontend/.angular/cache
-/src/main/frontend/.sass-cache/
-/src/main/frontend/connect.lock
-/src/main/frontend/coverage
-/src/main/frontend/libpeerconnection.log
-/src/main/frontend/testem.log
-/src/main/frontend/typings
-/src/main/resources/application.properties
-*.swo

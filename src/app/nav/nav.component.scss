@@ -1,0 +1,96 @@
+@use '../../constants';
+
+.home-container {
+  height: 100vh;
+}
+
+mat-drawer-container {
+  height: 100%;
+  background-color: black;
+}
+
+mat-drawer {
+  width: 90vw;
+  max-width: 500px;
+  background-color: black;
+}
+
+.content-container {
+  margin: 20px 10px 5px 10px;
+  max-height: 90%;
+}
+
+.login-menu {
+  .login-title {
+    color: #cc1f41;
+    font-family: constants.$font-family;
+    font-size: 22px;
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+
+    h1 {
+      color: #cc1f41;
+      font-family: constants.$font-family;
+      font-size: 28px;
+      margin: 0px;
+    }
+  }
+
+  .login-content {
+    width: 195px;
+    margin: auto;
+
+    .google-login-button {
+      margin-left: 10px;
+    }
+  }
+}
+
+.nav-container {
+  margin: 20px 10px 0px 10px;
+
+  .menu-icon {
+    color: #cc1f41;
+    margin-top: -3px;
+    font-size: 30px;
+    cursor: pointer;
+  }
+
+  .login-button {
+    float: right;
+    color: #cc1f41;
+    cursor: pointer;
+
+    .login-icon {
+      font-size: 30px;
+    }
+  }
+
+  .profile-logout-container {
+    float: right;
+    color: #cc1f41;
+
+    .logout-icon {
+      font-size: 30px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .profile-icon {
+      font-size: 30px;
+      cursor: pointer;
+    }
+  }
+}
+
+// Mobile browser support
+@media only screen and (max-height: 1000px) {
+  .home-container {
+    height: 92vh;
+  }
+
+  mat-drawer {
+    height: 92vh;
+  }
+}
