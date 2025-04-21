@@ -9,6 +9,12 @@ mat-drawer-container {
   background-color: black;
 }
 
+mat-drawer-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 mat-drawer {
   width: 90vw;
   max-width: 500px;
@@ -16,8 +22,10 @@ mat-drawer {
 }
 
 .content-container {
-  margin: 20px 10px 5px 10px;
-  max-height: 90%;
+  flex: 1;
+  margin: 0px 10px 5px 10px;
+  height: calc(100vh - 60px); // adjust for nav height if needed
+  overflow-y: auto;
 }
 
 .login-menu {
@@ -48,6 +56,9 @@ mat-drawer {
 }
 
 .nav-container {
+  position: sticky;
+  top: 0;
+  z-index: 200;
   margin: 20px 10px 0px 10px;
 
   .menu-icon {
@@ -85,7 +96,7 @@ mat-drawer {
 }
 
 // Mobile browser support
-@media only screen and (max-height: 1000px) {
+@media only screen and (max-width: 600px) {
   .home-container {
     height: 92vh;
   }
@@ -93,4 +104,32 @@ mat-drawer {
   mat-drawer {
     height: 92vh;
   }
+
+  .content-container {
+    padding-bottom: 20px;
+  }
+
+  .content-container::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// scrollbar
+.content-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.content-container::-webkit-scrollbar-track {
+  background: #111;
+  border-radius: 10px;
+}
+
+.content-container::-webkit-scrollbar-thumb {
+  background-color: #cc1f41;
+  border-radius: 10px;
+  border: 2px solid #111;
+}
+
+.content-container::-webkit-scrollbar-thumb:hover {
+  background-color: #ff4c6a;
 }

@@ -40,3 +40,9 @@ mat-grid-list {
 .orange {
   border-color: rgb(252, 174, 91);
 }
+
+@media only screen and (max-width: 360px) {
+  .column-content.end-result .end-result-text {
+    font-size: 14px;
+  }
+}
