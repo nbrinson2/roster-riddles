@@ -1,4 +1,4 @@
-@use '../../constants';
+@use "../../constants";
 
 .home-container {
   height: 100vh;
@@ -93,6 +93,14 @@ mat-drawer {
       cursor: pointer;
     }
   }
+}
+
+.slide-up-heading-text {
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  font-family: constants.$font-family;
+  text-align: center;
+  color: #cc1f41;
 }
 
 // Mobile browser support

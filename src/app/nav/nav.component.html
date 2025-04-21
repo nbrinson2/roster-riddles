@@ -12,7 +12,8 @@
       </ng-container>
       <div
         *ngIf="!loggedIn && !viewProfile && !viewMenu && !viewRoster"
-        class="login-menu">
+        class="login-menu"
+      >
         <div class="login-title">
           <h1>Login</h1>
         </div>
@@ -22,7 +23,8 @@
               logo_alignment="center"
               theme="outline"
               type="standard"
-              size="medium"></asl-google-signin-button>
+              size="medium"
+            ></asl-google-signin-button>
           </div>
         </div>
       </div>
@@ -35,12 +37,14 @@
         <div *ngIf="loggedIn" class="profile-logout-container">
           <span
             class="material-symbols-outlined logout-icon"
-            (click)="logout()">
+            (click)="logout()"
+          >
             logout
           </span>
           <span
             class="material-symbols-outlined profile-icon"
-            (click)="openProfileMenu()">
+            (click)="openProfileMenu()"
+          >
             person
           </span>
         </div>
@@ -51,6 +55,12 @@
       <div class="content-container">
         <home (selectRosterEvent)="openRosterMenu($event)"></home>
       </div>
+      <slide-up>
+        <div slide-up-heading>
+          <h2 class="slide-up-heading-text">Correct Answer</h2>
+        </div>
+        <player [player]="playerToGuess"></player>
+      </slide-up>
     </mat-drawer-content>
   </mat-drawer-container>
 </div>

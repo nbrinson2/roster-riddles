@@ -1,38 +1,41 @@
-import { Component, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren, ElementRef, OnInit } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+  ElementRef,
+  OnInit,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { map, startWith, take, takeUntil } from 'rxjs/operators';
+import { map, startWith } from 'rxjs/operators';
 
 import { MatOption } from '@angular/material/core';
 import { FloatLabelType } from '@angular/material/form-field';
 import { UiPlayer } from 'src/app/shared/models/models';
+import { GameService } from 'src/app/shared/services/game.service';
 
 @Component({
   selector: 'search',
   templateUrl: './search.component.html',
-  styleUrls: ['./search.component.scss']
+  styleUrls: ['./search.component.scss'],
 })
 export class SearchComponent implements OnInit {
-  @Input() players?: UiPlayer[];
   @Input() disabled: boolean = false;
   @Input() placeHolderText!: string;
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
-
-  @Output() selectPlayerEvent = new EventEmitter<UiPlayer>();
-
   @ViewChildren('playerOption') playerOptions!: QueryList<MatOption>;
 
-  protected selectedPlayers: UiPlayer[] = [];
-  protected guessCount = 0;
-  protected maxGuessNum = 9;
   protected searchControl = new FormControl();
   protected filteredPlayers: Observable<UiPlayer[]>;
 
-  constructor() {
-    // Only include 10 players from filtered list for performance
+  constructor(private gameService: GameService) {
     this.filteredPlayers = this.searchControl.valueChanges.pipe(
       startWith(''),
-      map((value) => this._filter(value).slice(0, 10))
+      map((value) => this.gameService.filterPlayers(value).slice(0, 10))
     );
   }
 
@@ -47,8 +50,7 @@ export class SearchComponent implements OnInit {
 
   protected selectPlayer(player: UiPlayer): void {
     if (this.searchControl.value !== null) {
-      this.selectPlayerEvent.emit(player);
-      this.selectedPlayers.push(player);
+      this.gameService.handlePlayerSelection(player);
       this.searchControl.setValue(null);
     }
 
@@ -62,24 +64,9 @@ export class SearchComponent implements OnInit {
     const searchValue = this.searchControl.value;
     if (!searchValue) return;
 
-    const matchingPlayer = this._filter(searchValue).find(player => player.name === searchValue);
+    const matchingPlayer = this.gameService.findMatchingPlayer(searchValue);
     if (matchingPlayer) {
       this.selectPlayer(matchingPlayer);
     }
-  }
-
-  private _filter(value: string): UiPlayer[] {
-    if (!this.players) {
-      return [];
-    }
-    if (!value) {
-      return this.players.filter(player => !this.selectedPlayers.includes(player));
-    }
-    const filterValue = value.toLowerCase();
-    return this.players.filter(
-      player => 
-        !this.selectedPlayers.includes(player) && 
-        player.name.toLowerCase().includes(filterValue)
-    );
   }
 }

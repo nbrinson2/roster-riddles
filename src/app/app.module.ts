@@ -13,7 +13,12 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
-import { GoogleLoginProvider, GoogleSigninButtonModule, SocialAuthServiceConfig, SocialLoginModule } from '@abacritt/angularx-social-login';
+import {
+  GoogleLoginProvider,
+  GoogleSigninButtonModule,
+  SocialAuthServiceConfig,
+  SocialLoginModule,
+} from '@abacritt/angularx-social-login';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavComponent } from './nav/nav.component';
 import { ProfileComponent } from './nav/profile/profile.component';
@@ -22,7 +27,7 @@ import { ActiveRosterTableComponent } from './nav/active-roster-table/active-ros
 import { AttributeHeaderComponent } from './home/attribute-header/attribute-header.component';
 import { AppRoutingModule } from './app-routing.module';
 import { HomeComponent } from './home/home.component';
-
+import { SlideUpComponent } from './shared/slide-up/slide-up.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -34,6 +39,7 @@ import { HomeComponent } from './home/home.component';
     HowToPlayComponent,
     NavComponent,
     ProfileComponent,
+    SlideUpComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,15 +65,17 @@ import { HomeComponent } from './home/home.component';
         providers: [
           {
             id: GoogleLoginProvider.PROVIDER_ID,
-            provider: new GoogleLoginProvider('928161371660-fevd85o3bmo9eqr0fkvt477dakcq7no5.apps.googleusercontent.com'),
-          }
+            provider: new GoogleLoginProvider(
+              '928161371660-fevd85o3bmo9eqr0fkvt477dakcq7no5.apps.googleusercontent.com'
+            ),
+          },
         ],
         onError: (err) => {
           console.error(err);
-        }
-      } as SocialAuthServiceConfig
-    }
+        },
+      } as SocialAuthServiceConfig,
+    },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
