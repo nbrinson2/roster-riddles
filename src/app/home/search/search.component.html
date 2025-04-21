@@ -9,7 +9,8 @@
         #searchInput
         [matAutocomplete]="auto"
         [formControl]="searchControl"
-        (keydown.enter)="handleEnterKey($event)" />
+        (keydown.enter)="handleEnterKey($event)"
+        autofocus />
       <mat-autocomplete #auto="matAutocomplete">
         <ng-container *ngIf="searchInput.value">
           <mat-option

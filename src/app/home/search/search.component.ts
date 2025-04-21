@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { Component, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren, ElementRef, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith, take, takeUntil } from 'rxjs/operators';
@@ -12,10 +12,11 @@ import { UiPlayer } from 'src/app/shared/models/models';
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.scss']
 })
-export class SearchComponent {
+export class SearchComponent implements OnInit {
   @Input() players?: UiPlayer[];
   @Input() disabled: boolean = false;
   @Input() placeHolderText!: string;
+  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
   @Output() selectPlayerEvent = new EventEmitter<UiPlayer>();
 
@@ -33,6 +34,10 @@ export class SearchComponent {
       startWith(''),
       map((value) => this._filter(value).slice(0, 10))
     );
+  }
+
+  ngOnInit() {
+    this.searchInput.nativeElement.focus();
   }
 
   protected getFloatLabelValue(): FloatLabelType {

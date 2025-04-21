@@ -11,3 +11,9 @@ mat-form-field {
 mat-option {
   display: block;
 }
+
+@media only screen and (max-width: 360px) {
+  mat-form-field {
+    width: 300px;
+  }
+}
