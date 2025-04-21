@@ -2,12 +2,17 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 
 import { UiPlayer } from '../shared/models/models';
 import { ActivatedRoute } from '@angular/router';
-import { GoogleSigninButtonDirective, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
+import {
+  GoogleSigninButtonDirective,
+  SocialAuthService,
+  SocialUser,
+} from '@abacritt/angularx-social-login';
 import { MatDrawer } from '@angular/material/sidenav';
+import { PlayersService } from '../home/player/services/players.service';
 
 enum MatDrawerPosition {
-  END = "end",
-  START = "start",
+  END = 'end',
+  START = 'start',
 }
 
 @Component({
@@ -17,7 +22,12 @@ enum MatDrawerPosition {
 })
 export class NavComponent implements OnInit {
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
-  @ViewChild('google-login', { static: true }) public googleLogin!: GoogleSigninButtonDirective;
+  @ViewChild('google-login', { static: true })
+  public googleLogin!: GoogleSigninButtonDirective;
+
+  get playerToGuess(): UiPlayer {
+    return this.playersService.playerToGuess();
+  }
 
   protected user?: SocialUser;
   protected loggedIn = false;
@@ -27,18 +37,20 @@ export class NavComponent implements OnInit {
   protected matDrawerPosition = MatDrawerPosition.END;
   protected selectedRoster?: UiPlayer[];
 
-  constructor(private route: ActivatedRoute,
-    private authService: SocialAuthService) {
-  }
+  constructor(
+    private route: ActivatedRoute,
+    private authService: SocialAuthService,
+    private playersService: PlayersService
+  ) {}
 
   ngOnInit(): void {
     this.authService.authState.subscribe((user: SocialUser) => {
       this.user = user;
-      this.loggedIn = (user != null);
+      this.loggedIn = user != null;
       if (this.drawer.opened) {
-        this.drawer.toggle();      
+        this.drawer.toggle();
       }
-      });
+    });
   }
 
   protected openMenu(): void {

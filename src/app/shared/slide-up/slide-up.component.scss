@@ -1,0 +1,94 @@
+.slide-up-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 300;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 0;
+  pointer-events: none; // optional: ensures it's only interactive where content is
+}
+
+@media only screen and (max-width: 600px) {
+  .slide-up-container {
+    bottom: 80px;
+  }
+}
+
+.slide-up-content {
+  background-color: #111;
+  color: #fff;
+  padding: 1rem 1.5rem;
+  width: 100%;
+  max-width: 548px;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.4);
+  position: relative;
+  pointer-events: all; // re-enable interaction on the content
+}
+
+.slide-up-controls {
+  display: none; // hidden by default
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+@media (max-width: 860px) {
+  .slide-up-controls {
+    display: flex; // show on mobile only
+  }
+}
+
+.dismiss-button,
+.new-game-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #cc1f41;
+  font-size: 1.2rem;
+
+  .material-symbols-outlined {
+    font-size: 24px;
+  }
+}
+
+.dismiss-button {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+}
+
+.new-game-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.new-game-icon {
+  color: #cc1f41;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
