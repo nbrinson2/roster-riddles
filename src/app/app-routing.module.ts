@@ -4,8 +4,7 @@ import { PlayersResolver } from './home/player/resolvers/players-resolver';
 import { NavComponent } from './nav/nav.component';
 
 const routes: Routes = [
-  {path: 'home', component: NavComponent, resolve: { players: PlayersResolver}},
-  {path: '', redirectTo: '/home', pathMatch: 'full'},
+  {path: '', component: NavComponent, resolve: { players: PlayersResolver}},
 ];
 
 
