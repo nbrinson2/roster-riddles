@@ -1,23 +1,26 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
+import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
 import { UiPlayer } from '../shared/models/models';
 import { GameService } from '../shared/services/game.service';
-import { SlideUpService } from '../shared/slide-up/slide-up.service';
 import { PlayersService } from './player/services/players.service';
 import {
   Data,
   EndResultMessage,
-  InputPlaceHolderText,
-  getPlayerKeyToBackgroundColorMap,
+  InputPlaceHolderText
 } from './util/util';
-
+import { HintArrowPosition } from '../shared/components/hint/hint.component';
+import { HintType } from '../shared/components/hint/hint.service';
 @Component({
   selector: 'home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
+  protected readonly HintType = HintType;
+  protected readonly HintArrowPosition = HintArrowPosition;
+
   @Output() selectRosterEvent = new EventEmitter<UiPlayer[]>();
 
   get playerToGuess(): UiPlayer {
@@ -52,11 +55,15 @@ export class HomeComponent {
     return this.gameService.endResultText;
   }
 
+  get hasShownFirstPlayerHint(): boolean {
+    return this.gameService.hasShownFirstPlayerHint();
+  }
+
   constructor(
     private route: ActivatedRoute,
     private slideUpService: SlideUpService,
     private playersService: PlayersService,
-    private gameService: GameService
+    private gameService: GameService,
   ) {
     this.route.data.pipe(first()).subscribe((d) => {
       this.gameService.startNewGame((d as Data).players);
@@ -74,6 +81,7 @@ export class HomeComponent {
   }
 
   protected selectRoster(team: string): void {
+    this.gameService.hasShownFirstPlayerHint = true;
     this.gameService.numberOfGuesses++;
 
     if (this.gameService.isGameFinished()) {

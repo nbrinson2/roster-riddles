@@ -7,7 +7,7 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { GameService } from '../services/game.service';
+import { GameService } from '../../services/game.service';
 
 @Component({
   selector: 'slide-up',

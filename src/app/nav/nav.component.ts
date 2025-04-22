@@ -9,7 +9,7 @@ import {
 } from '@abacritt/angularx-social-login';
 import { MatDrawer } from '@angular/material/sidenav';
 import { PlayersService } from '../home/player/services/players.service';
-
+import { HintService, HintType } from '../shared/components/hint/hint.service';
 enum MatDrawerPosition {
   END = 'end',
   START = 'start',
@@ -40,7 +40,8 @@ export class NavComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private authService: SocialAuthService,
-    private playersService: PlayersService
+    private playersService: PlayersService,
+    private hintService: HintService
   ) {}
 
   ngOnInit(): void {
@@ -50,6 +51,10 @@ export class NavComponent implements OnInit {
       if (this.drawer.opened) {
         this.drawer.toggle();
       }
+    });
+
+    this.drawer.closedStart.subscribe(() => {
+      this.hintService.dismissHint();
     });
   }
 

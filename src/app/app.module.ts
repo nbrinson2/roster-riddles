@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
 
 import { AppComponent } from './app.component';
 import { PlayerComponent } from './home/player/player.component';
@@ -13,6 +14,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import {
   GoogleLoginProvider,
   GoogleSigninButtonModule,
@@ -27,7 +30,9 @@ import { ActiveRosterTableComponent } from './nav/active-roster-table/active-ros
 import { AttributeHeaderComponent } from './home/attribute-header/attribute-header.component';
 import { AppRoutingModule } from './app-routing.module';
 import { HomeComponent } from './home/home.component';
-import { SlideUpComponent } from './shared/slide-up/slide-up.component';
+import { SlideUpComponent } from './shared/components/slide-up/slide-up.component';
+import { HintComponent } from './shared/components/hint/hint.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -40,9 +45,11 @@ import { SlideUpComponent } from './shared/slide-up/slide-up.component';
     NavComponent,
     ProfileComponent,
     SlideUpComponent,
+    HintComponent
   ],
   imports: [
     BrowserModule,
+    CommonModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatGridListModule,
@@ -56,6 +63,8 @@ import { SlideUpComponent } from './shared/slide-up/slide-up.component';
     SocialLoginModule,
     GoogleSigninButtonModule,
     MatTooltipModule,
+    MatCardModule,
+    MatIconModule,
   ],
   providers: [
     {
