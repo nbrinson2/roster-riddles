@@ -1,14 +1,15 @@
 {
-  "name": "mlb-pickle",
+  "name": "roster-riddles",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "node index.js",
     "build": "ng build",
     "build:prod": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
+  "type": "module",
   "private": true,
   "dependencies": {
     "@abacritt/angularx-social-login": "^2.1.0",
@@ -23,6 +24,7 @@
     "@angular/platform-browser-dynamic": "^18.0.0",
     "@angular/router": "^18.0.0",
     "auth-guard": "^1.0.12",
+    "express": "^5.1.0",
     "rxjs": "~7.8.1",
     "tslib": "^2.4.0",
     "zone.js": "~0.14.0"
@@ -39,5 +41,10 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.4"
-  }
+  },
+  "description": "This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.0.",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
