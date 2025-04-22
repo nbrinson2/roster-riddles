@@ -11,7 +11,8 @@ import {
   PlayerAttrColor,
   UiPlayer,
 } from '../../shared/models/models';
-import { SlideUpService } from '../../shared/slide-up/slide-up.service';
+import { SlideUpService } from '../components/slide-up/slide-up.service';
+import { HintType, HintService } from '../components/hint/hint.service';
 
 @Injectable({ providedIn: 'root' })
 export class GameService {
@@ -25,6 +26,13 @@ export class GameService {
   isSearchDisabled = false;
   searchInputPlaceHolderText: string = InputPlaceHolderText.GUESS;
   headers = Headers;
+  get hasShownFirstPlayerHint(): Signal<boolean> {
+    return this._hasShownFirstPlayerHint.asReadonly();
+  }
+
+  set hasShownFirstPlayerHint(value: boolean) {
+    this._hasShownFirstPlayerHint.set(value);
+  }
 
   get shouldStartNewGame(): Signal<boolean> {
     return this._shouldStartNewGame.asReadonly();
@@ -35,10 +43,11 @@ export class GameService {
   }
 
   private _shouldStartNewGame = signal(false);
-
+  private _hasShownFirstPlayerHint = signal(false);
   constructor(
     private slideUpService: SlideUpService,
-    private playersService: PlayersService
+    private playersService: PlayersService,
+    private hintService: HintService
   ) {}
 
   setAllPlayers(players: UiPlayer[]): void {
@@ -152,6 +161,11 @@ export class GameService {
   handlePlayerSelection(player: UiPlayer): void {
     if (!player) {
       return;
+    }
+
+    if (!this.hasShownFirstPlayerHint && this.selectedPlayers.length === 0) {
+      this.hintService.showHint(HintType.COLOR_FEEDBACK);
+      this._hasShownFirstPlayerHint.set(true);
     }
 
     this.numberOfGuesses++;

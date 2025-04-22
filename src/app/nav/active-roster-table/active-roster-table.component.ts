@@ -1,6 +1,21 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { MlbTeam, MlbTeamFullName, PlayerAttr, UiPlayer } from 'src/app/shared/models/models';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+  AfterViewChecked,
+  OnInit,
+} from '@angular/core';
+import {
+  MlbTeam,
+  MlbTeamFullName,
+  PlayerAttr,
+  UiPlayer,
+} from 'src/app/shared/models/models';
 import { GameService } from 'src/app/shared/services/game.service';
+import { HintService, HintType } from 'src/app/shared/components/hint/hint.service';
 
 const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName } = {
   [MlbTeam.ARI]: MlbTeamFullName.ARIZONA_DIAMONDBACKS,
@@ -38,14 +53,17 @@ const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName } = {
 @Component({
   selector: 'active-roster-table',
   templateUrl: './active-roster-table.component.html',
-  styleUrls: ['./active-roster-table.component.scss']
+  styleUrls: ['./active-roster-table.component.scss'],
 })
-export class ActiveRosterTableComponent {
-  @Input() 
+export class ActiveRosterTableComponent implements OnInit, AfterViewChecked {
+  protected readonly HintType = HintType;
+
+  @Input()
   set roster(value: UiPlayer[]) {
     this._roster = this.formatAndSortRoster(value);
     if (value?.length) {
-      this.teamName = MlbAbbreviationToFullNameMap[this.roster[0].team as MlbTeam];
+      this.teamName =
+        MlbAbbreviationToFullNameMap[this.roster[0].team as MlbTeam];
     }
   }
 
@@ -54,17 +72,40 @@ export class ActiveRosterTableComponent {
   }
 
   @Output() playerSelected = new EventEmitter<void>();
+  @ViewChild('firstRow', { read: ElementRef })
+  firstRowRef!: ElementRef<HTMLElement>;
 
   private _roster: UiPlayer[] = [];
-
-  constructor(private gameService: GameService) {}
-
-  protected displayedAttributes = Object.values(PlayerAttr).filter(
-    attr => attr !== PlayerAttr.TEAM && 
-    attr !== PlayerAttr.LG_DIV && 
-    attr !== PlayerAttr.COLOR_MAP
-  ).map(attr => attr.toUpperCase());
+  protected displayedAttributes = Object.values(PlayerAttr)
+    .filter(
+      (attr) =>
+        attr !== PlayerAttr.TEAM &&
+        attr !== PlayerAttr.LG_DIV &&
+        attr !== PlayerAttr.COLOR_MAP
+    )
+    .map((attr) => attr.toUpperCase());
   protected teamName?: MlbTeamFullName;
+  protected firstRowElement: HTMLElement | null = null;
+
+  constructor(
+    private gameService: GameService,
+    private hintService: HintService
+  ) {}
+
+  ngAfterViewChecked() {
+    // only run once, when the row actually appears
+    if (this.firstRowRef?.nativeElement) {
+      this.firstRowElement = this.firstRowRef.nativeElement;
+      this.hintService.showHint(HintType.ROSTER_SELECT);
+    }
+  }
+
+  ngOnInit() {
+    if (this.roster.length > 0) {
+      this.teamName =
+        MlbAbbreviationToFullNameMap[this.roster[0].team as MlbTeam];
+    }
+  }
 
   protected getAttr(player: UiPlayer, attrValue: string): string {
     const attr = attrValue.toLowerCase() as PlayerAttr;
@@ -81,11 +122,11 @@ export class ActiveRosterTableComponent {
 
   private formatAndSortRoster(roster: UiPlayer[]): UiPlayer[] {
     if (!roster) return [];
-    
+
     const sortedRoster = roster.sort((playerOne, playerTwo) => {
       // Compare by position
       const positionComparison = playerOne.pos.localeCompare(playerTwo.pos);
-      
+
       if (positionComparison !== 0) {
         // Positions are not equal, return the result of this comparison
         return positionComparison;
@@ -94,12 +135,12 @@ export class ActiveRosterTableComponent {
         return playerOne.name.localeCompare(playerTwo.name);
       }
     });
-    
+
     return sortedRoster.map((player) => {
       const nameArray = player.name.split(' ');
       const firstNameInitial = nameArray[0][0];
       const lastName = nameArray[nameArray.length - 1];
-      return {...player, name: `${firstNameInitial}. ${lastName}`};
+      return { ...player, name: `${firstNameInitial}. ${lastName}` };
     });
   }
 }

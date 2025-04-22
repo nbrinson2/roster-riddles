@@ -12,9 +12,13 @@
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="displayedAttributes"></tr>
       <tr mat-row 
-          *matRowDef="let player; columns: displayedAttributes"
+          *matRowDef="let player; columns: displayedAttributes; let first = first"
           (click)="onRowClick(player)"
-          class="player-row"></tr>
+          class="player-row"
+          [class.first-row]="first"
+          #firstRow>
+      </tr>
     </table>
+    <hint *ngIf="firstRowElement" [targetElement]="firstRowElement" [hintType]="HintType.ROSTER_SELECT"></hint>
   </div>
 </div>

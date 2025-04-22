@@ -18,12 +18,18 @@
   </div>
 </div>
 <div class="players-container">
-  <div class="player-container" *ngFor="let player of selectedPlayers">
+  <div class="player-container" *ngFor="let player of selectedPlayers; let first = first" #playerContainer>
     <player
       [player]="player"
       [inSearchResults]="false"
       (selectTeamEvent)="selectRoster($event)"
     ></player>
+    <hint 
+      *ngIf="first && !hasShownFirstPlayerHint" 
+      [targetElement]="playerContainer"
+      [hintType]="HintType.ROSTER_COST"
+      [arrowPosition]="HintArrowPosition.TOP_LEFT">
+    </hint>
   </div>
 </div>
 <div class="footer">
