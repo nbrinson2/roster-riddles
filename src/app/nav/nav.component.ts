@@ -91,4 +91,8 @@ export class NavComponent implements OnInit {
     this.selectedRoster = roster;
     this.drawer.toggle();
   }
+
+  handlePlayerSelection(): void {
+    this.drawer.toggle();
+  }
 }

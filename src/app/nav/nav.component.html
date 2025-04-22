@@ -2,7 +2,7 @@
   <mat-drawer-container>
     <mat-drawer #drawer mode="over" [position]="matDrawerPosition">
       <ng-container *ngIf="selectedRoster && viewRoster">
-        <active-roster-table [roster]="selectedRoster"></active-roster-table>
+        <active-roster-table [roster]="selectedRoster" (playerSelected)="handlePlayerSelection()"></active-roster-table>
       </ng-container>
       <ng-container *ngIf="viewMenu">
         <how-to-play></how-to-play>
