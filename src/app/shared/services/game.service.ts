@@ -174,6 +174,31 @@ export class GameService {
     this.setNewAttrColorForAllGuessablePlayers(player);
   }
 
+  handleRosterSelection(player: UiPlayer): void {
+    if (!player || this.endOfGame || this.isSearchDisabled) {
+      return;
+    }
+
+    this.numberOfGuesses++;
+    player.colorMap = getPlayerKeyToBackgroundColorMap(
+      this.playersService.playerToGuess(),
+      player,
+      false
+    );
+    const colorMapValuesArray = Array.from(player.colorMap.values());
+
+    this.selectedPlayers.unshift(player);
+
+    if (this.isGameFinished(colorMapValuesArray)) {
+      return;
+    }
+
+    this.searchInputPlaceHolderText = `${
+      this.allowedGuesses - this.numberOfGuesses
+    } ${InputPlaceHolderText.COUNT}`;
+    this.setNewAttrColorForAllGuessablePlayers(player);
+  }
+
   findMatchingPlayer(searchValue: string): UiPlayer | undefined {
     return this.filterPlayers(searchValue).find(
       (player) => player.name === searchValue

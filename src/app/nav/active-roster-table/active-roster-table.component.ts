@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { MlbTeam, MlbTeamFullName, PlayerAttr, UiPlayer } from 'src/app/shared/models/models';
+import { GameService } from 'src/app/shared/services/game.service';
 
 const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName } = {
   [MlbTeam.ARI]: MlbTeamFullName.ARIZONA_DIAMONDBACKS,
@@ -43,7 +44,7 @@ export class ActiveRosterTableComponent {
   @Input() 
   set roster(value: UiPlayer[]) {
     this._roster = this.formatAndSortRoster(value);
-    if (value) {
+    if (value?.length) {
       this.teamName = MlbAbbreviationToFullNameMap[this.roster[0].team as MlbTeam];
     }
   }
@@ -52,7 +53,11 @@ export class ActiveRosterTableComponent {
     return this._roster;
   }
 
+  @Output() playerSelected = new EventEmitter<void>();
+
   private _roster: UiPlayer[] = [];
+
+  constructor(private gameService: GameService) {}
 
   protected displayedAttributes = Object.values(PlayerAttr).filter(
     attr => attr !== PlayerAttr.TEAM && 
@@ -69,7 +74,14 @@ export class ActiveRosterTableComponent {
     return player[attr];
   }
 
+  protected onRowClick(player: UiPlayer): void {
+    this.gameService.handlePlayerSelection(player);
+    this.playerSelected.emit();
+  }
+
   private formatAndSortRoster(roster: UiPlayer[]): UiPlayer[] {
+    if (!roster) return [];
+    
     const sortedRoster = roster.sort((playerOne, playerTwo) => {
       // Compare by position
       const positionComparison = playerOne.pos.localeCompare(playerTwo.pos);
