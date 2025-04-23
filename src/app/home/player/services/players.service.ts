@@ -53,7 +53,10 @@ export class PlayersService {
 
         for (const roster of rosters) {
           for (const player of roster.players) {
-            const team = MlbTeamAbbreviationMap[roster.team as MlbTeamFullName];
+            const team =
+              roster.team === 'Athletics'
+                ? 'OAK'
+                : MlbTeamAbbreviationMap[roster.team as MlbTeamFullName];
 
             playersWithTeam.push({
               player: player,
