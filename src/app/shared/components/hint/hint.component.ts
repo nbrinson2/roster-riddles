@@ -52,6 +52,6 @@ export class HintComponent implements OnInit, AfterViewInit {
   }
 
   dismissHint() {
-    this.hintService.resetHints();
+    this.hintService.dismissHint();
   }
 }

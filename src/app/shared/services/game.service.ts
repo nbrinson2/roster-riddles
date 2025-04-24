@@ -163,6 +163,10 @@ export class GameService {
       return;
     }
 
+    if (this.hintService.currentHint()) {
+      this.hintService.dismissHint();
+    }
+
     if (!this.hasShownFirstPlayerHint && this.selectedPlayers.length === 0) {
       this.hintService.showHint(HintType.COLOR_FEEDBACK);
       this._hasShownFirstPlayerHint.set(true);
