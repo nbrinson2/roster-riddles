@@ -16,8 +16,6 @@ export class MlbPlayersService {
   playerEndpoint = '/people';
   playerToGuess: MlbUiPlayer = {} as MlbUiPlayer;
 
-  private _playerToGuess = signal<MlbUiPlayer>({} as MlbUiPlayer);
-
   constructor(private http: HttpClient) {}
 
   public getTeams(): Observable<MlbTeamsResponse> {

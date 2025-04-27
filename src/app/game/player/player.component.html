@@ -9,7 +9,7 @@
         <div class="column-content" [ngClass]="getClass(attr)">
           <div *ngIf="attr !== teamAttribute">{{ getPlayerAttr(attr) }}</div>
           <div *ngIf="attr === teamAttribute">
-            <a (click)="selectTeam(player)"
+            <a (click)="selectTeam()"
                [ngClass]="{ 'team-link': !inSearchResults }">
               {{ getPlayerAttr(attr) }}
             </a>

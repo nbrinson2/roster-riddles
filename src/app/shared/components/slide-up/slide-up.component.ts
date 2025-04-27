@@ -7,7 +7,7 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { GameEngineService } from '../../../game/services/game.service';
+import { GameEngineService } from '../../../game/services/game-engine.service';
 import { AttributesType, UiPlayer } from '../../../shared/models/models';
 @Component({
     selector: 'slide-up',

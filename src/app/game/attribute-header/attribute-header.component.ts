@@ -1,6 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { PlayerAttrColor } from 'src/app/shared/models/models';
+import { AttributesType, PlayerAttrColor } from 'src/app/shared/models/models';
 import { EndResultMessage, Header } from 'src/app/game/util/util';
+import { GameEngineService } from '../services/game-engine.service';
+import { UiPlayer } from 'src/app/shared/models/models';
 
 @Component({
     selector: 'attribute-header',
@@ -9,9 +11,19 @@ import { EndResultMessage, Header } from 'src/app/game/util/util';
     standalone: false
 })
 export class AttributeHeaderComponent {
-  @Input() attrHeaders!: Header[];
-  @Input() endResultText!: string;
-  @Input() endOfGame!: boolean;
+  get endOfGame(): boolean {
+    return this.gameService.endOfGame;
+  }
+
+  get endResultText(): string {
+    return this.gameService.endResultText;
+  }
+
+  get attrHeaders(): Header[] {
+    return this.gameService.headers;
+  }
+
+  constructor(private gameService: GameEngineService<UiPlayer<AttributesType>>) {}
 
   protected getEndResultBorderColor(): string {
     if (this.endResultText === EndResultMessage.WIN) {

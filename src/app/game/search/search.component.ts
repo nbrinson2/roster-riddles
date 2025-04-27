@@ -1,7 +1,7 @@
 import {
   Component,
   ElementRef,
-  Input,
+  Inject,
   OnInit,
   QueryList,
   ViewChild,
@@ -13,8 +13,9 @@ import { map, startWith } from 'rxjs/operators';
 
 import { MatOption } from '@angular/material/core';
 import { FloatLabelType } from '@angular/material/form-field';
-import { GameEngineService } from 'src/app/game/services/game.service';
+import { GameEngineService } from 'src/app/game/services/game-engine.service';
 import { AttributesType, UiPlayer } from 'src/app/shared/models/models';
+import { GAME_SERVICE } from '../util/game.token';
 
 @Component({
     selector: 'search',
@@ -23,15 +24,24 @@ import { AttributesType, UiPlayer } from 'src/app/shared/models/models';
     standalone: false
 })
 export class SearchComponent implements OnInit {
-  @Input() disabled: boolean = false;
-  @Input() placeHolderText!: string;
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
   @ViewChildren('playerOption') playerOptions!: QueryList<MatOption>;
+
+  get disabled(): boolean {
+    return this.gameService.isSearchDisabled;
+  }
+
+  get placeHolderText(): string {
+    return this.gameService.searchInputPlaceHolderText();
+  }
 
   protected searchControl = new FormControl();
   protected filteredPlayers: Observable<UiPlayer<AttributesType>[]>;
 
-  constructor(private gameService: GameEngineService<UiPlayer<AttributesType>>) {
+  constructor(
+    @Inject(GAME_SERVICE)
+    private gameService: GameEngineService<UiPlayer<AttributesType>>
+  ) {
     this.filteredPlayers = this.searchControl.valueChanges.pipe(
       startWith(''),
       map((value) => this.gameService.filterPlayers(value).slice(0, 10))

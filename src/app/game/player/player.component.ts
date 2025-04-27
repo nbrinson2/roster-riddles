@@ -16,8 +16,11 @@ import {
 })
 export class PlayerComponent {
   @Input() set player(player: UiPlayer<AttributesType>) {
-    this.playerAttributes = player.colorMap.keys().next()
-      .value as AttributesType;
+    this._player = player;
+    this.playerAttributes = Object.keys(this._player).filter(
+      (attr) =>
+        attr !== CommonAttributes.NAME && attr !== CommonAttributes.COLOR_MAP
+    );
     this.orderedUiPlayerAttr = Object.values(this.playerAttributes).filter(
       (attr) =>
         attr !== CommonAttributes.NAME && attr !== CommonAttributes.COLOR_MAP
@@ -29,7 +32,7 @@ export class PlayerComponent {
   @Output() selectTeamEvent: EventEmitter<string> = new EventEmitter<string>();
 
   get teamAttribute(): string {
-    if (Object.keys(this.player).includes('TEAM')) {
+    if (Object.keys(this._player).includes('team')) {
       return 'team';
     }
 
@@ -38,8 +41,9 @@ export class PlayerComponent {
 
   protected commonAttributes = CommonAttributes;
   protected orderedUiPlayerAttr!: string[];
-  protected playerAttributes!: AttributesType;
+  protected playerAttributes!: string[];
 
+  private _player!: UiPlayer<AttributesType>;
   private playerKeyToHeaderNameMap!: Map<string, string>;
 
   protected getColSpan(attr: string): number {
@@ -54,7 +58,7 @@ export class PlayerComponent {
     const attrKey = attr as AttributesType;
     const headerName = this.playerKeyToHeaderNameMap.get(attr);
     const header = Headers.filter((header) => header.name === headerName);
-    const attrColor = this.player.colorMap.get(attrKey);
+    const attrColor = this._player.colorMap.get(attrKey);
 
     const className = header[0]!.class + ' ' + attrColor;
 
@@ -64,15 +68,17 @@ export class PlayerComponent {
   protected getPlayerAttr(attr: string): string {
     const attrKey = attr as keyof UiPlayer<AttributesType>;
 
-    if (!this.player || attrKey === CommonAttributes.COLOR_MAP) {
+    if (!this._player || attrKey === CommonAttributes.COLOR_MAP) {
       return '';
     }
 
-    return this.player[attrKey];
+    return this._player[attrKey];
   }
 
-  protected selectTeam(player: UiPlayer<AttributesType>): void {
-    this.selectTeamEvent.emit((player as TeamUiPlayer<AttributesType>).team);
+  protected selectTeam(): void {
+    this.selectTeamEvent.emit(
+      (this._player as TeamUiPlayer<AttributesType>).team
+    );
   }
 
   private getPlayerKeyToHeaderNameMap(): Map<string, string> {

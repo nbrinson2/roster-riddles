@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, Signal, signal } from "@angular/core";
 import { HintService, HintType } from "../../shared/components/hint/hint.service";
 import { SlideUpService } from "../../shared/components/slide-up/slide-up.service";
 import { AttributesType, PlayerAttrColor, UiPlayer } from "../../shared/models/models";
@@ -50,6 +50,14 @@ export class GameEngineService<
     return this.gameConfiguration.playerProvider.playerToGuess;
   }
 
+  get searchInputPlaceHolderText(): Signal<string> {
+    return this._searchInputPlaceHolderText.asReadonly();
+  }
+
+  set searchInputPlaceHolderText(text: string) {
+    this._searchInputPlaceHolderText.set(text);
+  }
+
   public allPlayers: PlayerType[] = [];
   public guessablePlayers: PlayerType[] = [];
   public selectedPlayers: PlayerType[] = [];
@@ -58,9 +66,9 @@ export class GameEngineService<
   public endResultText = EndResultMessage.WIN;
   public endOfGame = false;
   public isSearchDisabled = false;
-  public searchInputPlaceHolderText: string = InputPlaceHolderText.GUESS;
   public headers = Headers;
 
+  private _searchInputPlaceHolderText = signal<string>(InputPlaceHolderText.GUESS);
   private gameConfiguration!:
     | GameConfiguration<PlayerType>;
 

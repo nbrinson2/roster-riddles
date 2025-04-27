@@ -7,7 +7,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { GameEngineService } from 'src/app/game/services/game.service';
+import { GameEngineService } from 'src/app/game/services/game-engine.service';
 import {
   HintService,
   HintType,
@@ -40,14 +40,12 @@ export class ActiveRosterTableComponent implements AfterViewChecked {
       this.teamName = TeamAbbreviationToFullNameMap[
         player.team as TeamType
       ] as TeamFullName;
-      this.displayedAttributes = this.displayedAttributes
-        .filter(
-          (attr) =>
-            !Object.values(HiddenPlayerRosterAttributes).includes(
-              attr as HiddenPlayerRosterAttributes
-            )
-        )
-        .map((attr) => attr.toUpperCase());
+      this.displayedAttributes = Object.keys(player).filter(
+        (attr) =>
+          !Object.values(HiddenPlayerRosterAttributes).includes(
+            attr as HiddenPlayerRosterAttributes
+          )
+      ).map((attr) => attr.toUpperCase());
     }
   }
 
