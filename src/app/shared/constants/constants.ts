@@ -1,8 +1,8 @@
-import { MlbBatting, MlbBattingFullName, MlbLeagueDivision, MlbLeagueDivisionFullName, MlbTeam, MlbTeamFullName, MlbThrowing, MlbThrowingFullName } from "../models/mlb-models";
+import { MlbBatting, MlbBattingFullName, MlbLeagueDivision, MlbLeagueDivisionFullName, MlbTeam, MlbTeamFullName, MlbThrowing, MlbThrowingFullName } from "../models/mlb.models";
 import { CountryBornFullName, TeamType } from "../models/models";
 import { CountryBorn } from "../models/models";
-import { NflTeamFullName } from "../models/nfl-models";
-import { NflTeam } from "../models/nfl-models";
+import { NflTeamFullName } from "../models/nfl.models";
+import { NflTeam } from "../models/nfl.models";
 
 export const MlbTeamAbbreviationMap: { [key in MlbTeamFullName]: MlbTeam } = {
     [MlbTeamFullName.ARIZONA_DIAMONDBACKS]: MlbTeam.ARI,

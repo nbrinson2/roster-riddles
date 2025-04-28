@@ -5,7 +5,7 @@ import {
   MlbUiPlayer,
   MlbPlayerResponse,
   MlbRosterResponse,
-  MlbTeamsResponse} from 'src/app/shared/models/mlb-models';
+  MlbTeamsResponse} from 'src/app/shared/models/mlb.models';
 
 @Injectable({
   providedIn: 'root',

@@ -2,7 +2,7 @@ import { Injectable, Signal } from '@angular/core';
 import {
   MlbPlayerAttributes,
   MlbUiPlayer,
-} from 'src/app/shared/models/mlb-models';
+} from 'src/app/shared/models/mlb.models';
 import { MlbPlayersService } from '../player/services/mlb-players.service';
 import { getPlayerKeyToBackgroundColorMap } from '../util/util';
 import { GameEngineService } from './game-engine.service';

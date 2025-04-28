@@ -13,7 +13,7 @@ import {
   HintType,
 } from 'src/app/shared/components/hint/hint.service';
 import { TeamAbbreviationToFullNameMap } from 'src/app/shared/constants/constants';
-import { MlbUiPlayer } from 'src/app/shared/models/mlb-models';
+import { MlbUiPlayer } from 'src/app/shared/models/mlb.models';
 import {
   AttributesType,
   CommonAttributes,

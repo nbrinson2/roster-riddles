@@ -1,4 +1,4 @@
-import { MlbBatting, MlbLeagueDivision, MlbPlayerAttributes, MlbTeam, MlbPositionEnum, MlbThrowing } from "./app/shared/models/mlb-models";
+import { MlbBatting, MlbLeagueDivision, MlbPlayerAttributes, MlbTeam, MlbPositionEnum, MlbThrowing } from "./app/shared/models/mlb.models";
 import { PlayerAttrColor } from './app/shared/models/models';
 import { CountryBorn } from "./app/shared/models/models";
 

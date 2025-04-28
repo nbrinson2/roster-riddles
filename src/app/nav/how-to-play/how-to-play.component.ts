@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MlbPlayerAttributes, MlbUiPlayer } from 'src/app/shared/models/mlb-models';
+import { MlbPlayerAttributes, MlbUiPlayer } from 'src/app/shared/models/mlb.models';
 import { PlayerAttrColor } from 'src/app/shared/models/models';
 import { PLAYERS } from 'src/test-data';
 

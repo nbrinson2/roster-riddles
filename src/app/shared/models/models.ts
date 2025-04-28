@@ -1,5 +1,5 @@
-import { MlbPlayerAttributes, MlbTeam, MlbTeamFullName } from "./mlb-models";
-import { NflPlayerAttributes, NflTeam, NflTeamFullName } from "./nfl-models";
+import { MlbPlayerAttributes, MlbTeam, MlbTeamFullName } from "./mlb.models";
+import { NflPlayerAttributes, NflTeam, NflTeamFullName } from "./nfl.models";
 
 export interface UiPlayer<T> {
   name: string;

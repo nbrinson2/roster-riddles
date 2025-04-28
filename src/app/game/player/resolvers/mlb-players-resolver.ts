@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
 import { forkJoin, map, Observable, switchMap } from "rxjs";
 import { BattingAbbreviationMap, CountryBornAbbreviationMap, LeagueDivisionAbbreviationMap, MlbTeamAbbreviationMap, ThrowingAbbreviationMap } from "src/app/shared/constants/constants";
-import { MlbBattingFullName, MlbLeagueDivisionFullName, MlbPlayerAttributes, MlbTeam, MlbTeamFullName, MlbUiPlayer, MlbPlayerResponse, MlbRosterResponse, MlbTeamDetails, MlbTeamsResponse, MlbThrowingFullName, MlbUiPlayerDetailed, MlbUiRoster, MlbUiRosterPlayer } from "../../../shared/models/mlb-models";
+import { MlbBattingFullName, MlbLeagueDivisionFullName, MlbPlayerAttributes, MlbTeam, MlbTeamFullName, MlbUiPlayer, MlbPlayerResponse, MlbRosterResponse, MlbTeamDetails, MlbTeamsResponse, MlbThrowingFullName, MlbUiPlayerDetailed, MlbUiRoster, MlbUiRosterPlayer } from "../../../shared/models/mlb.models";
 import { PlayerAttrColor } from 'src/app/shared/models/models';
 import { CountryBornFullName } from "src/app/shared/models/models";
 import { MlbPlayersService } from "../services/mlb-players.service";

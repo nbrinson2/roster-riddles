@@ -1,4 +1,4 @@
-import { CountryBorn, PlayerAttrColor, UiPlayer } from './models';
+import { UiPlayer } from './models';
 
 export interface NflPlayer extends UiPlayer<NflPlayerAttributes> {
   team: NflTeam;
@@ -107,6 +107,42 @@ export enum NflConferenceDivisionFullName {
   NFC_WEST = 'National Football Conference West',
 }
 
+export const NflTeamToConferenceDivisionMap = new Map<
+  NflTeam,
+  NflConferenceDivision
+>([
+  [NflTeam.ARI, NflConferenceDivision.NFC_WEST],
+  [NflTeam.ATL, NflConferenceDivision.NFC_SOUTH],
+  [NflTeam.BAL, NflConferenceDivision.AFC_NORTH],
+  [NflTeam.BUF, NflConferenceDivision.AFC_EAST],
+  [NflTeam.CAR, NflConferenceDivision.NFC_SOUTH],
+  [NflTeam.CHI, NflConferenceDivision.NFC_NORTH],
+  [NflTeam.CIN, NflConferenceDivision.AFC_NORTH],
+  [NflTeam.CLE, NflConferenceDivision.AFC_NORTH],
+  [NflTeam.DAL, NflConferenceDivision.NFC_EAST],
+  [NflTeam.DEN, NflConferenceDivision.AFC_WEST],
+  [NflTeam.DET, NflConferenceDivision.AFC_NORTH],
+  [NflTeam.GB, NflConferenceDivision.NFC_NORTH],
+  [NflTeam.HOU, NflConferenceDivision.AFC_SOUTH],
+  [NflTeam.IND, NflConferenceDivision.AFC_SOUTH],
+  [NflTeam.JAX, NflConferenceDivision.AFC_SOUTH],
+  [NflTeam.KC, NflConferenceDivision.AFC_WEST],
+  [NflTeam.LA, NflConferenceDivision.NFC_WEST],
+  [NflTeam.MIA, NflConferenceDivision.AFC_EAST],
+  [NflTeam.MIN, NflConferenceDivision.AFC_NORTH],
+  [NflTeam.NE, NflConferenceDivision.AFC_EAST],
+  [NflTeam.NO, NflConferenceDivision.NFC_SOUTH],
+  [NflTeam.NYG, NflConferenceDivision.NFC_EAST],
+  [NflTeam.NYJ, NflConferenceDivision.AFC_EAST],
+  [NflTeam.PHI, NflConferenceDivision.NFC_EAST],
+  [NflTeam.PIT, NflConferenceDivision.AFC_NORTH],
+  [NflTeam.SEA, NflConferenceDivision.NFC_WEST],
+  [NflTeam.SF, NflConferenceDivision.NFC_WEST],
+  [NflTeam.TB, NflConferenceDivision.NFC_SOUTH],
+  [NflTeam.TEN, NflConferenceDivision.AFC_SOUTH],
+  [NflTeam.WAS, NflConferenceDivision.NFC_EAST],
+]);
+
 export enum NflPositionEnum {
   QB = 'QB',
   RB = 'RB',
@@ -130,6 +166,5 @@ export enum NflPositionEnum {
   OL = 'OL',
   DL = 'DL',
   DB = 'DB',
-  SAF = 'SAF',  
+  SAF = 'SAF',
 }
-
