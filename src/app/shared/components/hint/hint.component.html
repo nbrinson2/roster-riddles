@@ -1,0 +1,15 @@
+<div class="hint-tooltip" *ngIf="hintService.currentHint()" [class.top-left-arrow]="arrowPosition === 'top-left'">
+  <div class="hint-content">
+    <div class="hint-header">
+      <mat-icon class="hint-icon">lightbulb</mat-icon>
+      <span class="hint-title">Pro tip</span>
+    </div>
+    <div class="hint-message">
+      {{ hintService.currentHint()?.message }}
+    </div>
+    <div class="hint-footer">
+      <button mat-button color="primary" (click)="dismissHint()">Got it</button>
+    </div>
+  </div>
+  <div class="hint-arrow"></div>
+</div>

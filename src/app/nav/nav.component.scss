@@ -1,0 +1,143 @@
+@use "../../constants";
+
+.home-container {
+  height: 100vh;
+}
+
+mat-drawer-container {
+  height: 100%;
+  background-color: black;
+}
+
+mat-drawer-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+mat-drawer {
+  width: 90vw;
+  max-width: 500px;
+  background-color: black;
+}
+
+.content-container {
+  flex: 1;
+  margin: 0px 10px 5px 10px;
+  height: calc(100vh - 60px); // adjust for nav height if needed
+  overflow-y: auto;
+}
+
+.login-menu {
+  .login-title {
+    color: #cc1f41;
+    font-family: constants.$font-family;
+    font-size: 22px;
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+
+    h1 {
+      color: #cc1f41;
+      font-family: constants.$font-family;
+      font-size: 28px;
+      margin: 0px;
+    }
+  }
+
+  .login-content {
+    width: 195px;
+    margin: auto;
+
+    .google-login-button {
+      margin-left: 10px;
+    }
+  }
+}
+
+.nav-container {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  margin: 20px 10px 0px 10px;
+
+  .menu-icon {
+    color: #cc1f41;
+    margin-top: -3px;
+    font-size: 30px;
+    cursor: pointer;
+  }
+
+  .login-button {
+    float: right;
+    color: #cc1f41;
+    cursor: pointer;
+
+    .login-icon {
+      font-size: 30px;
+    }
+  }
+
+  .profile-logout-container {
+    float: right;
+    color: #cc1f41;
+
+    .logout-icon {
+      font-size: 30px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .profile-icon {
+      font-size: 30px;
+      cursor: pointer;
+    }
+  }
+}
+
+.slide-up-heading-text {
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  font-family: constants.$font-family;
+  text-align: center;
+  color: #cc1f41;
+}
+
+// Mobile browser support
+@media only screen and (max-width: 600px) {
+  .home-container {
+    height: 92vh;
+  }
+
+  mat-drawer {
+    height: 92vh;
+  }
+
+  .content-container {
+    padding-bottom: 20px;
+  }
+
+  .content-container::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+// scrollbar
+.content-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.content-container::-webkit-scrollbar-track {
+  background: #111;
+  border-radius: 10px;
+}
+
+.content-container::-webkit-scrollbar-thumb {
+  background-color: #cc1f41;
+  border-radius: 10px;
+  border: 2px solid #111;
+}
+
+.content-container::-webkit-scrollbar-thumb:hover {
+  background-color: #ff4c6a;
+}

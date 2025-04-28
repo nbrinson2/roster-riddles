@@ -1,0 +1,24 @@
+<div
+  class="slide-up-container"
+  *ngIf="shouldRender"
+  [@slideAnimation]="isVisible ? 'up' : 'down'"
+  (@slideAnimation.done)="onAnimationDone()"
+>
+  <div class="slide-up-content">
+    <!-- Top Button Row -->
+    <div class="slide-up-controls">
+      <button class="dismiss-button" (click)="dismiss()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+      <button class="new-game-button" (click)="startNewGame()">
+        <span class="material-symbols-outlined new-game-icon">refresh</span>
+      </button>
+    </div>
+
+    <!-- Projected Content -->
+    <div class="content">
+      <ng-content select="[slide-up-heading]"></ng-content>
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>
