@@ -4,8 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { HintService } from '../shared/components/hint/hint.service';
 import { AttributesType, UiPlayer } from '../shared/models/models';
 import { MlbPlayersService } from '../game/player/services/mlb-players.service';
-import { MlbUiPlayer } from '../shared/models/mlb-models';
 import { FirestoreService } from '../shared/services/firestore.service';
+import { MlbUiPlayer } from '../shared/models/mlb.models';
 
 enum MatDrawerPosition {
   END = 'end',
