@@ -1,15 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-
-import { UiPlayer } from '../shared/models/models';
-import { ActivatedRoute } from '@angular/router';
-import {
-  GoogleSigninButtonDirective,
-  SocialAuthService,
-  SocialUser,
-} from '@abacritt/angularx-social-login';
 import { MatDrawer } from '@angular/material/sidenav';
+import { ActivatedRoute } from '@angular/router';
 import { PlayersService } from '../home/player/services/players.service';
-import { HintService, HintType } from '../shared/components/hint/hint.service';
+import { HintService } from '../shared/components/hint/hint.service';
+import { UiPlayer } from '../shared/models/models';
+import { FirestoreService } from '../shared/services/firestore.service';
+
 enum MatDrawerPosition {
   END = 'end',
   START = 'start',
@@ -22,14 +18,12 @@ enum MatDrawerPosition {
 })
 export class NavComponent implements OnInit {
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
-  @ViewChild('google-login', { static: true })
-  public googleLogin!: GoogleSigninButtonDirective;
 
   get playerToGuess(): UiPlayer {
     return this.playersService.playerToGuess();
   }
 
-  protected user?: SocialUser;
+  // protected user?: SocialUser;
   protected loggedIn = false;
   protected viewMenu = true;
   protected viewProfile = false;
@@ -39,18 +33,14 @@ export class NavComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private authService: SocialAuthService,
     private playersService: PlayersService,
-    private hintService: HintService
+    private hintService: HintService,
+    private firestoreService: FirestoreService
   ) {}
 
   ngOnInit(): void {
-    this.authService.authState.subscribe((user: SocialUser) => {
-      this.user = user;
-      this.loggedIn = user != null;
-      if (this.drawer.opened) {
-        this.drawer.toggle();
-      }
+    this.firestoreService.getAll().subscribe((cafes) => {
+      console.log(cafes);
     });
 
     this.drawer.closedStart.subscribe(() => {
@@ -75,9 +65,9 @@ export class NavComponent implements OnInit {
   }
 
   protected logout(): void {
-    this.user = undefined;
+    // this.user = undefined;
     this.loggedIn = false;
-    this.authService.signOut();
+    // this.authService.signOut();
   }
 
   protected openLoginMenu(): void {

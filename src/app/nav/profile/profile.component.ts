@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { SocialUser } from '@abacritt/angularx-social-login';
 
 @Component({
   selector: 'profile',
@@ -7,5 +6,5 @@ import { SocialUser } from '@abacritt/angularx-social-login';
   styleUrls: ['./profile.component.scss']
 })
 export class ProfileComponent {
-  @Input() user!: SocialUser;
+  // @Input() user!: SocialUser;
 }
