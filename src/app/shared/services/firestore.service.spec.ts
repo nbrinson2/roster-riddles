@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { FirestoreService } from './firestore.service';
+import { FirestoreService } from '../../game/player/services/firestore.service';
 
 describe('FirestoreService', () => {
   let service: FirestoreService;

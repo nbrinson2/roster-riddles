@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute } from '@angular/router';
-import { PlayersService } from '../home/player/services/players.service';
 import { HintService } from '../shared/components/hint/hint.service';
-import { UiPlayer } from '../shared/models/models';
+import { AttributesType, UiPlayer } from '../shared/models/models';
+import { MlbPlayersService } from '../game/player/services/mlb-players.service';
 import { FirestoreService } from '../shared/services/firestore.service';
+import { MlbUiPlayer } from '../shared/models/mlb.models';
 
 enum MatDrawerPosition {
   END = 'end',
@@ -20,8 +21,8 @@ enum MatDrawerPosition {
 export class NavComponent implements OnInit {
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
 
-  get playerToGuess(): UiPlayer {
-    return this.playersService.playerToGuess();
+  get playerToGuess(): MlbUiPlayer {
+    return this.playersService.playerToGuess;
   }
 
   // protected user?: SocialUser;
@@ -30,11 +31,11 @@ export class NavComponent implements OnInit {
   protected viewProfile = false;
   protected viewRoster = false;
   protected matDrawerPosition = MatDrawerPosition.END;
-  protected selectedRoster?: UiPlayer[];
+  protected selectedRoster?: UiPlayer<AttributesType>[];
 
   constructor(
     private route: ActivatedRoute,
-    private playersService: PlayersService,
+    private playersService: MlbPlayersService,
     private hintService: HintService,
     private firestoreService: FirestoreService
   ) {}
@@ -75,7 +76,7 @@ export class NavComponent implements OnInit {
     this.drawer.toggle();
   }
 
-  protected openRosterMenu(roster: UiPlayer[]): void {
+  protected openRosterMenu(roster: UiPlayer<AttributesType>[]): void {
     this.viewMenu = false;
     this.viewProfile = false;
     this.viewRoster = true;

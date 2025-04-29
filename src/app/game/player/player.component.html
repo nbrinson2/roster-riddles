@@ -7,9 +7,9 @@
     <div *ngFor="let attr of orderedUiPlayerAttr" class="tile-container">
       <mat-grid-tile [colspan]="getColSpan(attr)">
         <div class="column-content" [ngClass]="getClass(attr)">
-          <div *ngIf="attr !== PlayerAttr.TEAM">{{ getPlayerAttr(attr) }}</div>
-          <div *ngIf="attr === PlayerAttr.TEAM">
-            <a (click)="selectTeam(player)"
+          <div *ngIf="attr !== teamAttribute">{{ getPlayerAttr(attr) }}</div>
+          <div *ngIf="attr === teamAttribute">
+            <a (click)="selectTeam()"
                [ngClass]="{ 'team-link': !inSearchResults }">
               {{ getPlayerAttr(attr) }}
             </a>
