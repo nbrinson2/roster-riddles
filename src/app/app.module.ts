@@ -27,11 +27,12 @@ import { HomeComponent } from './home/home.component';
 import { SlideUpComponent } from './shared/components/slide-up/slide-up.component';
 import { HintComponent } from './shared/components/hint/hint.component';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { provideFirestore, getFirestore, initializeFirestore } from '@angular/fire/firestore';
 import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { ScreenTrackingService, UserTrackingService } from '@angular/fire/analytics';
 import { environment } from 'src/environment';
+import { getApp } from 'firebase/app';
 
 @NgModule({
   declarations: [
@@ -65,7 +66,7 @@ import { environment } from 'src/environment';
   ],
   providers: [
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideFirestore(() => getFirestore()),
+    provideFirestore(() => initializeFirestore(getApp(), {}, 'roster-riddles')),
     provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),
     provideHttpClient(),

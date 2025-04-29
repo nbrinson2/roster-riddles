@@ -40,10 +40,6 @@ export class NavComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.firestoreService.getAll().subscribe((cafes) => {
-      console.log(cafes);
-    });
-
     this.drawer.closedStart.subscribe(() => {
       this.hintService.dismissHint();
     });
