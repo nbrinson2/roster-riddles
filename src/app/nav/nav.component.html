@@ -7,9 +7,9 @@
       <ng-container *ngIf="viewMenu">
         <how-to-play></how-to-play>
       </ng-container>
-      <ng-container *ngIf="loggedIn && viewProfile && user">
+      <!-- <ng-container *ngIf="loggedIn && viewProfile && user">
         <profile [user]="user"></profile>
-      </ng-container>
+      </ng-container> -->
       <div
         *ngIf="!loggedIn && !viewProfile && !viewMenu && !viewRoster"
         class="login-menu"
@@ -19,12 +19,7 @@
         </div>
         <div class="login-content">
           <div class="google-login-button">
-            <asl-google-signin-button
-              logo_alignment="center"
-              theme="outline"
-              type="standard"
-              size="medium"
-            ></asl-google-signin-button>
+            <p>Coming soon</p>
           </div>
         </div>
       </div>

@@ -19,9 +19,10 @@ import { UiPlayer } from 'src/app/shared/models/models';
 import { GameService } from 'src/app/shared/services/game.service';
 
 @Component({
-  selector: 'search',
-  templateUrl: './search.component.html',
-  styleUrls: ['./search.component.scss'],
+    selector: 'search',
+    templateUrl: './search.component.html',
+    styleUrls: ['./search.component.scss'],
+    standalone: false
 })
 export class SearchComponent implements OnInit {
   @Input() disabled: boolean = false;

@@ -18,9 +18,10 @@ export function getPlayerKeyToHeaderNameMap(): Map<string, string> {
 }
 
 @Component({
-  selector: 'player',
-  templateUrl: './player.component.html',
-  styleUrls: ['./player.component.scss']
+    selector: 'player',
+    templateUrl: './player.component.html',
+    styleUrls: ['./player.component.scss'],
+    standalone: false
 })
 export class PlayerComponent {
   @Input() player!: UiPlayer;

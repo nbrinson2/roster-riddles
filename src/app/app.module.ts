@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 
 import { AppComponent } from './app.component';
@@ -16,12 +16,6 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  GoogleLoginProvider,
-  GoogleSigninButtonModule,
-  SocialAuthServiceConfig,
-  SocialLoginModule,
-} from '@abacritt/angularx-social-login';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { NavComponent } from './nav/nav.component';
 import { ProfileComponent } from './nav/profile/profile.component';
@@ -32,6 +26,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { HomeComponent } from './home/home.component';
 import { SlideUpComponent } from './shared/components/slide-up/slide-up.component';
 import { HintComponent } from './shared/components/hint/hint.component';
+import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { provideFirestore, getFirestore, initializeFirestore } from '@angular/fire/firestore';
+import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
+import { provideAuth, getAuth } from '@angular/fire/auth';
+import { ScreenTrackingService, UserTrackingService } from '@angular/fire/analytics';
+import { environment } from 'src/environment';
+import { getApp } from 'firebase/app';
 
 @NgModule({
   declarations: [
@@ -59,31 +60,18 @@ import { HintComponent } from './shared/components/hint/hint.component';
     ReactiveFormsModule,
     MatInputModule,
     MatAutocompleteModule,
-    HttpClientModule,
-    SocialLoginModule,
-    GoogleSigninButtonModule,
     MatTooltipModule,
     MatCardModule,
     MatIconModule,
   ],
   providers: [
-    {
-      provide: 'SocialAuthServiceConfig',
-      useValue: {
-        autoLogin: false,
-        providers: [
-          {
-            id: GoogleLoginProvider.PROVIDER_ID,
-            provider: new GoogleLoginProvider(
-              '928161371660-fevd85o3bmo9eqr0fkvt477dakcq7no5.apps.googleusercontent.com'
-            ),
-          },
-        ],
-        onError: (err) => {
-          console.error(err);
-        },
-      } as SocialAuthServiceConfig,
-    },
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideFirestore(() => initializeFirestore(getApp(), {}, 'roster-riddles')),
+    provideAnalytics(() => getAnalytics()),
+    provideAuth(() => getAuth()),
+    provideHttpClient(),
+    ScreenTrackingService,
+    UserTrackingService,
   ],
   bootstrap: [AppComponent],
 })
