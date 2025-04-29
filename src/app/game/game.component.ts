@@ -1,38 +1,38 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
+import { HintArrowPosition } from '../shared/components/hint/hint.component';
+import { HintService, HintType } from '../shared/components/hint/hint.service';
 import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
-import { UiPlayer } from '../shared/models/models';
-import { GameService } from '../shared/services/game.service';
-import { PlayersService } from './player/services/players.service';
+import { AttributesType, TeamUiPlayer, UiPlayer } from '../shared/models/models';
+import { GameEngineService } from './services/game.service';
 import {
   Data,
   EndResultMessage,
   InputPlaceHolderText
 } from './util/util';
-import { HintArrowPosition } from '../shared/components/hint/hint.component';
-import { HintType } from '../shared/components/hint/hint.service';
+
 @Component({
-    selector: 'home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
-    standalone: false
+  selector: 'game',
+  templateUrl: './game.component.html',
+  styleUrls: ['./game.component.scss'],
+  standalone: false
 })
-export class HomeComponent {
+export class GameComponent {
   protected readonly HintType = HintType;
   protected readonly HintArrowPosition = HintArrowPosition;
 
-  @Output() selectRosterEvent = new EventEmitter<UiPlayer[]>();
+  @Output() selectRosterEvent = new EventEmitter<UiPlayer<AttributesType>[]>();
 
-  get playerToGuess(): UiPlayer {
-    return this.playersService.playerToGuess();
+  get playerToGuess(): UiPlayer<AttributesType> {
+    return this.gameService.playerToGuess;
   }
 
-  get guessablePlayers(): UiPlayer[] {
+  get guessablePlayers(): UiPlayer<AttributesType>[] {
     return this.gameService.guessablePlayers;
   }
 
-  get selectedPlayers(): UiPlayer[] {
+  get selectedPlayers(): UiPlayer<AttributesType>[] {
     return this.gameService.selectedPlayers;
   }
 
@@ -57,14 +57,14 @@ export class HomeComponent {
   }
 
   get hasShownFirstPlayerHint(): boolean {
-    return this.gameService.hasShownFirstPlayerHint();
+    return this.hintService.hasShownFirstPlayerHint();
   }
 
   constructor(
     private route: ActivatedRoute,
     private slideUpService: SlideUpService,
-    private playersService: PlayersService,
-    private gameService: GameService,
+    private gameService: GameEngineService<UiPlayer<AttributesType>>,
+    private hintService: HintService
   ) {
     this.route.data.pipe(first()).subscribe((d) => {
       this.gameService.startNewGame((d as Data).players);
@@ -73,8 +73,9 @@ export class HomeComponent {
 
   protected startNewGame(): void {
     if (this.slideUpService.isVisible()) {
-      this.gameService.shouldStartNewGame = true;
-      this.slideUpService.hide();
+      this.slideUpService.hide(() => {
+        this.gameService.startNewGame();
+      });
       return;
     }
 
@@ -82,10 +83,10 @@ export class HomeComponent {
   }
 
   protected selectRoster(team: string): void {
-    this.gameService.hasShownFirstPlayerHint = true;
+    this.hintService.hasShownFirstPlayerHint = true;
     this.gameService.numberOfGuesses++;
 
-    if (this.gameService.isGameFinished()) {
+    if (this.gameService.endOfGame) {
       if (this.endResultText === EndResultMessage.LOSE) {
         this.slideUpService.show();
       }
@@ -96,7 +97,7 @@ export class HomeComponent {
       this.gameService.allowedGuesses - this.gameService.numberOfGuesses
     } ${InputPlaceHolderText.COUNT}`;
     const selectedRoster = this.gameService.allPlayers.filter(
-      (player) => player.team === team
+      (player) => (player as TeamUiPlayer<AttributesType>).team === team
     );
     this.selectRosterEvent.emit(selectedRoster);
   }

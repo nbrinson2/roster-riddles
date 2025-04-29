@@ -7,8 +7,8 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { GameService } from '../../services/game.service';
-
+import { GameEngineService } from '../../../game/services/game.service';
+import { AttributesType, UiPlayer } from '../../../shared/models/models';
 @Component({
     selector: 'slide-up',
     templateUrl: './slide-up.component.html',
@@ -35,22 +35,17 @@ export class SlideUpComponent {
     return this.slideUpService.shouldRender();
   }
 
-  get shouldStartNewGame(): boolean {
-    return this.gameService.shouldStartNewGame();
-  }
-
   constructor(
     private slideUpService: SlideUpService,
-    private gameService: GameService
+    private gameService: GameEngineService<UiPlayer<AttributesType>>
   ) {}
 
   dismiss() {
-    this.gameService.shouldStartNewGame = false;
     this.slideUpService.hide();
   }
 
   onAnimationDone() {
-    if (!this.isVisible && this.shouldStartNewGame) {
+    if (!this.isVisible) {
       this.gameService.startNewGame();
       this.slideUpService.shouldRender = false;
       return;
@@ -62,7 +57,6 @@ export class SlideUpComponent {
   }
 
   startNewGame() {
-    this.gameService.shouldStartNewGame = true;
     this.slideUpService.hide();
   }
 }

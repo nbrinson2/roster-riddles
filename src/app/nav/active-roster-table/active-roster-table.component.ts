@@ -1,74 +1,57 @@
 import {
+  AfterViewChecked,
   Component,
+  ElementRef,
+  EventEmitter,
   Input,
   Output,
-  EventEmitter,
   ViewChild,
-  ElementRef,
-  AfterViewChecked,
-  OnInit,
 } from '@angular/core';
+import { GameEngineService } from 'src/app/game/services/game.service';
 import {
-  MlbTeam,
-  MlbTeamFullName,
-  PlayerAttr,
+  HintService,
+  HintType,
+} from 'src/app/shared/components/hint/hint.service';
+import { TeamAbbreviationToFullNameMap } from 'src/app/shared/constants/constants';
+import { MlbUiPlayer } from 'src/app/shared/models/mlb-models';
+import {
+  AttributesType,
+  CommonAttributes,
+  HiddenPlayerRosterAttributes,
+  TeamFullName,
+  TeamType,
+  TeamUiPlayer,
   UiPlayer,
 } from 'src/app/shared/models/models';
-import { GameService } from 'src/app/shared/services/game.service';
-import { HintService, HintType } from 'src/app/shared/components/hint/hint.service';
-
-const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName } = {
-  [MlbTeam.ARI]: MlbTeamFullName.ARIZONA_DIAMONDBACKS,
-  [MlbTeam.ATL]: MlbTeamFullName.ATLANTA_BRAVES,
-  [MlbTeam.BAL]: MlbTeamFullName.BALTIMORE_ORIOLES,
-  [MlbTeam.BOS]: MlbTeamFullName.BOSTON_RED_SOX,
-  [MlbTeam.CHC]: MlbTeamFullName.CHICAGO_CUBS,
-  [MlbTeam.CHW]: MlbTeamFullName.CHICAGO_WHITE_SOX,
-  [MlbTeam.CIN]: MlbTeamFullName.CINCINNATI_REDS,
-  [MlbTeam.CLE]: MlbTeamFullName.CLEVELAND_GUARDIANS,
-  [MlbTeam.COL]: MlbTeamFullName.COLORADO_ROCKIES,
-  [MlbTeam.DET]: MlbTeamFullName.DETROIT_TIGERS,
-  [MlbTeam.HOU]: MlbTeamFullName.HOUSTON_ASTROS,
-  [MlbTeam.KCR]: MlbTeamFullName.KANSAS_CITY_ROYALS,
-  [MlbTeam.LAA]: MlbTeamFullName.LOS_ANGELES_ANGELS,
-  [MlbTeam.LAD]: MlbTeamFullName.LOS_ANGELES_DODGERS,
-  [MlbTeam.MIA]: MlbTeamFullName.MIAMI_MARLINS,
-  [MlbTeam.MIL]: MlbTeamFullName.MILWAUKEE_BREWERS,
-  [MlbTeam.MIN]: MlbTeamFullName.MINNESOTA_TWINS,
-  [MlbTeam.NYM]: MlbTeamFullName.NEW_YORK_METS,
-  [MlbTeam.NYY]: MlbTeamFullName.NEW_YORK_YANKEES,
-  [MlbTeam.OAK]: MlbTeamFullName.OAKLAND_ATHLETICS,
-  [MlbTeam.PHI]: MlbTeamFullName.PHILADELPHIA_PHILLIES,
-  [MlbTeam.PIT]: MlbTeamFullName.PITTSBURGH_PIRATES,
-  [MlbTeam.SDP]: MlbTeamFullName.SAN_DIEGO_PADRES,
-  [MlbTeam.SFG]: MlbTeamFullName.SAN_FRANCISCO_GIANTS,
-  [MlbTeam.SEA]: MlbTeamFullName.SEATTLE_MARINERS,
-  [MlbTeam.STL]: MlbTeamFullName.ST_LOUIS_CARDINALS,
-  [MlbTeam.TBR]: MlbTeamFullName.TAMPA_BAY_RAYS,
-  [MlbTeam.TEX]: MlbTeamFullName.TEXAS_RANGERS,
-  [MlbTeam.TOR]: MlbTeamFullName.TORONTO_BLUE_JAYS,
-  [MlbTeam.WSN]: MlbTeamFullName.WASHINGTON_NATIONALS,
-};
-
 @Component({
     selector: 'active-roster-table',
     templateUrl: './active-roster-table.component.html',
     styleUrls: ['./active-roster-table.component.scss'],
     standalone: false
 })
-export class ActiveRosterTableComponent implements OnInit, AfterViewChecked {
+export class ActiveRosterTableComponent implements AfterViewChecked {
   protected readonly HintType = HintType;
 
   @Input()
-  set roster(value: UiPlayer[]) {
+  set roster(value: UiPlayer<AttributesType>[]) {
     this._roster = this.formatAndSortRoster(value);
     if (value?.length) {
-      this.teamName =
-        MlbAbbreviationToFullNameMap[this.roster[0].team as MlbTeam];
+      const player = value[0] as TeamUiPlayer<AttributesType>;
+      this.teamName = TeamAbbreviationToFullNameMap[
+        player.team as TeamType
+      ] as TeamFullName;
+      this.displayedAttributes = this.displayedAttributes
+        .filter(
+          (attr) =>
+            !Object.values(HiddenPlayerRosterAttributes).includes(
+              attr as HiddenPlayerRosterAttributes
+            )
+        )
+        .map((attr) => attr.toUpperCase());
     }
   }
 
-  get roster(): UiPlayer[] {
+  get roster(): UiPlayer<AttributesType>[] {
     return this._roster;
   }
 
@@ -76,20 +59,13 @@ export class ActiveRosterTableComponent implements OnInit, AfterViewChecked {
   @ViewChild('firstRow', { read: ElementRef })
   firstRowRef!: ElementRef<HTMLElement>;
 
-  private _roster: UiPlayer[] = [];
-  protected displayedAttributes = Object.values(PlayerAttr)
-    .filter(
-      (attr) =>
-        attr !== PlayerAttr.TEAM &&
-        attr !== PlayerAttr.LG_DIV &&
-        attr !== PlayerAttr.COLOR_MAP
-    )
-    .map((attr) => attr.toUpperCase());
-  protected teamName?: MlbTeamFullName;
+  private _roster: UiPlayer<AttributesType>[] = [];
+  protected displayedAttributes!: string[];
+  protected teamName!: TeamFullName;
   protected firstRowElement: HTMLElement | null = null;
 
   constructor(
-    private gameService: GameService,
+    private gameService: GameEngineService<UiPlayer<AttributesType>>,
     private hintService: HintService
   ) {}
 
@@ -101,32 +77,33 @@ export class ActiveRosterTableComponent implements OnInit, AfterViewChecked {
     }
   }
 
-  ngOnInit() {
-    if (this.roster.length > 0) {
-      this.teamName =
-        MlbAbbreviationToFullNameMap[this.roster[0].team as MlbTeam];
-    }
-  }
-
-  protected getAttr(player: UiPlayer, attrValue: string): string {
-    const attr = attrValue.toLowerCase() as PlayerAttr;
-    if (attr === PlayerAttr.COLOR_MAP) {
+  protected getAttr(
+    player: UiPlayer<AttributesType>,
+    attrValue: string
+  ): string {
+    const attr = attrValue.toLowerCase();
+    if (attr === CommonAttributes.COLOR_MAP.toString()) {
       return '';
     }
-    return player[attr];
+    const value = player[attr as keyof UiPlayer<AttributesType>];
+    return typeof value === 'string' ? value : '';
   }
 
-  protected onRowClick(player: UiPlayer): void {
+  protected onRowClick(player: MlbUiPlayer): void {
     this.gameService.handlePlayerSelection(player);
     this.playerSelected.emit();
   }
 
-  private formatAndSortRoster(roster: UiPlayer[]): UiPlayer[] {
+  private formatAndSortRoster(
+    roster: UiPlayer<AttributesType>[]
+  ): UiPlayer<AttributesType>[] {
     if (!roster) return [];
 
     const sortedRoster = roster.sort((playerOne, playerTwo) => {
       // Compare by position
-      const positionComparison = playerOne.pos.localeCompare(playerTwo.pos);
+      const positionComparison = (
+        playerOne as TeamUiPlayer<AttributesType>
+      ).pos.localeCompare((playerTwo as TeamUiPlayer<AttributesType>).pos);
 
       if (positionComparison !== 0) {
         // Positions are not equal, return the result of this comparison

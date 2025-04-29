@@ -1,4 +1,5 @@
-import { PlayerAttr, PlayerAttrColor, UiPlayer } from "src/app/shared/models/models";
+import { MlbPlayerAttributes, MlbUiPlayer } from "src/app/shared/models/mlb-models";
+import { PlayerAttrColor } from 'src/app/shared/models/models';
 
 export interface Header {
   name: string;
@@ -13,7 +14,7 @@ export interface Header {
 }
 
 export interface Data {
-  players: UiPlayer[];
+  players: MlbUiPlayer[];
 }
 
 export enum EndResultMessage {
@@ -38,10 +39,10 @@ export const Headers = [
   { name: 'POS.', colSpan: 1, class: 'pos-column' },
 ];
 
-export function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, selectedPlayer: UiPlayer, initialize: boolean): Map<PlayerAttr, PlayerAttrColor> {
-  const playerAttributes = Object.values(PlayerAttr).filter((key) => key !== PlayerAttr.NAME);
+export function getPlayerKeyToBackgroundColorMap(playerToGuess: MlbUiPlayer, selectedPlayer: MlbUiPlayer, initialize: boolean): Map<MlbPlayerAttributes, PlayerAttrColor> {
+  const playerAttributes = Object.values(MlbPlayerAttributes).filter((key) => key !== MlbPlayerAttributes.NAME);
   const backgroundColors = Object.values(PlayerAttrColor);
-  const playerAttrBackgroundColorMap = new Map<PlayerAttr, PlayerAttrColor>();
+  const playerAttrBackgroundColorMap = new Map<MlbPlayerAttributes, PlayerAttrColor>();
 
   if (initialize) {
     for (const attr of playerAttributes) {
@@ -52,11 +53,11 @@ export function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, select
 
   for (const attr of playerAttributes) {
     switch (attr) {
-      case PlayerAttr.TEAM:
-      case PlayerAttr.B:
-      case PlayerAttr.T:
-      case PlayerAttr.BORN:
-      case PlayerAttr.POS:
+      case MlbPlayerAttributes.TEAM:
+      case MlbPlayerAttributes.B:
+      case MlbPlayerAttributes.T:
+      case MlbPlayerAttributes.BORN:
+      case MlbPlayerAttributes.POS:
         if (playerToGuess[attr] === selectedPlayer[attr]) {
           playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.BLUE)
           break;
@@ -64,7 +65,7 @@ export function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, select
 
         playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE);
         break;
-      case PlayerAttr.LG_DIV:
+      case MlbPlayerAttributes.LG_DIV:
         const playerToGuessLgDivArray = playerToGuess[attr].split(' ');
         const selectedPlayerLgDivArray = selectedPlayer[attr].split(' ');
         const mismatchArray = playerToGuessLgDivArray.filter((elem) => selectedPlayerLgDivArray.indexOf(elem) < 0);
@@ -82,7 +83,7 @@ export function getPlayerKeyToBackgroundColorMap(playerToGuess: UiPlayer, select
         playerAttrBackgroundColorMap.set(attr, PlayerAttrColor.NONE);
 
         break;
-      case PlayerAttr.AGE:
+      case MlbPlayerAttributes.AGE:
         const ageDifference = Number(playerToGuess[attr]) - Number(selectedPlayer[attr]);
 
         if (ageDifference === 0) {

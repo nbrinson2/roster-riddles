@@ -1,13 +1,11 @@
 import {
   Component,
-  EventEmitter,
+  ElementRef,
   Input,
-  Output,
+  OnInit,
   QueryList,
   ViewChild,
-  ViewChildren,
-  ElementRef,
-  OnInit,
+  ViewChildren
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
@@ -15,8 +13,8 @@ import { map, startWith } from 'rxjs/operators';
 
 import { MatOption } from '@angular/material/core';
 import { FloatLabelType } from '@angular/material/form-field';
-import { UiPlayer } from 'src/app/shared/models/models';
-import { GameService } from 'src/app/shared/services/game.service';
+import { GameEngineService } from 'src/app/game/services/game.service';
+import { AttributesType, UiPlayer } from 'src/app/shared/models/models';
 
 @Component({
     selector: 'search',
@@ -31,9 +29,9 @@ export class SearchComponent implements OnInit {
   @ViewChildren('playerOption') playerOptions!: QueryList<MatOption>;
 
   protected searchControl = new FormControl();
-  protected filteredPlayers: Observable<UiPlayer[]>;
+  protected filteredPlayers: Observable<UiPlayer<AttributesType>[]>;
 
-  constructor(private gameService: GameService) {
+  constructor(private gameService: GameEngineService<UiPlayer<AttributesType>>) {
     this.filteredPlayers = this.searchControl.valueChanges.pipe(
       startWith(''),
       map((value) => this.gameService.filterPlayers(value).slice(0, 10))
@@ -49,7 +47,7 @@ export class SearchComponent implements OnInit {
     return floatControl.value || 'auto';
   }
 
-  protected selectPlayer(player: UiPlayer): void {
+  protected selectPlayer(player: UiPlayer<AttributesType>): void {
     if (this.searchControl.value !== null) {
       this.gameService.handlePlayerSelection(player);
       this.searchControl.setValue(null);

@@ -1,0 +1,135 @@
+import { CountryBorn, PlayerAttrColor, UiPlayer } from './models';
+
+export interface NflPlayer extends UiPlayer<NflPlayerAttributes> {
+  team: NflTeam;
+  confDiv: NflConferenceDivision;
+  pos: NflPositionEnum;
+  college: string;
+  collegeAbbr: string;
+  jerseyNumber: string;
+}
+
+export enum NflPlayerAttributes {
+  NAME = 'name',
+  TEAM = 'team',
+  CONF_DIV = 'confDiv',
+  POS = 'pos',
+  COLLEGE = 'college',
+  JERSEY_NUMBER = 'jerseyNumber',
+  COLOR_MAP = 'colorMap',
+}
+
+export enum NflTeamFullName {
+  ARIZONA_CARDINALS = 'Arizona Cardinals',
+  ATLANTA_FALCONS = 'Atlanta Falcons',
+  BALTIMORE_RAVENS = 'Baltimore Ravens',
+  BUFFALO_BILLS = 'Buffalo Bills',
+  CAROLINA_PANTHERS = 'Carolina Panthers',
+  CHICAGO_BEARS = 'Chicago Bears',
+  CINCINNATI_BENGALS = 'Cincinnati Bengals',
+  CLEVELAND_BROWNS = 'Cleveland Browns',
+  DALLAS_COWBOYS = 'Dallas Cowboys',
+  DENVER_BRONCOS = 'Denver Broncos',
+  DETROIT_LIONS = 'Detroit Lions',
+  GREEN_BAY_PACKERS = 'Green Bay Packers',
+  HOUSTON_TEXANS = 'Houston Texans',
+  INDIANAPOLIS_COLTS = 'Indianapolis Colts',
+  JACKSONVILLE_JAGUARS = 'Jacksonville Jaguars',
+  KANSAS_CITY_CHIEFS = 'Kansas City Chiefs',
+  LOS_ANGELES_CHARGERS = 'Los Angeles Chargers',
+  LOS_ANGELES_RAMS = 'Los Angeles Rams',
+  MIAMI_DOLPHINS = 'Miami Dolphins',
+  MINNESOTA_VIKINGS = 'Minnesota Vikings',
+  NEW_ENGLAND_PATRIOTS = 'New England Patriots',
+  NEW_ORLEANS_SAINTS = 'New Orleans Saints',
+  NEW_YORK_GIANTS = 'New York Giants',
+  NEW_YORK_JETS = 'New York Jets',
+  PHILADELPHIA_EAGLES = 'Philadelphia Eagles',
+  PITTSBURGH_STEELERS = 'Pittsburgh Steelers',
+  SAN_FRANCISCO_49ERS = 'San Francisco 49ers',
+  SEATTLE_SEAHAWKS = 'Seattle Seahawks',
+  TAMPA_BAY_BUCCANEERS = 'Tampa Bay Buccaneers',
+  TENNESSEE_TITANS = 'Tennessee Titans',
+  WASHINGTON_COMMANDERS = 'Washington Commanders',
+}
+
+export enum NflTeam {
+  ARI = 'ARI',
+  ATL = 'ATL',
+  BAL = 'BAL',
+  BUF = 'BUF',
+  CAR = 'CAR',
+  CHI = 'CHI',
+  CIN = 'CIN',
+  CLE = 'CLE',
+  DAL = 'DAL',
+  DEN = 'DEN',
+  DET = 'DET',
+  GB = 'GB',
+  HOU = 'HOU',
+  IND = 'IND',
+  JAX = 'JAX',
+  KC = 'KC',
+  LA = 'LA',
+  MIA = 'MIA',
+  MIN = 'MIN',
+  NE = 'NE',
+  NO = 'NO',
+  NYG = 'NYG',
+  NYJ = 'NYJ',
+  PHI = 'PHI',
+  PIT = 'PIT',
+  SEA = 'SEA',
+  SF = 'SF',
+  TB = 'TB',
+  TEN = 'TEN',
+  WAS = 'WAS',
+}
+export enum NflConferenceDivision {
+  AFC_EAST = 'AFC East',
+  AFC_NORTH = 'AFC North',
+  AFC_SOUTH = 'AFC South',
+  AFC_WEST = 'AFC West',
+  NFC_EAST = 'NFC East',
+  NFC_NORTH = 'NFC North',
+  NFC_SOUTH = 'NFC South',
+  NFC_WEST = 'NFC West',
+}
+
+export enum NflConferenceDivisionFullName {
+  AFC_EAST = 'American Football Conference East',
+  AFC_NORTH = 'American Football Conference North',
+  AFC_SOUTH = 'American Football Conference South',
+  AFC_WEST = 'American Football Conference West',
+  NFC_EAST = 'National Football Conference East',
+  NFC_NORTH = 'National Football Conference North',
+  NFC_SOUTH = 'National Football Conference South',
+  NFC_WEST = 'National Football Conference West',
+}
+
+export enum NflPositionEnum {
+  QB = 'QB',
+  RB = 'RB',
+  WR = 'WR',
+  TE = 'TE',
+  K = 'K',
+  P = 'P',
+  DT = 'DT',
+  DE = 'DE',
+  LB = 'LB',
+  CB = 'CB',
+  S = 'S',
+  LS = 'LS',
+  FS = 'FS',
+  SS = 'SS',
+  G = 'G',
+  C = 'C',
+  T = 'T',
+  OT = 'OT',
+  OG = 'OG',
+  OL = 'OL',
+  DL = 'DL',
+  DB = 'DB',
+  SAF = 'SAF',  
+}
+
