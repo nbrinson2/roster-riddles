@@ -7,9 +7,10 @@ export enum HintArrowPosition {
 }
 
 @Component({
-  selector: 'hint',
-  templateUrl: './hint.component.html',
-  styleUrls: ['./hint.component.scss'],
+    selector: 'hint',
+    templateUrl: './hint.component.html',
+    styleUrls: ['./hint.component.scss'],
+    standalone: false
 })
 export class HintComponent implements OnInit, AfterViewInit {
   @Input() targetElement!: HTMLElement;

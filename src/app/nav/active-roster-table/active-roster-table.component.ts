@@ -51,9 +51,10 @@ const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName } = {
 };
 
 @Component({
-  selector: 'active-roster-table',
-  templateUrl: './active-roster-table.component.html',
-  styleUrls: ['./active-roster-table.component.scss'],
+    selector: 'active-roster-table',
+    templateUrl: './active-roster-table.component.html',
+    styleUrls: ['./active-roster-table.component.scss'],
+    standalone: false
 })
 export class ActiveRosterTableComponent implements OnInit, AfterViewChecked {
   protected readonly HintType = HintType;

@@ -3,9 +3,10 @@ import { PlayerAttr, PlayerAttrColor, UiPlayer } from 'src/app/shared/models/mod
 import { PLAYERS } from 'src/test-data';
 
 @Component({
-  selector: 'how-to-play',
-  templateUrl: './how-to-play.component.html',
-  styleUrls: ['./how-to-play.component.scss']
+    selector: 'how-to-play',
+    templateUrl: './how-to-play.component.html',
+    styleUrls: ['./how-to-play.component.scss'],
+    standalone: false
 })
 export class HowToPlayComponent {
 

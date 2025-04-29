@@ -3,9 +3,10 @@ import { PlayerAttrColor } from 'src/app/shared/models/models';
 import { EndResultMessage, Header } from 'src/app/home/util/util';
 
 @Component({
-  selector: 'attribute-header',
-  templateUrl: './attribute-header.component.html',
-  styleUrls: ['./attribute-header.component.scss']
+    selector: 'attribute-header',
+    templateUrl: './attribute-header.component.html',
+    styleUrls: ['./attribute-header.component.scss'],
+    standalone: false
 })
 export class AttributeHeaderComponent {
   @Input() attrHeaders!: Header[];

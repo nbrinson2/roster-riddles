@@ -10,20 +10,21 @@ import {
 import { GameService } from '../../services/game.service';
 
 @Component({
-  selector: 'slide-up',
-  templateUrl: './slide-up.component.html',
-  styleUrls: ['./slide-up.component.scss'],
-  animations: [
-    trigger('slideAnimation', [
-      state('up', style({ transform: 'translateY(0)', opacity: 1 })),
-      state('down', style({ transform: 'translateY(100%)', opacity: 0 })),
-      transition('void => up', [
-        style({ transform: 'translateY(100%)', opacity: 0 }),
-        animate('400ms ease-out'),
-      ]),
-      transition('up => down', [animate('400ms ease-in')]),
-    ]),
-  ],
+    selector: 'slide-up',
+    templateUrl: './slide-up.component.html',
+    styleUrls: ['./slide-up.component.scss'],
+    animations: [
+        trigger('slideAnimation', [
+            state('up', style({ transform: 'translateY(0)', opacity: 1 })),
+            state('down', style({ transform: 'translateY(100%)', opacity: 0 })),
+            transition('void => up', [
+                style({ transform: 'translateY(100%)', opacity: 0 }),
+                animate('400ms ease-out'),
+            ]),
+            transition('up => down', [animate('400ms ease-in')]),
+        ]),
+    ],
+    standalone: false
 })
 export class SlideUpComponent {
   get isVisible(): boolean {

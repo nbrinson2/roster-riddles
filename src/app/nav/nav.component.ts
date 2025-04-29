@@ -12,9 +12,10 @@ enum MatDrawerPosition {
 }
 
 @Component({
-  selector: 'nav',
-  templateUrl: './nav.component.html',
-  styleUrls: ['./nav.component.scss'],
+    selector: 'nav',
+    templateUrl: './nav.component.html',
+    styleUrls: ['./nav.component.scss'],
+    standalone: false
 })
 export class NavComponent implements OnInit {
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;

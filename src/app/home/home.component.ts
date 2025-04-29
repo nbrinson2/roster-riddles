@@ -13,9 +13,10 @@ import {
 import { HintArrowPosition } from '../shared/components/hint/hint.component';
 import { HintType } from '../shared/components/hint/hint.service';
 @Component({
-  selector: 'home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
+    selector: 'home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.scss'],
+    standalone: false
 })
 export class HomeComponent {
   protected readonly HintType = HintType;
