@@ -5,7 +5,7 @@
         <active-roster-table [roster]="selectedRoster" (playerSelected)="handlePlayerSelection()"></active-roster-table>
       </ng-container>
       <ng-container *ngIf="viewMenu">
-        <how-to-play></how-to-play>
+        <bio-ball-htp></bio-ball-htp>
       </ng-container>
       <!-- <ng-container *ngIf="loggedIn && viewProfile && user">
         <profile [user]="user"></profile>
@@ -47,14 +47,14 @@
           <span class="material-symbols-outlined menu-icon"> menu </span>
         </div>
       </div>
-      <div class="content-container">
-        <game (selectRosterEvent)="openRosterMenu($event)"></game>
+      <div class="game-container">
+        <router-outlet></router-outlet>
       </div>
       <slide-up>
         <div slide-up-heading>
           <h2 class="slide-up-heading-text">Correct Answer</h2>
         </div>
-        <player [player]="playerToGuess"></player>
+        <bio-ball-player [player]="playerToGuess"></bio-ball-player>
       </slide-up>
     </mat-drawer-content>
   </mat-drawer-container>

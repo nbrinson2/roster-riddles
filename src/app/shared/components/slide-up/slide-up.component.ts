@@ -7,8 +7,8 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { GameEngineService } from '../../../game/services/game-engine.service';
-import { AttributesType, UiPlayer } from '../../../shared/models/models';
+import { AttributesType, UiPlayer } from '../../../game/bio-ball/models/bio-ball.models';
+import { BioBallEngineService } from 'src/app/game/bio-ball/services/bio-ball-engine/bio-ball-engine.service';
 @Component({
     selector: 'slide-up',
     templateUrl: './slide-up.component.html',
@@ -37,7 +37,7 @@ export class SlideUpComponent {
 
   constructor(
     private slideUpService: SlideUpService,
-    private gameService: GameEngineService<UiPlayer<AttributesType>>
+    private gameService: BioBallEngineService<UiPlayer<AttributesType>>
   ) {}
 
   dismiss() {

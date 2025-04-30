@@ -1,0 +1,26 @@
+@use '../../../constants';
+
+$max-width: 1000px;
+$footer-padding: 60px;
+$mobile-breakpoint: 600px;
+
+.players-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: $max-width;
+  margin: 0 auto;
+  padding-bottom: $footer-padding;
+
+  @media (max-width: $mobile-breakpoint) {
+    padding-bottom: 40px;
+  }
+}
+
+.player-container {
+  width: 100%;
+
+  bio-ball-player {
+    width: 100%;
+  }
+}

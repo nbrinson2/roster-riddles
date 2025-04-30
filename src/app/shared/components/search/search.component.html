@@ -1,0 +1,27 @@
+<div class="search-container">
+  <form class="search-form">
+    <mat-form-field appearance="outline">
+      <mat-label>{{ placeHolderText }}</mat-label>
+      <input
+        [readonly]="disabled"
+        type="text"
+        matInput
+        #searchInput
+        [matAutocomplete]="auto"
+        [formControl]="searchControl"
+        (keydown.enter)="handleEnterKey($event)"
+        autofocus />
+      <mat-autocomplete #auto="matAutocomplete">
+        <ng-container *ngIf="searchInput.value">
+          <mat-option
+            *ngFor="let player of filteredPlayers | async"
+            [value]="player.name"
+            (click)="searchInput.value != undefined && selectPlayer(player)"
+            #playerOption>
+            <bio-ball-player [player]="player"></bio-ball-player>
+          </mat-option>
+        </ng-container>
+      </mat-autocomplete>
+    </mat-form-field>
+  </form>
+</div>

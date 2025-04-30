@@ -7,13 +7,13 @@ import {
   Output,
   ViewChild,
 } from '@angular/core';
-import { GameEngineService } from 'src/app/game/services/game-engine.service';
+import { BioBallEngineService } from 'src/app/game/bio-ball/services/bio-ball-engine/bio-ball-engine.service';
 import {
   HintService,
   HintType,
 } from 'src/app/shared/components/hint/hint.service';
-import { TeamAbbreviationToFullNameMap } from 'src/app/shared/constants/constants';
-import { MlbUiPlayer } from 'src/app/shared/models/mlb.models';
+import { TeamAbbreviationToFullNameMap } from 'src/app/game/bio-ball/constants/bio-ball-constants';
+import { MlbUiPlayer } from 'src/app/game/bio-ball/models/mlb.models';
 import {
   AttributesType,
   CommonAttributes,
@@ -22,7 +22,7 @@ import {
   TeamType,
   TeamUiPlayer,
   UiPlayer,
-} from 'src/app/shared/models/models';
+} from 'src/app/game/bio-ball/models/bio-ball.models';
 @Component({
     selector: 'active-roster-table',
     templateUrl: './active-roster-table.component.html',
@@ -63,7 +63,7 @@ export class ActiveRosterTableComponent implements AfterViewChecked {
   protected firstRowElement: HTMLElement | null = null;
 
   constructor(
-    private gameService: GameEngineService<UiPlayer<AttributesType>>,
+    private gameService: BioBallEngineService<UiPlayer<AttributesType>>,
     private hintService: HintService
   ) {}
 

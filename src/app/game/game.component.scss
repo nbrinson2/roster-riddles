@@ -1,46 +1,34 @@
 @use '../../constants';
 
+$max-width: 1000px;
+$header-padding: 10px;
+$footer-height: 60px;
+$footer-mobile-height: 120px;
+$mobile-breakpoint: 600px;
+
 .header {
   position: sticky;
   top: 0;
   z-index: 100;
   background-color: black;
-  padding-top: 10px;
+  padding-top: $header-padding;
 
-  .title h1 {
-    color: #cc1f41;
-    font-family: constants.$font-family;
-    font-size: 28px;
-    text-align: center;
-    margin-bottom: 1.5rem;
+  .title {
+    h1 {
+      color: #cc1f41;
+      font-family: constants.$font-family;
+      font-size: 1.75rem;    // 28px
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
   }
 
-  .search-container {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
+  // both search + attribute header share width & spacing
+  .search-container,
   .attr-header-container {
-    margin: auto;
-    margin-bottom: 10px;
-    max-width: 1000px;
-  }
-}
-
-.players-container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 1000px;
-  margin: auto;
-  padding-bottom: 60px;
-}
-
-.player-container {
-  width: 100%;
-
-  player {
     width: 100%;
+    margin: 0 auto 10px;
+    max-width: $max-width;
   }
 }
 
@@ -49,7 +37,7 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 60px;
+  height: $footer-height;
   background-color: black;
   z-index: 200;
   display: flex;
@@ -83,16 +71,12 @@
   }
 }
 
-@media only screen and (max-width: 600px) {
+@media (max-width: $mobile-breakpoint) {
   .footer {
-    height: 120px;
+    height: $footer-mobile-height;
 
     .new-game-button-container {
       bottom: 5rem;
     }
-  }
-
-  .players-container {
-    padding-bottom: 40px;
   }
 }
