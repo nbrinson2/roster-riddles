@@ -41,9 +41,6 @@ export class NavComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.playersService.getCareerPathPlayersSince1990().subscribe((players) => {
-      console.log(players);
-    });
     this.drawer.closedStart.subscribe(() => {
       this.hintService.dismissHint();
     });
