@@ -16,11 +16,6 @@ const routes: Routes = [
     component: NavComponent,
     providers: [{ provide: GAME_SERVICE, useClass: MlbGameService }],
     resolve: { players: MlbPlayersResolver }
-  },
-  {
-    path: 'nfl',
-    component: NavComponent,
-    resolve: { players: MlbPlayersResolver }
   }
 ];
 
