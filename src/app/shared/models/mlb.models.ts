@@ -305,6 +305,7 @@ export interface MlbPlayerDetailed {
   fullLFMName: string;
   strikeZoneTop: number;
   strikeZoneBottom: number;
+  mlbDebutDate: string;
 }
 
 export interface MlbPrimaryPosition {
