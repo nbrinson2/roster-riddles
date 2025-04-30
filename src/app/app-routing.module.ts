@@ -15,7 +15,7 @@ const routes: Routes = [
     path: 'mlb',
     component: NavComponent,
     providers: [{ provide: GAME_SERVICE, useClass: MlbGameService }],
-    // resolve: { players: MlbPlayersResolver }
+    resolve: { players: MlbPlayersResolver }
   },
   {
     path: 'nfl',
