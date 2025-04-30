@@ -1,25 +1,16 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal, Signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
   catchError,
-  filter,
-  forkJoin,
-  from,
-  interval,
   map,
-  mergeMap,
   Observable,
-  of,
-  retry,
-  switchMap,
-  toArray,
-  zip,
+  of
 } from 'rxjs';
 import {
-  MlbUiPlayer,
   MlbPlayerResponse,
   MlbRosterResponse,
   MlbTeamsResponse,
+  MlbUiPlayer,
 } from 'src/app/shared/models/mlb.models';
 
 @Injectable({
