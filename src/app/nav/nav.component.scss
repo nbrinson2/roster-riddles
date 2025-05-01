@@ -4,18 +4,18 @@
   height: 100vh;
 }
 
-mat-drawer-container {
+mat-sidenav-container {
   height: 100%;
   background-color: black;
 }
 
-mat-drawer-content {
+mat-sidenav-content {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-mat-drawer {
+mat-sidenav {
   width: 90vw;
   max-width: 500px;
   background-color: black;
@@ -109,7 +109,7 @@ mat-drawer {
     height: 92vh;
   }
 
-  mat-drawer {
+  mat-sidenav {
     height: 92vh;
   }
 

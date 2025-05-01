@@ -1,6 +1,6 @@
 <div class="home-container">
-  <mat-drawer-container [hasBackdrop]="true" (backdropClick)="drawer.close()">
-    <mat-drawer #drawer mode="over" [position]="matDrawerPosition">
+  <mat-sidenav-container>
+    <mat-sidenav #drawer mode="over" [position]="matDrawerPosition">
       <ng-container *ngIf="selectedRoster && viewRoster">
         <active-roster-table
           [roster]="selectedRoster"
@@ -26,8 +26,8 @@
           </div>
         </div>
       </div>
-    </mat-drawer>
-    <mat-drawer-content>
+    </mat-sidenav>
+    <mat-sidenav-content>
       <div class="nav-container">
         <div *ngIf="!loggedIn" class="login-button" (click)="openLoginMenu()">
           <span class="material-symbols-outlined login-icon"> login </span>
@@ -59,6 +59,6 @@
         </div>
         <bio-ball-player [player]="playerToGuess"></bio-ball-player>
       </slide-up>
-    </mat-drawer-content>
-  </mat-drawer-container>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
 </div>
