@@ -4,24 +4,24 @@
   height: 100vh;
 }
 
-mat-drawer-container {
+mat-sidenav-container {
   height: 100%;
   background-color: black;
 }
 
-mat-drawer-content {
+mat-sidenav-content {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-mat-drawer {
+mat-sidenav {
   width: 90vw;
   max-width: 500px;
   background-color: black;
 }
 
-.content-container {
+.game-container {
   flex: 1;
   margin: 0px 10px 5px 10px;
   height: calc(100vh - 60px); // adjust for nav height if needed
@@ -109,35 +109,35 @@ mat-drawer {
     height: 92vh;
   }
 
-  mat-drawer {
+  mat-sidenav {
     height: 92vh;
   }
 
-  .content-container {
+  .game-container {
     padding-bottom: 20px;
   }
 
-  .content-container::-webkit-scrollbar {
+  .game-container::-webkit-scrollbar {
     display: none;
   }
 }
 
 // scrollbar
-.content-container::-webkit-scrollbar {
+.game-container::-webkit-scrollbar {
   width: 10px;
 }
 
-.content-container::-webkit-scrollbar-track {
+.game-container::-webkit-scrollbar-track {
   background: #111;
   border-radius: 10px;
 }
 
-.content-container::-webkit-scrollbar-thumb {
+.game-container::-webkit-scrollbar-thumb {
   background-color: #cc1f41;
   border-radius: 10px;
   border: 2px solid #111;
 }
 
-.content-container::-webkit-scrollbar-thumb:hover {
+.game-container::-webkit-scrollbar-thumb:hover {
   background-color: #ff4c6a;
 }

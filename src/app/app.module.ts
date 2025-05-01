@@ -22,30 +22,33 @@ import { getApp } from 'firebase/app';
 import { environment } from 'src/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AttributeHeaderComponent } from './game/attribute-header/attribute-header.component';
-import { GameComponent } from './game/game.component';
-import { PlayerComponent } from './game/player/player.component';
-import { SearchComponent } from './game/search/search.component';
+import { AttributeHeaderComponent } from './game/bio-ball/attribute-header/attribute-header.component';
+import { BioBallComponent } from './game/bio-ball/bio-ball.component';
 import { ActiveRosterTableComponent } from './nav/active-roster-table/active-roster-table.component';
-import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
+import { BioBallHtpComponent } from './nav/how-to-play/bio-ball-htp/bio-ball-htp.component';
 import { NavComponent } from './nav/nav.component';
 import { ProfileComponent } from './nav/profile/profile.component';
 import { HintComponent } from './shared/components/hint/hint.component';
 import { SlideUpComponent } from './shared/components/slide-up/slide-up.component';
-
+import { BioBallPlayerComponent } from './game/bio-ball/player/bio-ball-player.component';
+import { SearchComponent } from './shared/components/search/search.component';
+import { GameComponent } from './game/game.component';
+import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
 @NgModule({
   declarations: [
     AppComponent,
-    GameComponent,
-    PlayerComponent,
+    BioBallComponent,
+    BioBallPlayerComponent,
     SearchComponent,
     AttributeHeaderComponent,
     ActiveRosterTableComponent,
-    HowToPlayComponent,
+    BioBallHtpComponent,
     NavComponent,
     ProfileComponent,
     SlideUpComponent,
-    HintComponent
+    HintComponent,
+    GameComponent,
+    HowToPlayComponent
   ],
   imports: [
     BrowserModule,
