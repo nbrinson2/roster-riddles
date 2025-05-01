@@ -1,23 +1,27 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute } from '@angular/router';
-import { HintService } from '../shared/components/hint/hint.service';
-import { AttributesType, UiPlayer } from '../game/bio-ball/models/bio-ball.models';
-import { MlbPlayersService } from '../shared/services/mlb-players/mlb-players.service';
-import { FirestoreService } from '../shared/services/firestore/firestore.service';
+import { filter, Subject, takeUntil } from 'rxjs';
+import {
+  AttributesType,
+  UiPlayer,
+} from '../game/bio-ball/models/bio-ball.models';
 import { MlbUiPlayer } from '../game/bio-ball/models/mlb.models';
-import { takeUntil, BehaviorSubject } from 'rxjs';
 import { RosterSelectionService } from '../game/bio-ball/services/roster-selection/roster-selection.service';
+import { HintService } from '../shared/components/hint/hint.service';
+import { FirestoreService } from '../shared/services/firestore/firestore.service';
+import { MlbPlayersService } from '../shared/services/mlb-players/mlb-players.service';
+
 enum MatDrawerPosition {
   END = 'end',
   START = 'start',
 }
 
 @Component({
-    selector: 'nav',
-    templateUrl: './nav.component.html',
-    styleUrls: ['./nav.component.scss'],
-    standalone: false
+  selector: 'nav',
+  templateUrl: './nav.component.html',
+  styleUrls: ['./nav.component.scss'],
+  standalone: false,
 })
 export class NavComponent implements OnInit, OnDestroy {
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
@@ -34,7 +38,7 @@ export class NavComponent implements OnInit, OnDestroy {
   protected matDrawerPosition = MatDrawerPosition.END;
   protected selectedRoster?: UiPlayer<AttributesType>[];
 
-  private destroy$ = new BehaviorSubject<void>(undefined);
+  private destroy$ = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -45,9 +49,14 @@ export class NavComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.rosterSelectionService.roster$.pipe(takeUntil(this.destroy$)).subscribe((roster) => {
-      this.openRosterMenu(roster);
-    });
+    this.rosterSelectionService.roster$
+      .pipe(
+        filter((roster) => roster.length > 0),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((roster) => {
+        this.openRosterMenu(roster);
+      });
 
     this.drawer.closedStart.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.hintService.dismissHint();
@@ -60,7 +69,7 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   protected handlePlayerSelection(): void {
-    this.drawer.toggle();
+    this.drawer.close();
   }
 
   protected openMenu(): void {
@@ -68,7 +77,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewMenu = true;
     this.viewProfile = false;
     this.viewRoster = false;
-    this.drawer.toggle();
+    this.drawer.open();
   }
 
   protected openProfileMenu(): void {
@@ -76,7 +85,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewMenu = false;
     this.viewRoster = false;
     this.viewProfile = true;
-    this.drawer.toggle();
+    this.drawer.open();
   }
 
   protected logout(): void {
@@ -90,7 +99,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewMenu = false;
     this.viewProfile = false;
     this.viewRoster = false;
-    this.drawer.toggle();
+    this.drawer.open();
   }
 
   private openRosterMenu(roster: UiPlayer<AttributesType>[]): void {
@@ -99,6 +108,6 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewRoster = true;
     this.matDrawerPosition = MatDrawerPosition.START;
     this.selectedRoster = roster;
-    this.drawer.toggle();
+    this.drawer.open();
   }
 }

@@ -1,8 +1,11 @@
 <div class="home-container">
-  <mat-drawer-container>
+  <mat-drawer-container [hasBackdrop]="true" (backdropClick)="drawer.close()">
     <mat-drawer #drawer mode="over" [position]="matDrawerPosition">
       <ng-container *ngIf="selectedRoster && viewRoster">
-        <active-roster-table [roster]="selectedRoster" (playerSelected)="handlePlayerSelection()"></active-roster-table>
+        <active-roster-table
+          [roster]="selectedRoster"
+          (playerSelected)="handlePlayerSelection()"
+        ></active-roster-table>
       </ng-container>
       <ng-container *ngIf="viewMenu">
         <bio-ball-htp></bio-ball-htp>

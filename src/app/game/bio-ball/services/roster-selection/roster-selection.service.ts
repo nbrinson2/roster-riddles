@@ -1,4 +1,3 @@
-// src/app/game/bio-ball/services/roster-selection.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AttributesType, UiPlayer } from '../../models/bio-ball.models';
