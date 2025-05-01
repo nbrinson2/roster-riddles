@@ -1,0 +1,17 @@
+@use '../../../constants';
+
+.title {
+  color: #cc1f41;
+  font-family: constants.$font-family;
+  font-size: 22px;
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 30px;
+
+  h1 {
+    color: #cc1f41;
+    font-family: constants.$font-family;
+    font-size: 28px;
+    margin: 0px;
+  }
+}

@@ -33,6 +33,7 @@ import { SlideUpComponent } from './shared/components/slide-up/slide-up.componen
 import { BioBallPlayerComponent } from './game/bio-ball/player/bio-ball-player.component';
 import { SearchComponent } from './shared/components/search/search.component';
 import { GameComponent } from './game/game.component';
+import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -46,7 +47,8 @@ import { GameComponent } from './game/game.component';
     ProfileComponent,
     SlideUpComponent,
     HintComponent,
-    GameComponent
+    GameComponent,
+    HowToPlayComponent
   ],
   imports: [
     BrowserModule,
