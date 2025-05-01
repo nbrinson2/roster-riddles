@@ -35,7 +35,7 @@ export class NavComponent implements OnInit, OnDestroy {
   protected viewMenu = true;
   protected viewProfile = false;
   protected viewRoster = false;
-  protected matDrawerPosition = MatDrawerPosition.END;
+  protected matDrawerPosition = MatDrawerPosition.START;
   protected selectedRoster?: UiPlayer<AttributesType>[];
 
   private destroy$ = new Subject<void>();
