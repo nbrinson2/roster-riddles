@@ -10,7 +10,7 @@ import {
   UiPlayer,
 } from './models/bio-ball.models';
 import { BioBallEngineService } from './services/bio-ball-engine/bio-ball-engine.service';
-import { BIO_BALL_SERVICE } from './util/bio-ball.token';
+import { GAME_SERVICE } from '../../shared/utils/game-service.token';
 import { Data, EndResultMessage, InputPlaceHolderText } from './util/bio-ball.util';
 import { RosterSelectionService } from './services/roster-selection/roster-selection.service';
 
@@ -37,7 +37,7 @@ export class BioBallComponent {
     private slideUpService: SlideUpService,
     private hintService: HintService,
     private rosterSelectionService: RosterSelectionService,
-    @Inject(BIO_BALL_SERVICE)
+    @Inject(GAME_SERVICE)
     private gameService: BioBallEngineService<UiPlayer<AttributesType>>
   ) {
     this.route.data.pipe(first()).subscribe((d) => {

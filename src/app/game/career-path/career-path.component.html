@@ -1,0 +1,17 @@
+<div class="career-path">
+  <ng-container *ngIf="selectedPlayers.length; else noData">
+    <div class="player-card" *ngFor="let player of selectedPlayers; let first = first">
+      <player-timeline
+        [playerName]="player.name"
+        [groups]="player.groups"
+        [winner]="first && gameState === GameState.WON">
+      </player-timeline>
+    </div>
+  </ng-container>
+
+  <ng-template #noData>
+    <div class="no-data-container">
+      <p class="no-data">Select a player to view their career path.</p>
+    </div>
+  </ng-template>
+</div>

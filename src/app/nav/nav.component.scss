@@ -56,41 +56,99 @@ mat-sidenav {
 }
 
 .nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: 200;
-  margin: 20px 10px 0px 10px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 10px;
 
-  .menu-icon {
-    color: #cc1f41;
-    margin-top: -3px;
-    font-size: 30px;
-    cursor: pointer;
-  }
+  .menu-icon-container {
+    display: flex;
+    align-items: center;
 
-  .login-button {
-    float: right;
-    color: #cc1f41;
-    cursor: pointer;
-
-    .login-icon {
+    .menu-icon {
+      color: #cc1f41;
       font-size: 30px;
+      cursor: pointer;
     }
   }
 
-  .profile-logout-container {
-    float: right;
-    color: #cc1f41;
+  .icons-right-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
 
-    .logout-icon {
-      font-size: 30px;
-      margin-right: 10px;
+    .login-button {
+      display: flex;
+      align-items: center;
+      color: #cc1f41;
       cursor: pointer;
+
+      .login-icon {
+        font-size: 30px;
+      }
     }
 
-    .profile-icon {
-      font-size: 30px;
-      cursor: pointer;
+    .profile-logout-container {
+      color: #cc1f41;
+
+      .logout-icon {
+        font-size: 30px;
+        margin-right: 10px;
+        cursor: pointer;
+      }
+
+      .profile-icon {
+        font-size: 30px;
+        cursor: pointer;
+      }
+    }
+
+    .game-picker {
+      display: flex;
+      align-items: center;
+
+      .current-game-name {
+        color: #cc1f41;
+        font-size: 16px;
+        font-family: constants.$font-family;
+        text-transform: capitalize;
+      }
+
+      .game-picker-button {
+        color: #cc1f41;
+        font-size: 24px;
+      }
+
+      .game-menu {
+        .mat-menu-content {
+          background: #111;
+          color: #fff;
+        }
+        .mat-menu-item {
+          mat-icon {
+            margin-right: 8px;
+            color: #cc1f41;
+          }
+          &:hover {
+            background: rgba(204, 31, 65, 0.2);
+          }
+        }
+
+        .active-indicator {
+          display: inline-block;
+          width: 6px;
+          height: 6px;
+          margin-right: 8px;
+          border-radius: 50%;
+          background-color: #cc1f41;
+          align-self: center;    // if flex parent
+        }
+      }
     }
   }
 }

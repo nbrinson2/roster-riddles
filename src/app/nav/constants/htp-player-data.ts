@@ -1,5 +1,5 @@
 import { MlbBatting, MlbLeagueDivision, MlbPlayerAttributes, MlbTeam, MlbPositionEnum, MlbThrowing } from "../../game/bio-ball/models/mlb.models";
-import { PlayerAttrColor } from '../../game/bio-ball/models/bio-ball.models';
+import { PlayerAttrColor } from "src/app/shared/models/common-models";
 import { CountryBorn } from "../../game/bio-ball/models/bio-ball.models";
 
 export const PLAYERS = [

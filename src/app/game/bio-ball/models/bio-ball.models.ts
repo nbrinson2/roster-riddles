@@ -1,3 +1,4 @@
+import { PlayerAttrColor } from "src/app/shared/models/common-models";
 import { MlbPlayerAttributes, MlbTeam, MlbTeamFullName } from "./mlb.models";
 import { NflPlayerAttributes, NflTeam, NflTeamFullName } from "./nfl.models";
 
@@ -75,10 +76,3 @@ export enum CountryBornFullName {
   TWN = 'Taiwan',
   GER = 'Germany',
 }
-
-export enum PlayerAttrColor {
-  BLUE = 'blue',
-  ORANGE = 'orange',
-  NONE = 'none'
-}
-

@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { AttributesType, PlayerAttrColor } from 'src/app/game/bio-ball/models/bio-ball.models';
+import { AttributesType } from 'src/app/game/bio-ball/models/bio-ball.models';
+import { PlayerAttrColor } from "src/app/shared/models/common-models";
 import { EndResultMessage, Header } from 'src/app/game/bio-ball/util/bio-ball.util';
 import { BioBallEngineService } from '../services/bio-ball-engine/bio-ball-engine.service';
 import { UiPlayer } from 'src/app/game/bio-ball/models/bio-ball.models';

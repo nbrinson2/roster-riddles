@@ -16,13 +16,13 @@ import {
 } from 'rxjs';
 import { MlbPlayersService } from '../../shared/services/mlb-players/mlb-players.service';
 
-export interface CareerPathPlayer {
+interface CareerPathPlayer {
   id: number;
   name: string;
   teams: CareerPathTeam[];
 }
 
-export interface CareerPathTeam {
+interface CareerPathTeam {
   team: string;
   yearStart: number;
   yearEnd: number;

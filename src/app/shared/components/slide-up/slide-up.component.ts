@@ -1,5 +1,3 @@
-import { Component, computed } from '@angular/core';
-import { SlideUpService } from './slide-up.service';
 import {
   animate,
   state,
@@ -7,8 +5,10 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { AttributesType, UiPlayer } from '../../../game/bio-ball/models/bio-ball.models';
-import { BioBallEngineService } from 'src/app/game/bio-ball/services/bio-ball-engine/bio-ball-engine.service';
+import { Component, Inject } from '@angular/core';
+import { GamePlayer } from '../../models/common-models';
+import { GAME_SERVICE, GameService } from '../../utils/game-service.token';
+import { SlideUpService } from './slide-up.service';
 @Component({
     selector: 'slide-up',
     templateUrl: './slide-up.component.html',
@@ -37,7 +37,8 @@ export class SlideUpComponent {
 
   constructor(
     private slideUpService: SlideUpService,
-    private gameService: BioBallEngineService<UiPlayer<AttributesType>>
+    @Inject(GAME_SERVICE)
+    private gameService: GameService<GamePlayer>
   ) {}
 
   dismiss() {
@@ -46,7 +47,7 @@ export class SlideUpComponent {
 
   onAnimationDone() {
     if (!this.isVisible) {
-      this.gameService.startNewGame();
+      this.slideUpService.runOnCloseIfExists();
       this.slideUpService.shouldRender = false;
       return;
     }
@@ -57,6 +58,8 @@ export class SlideUpComponent {
   }
 
   startNewGame() {
-    this.slideUpService.hide();
+    this.slideUpService.hide(() => {
+      this.gameService.startNewGame();
+    });
   }
 }

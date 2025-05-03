@@ -8,13 +8,15 @@
     <div class="search-container">
       <search></search>
     </div>
-    <div class="attr-header-container">
+    <div *ngIf="showAttributeHeader" class="attr-header-container">
       <attribute-header></attribute-header>
     </div>
   </div>
 
   <!-- this is where BioBallComponent (and any future child) will render -->
-  <router-outlet></router-outlet>
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
 
   <!-- moved up from BioBallComponent -->
   <div class="footer">

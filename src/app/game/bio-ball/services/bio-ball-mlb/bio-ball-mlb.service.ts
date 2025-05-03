@@ -42,6 +42,14 @@ export class BioBallMlbService {
     this.gameEngine.searchInputPlaceHolderText = text;
   }
 
+  public get showAttributeHeader(): Signal<boolean> {
+    return this.gameEngine.showAttributeHeader;
+  }
+
+  public get playerToGuess(): Signal<MlbUiPlayer> {
+    return this.gameEngine.playerToGuess;
+  }
+
   constructor(
     private gameEngine: BioBallEngineService<MlbUiPlayer>,
     private mlbPlayers: MlbPlayersService
@@ -52,8 +60,6 @@ export class BioBallMlbService {
       ) as MlbPlayerAttributes[],
       compareFunction: (target, guess) =>
         getPlayerKeyToBackgroundColorMap(target, guess, false),
-      allowedGuesses: 9,
-      playerProvider: this.mlbPlayers,
     });
   }
 

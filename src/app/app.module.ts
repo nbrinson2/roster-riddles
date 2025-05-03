@@ -34,6 +34,10 @@ import { BioBallPlayerComponent } from './game/bio-ball/player/bio-ball-player.c
 import { SearchComponent } from './shared/components/search/search.component';
 import { GameComponent } from './game/game.component';
 import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
+import { CareerPathComponent } from './game/career-path/career-path.component';
+import { PlayerTimelineComponent } from './game/career-path/player-timeline/player-timeline.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { CommonTableComponent } from './shared/components/table/common-table.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -48,7 +52,10 @@ import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
     SlideUpComponent,
     HintComponent,
     GameComponent,
-    HowToPlayComponent
+    HowToPlayComponent,
+    CareerPathComponent,
+    PlayerTimelineComponent,
+    CommonTableComponent,
   ],
   imports: [
     BrowserModule,
@@ -65,6 +72,7 @@ import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
     MatTooltipModule,
     MatCardModule,
     MatIconModule,
+    MatMenuModule,
   ],
   providers: [
     provideFirebaseApp(() => initializeApp(environment.firebase)),

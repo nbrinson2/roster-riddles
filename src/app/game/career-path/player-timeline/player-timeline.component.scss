@@ -1,0 +1,338 @@
+@use "../../../../constants";
+
+.player-timeline {
+  --logo-size: 80px;
+  --logo-medium: 60px;
+  --logo-small: 50px;
+  --logo-tiny: 30px;
+  --gap-default: 0.25rem;
+  --gap-tight: 0.1rem;
+
+  text-align: center;
+
+  &.compact {
+    .stint-group,
+    .years,
+    .arrow {
+      display: none !important;
+    }
+
+    .player-name {
+      font-size: 1rem;
+      margin-bottom: 0;
+      margin-top: 0;
+    }
+
+    .timeline-container {
+      margin-bottom: 0.6rem;
+
+      .timeline {
+        justify-content: center;
+        padding: 0.5rem 0;
+      }
+    }
+    .logo-group.compact {
+      display: flex !important;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .logo-wrapper {
+      width: var(--logo-tiny) !important;
+      height: var(--logo-tiny) !important;
+      border-width: 2px !important;
+      margin: 0 !important;
+      background: #fff !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+      border-radius: 50%; // ← make it circular
+      overflow: hidden; // ← crop the img into the circle
+
+      // center the image
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      .team-logo {
+        max-width: 80%;
+        max-height: 80%;
+      }
+    }
+  }
+
+  .player-name {
+    font-family: constants.$font-family-secondary;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+  }
+
+  /* make the timeline scrollable on narrow screens */
+  .timeline-container {
+    display: flex;
+    border: 1px solid #333;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; // momentum scroll
+    scroll-snap-type: x mandatory;
+
+    &::-webkit-scrollbar {
+      height: 8px;
+    }
+    &::-webkit-scrollbar-track {
+      background: #111;
+      border-radius: 8px;
+      margin: 0.5rem;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: #cc1f41;
+      border-radius: 10px;
+      border: 2px solid #111;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: #ff4c6a;
+    }
+
+    &.winner {
+      border-color: constants.$color-secondary;
+    }
+  }
+
+  .timeline {
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+    min-width: max-content; // prevent wrapping
+    padding: 1rem 0;
+
+    .stint-group {
+      scroll-snap-align: center; // snap each group into view
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 1rem;
+
+      .logo-group {
+        display: grid;
+        gap: var(--gap-default);
+
+        &.count-1 {
+          grid-template-columns: auto;
+        }
+        &.count-2 {
+          grid-template-columns: repeat(2, auto);
+          justify-items: center;
+        }
+        &.count-3 {
+          grid-template-columns: repeat(2, auto);
+          grid-template-rows: auto auto;
+          grid-template-areas:
+            "a b"
+            "c c";
+          justify-items: center;
+          gap: var(--gap-tight);
+
+          .logo-wrapper {
+            width: var(--logo-medium);
+            height: var(--logo-medium);
+            border-width: 1.5px;
+
+            .team-logo {
+              max-width: 80%;
+              max-height: 80%;
+            }
+          }
+
+          .logo-wrapper:nth-child(1) {
+            grid-area: a;
+          }
+          .logo-wrapper:nth-child(2) {
+            grid-area: b;
+          }
+          .logo-wrapper:nth-child(3) {
+            grid-area: c;
+            margin-top: -8px;
+          }
+        }
+        &.count-4 {
+          // use same small size as 3-way
+          gap: var(--gap-tight);
+          grid-template-columns: repeat(2, auto);
+          grid-template-rows: repeat(2, auto);
+          justify-items: center;
+
+          .logo-wrapper {
+            width: var(--logo-medium);
+            height: var(--logo-medium);
+            border-width: 1.5px;
+
+            .team-logo {
+              max-width: 80%;
+              max-height: 80%;
+            }
+          }
+
+          .logo-wrapper:nth-child(1) {
+            grid-column: 1;
+            grid-row: 1;
+          }
+          .logo-wrapper:nth-child(2) {
+            grid-column: 2;
+            grid-row: 1;
+          }
+          .logo-wrapper:nth-child(3) {
+            grid-column: 1;
+            grid-row: 2;
+          }
+          .logo-wrapper:nth-child(4) {
+            grid-column: 2;
+            grid-row: 2;
+          }
+        }
+
+        &:not(.count-1):not(.count-2):not(.count-3):not(.count-4) {
+          grid-template-columns: repeat(
+            auto-fit,
+            minmax(var(--logo-medium), auto)
+          );
+          gap: var(--gap-tight);
+          justify-items: center;
+
+          .logo-wrapper {
+            width: var(--logo-medium);
+            height: var(--logo-medium);
+          }
+        }
+
+        /* default logos */
+        .logo-wrapper {
+          width: var(--logo-size);
+          height: var(--logo-size);
+          border: 2px solid #333;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          background: #eef4fb; // gentle bluish background
+          transition: transform 0.2s ease, box-shadow 0.2s ease;
+          cursor: pointer;
+
+          .team-logo {
+            max-width: 90%;
+            max-height: 90%;
+          }
+
+          &:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          }
+
+          &.logo-border-color-blue {
+            border: 5px solid constants.$color-secondary;
+          }
+          &.logo-border-color-orange {
+            border: 5px solid constants.$color-tertiary;
+          }
+        }
+      } // .logo-group
+
+      .years {
+        margin-top: 0.5rem;
+        font-weight: bold;
+        font-family: constants.$font-family-tertiary;
+        font-size: 1rem;
+        cursor: pointer;
+
+        &.year-color-blue {
+          color: constants.$color-secondary;
+        }
+        &.year-color-orange {
+          color: constants.$color-tertiary;
+        }
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    } // .stint-group
+
+    .arrow {
+      margin: 0 0.75rem;
+      margin-bottom: 1.8rem;
+      user-select: none;
+      align-self: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      line-height: 1;
+      color: #888;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #fff;
+      }
+    }
+  } // .timeline
+}
+
+// ——— Responsive breakpoints ———
+@media (max-width: 768px) {
+  .player-timeline .player-name {
+    font-size: 1.6rem;
+  }
+
+  .player-timeline .timeline-container {
+    padding: 0 0.5rem;
+  }
+
+  .player-timeline .timeline .stint-group {
+    margin: 0 0.75rem;
+  }
+
+  .player-timeline .timeline .stint-group .years {
+    font-size: 0.9rem;
+  }
+
+  .player-timeline .timeline .stint-group .logo-group .logo-wrapper {
+    width: var(--logo-medium);
+    height: var(--logo-medium);
+  }
+
+  .player-timeline .timeline .stint-group .logo-group .logo-wrapper .team-logo {
+    max-width: 85%;
+    max-height: 85%;
+  }
+}
+
+@media (max-width: 480px) {
+  .player-timeline .player-name {
+    font-size: 1.2rem;
+  }
+
+  .player-timeline .timeline-container {
+    padding: 0 0.25rem;
+  }
+
+  .player-timeline .timeline .stint-group {
+    margin: 0 0.5rem;
+  }
+
+  .player-timeline .timeline .stint-group .years {
+    font-size: 0.8rem;
+  }
+
+  .player-timeline .timeline .stint-group .logo-group .logo-wrapper,
+  .player-timeline .timeline .stint-group .logo-group.count-3 .logo-wrapper,
+  .player-timeline .timeline .stint-group .logo-group.count-4 .logo-wrapper {
+    width: var(--logo-small);
+    height: var(--logo-small);
+  }
+
+  .player-timeline .timeline .arrow {
+    font-size: 1.5rem;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}

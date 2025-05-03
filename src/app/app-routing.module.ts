@@ -1,41 +1,35 @@
 import { NgModule } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, RouterModule, Routes } from '@angular/router';
-import { BioBallMlbService } from './game/bio-ball/services/bio-ball-mlb/bio-ball-mlb.service';
-import { BIO_BALL_SERVICE } from './game/bio-ball/util/bio-ball.token';
-import { NavComponent } from './nav/nav.component';
-import { BioBallMlbResolver } from './game/bio-ball/resolvers/bio-ball-mlb.resolver';
+import { ActivatedRoute, RouterModule, Routes } from '@angular/router';
 import { BioBallComponent } from './game/bio-ball/bio-ball.component';
-import { GameComponent } from './game/game.component';
 import { BioBallResolver } from './game/bio-ball/resolvers/bio-ball.resolver';
-
+import { BioBallMlbService } from './game/bio-ball/services/bio-ball-mlb/bio-ball-mlb.service';
+import { GAME_SERVICE } from './shared/utils/game-service.token';
+import { CareerPathComponent } from './game/career-path/career-path.component';
+import { CareerPathMlbResolver } from './game/career-path/resolvers/career-path-mlb.resolver';
+import { GameComponent } from './game/game.component';
+import { NavComponent } from './nav/nav.component';
+import { CareerPathEngineService } from './game/career-path/services/career-path-engine/career-path-engine.service';
 const routes: Routes = [
   { path: '', redirectTo: 'bio-ball/mlb', pathMatch: 'full' },
-  { path: '**', redirectTo: 'bio-ball/mlb' },
 
   {
     path: 'bio-ball/:league',
     component: NavComponent,
+    providers: [
+      {
+        provide: GAME_SERVICE,
+        useFactory: (route: ActivatedRoute, mlb: BioBallMlbService) => {
+          const league = route.snapshot.paramMap.get('league');
+          return mlb;
+        },
+        deps: [ActivatedRoute, BioBallMlbService],
+      },
+    ],
     children: [
       {
         path: '',
         component: GameComponent,
         // pick the correct service based on the :league param
-        providers: [
-          {
-            provide: BIO_BALL_SERVICE,
-            useFactory: (
-              route: ActivatedRoute,
-              mlb: BioBallMlbService,
-            ) => {
-              const league = route.snapshot.paramMap.get('league');
-              return mlb;
-            },
-            deps: [
-              ActivatedRoute,
-              BioBallMlbService,
-            ]
-          }
-        ],
         children: [
           {
             path: '',
@@ -51,6 +45,30 @@ const routes: Routes = [
   },
 
   // ── Career-Path ───────────────────────
+  {
+    path: 'career-path/:league',
+    component: NavComponent,
+    providers: [
+      { provide: GAME_SERVICE, useExisting: CareerPathEngineService },
+    ],
+    children: [
+      {
+        path: '',
+        component: GameComponent,
+        children: [
+          {
+            path: '',
+            component: CareerPathComponent,
+            resolve: {
+              players: CareerPathMlbResolver,
+            },
+          },
+        ],
+      },
+    ],
+  },
+
+  { path: '**', redirectTo: 'bio-ball/mlb' },
 ];
 
 @NgModule({

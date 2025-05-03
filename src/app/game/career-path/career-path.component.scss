@@ -1,0 +1,14 @@
+@use "../../../constants";
+
+.no-data-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #333;
+  border-radius: 8px;
+
+  .no-data {
+    font-family: constants.$font-family-secondary;
+    margin-top: 12px;
+  }
+}
