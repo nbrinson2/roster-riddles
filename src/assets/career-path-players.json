@@ -36705,7 +36705,7 @@
           {
               "team": "St. Louis Cardinals",
               "yearStart": 2001,
-              "yearEnd": 2022
+              "yearEnd": 2011
           },
           {
               "team": "Los Angeles Angels",
@@ -36716,6 +36716,11 @@
               "team": "Los Angeles Dodgers",
               "yearStart": 2021,
               "yearEnd": 2021
+          },
+          {
+              "team": "St. Louis Cardinals",
+              "yearStart": 2022,
+              "yearEnd": 2022
           }
       ],
       "mlbDebutDate": "2001-04-02"

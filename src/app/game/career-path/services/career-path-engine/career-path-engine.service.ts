@@ -24,10 +24,6 @@ export class CareerPathEngineService
   extends CommonGameService<CareerPathPlayer>
   implements GameService<CareerPathPlayer>
 {
-  get gameState(): Signal<GameState> {
-    return this._gameState.asReadonly();
-  }
-
   get selectedPlayers(): Signal<CareerPathPlayer[]> {
     return this._selectedPlayers.asReadonly();
   }
@@ -43,12 +39,11 @@ export class CareerPathEngineService
   public allPlayers: CareerPathPlayer[] = [];
   public guessablePlayers: CareerPathPlayer[] = [];
 
-  private _gameState = signal<GameState>(GameState.PLAYING);
   private _selectedPlayers = signal<CareerPathPlayer[]>([]);
   private _showAttributeHeader = signal<boolean>(false);
 
-  constructor(private slideUpService: SlideUpService) {
-    super();
+  constructor(slideUpService: SlideUpService) {
+    super(slideUpService);
   }
 
   public startNewGame(players?: CareerPathPlayer[]) {
@@ -58,8 +53,7 @@ export class CareerPathEngineService
     this.selectNewTargetPlayer();
 
     this.numberOfGuesses = 0;
-    this._gameState.set(GameState.PLAYING);
-    this.endOfGame = false;
+    this.gameState = GameState.PLAYING;
     this.isSearchDisabled = false;
     this.searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
     this.selectedPlayers = [];
@@ -80,7 +74,11 @@ export class CareerPathEngineService
 
   public handlePlayerSelection(guess: CareerPathPlayer): void {
     // 1) Sanity checks & early exit
-    if (!guess || this.endOfGame || this.isSearchDisabled) {
+    if (
+      !guess ||
+      this.gameState() === GameState.LOST ||
+      this.isSearchDisabled
+    ) {
       return;
     }
     this.numberOfGuesses++;
@@ -105,7 +103,6 @@ export class CareerPathEngineService
   private selectNewTargetPlayer(): void {
     const index = Math.floor(Math.random() * this.allPlayers.length);
     this.playerToGuess = this.allPlayers[index];
-    console.log('selected player', this.playerToGuess());
   }
 
   /** Did the user guess the exact player? */
@@ -119,32 +116,9 @@ export class CareerPathEngineService
     return this.numberOfGuesses >= this.allowedGuesses;
   }
 
-  /** Mark a win: show text, disable further input */
-  private onWin(): void {
-    this.endResultText = EndResultMessage.WIN;
-    this.endOfGame = true;
-    this.isSearchDisabled = true;
-    this.searchInputPlaceHolderText = InputPlaceHolderText.WIN;
-    this._gameState.set(GameState.WON);
-  }
-
-  /** Mark a loss when guesses are exhausted */
-  private onLose(): void {
-    this.slideUpService.show();
-    this.endResultText = EndResultMessage.LOSE;
-    this.endOfGame = true;
-    this.isSearchDisabled = true;
-    this.searchInputPlaceHolderText = InputPlaceHolderText.LOSE;
-    this._gameState.set(GameState.LOST);
-  }
-
   /** Update the placeholder to show how many guesses remain */
   private updatePlaceholderWithRemainingGuesses(): void {
     const remaining = this.allowedGuesses - this.numberOfGuesses;
     this.searchInputPlaceHolderText = `${remaining} ${InputPlaceHolderText.COUNT}`;
-  }
-
-  isGameWon(): boolean {
-    return this._gameState() === GameState.WON;
   }
 }

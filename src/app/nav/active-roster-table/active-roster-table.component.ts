@@ -1,28 +1,26 @@
 import {
   AfterViewChecked,
   Component,
-  ElementRef,
   EventEmitter,
   Input,
   Output,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
+import { TeamAbbreviationToFullNameMap } from 'src/app/game/bio-ball/constants/bio-ball-constants';
+import {
+  AttributesType,
+  HiddenPlayerRosterAttributes,
+  TeamFullName,
+  TeamType,
+  TeamUiPlayer,
+  UiPlayer
+} from 'src/app/game/bio-ball/models/bio-ball.models';
 import { BioBallEngineService } from 'src/app/game/bio-ball/services/bio-ball-engine/bio-ball-engine.service';
 import {
   HintService,
   HintType,
 } from 'src/app/shared/components/hint/hint.service';
-import { TeamAbbreviationToFullNameMap } from 'src/app/game/bio-ball/constants/bio-ball-constants';
-import { MlbUiPlayer } from 'src/app/game/bio-ball/models/mlb.models';
-import {
-  AttributesType,
-  CommonAttributes,
-  HiddenPlayerRosterAttributes,
-  TeamFullName,
-  TeamType,
-  TeamUiPlayer,
-  UiPlayer,
-} from 'src/app/game/bio-ball/models/bio-ball.models';
+import { CommonTableComponent } from 'src/app/shared/components/table/common-table.component';
 @Component({
     selector: 'active-roster-table',
     templateUrl: './active-roster-table.component.html',
@@ -30,8 +28,9 @@ import {
     standalone: false
 })
 export class ActiveRosterTableComponent implements AfterViewChecked {
-  protected readonly HintType = HintType;
-
+  @ViewChild('table', { read: CommonTableComponent, static: false })
+  table!: CommonTableComponent<TeamUiPlayer<AttributesType>>;
+  
   @Input()
   set roster(value: UiPlayer<AttributesType>[]) {
     this._roster = this.formatAndSortRoster(value);
@@ -49,13 +48,13 @@ export class ActiveRosterTableComponent implements AfterViewChecked {
     }
   }
 
+  @Output() playerSelected = new EventEmitter<void>();
+
   get roster(): UiPlayer<AttributesType>[] {
     return this._roster;
   }
 
-  @Output() playerSelected = new EventEmitter<void>();
-  @ViewChild('firstRow', { read: ElementRef })
-  firstRowRef!: ElementRef<HTMLElement>;
+  protected readonly HintType = HintType;
 
   private _roster: UiPlayer<AttributesType>[] = [];
   protected displayedAttributes!: string[];
@@ -68,26 +67,14 @@ export class ActiveRosterTableComponent implements AfterViewChecked {
   ) {}
 
   ngAfterViewChecked() {
-    // only run once, when the row actually appears
-    if (this.firstRowRef?.nativeElement) {
-      this.firstRowElement = this.firstRowRef.nativeElement;
+    // Show the hint once the table's first row element is available
+    const el = this.table.firstRowElement?.nativeElement;
+    if (el) {
       this.hintService.showHint(HintType.ROSTER_SELECT);
     }
   }
 
-  protected getAttr(
-    player: UiPlayer<AttributesType>,
-    attrValue: string
-  ): string {
-    const attr = attrValue.toLowerCase();
-    if (attr === CommonAttributes.COLOR_MAP.toString()) {
-      return '';
-    }
-    const value = player[attr as keyof UiPlayer<AttributesType>];
-    return typeof value === 'string' ? value : '';
-  }
-
-  protected onRowClick(player: MlbUiPlayer): void {
+  protected onRowClick(player: UiPlayer<AttributesType>): void {
     this.gameService.handlePlayerSelection(player);
     this.playerSelected.emit();
   }

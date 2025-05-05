@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TeamStint, TimelineGroup } from '../models/career-path.models';
 import { LogoService } from '../services/logo/logo.service';
 
@@ -13,6 +13,7 @@ export class PlayerTimelineComponent {
   @Input() groups: TimelineGroup[] = [];
   @Input() compact = false;
   @Input() winner = false;
+  @Output() selectTeamEvent = new EventEmitter<TeamStint>();
 
   /** when in compact mode we ignore date-grouping and just show every logo */
   get flattenedStints(): TeamStint[] {
@@ -20,4 +21,8 @@ export class PlayerTimelineComponent {
   }
 
   constructor(public logoService: LogoService) {}
+
+  onLogoClick(stint: TeamStint): void {
+    this.selectTeamEvent.emit(stint);
+  }
 }

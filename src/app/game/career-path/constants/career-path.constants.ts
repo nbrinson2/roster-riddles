@@ -28,6 +28,12 @@ export const teamKeyMap: Record<string,string> = {
   'Tampa Bay Rays':           'tampa-bay-rays',
   'Texas Rangers':            'texas-rangers',
   'Toronto Blue Jays':        'toronto-blue-jays',
-  'Washington Nationals':     'washington-nationals'
-  // …add any historical or alternate names here
+  'Washington Nationals':     'washington-nationals',
+  'Cleveland Indians':        'cleveland-indians',
+  'Florida Marlins':          'florida-marlins',
+  'Montreal Expos':           'montreal-expos',
+  'Tampa Bay Devil Rays':    'tampa-bay-devil-rays',
+  'Anaheim Angels':           'anaheim-angels',
+  'California Angels':        'california-angels',
+  'Los Angeles Angels of Anaheim': 'los-angeles-angels-of-anaheim',
 };

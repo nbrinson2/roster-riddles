@@ -1,5 +1,5 @@
 import { PlayerAttrColor } from "src/app/shared/models/common-models";
-import { MlbPlayerAttributes, MlbTeam, MlbTeamFullName } from "./mlb.models";
+import { MlbPlayerAttributes, MlbTeam, MlbTeamFullName, MlbTeamKey } from "./mlb.models";
 import { NflPlayerAttributes, NflTeam, NflTeamFullName } from "./nfl.models";
 
 export interface UiPlayer<T> {
@@ -10,7 +10,7 @@ export interface UiPlayer<T> {
 
 export type TeamUiPlayer<T> = UiPlayer<T> & {team: TeamType, pos: string};
 export type AttributesType = MlbPlayerAttributes | NflPlayerAttributes;
-export type TeamType = MlbTeam | NflTeam;
+export type TeamType = MlbTeam | NflTeam | MlbTeamKey;
 export type TeamFullName = MlbTeamFullName | NflTeamFullName;
 
 export enum CommonAttributes {

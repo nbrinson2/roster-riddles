@@ -1,0 +1,27 @@
+@use "../../../constants";
+
+.logo-group-compact {
+  display: flex !important;
+  flex-wrap: wrap;
+
+  .logo-wrapper {
+    width: constants.$logo-tiny !important;
+    height: constants.$logo-tiny !important;
+    border-width: 2px !important;
+    margin: 0 !important;
+    background: #fff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    border-radius: 50%; // ← make it circular
+    overflow: hidden; // ← crop the img into the circle
+
+    // center the image
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    .team-logo {
+      max-width: 80%;
+      max-height: 80%;
+    }
+  }
+}

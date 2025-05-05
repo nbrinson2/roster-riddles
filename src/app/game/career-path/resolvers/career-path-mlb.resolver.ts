@@ -10,6 +10,7 @@ import {
 } from '../models/career-path.models';
 import { PlayerAttrColor } from 'src/app/shared/models/common-models';
 import { teamKeyMap } from '../constants/career-path.constants';
+import { MlbTeamKey } from '../../bio-ball/models/mlb.models';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +32,8 @@ export class CareerPathMlbResolver {
             // 2) map into TeamStint[]
             const stints: TeamStint[] = sorted.map((t) => {
               // pick from map or slugify fallback
-              const raw = t.team;
+              const isLosAngelesAngels = t.team === 'Los Angeles Angels' && t.yearStart >= 2005 && t.yearStart <= 2013;
+              const raw = isLosAngelesAngels ? 'Los Angeles Angels of Anaheim' : t.team;
               const slug =
                 teamKeyMap[raw] ||
                 raw
@@ -40,7 +42,7 @@ export class CareerPathMlbResolver {
                   .replace(/-+/g, '-');        // collapse multiple hyphens
 
               return {
-                teamKey: slug,
+                teamKey: slug as MlbTeamKey,
                 from: t.yearStart,
                 to:   t.yearEnd,
                 logoBorderColor: PlayerAttrColor.NONE,

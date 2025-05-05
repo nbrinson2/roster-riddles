@@ -38,6 +38,10 @@ import { CareerPathComponent } from './game/career-path/career-path.component';
 import { PlayerTimelineComponent } from './game/career-path/player-timeline/player-timeline.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonTableComponent } from './shared/components/table/common-table.component';
+import { RosterByYearsTableComponent } from './nav/roster-by-years-table/roster-by-years-table.component';
+import { CareerPathHtpComponent } from './nav/how-to-play/career-path-htp/career-path-htp.component';
+import { GameRuleListComponent } from './nav/how-to-play/game-rule-list/game-rule-list.component';
+import { SafeHtmlPipe } from './shared/utils/safe-html.pipe';
 @NgModule({
   declarations: [
     AppComponent,
@@ -56,6 +60,10 @@ import { CommonTableComponent } from './shared/components/table/common-table.com
     CareerPathComponent,
     PlayerTimelineComponent,
     CommonTableComponent,
+    RosterByYearsTableComponent,
+    CareerPathHtpComponent,
+    GameRuleListComponent,
+    SafeHtmlPipe,
   ],
   imports: [
     BrowserModule,

@@ -57,8 +57,12 @@ export function getYearColor(
     return PlayerAttrColor.BLUE;
   }
 
-  // 2) any overlap → ORANGE
-  if (groupTo >= targetFrom && groupFrom <= targetTo) {
+  // Check if there's any overlap in years
+  const targetRangeArray = Array.from({ length: targetTo - targetFrom + 1 }, (_, i) => targetFrom + i);
+  const groupRangeArray = Array.from({ length: groupTo - groupFrom + 1 }, (_, i) => groupFrom + i);
+
+  const overlap = targetRangeArray.some(year => groupRangeArray.includes(year));
+  if (overlap) {
     return PlayerAttrColor.ORANGE;
   }
 
@@ -103,9 +107,8 @@ export function getLogoBorderColor(
     return PlayerAttrColor.BLUE;
   }
 
-  // 4) else if *any* overlap → ORANGE
-  const anyOverlap = guessYears.some(y => targetTeamYears.has(y));
-  if (anyOverlap) {
+  // If target played for this team at any point (but no year overlap) → ORANGE
+  if (targetStints.some(ts => ts.teamKey === guessStint.teamKey)) {
     return PlayerAttrColor.ORANGE;
   }
 

@@ -16,6 +16,7 @@ import {
 import { Headers } from '../../util/bio-ball.util';
 import { CommonGameService } from 'src/app/shared/services/common-game/common-game.service';
 import { GameService } from '../../../../shared/utils/game-service.token';
+import { GameState } from 'src/app/game/career-path/services/career-path-engine/career-path-engine.service';
 
 /**
  * Configuration for the GameEngineService—including attributes, compare logic,
@@ -70,10 +71,10 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
   private gameConfiguration!: GameConfiguration<PlayerType>;
 
   constructor(
-    private slideUpService: SlideUpService,
+    slideUpService: SlideUpService,
     private hintService: HintService
   ) {
-    super();
+    super(slideUpService);
   }
 
   /** Supply configuration before using the engine */
@@ -100,7 +101,7 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
     this.selectNewTargetPlayer();
 
     this.numberOfGuesses = 0;
-    this.endOfGame = false;
+    this.gameState = GameState.PLAYING;
     this.isSearchDisabled = false;
     this.searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
     this.selectedPlayers = [];
@@ -123,7 +124,7 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
 
   /** Handle one guess: update feedback, check end-of-game */
   public handlePlayerSelection(player: PlayerType): void {
-    if (!player || this.endOfGame || this.isSearchDisabled) {
+    if (!player || this.gameState() === GameState.LOST || this.isSearchDisabled) {
       return;
     }
     if (this.selectedPlayers.length === 0) {
@@ -169,18 +170,10 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
       !colorList.includes(PlayerAttrColor.ORANGE);
 
     if (hasWon) {
-      this.endResultText = EndResultMessage.WIN;
+      this.onWin();
+      return true;
     } else if (this.numberOfGuesses >= this.allowedGuesses) {
-      this.slideUpService.show();
-      this.endResultText = EndResultMessage.LOSE;
-    }
-
-    if (hasWon || this.numberOfGuesses >= this.allowedGuesses) {
-      this.endOfGame = true;
-      this.searchInputPlaceHolderText = hasWon
-        ? InputPlaceHolderText.WIN
-        : InputPlaceHolderText.LOSE;
-      this.isSearchDisabled = true;
+      this.onLose();
       return true;
     }
 

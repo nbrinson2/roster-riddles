@@ -1,4 +1,5 @@
 import { PlayerAttrColor } from "src/app/shared/models/common-models";
+import { MlbTeamKey } from "../../bio-ball/models/mlb.models";
 
 export interface CareerPathPlayerResponse {
   id: number;
@@ -13,7 +14,7 @@ export interface CareerPathTeam {
 }
 
 export interface TeamStint {
-  teamKey: string;
+  teamKey: MlbTeamKey;
   from: number;
   to: number;
   logoBorderColor: PlayerAttrColor;

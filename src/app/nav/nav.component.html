@@ -7,8 +7,23 @@
           (playerSelected)="handlePlayerSelection()"
         ></active-roster-table>
       </ng-container>
+      <ng-container
+        *ngIf="
+          selectedRosterByYears &&
+          viewRoster &&
+          selectedRosterYears &&
+          selectedRosterTeamName
+        "
+      >
+        <roster-by-years-table
+          [years]="selectedRosterYears"
+          [teamName]="selectedRosterTeamName"
+          [roster]="selectedRosterByYears"
+          (playerSelected)="handlePlayerSelection()"
+        ></roster-by-years-table>
+      </ng-container>
       <ng-container *ngIf="viewMenu">
-        <how-to-play></how-to-play>
+        <how-to-play [gameType]="currentGameName"></how-to-play>
       </ng-container>
       <!-- <ng-container *ngIf="loggedIn && viewProfile && user">
         <profile [user]="user"></profile>
@@ -22,7 +37,7 @@
         </div>
         <div class="login-content">
           <div class="google-login-button">
-            <p>Coming soon</p>
+            <p>Coming soon!</p>
           </div>
         </div>
       </div>
@@ -50,7 +65,7 @@
                 [routerLink]="['/bio-ball/mlb']"
                 routerLinkActive="active-game"
                 #rlaBio="routerLinkActive"
-                (click)="setCurrentGameName('Bio-Ball')"
+                (click)="resetState()"
               >
                 <mat-icon>sports_cricket</mat-icon>
                 <span>Bio-Ball</span>
@@ -61,7 +76,7 @@
                 [routerLink]="['/career-path/mlb']"
                 routerLinkActive="active-game"
                 #rlaCareer="routerLinkActive"
-                (click)="setCurrentGameName('Career Path')"
+                (click)="resetState()"
               >
                 <mat-icon>timeline</mat-icon>
                 <span>Career Path</span>

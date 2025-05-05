@@ -1,22 +1,5 @@
 @use '../../../../constants';
 
-.content-container {
-  margin: 5px;
 
-  .section {
-    margin-top: 40px;
 
-    .text {
-      font-family: constants.$font-family-secondary;
-      margin-top: 10px;
-    }
 
-    .blue {
-      color: rgb(104, 195, 240);
-    }
-
-    .orange {
-      color: rgb(252, 174, 91);
-    }
-  }
-}

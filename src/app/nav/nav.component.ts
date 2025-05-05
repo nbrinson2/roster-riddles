@@ -9,19 +9,19 @@ import {
 } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, from, Subject, takeUntil } from 'rxjs';
+import { filter, Subject, takeUntil } from 'rxjs';
 import {
   AttributesType,
+  TeamFullName,
   UiPlayer,
 } from '../game/bio-ball/models/bio-ball.models';
-import { MlbUiPlayer } from '../game/bio-ball/models/mlb.models';
 import { RosterSelectionService } from '../game/bio-ball/services/roster-selection/roster-selection.service';
-import { HintService } from '../shared/components/hint/hint.service';
-import { MlbPlayersService } from '../shared/services/mlb-players/mlb-players.service';
-import { GamePlayer } from '../shared/models/common-models';
-import { GameService } from '../shared/utils/game-service.token';
-import { GAME_SERVICE } from '../shared/utils/game-service.token';
 import { CareerPathPlayer } from '../game/career-path/models/career-path.models';
+import { HintService } from '../shared/components/hint/hint.service';
+import { GamePlayer } from '../shared/models/common-models';
+import { GAME_SERVICE, GameService } from '../shared/utils/game-service.token';
+import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
+import { GameType } from '../shared/services/common-game/common-game.service';
 enum MatDrawerPosition {
   END = 'end',
   START = 'start',
@@ -34,10 +34,16 @@ enum MatDrawerPosition {
   standalone: false,
 })
 export class NavComponent implements OnInit, OnDestroy {
+  protected readonly GameType = GameType;
+
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
 
   get playerToGuess(): Signal<GamePlayer> {
     return this.gameService.playerToGuess;
+  }
+
+  get currentGameName(): GameType {
+    return this.gameService.currentGame();
   }
 
   protected bioBallPlayerToGuess = computed(() => {
@@ -57,7 +63,9 @@ export class NavComponent implements OnInit, OnDestroy {
   protected viewRoster = false;
   protected matDrawerPosition = MatDrawerPosition.START;
   protected selectedRoster?: UiPlayer<AttributesType>[];
-  protected currentGameName = 'Bio-Ball';
+  protected selectedRosterByYears?: CareerPathPlayer[];
+  protected selectedRosterYears?: string;
+  protected selectedRosterTeamName?: TeamFullName;
 
   private destroy$ = new Subject<void>();
 
@@ -65,6 +73,7 @@ export class NavComponent implements OnInit, OnDestroy {
     private hintService: HintService,
     private rosterSelectionService: RosterSelectionService,
     private router: Router,
+    private slideUpService: SlideUpService,
     @Inject(GAME_SERVICE)
     private gameService: GameService<GamePlayer>
   ) {
@@ -72,23 +81,30 @@ export class NavComponent implements OnInit, OnDestroy {
       .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe((e: NavigationEnd) => {
         if (e.urlAfterRedirects.startsWith('/bio-ball')) {
-          this.currentGameName = 'Bio-Ball';
+          this.gameService.currentGame = GameType.BIO_BALL;
         } else if (e.urlAfterRedirects.startsWith('/career-path')) {
-          this.currentGameName = 'Career Path';
+          this.gameService.currentGame = GameType.CAREER_PATH;
         } else {
-          this.currentGameName = '';
+          this.gameService.currentGame = GameType.BIO_BALL;
         }
       });
   }
 
   ngOnInit(): void {
-    this.rosterSelectionService.roster$
-      .pipe(
-        filter((roster) => roster.length > 0),
-        takeUntil(this.destroy$)
-      )
+    this.rosterSelectionService.activeRoster$
+      .pipe(takeUntil(this.destroy$))
       .subscribe((roster) => {
-        this.openRosterMenu(roster);
+        this.setSelectedRosterAndOpenMenu(roster);
+      });
+
+    this.rosterSelectionService.rosterByYears$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((roster) => {
+        this.setSelectedRosterAndOpenMenu(
+          roster?.players ?? [],
+          roster?.teamName,
+          roster?.years
+        );
       });
 
     this.drawer.closedStart.pipe(takeUntil(this.destroy$)).subscribe(() => {
@@ -102,6 +118,7 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   protected handlePlayerSelection(): void {
+    this.resetRosterSelection();
     this.drawer.close();
   }
 
@@ -135,16 +152,47 @@ export class NavComponent implements OnInit, OnDestroy {
     this.drawer.open();
   }
 
-  protected setCurrentGameName(gameName: string): void {
-    this.currentGameName = gameName;
+  protected resetState(): void {
+    this.slideUpService.hide();
+    this.rosterSelectionService.resetRosterSelection();
   }
 
-  private openRosterMenu(roster: UiPlayer<AttributesType>[]): void {
+  private setSelectedRosterAndOpenMenu(
+    roster: GamePlayer[],
+    teamName?: TeamFullName,
+    years?: string
+  ): void {
+    if (roster.length === 0) {
+      this.resetRosterSelection();
+      return;
+    }
+
+    if (this.rosterSelectionService.isCareerPathRoster(roster)) {
+      this.selectedRoster = undefined;
+      this.selectedRosterByYears = roster as CareerPathPlayer[];
+      this.selectedRosterYears = years;
+      this.selectedRosterTeamName = teamName;
+    } else {
+      this.selectedRosterByYears = undefined;
+      this.selectedRosterYears = undefined;
+      this.selectedRosterTeamName = undefined;
+      this.selectedRoster = roster as UiPlayer<AttributesType>[];
+    }
+    this.openRosterMenu();
+  }
+
+  private openRosterMenu(): void {
     this.viewMenu = false;
     this.viewProfile = false;
     this.viewRoster = true;
     this.matDrawerPosition = MatDrawerPosition.START;
-    this.selectedRoster = roster;
     this.drawer.open();
+  }
+
+  private resetRosterSelection(): void {
+    this.selectedRoster = undefined;
+    this.selectedRosterByYears = undefined;
+    this.selectedRosterYears = undefined;
+    this.selectedRosterTeamName = undefined;
   }
 }

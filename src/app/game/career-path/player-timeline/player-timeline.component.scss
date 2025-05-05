@@ -1,10 +1,6 @@
 @use "../../../../constants";
 
 .player-timeline {
-  --logo-size: 80px;
-  --logo-medium: 60px;
-  --logo-small: 50px;
-  --logo-tiny: 30px;
   --gap-default: 0.25rem;
   --gap-tight: 0.1rem;
 
@@ -38,8 +34,8 @@
     }
 
     .logo-wrapper {
-      width: var(--logo-tiny) !important;
-      height: var(--logo-tiny) !important;
+      width: constants.$logo-tiny !important;
+      height: constants.$logo-tiny !important;
       border-width: 2px !important;
       margin: 0 !important;
       background: #fff !important;
@@ -133,8 +129,8 @@
           gap: var(--gap-tight);
 
           .logo-wrapper {
-            width: var(--logo-medium);
-            height: var(--logo-medium);
+            width: constants.$logo-medium;
+            height: constants.$logo-medium;
             border-width: 1.5px;
 
             .team-logo {
@@ -162,8 +158,8 @@
           justify-items: center;
 
           .logo-wrapper {
-            width: var(--logo-medium);
-            height: var(--logo-medium);
+            width: constants.$logo-medium;
+            height: constants.$logo-medium;
             border-width: 1.5px;
 
             .team-logo {
@@ -193,21 +189,21 @@
         &:not(.count-1):not(.count-2):not(.count-3):not(.count-4) {
           grid-template-columns: repeat(
             auto-fit,
-            minmax(var(--logo-medium), auto)
+            minmax(constants.$logo-medium, auto)
           );
           gap: var(--gap-tight);
           justify-items: center;
 
           .logo-wrapper {
-            width: var(--logo-medium);
-            height: var(--logo-medium);
+            width: constants.$logo-medium;
+            height: constants.$logo-medium;
           }
         }
 
         /* default logos */
         .logo-wrapper {
-          width: var(--logo-size);
-          height: var(--logo-size);
+          width: constants.$logo-size;
+          height: constants.$logo-size;
           border: 2px solid #333;
           border-radius: 50%;
           display: flex;
@@ -242,17 +238,12 @@
         font-weight: bold;
         font-family: constants.$font-family-tertiary;
         font-size: 1rem;
-        cursor: pointer;
 
         &.year-color-blue {
           color: constants.$color-secondary;
         }
         &.year-color-orange {
           color: constants.$color-tertiary;
-        }
-
-        &:hover {
-          text-decoration: underline;
         }
       }
     } // .stint-group
@@ -296,8 +287,8 @@
   }
 
   .player-timeline .timeline .stint-group .logo-group .logo-wrapper {
-    width: var(--logo-medium);
-    height: var(--logo-medium);
+    width: constants.$logo-medium;
+    height: constants.$logo-medium;
   }
 
   .player-timeline .timeline .stint-group .logo-group .logo-wrapper .team-logo {
@@ -326,8 +317,8 @@
   .player-timeline .timeline .stint-group .logo-group .logo-wrapper,
   .player-timeline .timeline .stint-group .logo-group.count-3 .logo-wrapper,
   .player-timeline .timeline .stint-group .logo-group.count-4 .logo-wrapper {
-    width: var(--logo-small);
-    height: var(--logo-small);
+    width: constants.$logo-small;
+    height: constants.$logo-small;
   }
 
   .player-timeline .timeline .arrow {

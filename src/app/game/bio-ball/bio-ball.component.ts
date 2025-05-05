@@ -1,18 +1,19 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
 import { HintArrowPosition } from '../../shared/components/hint/hint.component';
 import { HintService, HintType } from '../../shared/components/hint/hint.service';
 import { SlideUpService } from '../../shared/components/slide-up/slide-up.service';
+import { GAME_SERVICE } from '../../shared/utils/game-service.token';
+import { GameState } from '../career-path/services/career-path-engine/career-path-engine.service';
 import {
   AttributesType,
   TeamUiPlayer,
   UiPlayer,
 } from './models/bio-ball.models';
 import { BioBallEngineService } from './services/bio-ball-engine/bio-ball-engine.service';
-import { GAME_SERVICE } from '../../shared/utils/game-service.token';
-import { Data, EndResultMessage, InputPlaceHolderText } from './util/bio-ball.util';
 import { RosterSelectionService } from './services/roster-selection/roster-selection.service';
+import { Data, InputPlaceHolderText } from './util/bio-ball.util';
 
 @Component({
   selector: 'bio-ball',
@@ -49,10 +50,8 @@ export class BioBallComponent {
     this.hintService.hasShownFirstPlayerHint = true;
     this.gameService.numberOfGuesses++;
 
-    if (this.gameService.endOfGame) {
-      if (this.gameService.endResultText === EndResultMessage.LOSE) {
-        this.slideUpService.show();
-      }
+    if (this.gameService.gameState() === GameState.LOST) {
+      this.gameService.onLose();
       return;
     }
 
@@ -62,6 +61,6 @@ export class BioBallComponent {
     const selectedRoster = this.gameService.allPlayers.filter(
       (player) => (player as TeamUiPlayer<AttributesType>).team === team
     );
-    this.rosterSelectionService.selectRoster(selectedRoster);
+    this.rosterSelectionService.selectActiveRoster(selectedRoster);
   }
 }

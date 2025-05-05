@@ -4,7 +4,8 @@
       <player-timeline
         [playerName]="player.name"
         [groups]="player.groups"
-        [winner]="first && gameState === GameState.WON">
+        [winner]="first && gameState === GameState.WON"
+        (selectTeamEvent)="selectTeam($event)">
       </player-timeline>
     </div>
   </ng-container>

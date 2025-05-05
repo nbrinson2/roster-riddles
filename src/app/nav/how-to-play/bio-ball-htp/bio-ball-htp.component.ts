@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef } from '@angular/core';
 import { MlbPlayerAttributes, MlbUiPlayer } from 'src/app/game/bio-ball/models/mlb.models';
 import { PlayerAttrColor } from "src/app/shared/models/common-models";
-import { PLAYERS } from 'src/app/nav/constants/htp-player-data';
+import { BIO_BALL_PLAYERS } from 'src/app/nav/how-to-play/constants/htp-player.constants';
 
 @Component({
     selector: 'bio-ball-htp',
@@ -11,10 +11,10 @@ import { PLAYERS } from 'src/app/nav/constants/htp-player-data';
 })
 export class BioBallHtpComponent {
 
-  protected matchPlayer: MlbUiPlayer = PLAYERS[0];
-  protected lgDivPlayer: MlbUiPlayer = PLAYERS[1];
-  protected agePlayer: MlbUiPlayer = PLAYERS[2];
-  protected teamPlayer: MlbUiPlayer = PLAYERS[3];
+  protected matchPlayer: MlbUiPlayer = BIO_BALL_PLAYERS[0];
+  protected lgDivPlayer: MlbUiPlayer = BIO_BALL_PLAYERS[1];
+  protected agePlayer: MlbUiPlayer = BIO_BALL_PLAYERS[2];
+  protected teamPlayer: MlbUiPlayer = BIO_BALL_PLAYERS[3];
 
   constructor() {
     this.matchPlayer.colorMap.set(MlbPlayerAttributes.POS, PlayerAttrColor.BLUE);

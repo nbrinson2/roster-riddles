@@ -4,6 +4,7 @@ import { PlayerAttrColor } from "src/app/shared/models/common-models";
 import { EndResultMessage, Header } from 'src/app/game/bio-ball/util/bio-ball.util';
 import { BioBallEngineService } from '../services/bio-ball-engine/bio-ball-engine.service';
 import { UiPlayer } from 'src/app/game/bio-ball/models/bio-ball.models';
+import { GameState } from '../../career-path/services/career-path-engine/career-path-engine.service';
 
 @Component({
     selector: 'attribute-header',
@@ -13,7 +14,7 @@ import { UiPlayer } from 'src/app/game/bio-ball/models/bio-ball.models';
 })
 export class AttributeHeaderComponent {
   get endOfGame(): boolean {
-    return this.gameService.endOfGame;
+    return this.gameService.gameState() === GameState.LOST;
   }
 
   get endResultText(): string {
