@@ -49,26 +49,6 @@ export class CareerPathComponent {
   ) {
     this.route.data.pipe(first()).subscribe((d) => {
       const players = (d as Data).players;
-      const playerWithMostTeams = players.reduce((most, current) => {
-        const currentTeamCount = current.groups.reduce(
-          (count, group) => count + group.stints.length,
-          0
-        );
-        const mostTeamCount = most.groups.reduce(
-          (count, group) => count + group.stints.length,
-          0
-        );
-        return currentTeamCount > mostTeamCount ? current : most;
-      });
-      console.log(
-        'Player with most teams:',
-        playerWithMostTeams.name,
-        'Teams:',
-        playerWithMostTeams.groups.reduce(
-          (count, group) => count + group.stints.length,
-          0
-        )
-      );
       this.gameService.startNewGame(players);
     });
   }
