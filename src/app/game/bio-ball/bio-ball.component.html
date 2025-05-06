@@ -1,0 +1,20 @@
+<div *ngIf="selectedPlayers.length > 0" class="players-container">
+  <div
+    class="player-container"
+    *ngFor="let player of selectedPlayers; let first = first"
+    #playerContainer
+  >
+    <bio-ball-player
+      [player]="player"
+      [inSearchResults]="false"
+      (selectTeamEvent)="selectRoster($event)"
+    ></bio-ball-player>
+    <hint
+      *ngIf="first && !hasShownFirstPlayerHint"
+      [targetElement]="playerContainer"
+      [hintType]="HintType.ROSTER_COST"
+      [arrowPosition]="HintArrowPosition.TOP_LEFT"
+    >
+    </hint>
+  </div>
+</div>

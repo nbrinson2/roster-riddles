@@ -1,0 +1,59 @@
+<!-- player-timeline.component.html -->
+<div class="player-timeline" [ngClass]="{ compact: compact }">
+  <h2 class="player-name">{{ playerName }}</h2>
+
+  <div class="timeline-container" [ngClass]="{ winner: winner }">
+    <div class="timeline">
+      <ng-container *ngIf="!compact; else compactTimeline">
+        <ng-container *ngFor="let grp of groups; let last = last">
+          <div class="stint-group" [ngClass]="'count-' + grp.stints.length">
+            <div class="logo-group" [ngClass]="'count-' + grp.stints.length">
+              <ng-container *ngFor="let s of grp.stints">
+                <div
+                  class="logo-wrapper"
+                  [ngClass]="'logo-border-color-' + s.logoBorderColor"
+                  (click)="onLogoClick(s)"
+                >
+                  <img
+                    class="team-logo"
+                    [src]="logoService.getLogoUrl(s.teamKey, s.from)"
+                    [alt]="s.teamKey + ' logo'"
+                  />
+                </div>
+              </ng-container>
+            </div>
+            <div
+              *ngIf="!compact"
+              class="years"
+              [ngClass]="'year-color-' + grp.stints[0].yearColor"
+            >
+              {{ grp.from }}
+              <ng-container *ngIf="grp.from !== grp.to">
+                &ndash; {{ grp.to }}
+              </ng-container>
+            </div>
+          </div>
+          <div *ngIf="!last && !compact" class="arrow">→</div>
+        </ng-container>
+      </ng-container>
+    </div>
+
+    <!-- COMPACT MODE: flattened, no dates or arrows -->
+    <ng-template #compactTimeline>
+      <div class="logo-group compact">
+        <ng-container *ngFor="let s of flattenedStints">
+          <div
+            class="logo-wrapper"
+            [ngClass]="'logo-border-color-' + s.logoBorderColor"
+          >
+            <img
+              class="team-logo"
+              [src]="logoService.getLogoUrl(s.teamKey, s.from)"
+              [alt]="s.teamKey + ' logo'"
+            />
+          </div>
+        </ng-container>
+      </div>
+    </ng-template>
+  </div>
+</div>

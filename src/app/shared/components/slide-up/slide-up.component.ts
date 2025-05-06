@@ -1,5 +1,3 @@
-import { Component, computed } from '@angular/core';
-import { SlideUpService } from './slide-up.service';
 import {
   animate,
   state,
@@ -7,23 +5,26 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { GameService } from '../../services/game.service';
-
+import { Component, Inject } from '@angular/core';
+import { GamePlayer } from '../../models/common-models';
+import { GAME_SERVICE, GameService } from '../../utils/game-service.token';
+import { SlideUpService } from './slide-up.service';
 @Component({
-  selector: 'slide-up',
-  templateUrl: './slide-up.component.html',
-  styleUrls: ['./slide-up.component.scss'],
-  animations: [
-    trigger('slideAnimation', [
-      state('up', style({ transform: 'translateY(0)', opacity: 1 })),
-      state('down', style({ transform: 'translateY(100%)', opacity: 0 })),
-      transition('void => up', [
-        style({ transform: 'translateY(100%)', opacity: 0 }),
-        animate('400ms ease-out'),
-      ]),
-      transition('up => down', [animate('400ms ease-in')]),
-    ]),
-  ],
+    selector: 'slide-up',
+    templateUrl: './slide-up.component.html',
+    styleUrls: ['./slide-up.component.scss'],
+    animations: [
+        trigger('slideAnimation', [
+            state('up', style({ transform: 'translateY(0)', opacity: 1 })),
+            state('down', style({ transform: 'translateY(100%)', opacity: 0 })),
+            transition('void => up', [
+                style({ transform: 'translateY(100%)', opacity: 0 }),
+                animate('400ms ease-out'),
+            ]),
+            transition('up => down', [animate('400ms ease-in')]),
+        ]),
+    ],
+    standalone: false
 })
 export class SlideUpComponent {
   get isVisible(): boolean {
@@ -34,23 +35,19 @@ export class SlideUpComponent {
     return this.slideUpService.shouldRender();
   }
 
-  get shouldStartNewGame(): boolean {
-    return this.gameService.shouldStartNewGame();
-  }
-
   constructor(
     private slideUpService: SlideUpService,
-    private gameService: GameService
+    @Inject(GAME_SERVICE)
+    private gameService: GameService<GamePlayer>
   ) {}
 
   dismiss() {
-    this.gameService.shouldStartNewGame = false;
     this.slideUpService.hide();
   }
 
   onAnimationDone() {
-    if (!this.isVisible && this.shouldStartNewGame) {
-      this.gameService.startNewGame();
+    if (!this.isVisible) {
+      this.slideUpService.runOnCloseIfExists();
       this.slideUpService.shouldRender = false;
       return;
     }
@@ -61,7 +58,8 @@ export class SlideUpComponent {
   }
 
   startNewGame() {
-    this.gameService.shouldStartNewGame = true;
-    this.slideUpService.hide();
+    this.slideUpService.hide(() => {
+      this.gameService.startNewGame();
+    });
   }
 }

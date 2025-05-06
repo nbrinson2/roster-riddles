@@ -1,0 +1,22 @@
+<div class="section">
+  <div class="description">{{ description }}</div>
+</div>
+
+<ng-container *ngIf="gameType === GameType.BIO_BALL">
+  <div *ngFor="let rule of bioBallRules" class="section">
+    <bio-ball-player
+      [player]="rule.player"
+      [inSearchResults]="false"
+    ></bio-ball-player>
+    <div class="text" [innerHTML]="rule.description | safeHtml"></div>
+  </div>
+</ng-container>
+<ng-container *ngIf="gameType === GameType.CAREER_PATH">
+  <div *ngFor="let rule of careerPathRules" class="section">
+    <player-timeline
+      [playerName]="rule.player.name"
+      [groups]="rule.player.groups"
+    ></player-timeline>
+    <div class="text" [innerHTML]="rule.description | safeHtml"></div>
+  </div>
+</ng-container>

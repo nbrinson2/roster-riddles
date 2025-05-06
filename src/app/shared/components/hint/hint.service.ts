@@ -45,6 +45,16 @@ export class HintService {
     return this._currentHint.asReadonly();
   }
 
+  get hasShownFirstPlayerHint(): Signal<boolean> {
+    return this._hasShownFirstPlayerHint.asReadonly();
+  }
+
+  set hasShownFirstPlayerHint(value: boolean) {
+    this._hasShownFirstPlayerHint.set(value);
+  }
+
+  private _hasShownFirstPlayerHint = signal<boolean>(false);
+
   showHint(hintId: HintType): void {
     const hint = this._hints().find(h => h.id === hintId);
     if (hint && !hint.shown) {

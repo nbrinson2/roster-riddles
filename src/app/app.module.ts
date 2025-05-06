@@ -1,51 +1,65 @@
+import { CommonModule } from '@angular/common';
+import { provideHttpClient } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
 
-import { AppComponent } from './app.component';
-import { PlayerComponent } from './home/player/player.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatGridListModule } from '@angular/material/grid-list';
-import { SearchComponent } from './home/search/search.component';
-import { MatInputModule } from '@angular/material/input';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { getAnalytics, provideAnalytics, ScreenTrackingService, UserTrackingService } from '@angular/fire/analytics';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { getAuth, provideAuth } from '@angular/fire/auth';
+import { initializeFirestore, provideFirestore } from '@angular/fire/firestore';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import {
-  GoogleLoginProvider,
-  GoogleSigninButtonModule,
-  SocialAuthServiceConfig,
-  SocialLoginModule,
-} from '@abacritt/angularx-social-login';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { getApp } from 'firebase/app';
+import { environment } from 'src/environment';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { AttributeHeaderComponent } from './game/bio-ball/attribute-header/attribute-header.component';
+import { BioBallComponent } from './game/bio-ball/bio-ball.component';
+import { ActiveRosterTableComponent } from './nav/active-roster-table/active-roster-table.component';
 import { NavComponent } from './nav/nav.component';
 import { ProfileComponent } from './nav/profile/profile.component';
-import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
-import { ActiveRosterTableComponent } from './nav/active-roster-table/active-roster-table.component';
-import { AttributeHeaderComponent } from './home/attribute-header/attribute-header.component';
-import { AppRoutingModule } from './app-routing.module';
-import { HomeComponent } from './home/home.component';
-import { SlideUpComponent } from './shared/components/slide-up/slide-up.component';
 import { HintComponent } from './shared/components/hint/hint.component';
-
+import { SlideUpComponent } from './shared/components/slide-up/slide-up.component';
+import { BioBallPlayerComponent } from './game/bio-ball/player/bio-ball-player.component';
+import { SearchComponent } from './shared/components/search/search.component';
+import { GameComponent } from './game/game.component';
+import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
+import { CareerPathComponent } from './game/career-path/career-path.component';
+import { PlayerTimelineComponent } from './game/career-path/player-timeline/player-timeline.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { CommonTableComponent } from './shared/components/table/common-table.component';
+import { RosterByYearsTableComponent } from './nav/roster-by-years-table/roster-by-years-table.component';
+import { GameRuleListComponent } from './nav/how-to-play/game-rule-list/game-rule-list.component';
+import { SafeHtmlPipe } from './shared/utils/safe-html.pipe';
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent,
-    PlayerComponent,
+    BioBallComponent,
+    BioBallPlayerComponent,
     SearchComponent,
     AttributeHeaderComponent,
     ActiveRosterTableComponent,
-    HowToPlayComponent,
     NavComponent,
     ProfileComponent,
     SlideUpComponent,
-    HintComponent
+    HintComponent,
+    GameComponent,
+    HowToPlayComponent,
+    CareerPathComponent,
+    PlayerTimelineComponent,
+    CommonTableComponent,
+    RosterByYearsTableComponent,
+    GameRuleListComponent,
+    SafeHtmlPipe,
   ],
   imports: [
     BrowserModule,
@@ -59,31 +73,19 @@ import { HintComponent } from './shared/components/hint/hint.component';
     ReactiveFormsModule,
     MatInputModule,
     MatAutocompleteModule,
-    HttpClientModule,
-    SocialLoginModule,
-    GoogleSigninButtonModule,
     MatTooltipModule,
     MatCardModule,
     MatIconModule,
+    MatMenuModule,
   ],
   providers: [
-    {
-      provide: 'SocialAuthServiceConfig',
-      useValue: {
-        autoLogin: false,
-        providers: [
-          {
-            id: GoogleLoginProvider.PROVIDER_ID,
-            provider: new GoogleLoginProvider(
-              '928161371660-fevd85o3bmo9eqr0fkvt477dakcq7no5.apps.googleusercontent.com'
-            ),
-          },
-        ],
-        onError: (err) => {
-          console.error(err);
-        },
-      } as SocialAuthServiceConfig,
-    },
+    // provideFirebaseApp(() => initializeApp(environment.firebase)),
+    // provideFirestore(() => initializeFirestore(getApp(), {}, 'roster-riddles')),
+    // provideAnalytics(() => getAnalytics()),
+    // provideAuth(() => getAuth()),
+    provideHttpClient(),
+    ScreenTrackingService,
+    UserTrackingService,
   ],
   bootstrap: [AppComponent],
 })

@@ -17,10 +17,12 @@
 }
 
 .slide-up-content {
+  display: flex;
+  flex-direction: column;
   background-color: #111;
   color: #fff;
   padding: 1rem 1.5rem;
-  width: 100%;
+  width: calc(100% - 2rem);
   max-width: 548px;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;

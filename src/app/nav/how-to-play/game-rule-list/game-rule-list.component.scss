@@ -1,0 +1,26 @@
+@use '../../../../constants';
+
+.section {
+  align-items: center;
+  margin-bottom: 40px;
+
+  .description {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: constants.$font-family-secondary;
+    margin-top: 10px;
+  }
+
+  .text {
+    margin-top: 10px;
+    text-align: center;
+    color: #666;
+  }
+}
+
+@media (max-width: 480px) {
+  .description {
+    font-size: 13px;
+  }
+}

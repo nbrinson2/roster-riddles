@@ -1,24 +1,15 @@
-<div class="content-container">
-  <div class="title">
-    <span>{{ teamName }}</span>
-  </div>
-  <div class="table-container">
-    <table mat-table [dataSource]="roster">
-      <ng-container
-        *ngFor="let column of displayedAttributes"
-        [matColumnDef]="column">
-        <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
-        <td mat-cell *matCellDef="let player">{{ getAttr(player, column) }}</td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedAttributes"></tr>
-      <tr mat-row 
-          *matRowDef="let player; columns: displayedAttributes; let first = first"
-          (click)="onRowClick(player)"
-          class="player-row"
-          [class.first-row]="first"
-          #firstRow>
-      </tr>
-    </table>
-    <hint *ngIf="firstRowElement" [targetElement]="firstRowElement" [hintType]="HintType.ROSTER_SELECT"></hint>
-  </div>
-</div>
+<common-table
+  #table
+  [title]="teamName"
+  [columns]="displayedAttributes"
+  [data]="roster"
+  (rowClick)="onRowClick($event)"
+>
+  <!-- project the hint into the table’s hint slot -->
+  <hint
+    *ngIf="table.firstRowElement"
+    hint
+    [targetElement]="table.firstRowElement.nativeElement"
+    [hintType]="HintType.ROSTER_SELECT"
+  ></hint>
+</common-table>

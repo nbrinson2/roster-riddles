@@ -6,7 +6,6 @@
   font-size: 22px;
   text-align: center;
   margin-top: 30px;
-  margin-bottom: 30px;
 
   h1 {
     color: #cc1f41;
@@ -17,22 +16,6 @@
 }
 
 .content-container {
-  margin: 5px;
-
-  .section {
-    margin-top: 40px;
-
-    .text {
-      font-family: constants.$font-family-secondary;
-      margin-top: 10px;
-    }
-
-    .blue {
-      color: rgb(104, 195, 240);
-    }
-
-    .orange {
-      color: rgb(252, 174, 91);
-    }
-  }
+  margin: 13px;
 }
+

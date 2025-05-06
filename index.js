@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -10,13 +11,13 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
+app.use(cors());
 
 // Serve static files from the Angular app
 const distPath = join(__dirname, 'dist/roster-riddles');
 app.use('/', express.static(distPath));
 
-// API routes would go here
-// app.use('/api', apiRoutes);
+// API routes
 
 // SPA fallback - serve index.html for any route not found
 app.use((req, res, next) => {

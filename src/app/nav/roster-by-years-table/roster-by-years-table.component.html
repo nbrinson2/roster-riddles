@@ -1,0 +1,28 @@
+<common-table
+  #table
+  [title]="teamName"
+  [subtitle]="years"
+  [columns]="columns"
+  [rowHeight]="RowHeight.LARGE"
+  [data]="rosterTableData"
+  (rowClick)="onRowClick($event)"
+>
+  <ng-template #teamsCell let-player>
+    <div class="logo-group-compact">
+      <div *ngFor="let team of player.teams" class="logo-wrapper">
+        <img
+          class="team-logo"
+          [src]="logoService.getLogoUrl(team.teamKey, team.from)"
+          [alt]="team.teamKey + ' logo'"
+        />
+      </div>
+    </div>
+  </ng-template>
+  <!-- project the hint into the table’s hint slot -->
+  <!-- <hint
+    *ngIf="table.firstRowElement"
+    hint
+    [targetElement]="table.firstRowElement.nativeElement"
+    [hintType]="HintType.ROSTER_SELECT"
+  ></hint> -->
+</common-table>
