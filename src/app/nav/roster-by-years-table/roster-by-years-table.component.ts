@@ -7,7 +7,10 @@ import {
 } from '@angular/core';
 import { MlbTeamFullNameToKeyMap } from 'src/app/game/bio-ball/constants/bio-ball-constants';
 import { TeamFullName } from 'src/app/game/bio-ball/models/bio-ball.models';
-import { MlbTeamFullName, MlbTeamKey } from 'src/app/game/bio-ball/models/mlb.models';
+import {
+  MlbTeamFullName,
+  MlbTeamKey,
+} from 'src/app/game/bio-ball/models/mlb.models';
 import { CareerPathPlayer } from 'src/app/game/career-path/models/career-path.models';
 import { CareerPathEngineService } from 'src/app/game/career-path/services/career-path-engine/career-path-engine.service';
 import { LogoService } from 'src/app/game/career-path/services/logo/logo.service';
@@ -15,7 +18,10 @@ import {
   HintService,
   HintType,
 } from 'src/app/shared/components/hint/hint.service';
-import { CommonTableComponent, RowHeight } from 'src/app/shared/components/table/common-table.component';
+import {
+  CommonTableComponent,
+  RowHeight,
+} from 'src/app/shared/components/table/common-table.component';
 
 interface RosterByYearsTableData {
   id: number;
@@ -85,26 +91,57 @@ export class RosterByYearsTableComponent {
   private formatAndSortRoster(
     roster: CareerPathPlayer[]
   ): RosterByYearsTableData[] {
-    const currentTeamKey = MlbTeamFullNameToKeyMap[this.teamName as MlbTeamFullName];
-    const sortedRoster = roster.sort((a, b) => a.name.localeCompare(b.name));
-    return sortedRoster.map((player) => {
-      const teams = player.groups
-        .flatMap((group) =>
-          group.stints.map((stint) => ({
-            teamKey: stint.teamKey as MlbTeamKey,
-            from: stint.from,
-          }))
-        );
-      
-      const currentTeamStint = teams.find(t => t.teamKey === currentTeamKey);
-      const otherTeams = teams.filter(t => t.teamKey !== currentTeamKey)
-        .sort((a, b) => a.teamKey.localeCompare(b.teamKey));
+    const currentTeamKey =
+      MlbTeamFullNameToKeyMap[this.teamName as MlbTeamFullName];
 
-      return {
-        id: player.id,
-        name: player.name,
-        teams: currentTeamStint ? [currentTeamStint, ...otherTeams] : otherTeams,
-      };
-    });
+    return roster
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((player) => {
+        const careerTeams = this.extractCareerTeams(player);
+        const uniqueTeams = this.dedupeAndPrioritizeTeams(
+          careerTeams,
+          currentTeamKey
+        );
+
+        return {
+          id: player.id,
+          name: player.name,
+          teams: uniqueTeams,
+        };
+      });
+  }
+
+  private extractCareerTeams(player: CareerPathPlayer): RosterTeam[] {
+    return player.groups.flatMap((group) =>
+      group.stints.map((s) => ({
+        teamKey: s.teamKey as MlbTeamKey,
+        from: s.from,
+      }))
+    );
+  }
+
+  private dedupeAndPrioritizeTeams(
+    careerTeams: RosterTeam[],
+    currentTeamKey: MlbTeamKey
+  ): RosterTeam[] {
+    // Build a map of teamKey → earliest RosterTeam
+    const map = new Map<MlbTeamKey, RosterTeam>();
+    for (const entry of careerTeams) {
+      const existing = map.get(entry.teamKey);
+      if (!existing || entry.from < existing.from) {
+        map.set(entry.teamKey, entry);
+      }
+    }
+
+    // Pull out the current team (if any)
+    const current = map.get(currentTeamKey);
+
+    // Collect all the others, sorted alphabetically by teamKey
+    const others = Array.from(map.values())
+      .filter((e) => e.teamKey !== currentTeamKey)
+      .sort((a, b) => a.teamKey.localeCompare(b.teamKey));
+
+    // Return current first (if present), then the rest
+    return current ? [current, ...others] : others;
   }
 }

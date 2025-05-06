@@ -1,16 +1,15 @@
 import {
+  AfterViewInit,
   Component,
+  ContentChild,
+  ElementRef,
+  EventEmitter,
   Input,
   Output,
-  EventEmitter,
-  ViewChild,
-  ElementRef,
-  ContentChild,
-  TemplateRef,
-  OnInit,
   Signal,
   signal,
-  AfterViewInit
+  TemplateRef,
+  ViewChild
 } from '@angular/core';
 
 export enum RowHeight {

@@ -10,16 +10,26 @@ import { LogoService } from '../services/logo/logo.service';
 })
 export class PlayerTimelineComponent {
   @Input() playerName = 'Johnny Player';
-  @Input() groups: TimelineGroup[] = [];
   @Input() compact = false;
   @Input() winner = false;
+  @Input() groups: TimelineGroup[] = [];
   @Output() selectTeamEvent = new EventEmitter<TeamStint>();
 
   /** when in compact mode we ignore date-grouping and just show every logo */
   get flattenedStints(): TeamStint[] {
-    return this.groups.flatMap((g) => g.stints);
+    const seen = new Set<string>();
+    return this.groups
+      .flatMap((g) => g.stints)
+      .sort((a, b) => a.teamKey.localeCompare(b.teamKey))
+      .filter((stint) => {
+        if (seen.has(stint.teamKey)) {
+          return false;
+        }
+        seen.add(stint.teamKey);
+        return true;
+      });
   }
-
+  
   constructor(public logoService: LogoService) {}
 
   onLogoClick(stint: TeamStint): void {

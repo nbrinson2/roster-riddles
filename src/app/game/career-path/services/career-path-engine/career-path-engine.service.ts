@@ -103,6 +103,7 @@ export class CareerPathEngineService
   private selectNewTargetPlayer(): void {
     const index = Math.floor(Math.random() * this.allPlayers.length);
     this.playerToGuess = this.allPlayers[index];
+    console.log(this.playerToGuess());
   }
 
   /** Did the user guess the exact player? */

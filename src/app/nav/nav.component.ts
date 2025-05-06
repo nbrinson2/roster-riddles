@@ -22,6 +22,8 @@ import { GamePlayer } from '../shared/models/common-models';
 import { GAME_SERVICE, GameService } from '../shared/utils/game-service.token';
 import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
 import { GameType } from '../shared/services/common-game/common-game.service';
+import { CareerPathPlayerGenerator } from '../shared/utils/career-path-player-generator';
+
 enum MatDrawerPosition {
   END = 'end',
   START = 'start',
@@ -75,7 +77,8 @@ export class NavComponent implements OnInit, OnDestroy {
     private router: Router,
     private slideUpService: SlideUpService,
     @Inject(GAME_SERVICE)
-    private gameService: GameService<GamePlayer>
+    private gameService: GameService<GamePlayer>,
+    private careerPathPlayerGenerator: CareerPathPlayerGenerator
   ) {
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))

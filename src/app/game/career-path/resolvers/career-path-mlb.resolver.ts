@@ -32,27 +32,37 @@ export class CareerPathMlbResolver {
             // 2) map into TeamStint[]
             const stints: TeamStint[] = sorted.map((t) => {
               // pick from map or slugify fallback
-              const isLosAngelesAngels = t.team === 'Los Angeles Angels' && t.yearStart >= 2005 && t.yearStart <= 2013;
-              const raw = isLosAngelesAngels ? 'Los Angeles Angels of Anaheim' : t.team;
+              const isLosAngelesAngels =
+                t.team === 'Los Angeles Angels' &&
+                t.yearStart >= 2005 &&
+                t.yearStart <= 2015;
+              const raw = isLosAngelesAngels
+                ? 'Los Angeles Angels of Anaheim'
+                : t.team;
               const slug =
                 teamKeyMap[raw] ||
                 raw
                   .toLowerCase()
-                  .replace(/[\s’'.]+/g, '-')   // spaces, apostrophes, periods → hyphens
-                  .replace(/-+/g, '-');        // collapse multiple hyphens
+                  .replace(/[\s’'.]+/g, '-') // spaces, apostrophes, periods → hyphens
+                  .replace(/-+/g, '-'); // collapse multiple hyphens
 
               return {
                 teamKey: slug as MlbTeamKey,
                 from: t.yearStart,
-                to:   t.yearEnd,
+                to: t.yearEnd,
                 logoBorderColor: PlayerAttrColor.NONE,
-                yearColor:       PlayerAttrColor.NONE
+                yearColor: PlayerAttrColor.NONE,
               };
             });
 
+            // sort stints by start year, then by end year (so 2004–2004 comes before 2004–2005)
+            const sortedStints = [...stints].sort(
+              (a, b) => a.from - b.from || a.to - b.to
+            );
+
             // 3) group contiguous stints with identical dates
             const groups: TimelineGroup[] = [];
-            for (const s of stints) {
+            for (const s of sortedStints) {
               const last = groups[groups.length - 1];
               if (last && last.from === s.from && last.to === s.to) {
                 last.stints.push(s);
@@ -62,13 +72,12 @@ export class CareerPathMlbResolver {
             }
 
             return {
-              id:     player.id,
-              name:   player.name,
-              groups
+              id: player.id,
+              name: player.name,
+              groups,
             };
           })
         )
       );
   }
-
 }

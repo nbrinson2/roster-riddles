@@ -25,7 +25,6 @@ import { AppComponent } from './app.component';
 import { AttributeHeaderComponent } from './game/bio-ball/attribute-header/attribute-header.component';
 import { BioBallComponent } from './game/bio-ball/bio-ball.component';
 import { ActiveRosterTableComponent } from './nav/active-roster-table/active-roster-table.component';
-import { BioBallHtpComponent } from './nav/how-to-play/bio-ball-htp/bio-ball-htp.component';
 import { NavComponent } from './nav/nav.component';
 import { ProfileComponent } from './nav/profile/profile.component';
 import { HintComponent } from './shared/components/hint/hint.component';
@@ -39,7 +38,6 @@ import { PlayerTimelineComponent } from './game/career-path/player-timeline/play
 import { MatMenuModule } from '@angular/material/menu';
 import { CommonTableComponent } from './shared/components/table/common-table.component';
 import { RosterByYearsTableComponent } from './nav/roster-by-years-table/roster-by-years-table.component';
-import { CareerPathHtpComponent } from './nav/how-to-play/career-path-htp/career-path-htp.component';
 import { GameRuleListComponent } from './nav/how-to-play/game-rule-list/game-rule-list.component';
 import { SafeHtmlPipe } from './shared/utils/safe-html.pipe';
 @NgModule({
@@ -50,7 +48,6 @@ import { SafeHtmlPipe } from './shared/utils/safe-html.pipe';
     SearchComponent,
     AttributeHeaderComponent,
     ActiveRosterTableComponent,
-    BioBallHtpComponent,
     NavComponent,
     ProfileComponent,
     SlideUpComponent,
@@ -61,7 +58,6 @@ import { SafeHtmlPipe } from './shared/utils/safe-html.pipe';
     PlayerTimelineComponent,
     CommonTableComponent,
     RosterByYearsTableComponent,
-    CareerPathHtpComponent,
     GameRuleListComponent,
     SafeHtmlPipe,
   ],
