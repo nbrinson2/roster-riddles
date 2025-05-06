@@ -1,21 +1,22 @@
-import { Component, EventEmitter, Inject, Output } from '@angular/core';
-import { AttributesType } from './bio-ball/models/bio-ball.models';
+import { Component, Inject } from '@angular/core';
 import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
-import { BioBallEngineService } from './bio-ball/services/bio-ball-engine/bio-ball-engine.service';
-import { UiPlayer } from './bio-ball/models/bio-ball.models';
-import { BIO_BALL_SERVICE } from './bio-ball/util/bio-ball.token';
+import { GamePlayer } from '../shared/models/common-models';
+import { GAME_SERVICE, GameService } from '../shared/utils/game-service.token';
 @Component({
-  selector: 'app-game',
+  selector: 'game',
   templateUrl: './game.component.html',
   styleUrl: './game.component.scss',
   standalone: false
 })
 export class GameComponent {
+  get showAttributeHeader(): boolean {
+    return this.gameService.showAttributeHeader();
+  }
 
   constructor(
     private slideUpService: SlideUpService,
-    @Inject(BIO_BALL_SERVICE)
-    private gameService: BioBallEngineService<UiPlayer<AttributesType>>
+    @Inject(GAME_SERVICE)
+    private gameService: GameService<GamePlayer>,
   ) {}
 
   protected startNewGame(): void {

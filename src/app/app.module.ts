@@ -25,7 +25,6 @@ import { AppComponent } from './app.component';
 import { AttributeHeaderComponent } from './game/bio-ball/attribute-header/attribute-header.component';
 import { BioBallComponent } from './game/bio-ball/bio-ball.component';
 import { ActiveRosterTableComponent } from './nav/active-roster-table/active-roster-table.component';
-import { BioBallHtpComponent } from './nav/how-to-play/bio-ball-htp/bio-ball-htp.component';
 import { NavComponent } from './nav/nav.component';
 import { ProfileComponent } from './nav/profile/profile.component';
 import { HintComponent } from './shared/components/hint/hint.component';
@@ -34,6 +33,13 @@ import { BioBallPlayerComponent } from './game/bio-ball/player/bio-ball-player.c
 import { SearchComponent } from './shared/components/search/search.component';
 import { GameComponent } from './game/game.component';
 import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
+import { CareerPathComponent } from './game/career-path/career-path.component';
+import { PlayerTimelineComponent } from './game/career-path/player-timeline/player-timeline.component';
+import { MatMenuModule } from '@angular/material/menu';
+import { CommonTableComponent } from './shared/components/table/common-table.component';
+import { RosterByYearsTableComponent } from './nav/roster-by-years-table/roster-by-years-table.component';
+import { GameRuleListComponent } from './nav/how-to-play/game-rule-list/game-rule-list.component';
+import { SafeHtmlPipe } from './shared/utils/safe-html.pipe';
 @NgModule({
   declarations: [
     AppComponent,
@@ -42,13 +48,18 @@ import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
     SearchComponent,
     AttributeHeaderComponent,
     ActiveRosterTableComponent,
-    BioBallHtpComponent,
     NavComponent,
     ProfileComponent,
     SlideUpComponent,
     HintComponent,
     GameComponent,
-    HowToPlayComponent
+    HowToPlayComponent,
+    CareerPathComponent,
+    PlayerTimelineComponent,
+    CommonTableComponent,
+    RosterByYearsTableComponent,
+    GameRuleListComponent,
+    SafeHtmlPipe,
   ],
   imports: [
     BrowserModule,
@@ -65,12 +76,13 @@ import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
     MatTooltipModule,
     MatCardModule,
     MatIconModule,
+    MatMenuModule,
   ],
   providers: [
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideFirestore(() => initializeFirestore(getApp(), {}, 'roster-riddles')),
-    provideAnalytics(() => getAnalytics()),
-    provideAuth(() => getAuth()),
+    // provideFirebaseApp(() => initializeApp(environment.firebase)),
+    // provideFirestore(() => initializeFirestore(getApp(), {}, 'roster-riddles')),
+    // provideAnalytics(() => getAnalytics()),
+    // provideAuth(() => getAuth()),
     provideHttpClient(),
     ScreenTrackingService,
     UserTrackingService,

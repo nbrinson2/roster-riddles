@@ -10,15 +10,26 @@
         [matAutocomplete]="auto"
         [formControl]="searchControl"
         (keydown.enter)="handleEnterKey($event)"
-        autofocus />
+        autofocus
+      />
       <mat-autocomplete #auto="matAutocomplete">
         <ng-container *ngIf="searchInput.value">
           <mat-option
             *ngFor="let player of filteredPlayers | async"
             [value]="player.name"
             (click)="searchInput.value != undefined && selectPlayer(player)"
-            #playerOption>
-            <bio-ball-player [player]="player"></bio-ball-player>
+            #playerOption
+          >
+            <ng-container *ngIf="isUiPlayer(player)">
+              <bio-ball-player [player]="player"></bio-ball-player>
+            </ng-container>
+            <ng-container *ngIf="isCareerPathPlayer(player)">
+              <player-timeline
+                [playerName]="player.name"
+                [groups]="player.groups"
+                [compact]="true"
+              ></player-timeline>
+            </ng-container>
           </mat-option>
         </ng-container>
       </mat-autocomplete>

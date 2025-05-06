@@ -6,6 +6,8 @@ import {
 import { MlbPlayersService } from '../../../../shared/services/mlb-players/mlb-players.service';
 import { getPlayerKeyToBackgroundColorMap } from '../../util/bio-ball.util';
 import { BioBallEngineService } from '../bio-ball-engine/bio-ball-engine.service';
+import { GameState } from 'src/app/game/career-path/services/career-path-engine/career-path-engine.service';
+import { GameType } from 'src/app/shared/services/common-game/common-game.service';
 
 @Injectable({ providedIn: 'root' })
 export class BioBallMlbService {
@@ -42,6 +44,26 @@ export class BioBallMlbService {
     this.gameEngine.searchInputPlaceHolderText = text;
   }
 
+  public get showAttributeHeader(): Signal<boolean> {
+    return this.gameEngine.showAttributeHeader;
+  }
+
+  public get playerToGuess(): Signal<MlbUiPlayer> {
+    return this.gameEngine.playerToGuess;
+  }
+
+  public get gameState(): Signal<GameState> {
+    return this.gameEngine.gameState;
+  }
+
+  public get currentGame(): Signal<GameType> {
+    return this.gameEngine.currentGame;
+  }
+
+  public set currentGame(game: GameType) {
+    this.gameEngine.currentGame = game;
+  }
+
   constructor(
     private gameEngine: BioBallEngineService<MlbUiPlayer>,
     private mlbPlayers: MlbPlayersService
@@ -52,12 +74,18 @@ export class BioBallMlbService {
       ) as MlbPlayerAttributes[],
       compareFunction: (target, guess) =>
         getPlayerKeyToBackgroundColorMap(target, guess, false),
-      allowedGuesses: 9,
-      playerProvider: this.mlbPlayers,
     });
   }
 
   /** Delegate methods to the generic engine */
+  public onWin(): void {
+    this.gameEngine.onWin();
+  }
+
+  public onLose(): void {
+    this.gameEngine.onLose();
+  }
+  
   public setAllPlayers(players: MlbUiPlayer[]): void {
     this.gameEngine.setAllPlayers(players);
   }
@@ -76,5 +104,5 @@ export class BioBallMlbService {
 
   public handlePlayerSelection(player: MlbUiPlayer): void {
     this.gameEngine.handlePlayerSelection(player);
+    }
   }
-}

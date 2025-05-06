@@ -1,5 +1,5 @@
 import { MlbPlayerAttributes, MlbUiPlayer } from "src/app/game/bio-ball/models/mlb.models";
-import { PlayerAttrColor } from 'src/app/game/bio-ball/models/bio-ball.models';
+import { PlayerAttrColor } from "src/app/shared/models/common-models";
 
 export interface Header {
   name: string;

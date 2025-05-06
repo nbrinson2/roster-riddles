@@ -1,29 +1,32 @@
 import {
+  AfterViewInit,
   Component,
   ElementRef,
   Inject,
-  OnInit,
   QueryList,
   ViewChild,
-  ViewChildren
+  ViewChildren,
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 
 import { MatOption } from '@angular/material/core';
-import { FloatLabelType } from '@angular/material/form-field';
-import { BioBallEngineService } from 'src/app/game/bio-ball/services/bio-ball-engine/bio-ball-engine.service';
-import { AttributesType, UiPlayer } from 'src/app/game/bio-ball/models/bio-ball.models';
-import { BIO_BALL_SERVICE } from 'src/app/game/bio-ball/util/bio-ball.token';
+import {
+  AttributesType,
+  UiPlayer,
+} from 'src/app/game/bio-ball/models/bio-ball.models';
+import { GAME_SERVICE, GameService } from 'src/app/shared/utils/game-service.token';
+import { GamePlayer } from 'src/app/shared/models/common-models';
+import { CareerPathPlayer } from 'src/app/game/career-path/models/career-path.models';
 
 @Component({
-    selector: 'search',
-    templateUrl: './search.component.html',
-    styleUrls: ['./search.component.scss'],
-    standalone: false
+  selector: 'search',
+  templateUrl: './search.component.html',
+  styleUrls: ['./search.component.scss'],
+  standalone: false,
 })
-export class SearchComponent implements OnInit {
+export class SearchComponent implements AfterViewInit {
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
   @ViewChildren('playerOption') playerOptions!: QueryList<MatOption>;
 
@@ -36,11 +39,11 @@ export class SearchComponent implements OnInit {
   }
 
   protected searchControl = new FormControl();
-  protected filteredPlayers: Observable<UiPlayer<AttributesType>[]>;
+  protected filteredPlayers: Observable<GamePlayer[]>;
 
   constructor(
-    @Inject(BIO_BALL_SERVICE)
-    private gameService: BioBallEngineService<UiPlayer<AttributesType>>
+    @Inject(GAME_SERVICE)
+    private gameService: GameService<GamePlayer>,
   ) {
     this.filteredPlayers = this.searchControl.valueChanges.pipe(
       startWith(''),
@@ -48,16 +51,19 @@ export class SearchComponent implements OnInit {
     );
   }
 
-  ngOnInit() {
+  ngAfterViewInit() {
     this.searchInput.nativeElement.focus();
   }
 
-  protected getFloatLabelValue(): FloatLabelType {
-    const floatControl = new FormControl('never' as FloatLabelType);
-    return floatControl.value || 'auto';
+  protected isUiPlayer(object: GamePlayer): object is UiPlayer<AttributesType> {
+    return 'colorMap' in object;
   }
 
-  protected selectPlayer(player: UiPlayer<AttributesType>): void {
+  protected isCareerPathPlayer(object: GamePlayer): object is CareerPathPlayer {
+    return 'groups' in object;
+  }
+
+  protected selectPlayer(player: GamePlayer): void {
     if (this.searchControl.value !== null) {
       this.gameService.handlePlayerSelection(player);
       this.searchControl.setValue(null);

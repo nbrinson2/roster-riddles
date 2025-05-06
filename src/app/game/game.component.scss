@@ -32,6 +32,13 @@ $mobile-breakpoint: 600px;
   }
 }
 
+.content {
+  width: 100%;
+  max-width: $max-width;
+  margin: 0 auto;
+  padding-bottom: 5rem;
+}
+
 .footer {
   position: fixed;
   bottom: 0;

@@ -16,13 +16,13 @@ import {
 } from 'rxjs';
 import { MlbPlayersService } from '../../shared/services/mlb-players/mlb-players.service';
 
-export interface CareerPathPlayer {
+interface CareerPathPlayer {
   id: number;
   name: string;
   teams: CareerPathTeam[];
 }
 
-export interface CareerPathTeam {
+interface CareerPathTeam {
   team: string;
   yearStart: number;
   yearEnd: number;
@@ -179,6 +179,7 @@ export class CareerPathPlayerGenerator {
           }
           return acc;
         }, new Map<number, CareerPathPlayer>());
+        console.log(byId.get(123272));
         return Array.from(byId.values());
       })
     );
@@ -194,11 +195,20 @@ export class CareerPathPlayerGenerator {
     newTeams: CareerPathTeam[]
   ): void {
     newTeams.forEach((incoming) => {
-      const match = existingTeams.find((t) => t.team === incoming.team);
+      // Find a matching team entry with no gaps between years (consecutive or overlapping)
+      const match = existingTeams.find(
+        (t) =>
+          t.team === incoming.team &&
+          incoming.yearStart <= t.yearEnd + 1 &&
+          incoming.yearEnd >= t.yearStart - 1
+      );
+
       if (match) {
+        // Extend the existing range to include the incoming years
         match.yearStart = Math.min(match.yearStart, incoming.yearStart);
         match.yearEnd = Math.max(match.yearEnd, incoming.yearEnd);
       } else {
+        // No consecutive/overlapping stint found; add as a new entry
         existingTeams.push({ ...incoming });
       }
     });

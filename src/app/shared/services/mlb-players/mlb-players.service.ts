@@ -20,7 +20,6 @@ export class MlbPlayersService {
   baseUrl = 'https://statsapi.mlb.com/api/v1';
   teamsEndpoint = '/teams';
   playerEndpoint = '/people';
-  playerToGuess: MlbUiPlayer = {} as MlbUiPlayer;
 
   constructor(private http: HttpClient) {}
 

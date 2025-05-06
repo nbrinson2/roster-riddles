@@ -7,8 +7,23 @@
           (playerSelected)="handlePlayerSelection()"
         ></active-roster-table>
       </ng-container>
+      <ng-container
+        *ngIf="
+          selectedRosterByYears &&
+          viewRoster &&
+          selectedRosterYears &&
+          selectedRosterTeamName
+        "
+      >
+        <roster-by-years-table
+          [years]="selectedRosterYears"
+          [teamName]="selectedRosterTeamName"
+          [roster]="selectedRosterByYears"
+          (playerSelected)="handlePlayerSelection()"
+        ></roster-by-years-table>
+      </ng-container>
       <ng-container *ngIf="viewMenu">
-        <how-to-play></how-to-play>
+        <how-to-play [gameType]="currentGameName"></how-to-play>
       </ng-container>
       <!-- <ng-container *ngIf="loggedIn && viewProfile && user">
         <profile [user]="user"></profile>
@@ -22,32 +37,70 @@
         </div>
         <div class="login-content">
           <div class="google-login-button">
-            <p>Coming soon</p>
+            <p>Coming soon!</p>
           </div>
         </div>
       </div>
     </mat-sidenav>
     <mat-sidenav-content>
       <div class="nav-container">
-        <div *ngIf="!loggedIn" class="login-button" (click)="openLoginMenu()">
-          <span class="material-symbols-outlined login-icon"> login </span>
-        </div>
-        <div *ngIf="loggedIn" class="profile-logout-container">
-          <span
-            class="material-symbols-outlined logout-icon"
-            (click)="logout()"
-          >
-            logout
-          </span>
-          <span
-            class="material-symbols-outlined profile-icon"
-            (click)="openProfileMenu()"
-          >
-            person
-          </span>
-        </div>
         <div class="menu-icon-container" (click)="openMenu()">
           <span class="material-symbols-outlined menu-icon"> menu </span>
+        </div>
+        <div class="icons-right-container">
+          <div class="game-picker">
+            <span class="current-game-name">{{ currentGameName }}</span>
+
+            <button
+              mat-icon-button
+              [matMenuTriggerFor]="gameMenu"
+              aria-label="Select game"
+              class="game-picker-button"
+            >
+              <mat-icon>sports_baseball</mat-icon>
+            </button>
+            <mat-menu #gameMenu="matMenu" class="game-menu">
+              <button
+                mat-menu-item
+                [routerLink]="['/bio-ball/mlb']"
+                routerLinkActive="active-game"
+                #rlaBio="routerLinkActive"
+                (click)="resetState()"
+              >
+                <mat-icon>sports_cricket</mat-icon>
+                <span>Bio-Ball</span>
+              </button>
+
+              <button
+                mat-menu-item
+                [routerLink]="['/career-path/mlb']"
+                routerLinkActive="active-game"
+                #rlaCareer="routerLinkActive"
+                (click)="resetState()"
+              >
+                <mat-icon>timeline</mat-icon>
+                <span>Career Path</span>
+              </button>
+            </mat-menu>
+          </div>
+
+          <div *ngIf="!loggedIn" class="login-button" (click)="openLoginMenu()">
+            <span class="material-symbols-outlined login-icon"> login </span>
+          </div>
+          <div *ngIf="loggedIn" class="profile-logout-container">
+            <span
+              class="material-symbols-outlined logout-icon"
+              (click)="logout()"
+            >
+              logout
+            </span>
+            <span
+              class="material-symbols-outlined profile-icon"
+              (click)="openProfileMenu()"
+            >
+              person
+            </span>
+          </div>
         </div>
       </div>
       <div class="game-container">
@@ -57,7 +110,15 @@
         <div slide-up-heading>
           <h2 class="slide-up-heading-text">Correct Answer</h2>
         </div>
-        <bio-ball-player [player]="playerToGuess"></bio-ball-player>
+        <ng-container *ngIf="bioBallPlayerToGuess() as player">
+          <bio-ball-player [player]="player"></bio-ball-player>
+        </ng-container>
+        <ng-container *ngIf="careerPathPlayerToGuess() as player">
+          <player-timeline
+            [playerName]="player.name"
+            [groups]="player.groups"
+          ></player-timeline>
+        </ng-container>
       </slide-up>
     </mat-sidenav-content>
   </mat-sidenav-container>

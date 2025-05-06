@@ -2,6 +2,7 @@
   <h1>How To Play</h1>
 </div>
 
-<ng-container>
-  <bio-ball-htp></bio-ball-htp>
-</ng-container>
+<div class="content-container">
+  <game-rule-list [gameType]="gameType" [description]="description">
+  </game-rule-list>
+</div>
