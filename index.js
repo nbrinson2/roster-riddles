@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 // Serve static files from the Angular app
-const distPath = join(__dirname, 'dist/roster-riddles');
+const distPath = join(__dirname, 'dist/roster-riddles/browser');
 app.use('/', express.static(distPath));
 
 // API routes
