@@ -1,7 +1,6 @@
 import express from 'express';
-import cors from 'cors';
-import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -11,7 +10,6 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
-app.use(cors());
 
 // Serve static files from the Angular app
 const distPath = join(__dirname, 'dist/roster-riddles/browser');
