@@ -6,11 +6,15 @@ import {
   EventEmitter,
   Input,
   Output,
+  QueryList,
   Signal,
   signal,
   TemplateRef,
-  ViewChild
+  ViewChild,
+  ViewChildren,
 } from '@angular/core';
+import { HintService, HintType } from '../hint/hint.service';
+import { HintArrowPosition } from '../hint/hint.component';
 
 export enum RowHeight {
   SMALL = '40px',
@@ -22,22 +26,13 @@ export enum RowHeight {
   selector: 'common-table',
   templateUrl: './common-table.component.html',
   styleUrls: ['./common-table.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CommonTableComponent<T> implements AfterViewInit {
-  /** Heading above the table */
   @Input() title!: string;
-
-  /** Subtitle above the table */
   @Input() subtitle?: string;
-
-  /** The list of keys in T to show as columns */
   @Input() columns!: string[];
-
-  /** The height of the rows */
   @Input() rowHeight: RowHeight = RowHeight.SMALL;
-
-  /** The actual row data */
   @Input() set data(value: T[]) {
     this._data = value;
     this._currentData.set([]);
@@ -47,7 +42,10 @@ export class CommonTableComponent<T> implements AfterViewInit {
     this.resetScroll();
   }
 
-  /** Fires when a row is clicked */
+  /** Hint config: whether to show, which hint type, arrow position */
+  @Input() hintType: HintType = HintType.ROSTER_PLAYER_SELECT;
+  @Input() arrowPosition: HintArrowPosition = HintArrowPosition.TOP_LEFT;
+
   @Output() rowClick = new EventEmitter<T>();
 
   /** Reference to the very first row (for hints, etc.) */
@@ -58,6 +56,10 @@ export class CommonTableComponent<T> implements AfterViewInit {
   @ViewChild('contentContainer', { read: ElementRef, static: true })
   contentContainer!: ElementRef<HTMLElement>;
 
+  /** Reference to the data rows */
+  @ViewChildren('dataRow', { read: ElementRef })
+  dataRows!: QueryList<ElementRef<HTMLElement>>;
+
   /** Parent can supply <ng-template #teamsCell>…</ng-template> */
   @ContentChild('teamsCell', { static: false })
   teamsCellTpl?: TemplateRef<{ $implicit: T }>;
@@ -67,13 +69,49 @@ export class CommonTableComponent<T> implements AfterViewInit {
     return this._currentData.asReadonly();
   }
 
+  protected currentTarget!: HTMLElement;
+
   private _data!: T[];
   private _currentData = signal<T[]>([]);
   private pageSize!: number;
   private currentPage!: number;
 
+  constructor(private hintService: HintService) {}
+
   ngAfterViewInit() {
+    this.dataRows.changes.subscribe(() => {
+      const rows = this.dataRows.toArray();
+      if (rows.length >= 5) {
+        const fifthRow = rows[4].nativeElement;
+        // pick the very first <td> in that row
+        const cells = fifthRow.querySelectorAll('td');
+        const middleIndex = Math.floor(cells.length / 2);
+        const middleCell = cells[middleIndex] as HTMLElement;
+        this.currentTarget = middleCell;
+
+        this.hintService.showHint(HintType.ROSTER_PLAYER_SELECT);
+      }
+    });
+
+    // in case they were already there
+    this.dataRows.notifyOnChanges();
     this.resetScroll();
+  }
+
+  onRowClick(row: T): void {
+    this.rowClick.emit(row);
+  }
+
+  onScroll(event: Event) {
+    const element = event.target as HTMLElement;
+    const threshold = 100; // pixels from bottom to trigger load
+    const isNearBottom =
+      element.scrollHeight - element.scrollTop - element.clientHeight <
+      threshold;
+
+    if (isNearBottom) {
+      this.loadMoreData();
+    }
   }
 
   private resetScroll() {
@@ -84,25 +122,11 @@ export class CommonTableComponent<T> implements AfterViewInit {
     });
   }
 
-  onScroll(event: Event) {
-    const element = event.target as HTMLElement;
-    const threshold = 100; // pixels from bottom to trigger load
-    const isNearBottom = element.scrollHeight - element.scrollTop - element.clientHeight < threshold;
-    
-    if (isNearBottom) {
-      this.loadMoreData();
-    }
-  }
-
   private loadMoreData(value?: T[]) {
     const start = this.currentPage * this.pageSize;
     const end = start + this.pageSize;
     const newData = value?.slice(start, end) ?? this._data.slice(start, end);
     this._currentData.set([...this._currentData(), ...newData]);
     this.currentPage++;
-  }
-
-  onRowClick(row: T): void {
-    this.rowClick.emit(row);
   }
 }

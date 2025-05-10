@@ -4,12 +4,7 @@
   [columns]="displayedAttributes"
   [data]="roster"
   (rowClick)="onRowClick($event)"
+  [hintType]="HintType.ROSTER_PLAYER_SELECT"
+  [arrowPosition]="HintArrowPosition.BOTTOM"
 >
-  <!-- project the hint into the table’s hint slot -->
-  <hint
-    *ngIf="table.firstRowElement"
-    hint
-    [targetElement]="table.firstRowElement.nativeElement"
-    [hintType]="HintType.ROSTER_SELECT"
-  ></hint>
 </common-table>

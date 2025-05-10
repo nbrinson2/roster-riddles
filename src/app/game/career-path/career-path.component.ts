@@ -54,7 +54,6 @@ export class CareerPathComponent {
   }
 
   protected selectTeam(team: TeamStint): void {
-    this.hintService.hasShownFirstPlayerHint = true;
     this.gameService.numberOfGuesses++;
 
     if (this.gameService.gameState() === GameState.LOST) {

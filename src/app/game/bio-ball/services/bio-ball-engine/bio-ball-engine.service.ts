@@ -127,9 +127,11 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
     if (!player || this.gameState() === GameState.LOST || this.isSearchDisabled) {
       return;
     }
-    if (this.selectedPlayers.length === 0) {
-      this.hintService.showHint(HintType.COLOR_FEEDBACK);
-    }
+    const isFirstPlayerSelected = this.selectedPlayers().length === 0;
+    isFirstPlayerSelected
+      ? this.hintService.showHint(HintType.BIO_BALL_ROSTER_SELECT)
+      : this.hintService.dismissHint();
+
     this.numberOfGuesses++;
     const target = this.playerToGuess();
     player.colorMap = this.gameConfiguration.compareFunction(

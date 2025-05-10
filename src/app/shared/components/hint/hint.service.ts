@@ -7,32 +7,34 @@ export interface Hint {
 }
 
 export enum HintType {
-  ROSTER_SELECT = 1,
-  ROSTER_COST = 2,
-  COLOR_FEEDBACK = 3
+  ROSTER_PLAYER_SELECT = 1,
+  BIO_BALL_ROSTER_SELECT = 2,
+  CAREER_PATH_ROSTER_SELECT = 3,
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class HintService {
   private readonly _hints = signal<Hint[]>([
     {
-      id: HintType.ROSTER_SELECT,
-      message: "You can select players directly from the roster table by clicking on any row!",
-      shown: false
+      id: HintType.ROSTER_PLAYER_SELECT,
+      message:
+        'You can select players directly from the roster table by clicking on any row!',
+      shown: false,
     },
     {
-      id: HintType.ROSTER_COST,
-      message: "Viewing a team's roster will cost you one guess, but it can help narrow down your search!",
-      shown: false
+      id: HintType.BIO_BALL_ROSTER_SELECT,
+      message:
+        "Viewing a team's roster will cost you one guess, but it can help narrow down your search!",
+      shown: false,
     },
     {
-      id: HintType.COLOR_FEEDBACK,
-      message: "Blue means it's an exact match! Orange means you're close - within 2 years for age, or same league/division for Lg/Div.",
-      shown: false
-    }
-    // Add more hints here as needed
+      id: HintType.CAREER_PATH_ROSTER_SELECT,
+      message:
+        "Click the team logo to view a team's roster for the given year(s). This will cost you one guess, but it can help narrow down your search!",
+      shown: false,
+    },
   ]);
 
   private readonly _currentHint = signal<Hint | null>(null);
@@ -45,33 +47,27 @@ export class HintService {
     return this._currentHint.asReadonly();
   }
 
-  get hasShownFirstPlayerHint(): Signal<boolean> {
-    return this._hasShownFirstPlayerHint.asReadonly();
-  }
-
-  set hasShownFirstPlayerHint(value: boolean) {
-    this._hasShownFirstPlayerHint.set(value);
-  }
-
-  private _hasShownFirstPlayerHint = signal<boolean>(false);
-
   showHint(hintId: HintType): void {
-    const hint = this._hints().find(h => h.id === hintId);
+    const hint = this._hints().find((h) => h.id === hintId);
     if (hint && !hint.shown) {
-      hint.shown = true;
       this._currentHint.set(hint);
       this._hints.set([...this._hints()]);
     }
   }
 
   dismissHint(): void {
+    this._hints.update((hints) =>
+      hints.map((hint) =>
+        hint.id === this._currentHint()?.id ? { ...hint, shown: true } : hint
+      )
+    );
     this._currentHint.set(null);
   }
 
   resetHints(): void {
-    this._hints.update(hints => 
-      hints.map(hint => ({ ...hint, shown: false }))
+    this._hints.update((hints) =>
+      hints.map((hint) => ({ ...hint, shown: false }))
     );
     this._currentHint.set(null);
   }
-} 
+}

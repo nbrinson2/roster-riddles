@@ -10,9 +10,9 @@
       (selectTeamEvent)="selectRoster($event)"
     ></bio-ball-player>
     <hint
-      *ngIf="first && !hasShownFirstPlayerHint"
+      *ngIf="first"
       [targetElement]="playerContainer"
-      [hintType]="HintType.ROSTER_COST"
+      [hintType]="HintType.BIO_BALL_ROSTER_SELECT"
       [arrowPosition]="HintArrowPosition.TOP_LEFT"
     >
     </hint>

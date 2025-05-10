@@ -1,4 +1,10 @@
-<div class="hint-tooltip" *ngIf="hintService.currentHint()" [class.top-left-arrow]="arrowPosition === 'top-left'">
+<div
+  class="hint-tooltip"
+  *ngIf="
+    hintService.currentHint()?.id === hintType &&
+    !hintService.currentHint()?.shown"
+  [class.top-left-arrow]="arrowPosition === 'top-left'"
+>
   <div class="hint-content">
     <div class="hint-header">
       <mat-icon class="hint-icon">lightbulb</mat-icon>
