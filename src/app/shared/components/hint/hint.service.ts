@@ -7,9 +7,10 @@ export interface Hint {
 }
 
 export enum HintType {
-  ROSTER_PLAYER_SELECT = 1,
+  BIO_BALL_ROSTER_PLAYER_SELECT = 1,
   BIO_BALL_ROSTER_SELECT = 2,
   CAREER_PATH_ROSTER_SELECT = 3,
+  CAREER_PATH_ROSTER_PLAYER_SELECT = 4,
 }
 
 @Injectable({
@@ -18,7 +19,7 @@ export enum HintType {
 export class HintService {
   private readonly _hints = signal<Hint[]>([
     {
-      id: HintType.ROSTER_PLAYER_SELECT,
+      id: HintType.BIO_BALL_ROSTER_PLAYER_SELECT,
       message:
         'You can select players directly from the roster table by clicking on any row!',
       shown: false,
@@ -33,6 +34,12 @@ export class HintService {
       id: HintType.CAREER_PATH_ROSTER_SELECT,
       message:
         "Click the team logo to view a team's roster for the given year(s). This will cost you one guess, but it can help narrow down your search!",
+      shown: false,
+    },
+    {
+      id: HintType.CAREER_PATH_ROSTER_PLAYER_SELECT,
+      message:
+        'You can select players directly from the roster table by clicking on any row!',
       shown: false,
     },
   ]);

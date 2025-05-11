@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
-import { HintService } from 'src/app/shared/components/hint/hint.service';
+import { HintService, HintType } from 'src/app/shared/components/hint/hint.service';
 import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
 import { GAME_SERVICE } from '../../shared/utils/game-service.token';
 import { TeamAbbreviationToFullNameMap } from '../bio-ball/constants/bio-ball-constants';

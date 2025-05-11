@@ -43,7 +43,7 @@
           </div>
           <div *ngIf="!last && !compact" class="arrow">→</div>
           <hint
-            *ngIf="first"
+            *ngIf="first && showHint"
             [targetElement]="stintGroup"
             [hintType]="hintType"
             [arrowPosition]="arrowPosition"

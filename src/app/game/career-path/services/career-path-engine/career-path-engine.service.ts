@@ -10,6 +10,7 @@ import { GameService } from 'src/app/shared/utils/game-service.token';
 import { applyFeedbackColors } from '../../utils/career-path.util';
 import { BehaviorSubject } from 'rxjs';
 import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
+import { HintService } from 'src/app/shared/components/hint/hint.service';
 
 export enum GameState {
   PLAYING = 'PLAYING',
@@ -42,7 +43,10 @@ export class CareerPathEngineService
   private _selectedPlayers = signal<CareerPathPlayer[]>([]);
   private _showAttributeHeader = signal<boolean>(false);
 
-  constructor(slideUpService: SlideUpService) {
+  constructor(
+    slideUpService: SlideUpService,
+    private hintService: HintService
+  ) {
     super(slideUpService);
   }
 
@@ -81,6 +85,11 @@ export class CareerPathEngineService
     ) {
       return;
     }
+
+    if (this.selectedPlayers().length === 1) {
+      this.hintService.dismissHint();
+    }
+
     this.numberOfGuesses++;
 
     // 3) Apply Mastermind-style feedback coloring

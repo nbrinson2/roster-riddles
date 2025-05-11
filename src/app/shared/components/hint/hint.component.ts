@@ -36,28 +36,30 @@ export class HintComponent implements AfterViewInit {
   private positionHint() {
     if (!this.targetElement) return;
 
-    const hintEl = this.elementRef.nativeElement.querySelector(
-      '.hint-tooltip'
-    ) as HTMLElement;
-    if (!hintEl) return;
-
     const targetRect = this.targetElement.getBoundingClientRect();
-    const arrowEl = hintEl.querySelector('.hint-arrow') as HTMLElement;
+    const hintElement =
+      this.elementRef.nativeElement.querySelector('.hint-tooltip');
+    const arrowElement =
+      this.elementRef.nativeElement.querySelector('.hint-arrow');
 
-    hintEl.style.position = 'fixed';
-    // drop it below:
-    const gap = 8;
-    hintEl.style.top = `${targetRect.bottom + gap}px`;
-    // left-align with the target
+    if (!hintElement) return;
 
-    if (window.innerWidth <= 600) {
-      hintEl.style.left = '50%';
-      hintEl.style.transform = 'translateX(-50%)';
-      arrowEl.style.left = '50%';
+    if (window.innerWidth - targetRect.left < 300) {
+      hintElement.style.left = '50%';
+      hintElement.style.transform = 'translateX(-50%)';
+      arrowElement.style.left = `${targetRect.left - 30}px`;
+    } else if (targetRect.left < 0) {
+      hintElement.style.position = 'fixed';
+      hintElement.style.left = '10px';
     } else {
-      hintEl.style.left = `${targetRect.left}px`;
+      hintElement.style.position = 'fixed';
+      // drop it below:
+      // left-align with the target
+      hintElement.style.left = `${targetRect.left}px`;
     }
-  }
+    const gap = 8;
+    hintElement.style.top = `${targetRect.bottom + gap}px`;
+}
 
   dismissHint() {
     this.hintService.dismissHint();

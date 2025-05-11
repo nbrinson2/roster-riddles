@@ -43,8 +43,9 @@ export class CommonTableComponent<T> implements AfterViewInit {
   }
 
   /** Hint config: whether to show, which hint type, arrow position */
-  @Input() hintType: HintType = HintType.ROSTER_PLAYER_SELECT;
+  @Input() hintType: HintType = HintType.BIO_BALL_ROSTER_PLAYER_SELECT;
   @Input() arrowPosition: HintArrowPosition = HintArrowPosition.TOP_LEFT;
+  @Input() hintTargetRow = 5;
 
   @Output() rowClick = new EventEmitter<T>();
 
@@ -81,15 +82,14 @@ export class CommonTableComponent<T> implements AfterViewInit {
   ngAfterViewInit() {
     this.dataRows.changes.subscribe(() => {
       const rows = this.dataRows.toArray();
-      if (rows.length >= 5) {
-        const fifthRow = rows[4].nativeElement;
-        // pick the very first <td> in that row
-        const cells = fifthRow.querySelectorAll('td');
+      if (rows.length >= this.hintTargetRow) {
+        const targetRow = rows[this.hintTargetRow - 1].nativeElement;
+        const cells = targetRow.querySelectorAll('td');
         const middleIndex = Math.floor(cells.length / 2);
         const middleCell = cells[middleIndex] as HTMLElement;
         this.currentTarget = middleCell;
 
-        this.hintService.showHint(HintType.ROSTER_PLAYER_SELECT);
+        this.hintService.showHint(this.hintType);
       }
     });
 

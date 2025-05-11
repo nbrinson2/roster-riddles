@@ -76,7 +76,7 @@ export class RosterByYearsTableComponent {
   ngAfterViewChecked() {
     const el = this.table.firstRowElement?.nativeElement;
     if (el) {
-      this.hintService.showHint(HintType.ROSTER_PLAYER_SELECT);
+      this.hintService.showHint(HintType.BIO_BALL_ROSTER_PLAYER_SELECT);
     }
   }
 
