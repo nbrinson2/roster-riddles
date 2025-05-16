@@ -1,5 +1,5 @@
 <div class="name-header">
-  <span class="name-text">{{ getPlayerAttr('name') }}</span>
+  <span class="name-text">{{ getPlayerAttr("name") }}</span>
 </div>
 
 <div class="attr-container">
@@ -8,11 +8,20 @@
       <mat-grid-tile [colspan]="getColSpan(attr)">
         <div class="column-content" [ngClass]="getClass(attr)">
           <div *ngIf="attr !== teamAttribute">{{ getPlayerAttr(attr) }}</div>
-          <div *ngIf="attr === teamAttribute">
-            <a (click)="selectTeam()"
-               [ngClass]="{ 'team-link': !inSearchResults }">
+          <div #team *ngIf="attr === teamAttribute">
+            <a
+              (click)="selectTeam()"
+              [ngClass]="{ 'team-link': !inSearchResults }"
+            >
               {{ getPlayerAttr(attr) }}
             </a>
+            <hint
+              *ngIf="!inSearchResults"
+              [targetElement]="team"
+              [hintType]="HintType.BIO_BALL_ROSTER_SELECT"
+              [arrowPosition]="HintArrowPosition.TOP_LEFT"
+            >
+            </hint>
           </div>
         </div>
       </mat-grid-tile>

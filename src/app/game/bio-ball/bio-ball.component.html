@@ -9,12 +9,5 @@
       [inSearchResults]="false"
       (selectTeamEvent)="selectRoster($event)"
     ></bio-ball-player>
-    <hint
-      *ngIf="first"
-      [targetElement]="playerContainer"
-      [hintType]="HintType.BIO_BALL_ROSTER_SELECT"
-      [arrowPosition]="HintArrowPosition.TOP_LEFT"
-    >
-    </hint>
   </div>
 </div>

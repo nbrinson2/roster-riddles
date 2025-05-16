@@ -33,35 +33,41 @@ export class HintComponent implements AfterViewInit {
     setTimeout(() => this.positionHint(), 0);
   }
 
-  private positionHint() {
+  private positionHint(): void {
     if (!this.targetElement) return;
 
-    const targetRect = this.targetElement.getBoundingClientRect();
     const hintElement =
       this.elementRef.nativeElement.querySelector('.hint-tooltip');
+
+    if (!hintElement) return;
+
+    const targetRect = this.targetElement.getBoundingClientRect();
+    const targetWidth = this.targetElement.offsetWidth;
+    const arrowLeft = (targetWidth / 2);
     const arrowElement =
       this.elementRef.nativeElement.querySelector('.hint-arrow');
 
-    if (!hintElement) return;
+    arrowElement.style.transform = `translateX(${arrowLeft}px)`;
 
     if (window.innerWidth - targetRect.left < 300) {
       hintElement.style.left = '50%';
       hintElement.style.transform = 'translateX(-50%)';
       arrowElement.style.left = `${targetRect.left - 30}px`;
     } else if (targetRect.left < 0) {
+      hintElement.style.transform = 'none';
       hintElement.style.position = 'fixed';
       hintElement.style.left = '10px';
     } else {
+      hintElement.style.transform = 'none';
       hintElement.style.position = 'fixed';
-      // drop it below:
       // left-align with the target
-      hintElement.style.left = `${targetRect.left}px`;
+      hintElement.style.left = `${targetRect.left - 10}px`;
     }
     const gap = 8;
     hintElement.style.top = `${targetRect.bottom + gap}px`;
-}
+  }
 
-  dismissHint() {
+  dismissHint(): void {
     this.hintService.dismissHint();
   }
 }

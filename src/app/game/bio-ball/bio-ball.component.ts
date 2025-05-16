@@ -21,9 +21,6 @@ import { Data, InputPlaceHolderText } from './util/bio-ball.util';
   standalone: false
 })
 export class BioBallComponent {
-  protected readonly HintType = HintType;
-  protected readonly HintArrowPosition = HintArrowPosition;
-
   get selectedPlayers(): UiPlayer<AttributesType>[] {
     return this.gameService.selectedPlayers();
   }
