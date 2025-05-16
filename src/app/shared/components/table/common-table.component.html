@@ -5,19 +5,16 @@
   <div class="subtitle" *ngIf="subtitle">
     <span>{{ subtitle }}</span>
   </div>
-  <div class="table-container">
+  <div class="table-container" #tableContainer>
     <table mat-table [dataSource]="currentData()">
-      <!-- define each column -->
+      <!-- column definitions -->
       <ng-container *ngFor="let col of columns" [matColumnDef]="col">
-        <th mat-header-cell *matHeaderCellDef [ngClass]="col === 'TEAMS' ? 'teams-column' : ''">{{ col }}</th>
+        <th mat-header-cell *matHeaderCellDef [ngClass]="col === 'TEAMS' ? 'teams-column' : ''">
+          {{ col }}
+        </th>
         <td mat-cell *matCellDef="let item" [ngClass]="col === 'TEAMS' ? 'teams-column' : ''" [style.height]="rowHeight">
-          <!-- if this is the "Teams" column AND parent gave us a template, stamp it out -->
-          <ng-container
-            *ngIf="col === 'TEAMS' && teamsCellTpl; else defaultCell"
-          >
-            <ng-container
-              *ngTemplateOutlet="teamsCellTpl; context: { $implicit: item }"
-            ></ng-container>
+          <ng-container *ngIf="col === 'TEAMS' && teamsCellTpl; else defaultCell">
+            <ng-container *ngTemplateOutlet="teamsCellTpl; context: { $implicit: item }"></ng-container>
           </ng-container>
           <ng-template #defaultCell>
             {{ item[col.toLowerCase()] }}
@@ -25,20 +22,25 @@
         </td>
       </ng-container>
 
-      <!-- header and data rows -->
+      <!-- header & data rows -->
       <tr mat-header-row *matHeaderRowDef="columns"></tr>
       <tr
         mat-row
         *matRowDef="let row; columns: columns; let first = first"
         #firstRow
-        (click)="onRowClick(row)"
+        #dataRow
         class="player-row"
         [class.first-row]="first"
         [style.height]="rowHeight"
+        (click)="onRowClick(row)"
       ></tr>
     </table>
 
-    <!-- slot for hint, if needed -->
-    <ng-content select="[hint]"></ng-content>
+    <!-- integrated hint component -->
+    <hint
+      [targetElement]="currentTarget"
+      [hintType]="hintType"
+      [arrowPosition]="arrowPosition"
+    ></hint>
   </div>
 </div>

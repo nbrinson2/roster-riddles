@@ -6,6 +6,8 @@
   [rowHeight]="RowHeight.LARGE"
   [data]="rosterTableData"
   (rowClick)="onRowClick($event)"
+  [hintType]="HintType.CAREER_PATH_ROSTER_PLAYER_SELECT"
+  [hintTargetRow]="2"
 >
   <ng-template #teamsCell let-player>
     <div class="logo-group-compact">
@@ -18,11 +20,4 @@
       </div>
     </div>
   </ng-template>
-  <!-- project the hint into the table’s hint slot -->
-  <!-- <hint
-    *ngIf="table.firstRowElement"
-    hint
-    [targetElement]="table.firstRowElement.nativeElement"
-    [hintType]="HintType.ROSTER_SELECT"
-  ></hint> -->
 </common-table>

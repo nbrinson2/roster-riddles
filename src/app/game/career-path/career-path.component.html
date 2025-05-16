@@ -5,6 +5,7 @@
         [playerName]="player.name"
         [groups]="player.groups"
         [winner]="first && gameState === GameState.WON"
+        [showHint]="first"
         (selectTeamEvent)="selectTeam($event)">
       </player-timeline>
     </div>

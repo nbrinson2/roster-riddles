@@ -1,10 +1,8 @@
 import {
-  AfterViewChecked,
   Component,
   EventEmitter,
   Input,
-  Output,
-  ViewChild
+  Output
 } from '@angular/core';
 import { TeamAbbreviationToFullNameMap } from 'src/app/game/bio-ball/constants/bio-ball-constants';
 import {
@@ -13,24 +11,21 @@ import {
   TeamFullName,
   TeamType,
   TeamUiPlayer,
-  UiPlayer
+  UiPlayer,
 } from 'src/app/game/bio-ball/models/bio-ball.models';
 import { BioBallEngineService } from 'src/app/game/bio-ball/services/bio-ball-engine/bio-ball-engine.service';
+import { HintArrowPosition } from 'src/app/shared/components/hint/hint.component';
 import {
-  HintService,
-  HintType,
+  HintType
 } from 'src/app/shared/components/hint/hint.service';
-import { CommonTableComponent } from 'src/app/shared/components/table/common-table.component';
+
 @Component({
-    selector: 'active-roster-table',
-    templateUrl: './active-roster-table.component.html',
-    styleUrls: ['./active-roster-table.component.scss'],
-    standalone: false
+  selector: 'active-roster-table',
+  templateUrl: './active-roster-table.component.html',
+  styleUrls: ['./active-roster-table.component.scss'],
+  standalone: false,
 })
-export class ActiveRosterTableComponent implements AfterViewChecked {
-  @ViewChild('table', { read: CommonTableComponent, static: false })
-  table!: CommonTableComponent<TeamUiPlayer<AttributesType>>;
-  
+export class ActiveRosterTableComponent {
   @Input()
   set roster(value: UiPlayer<AttributesType>[]) {
     this._roster = this.formatAndSortRoster(value);
@@ -39,12 +34,14 @@ export class ActiveRosterTableComponent implements AfterViewChecked {
       this.teamName = TeamAbbreviationToFullNameMap[
         player.team as TeamType
       ] as TeamFullName;
-      this.displayedAttributes = Object.keys(player).filter(
-        (attr) =>
-          !Object.values(HiddenPlayerRosterAttributes).includes(
-            attr as HiddenPlayerRosterAttributes
-          )
-      ).map((attr) => attr.toUpperCase());
+      this.displayedAttributes = Object.keys(player)
+        .filter(
+          (attr) =>
+            !Object.values(HiddenPlayerRosterAttributes).includes(
+              attr as HiddenPlayerRosterAttributes
+            )
+        )
+        .map((attr) => attr.toUpperCase());
     }
   }
 
@@ -55,24 +52,15 @@ export class ActiveRosterTableComponent implements AfterViewChecked {
   }
 
   protected readonly HintType = HintType;
+  protected readonly HintArrowPosition = HintArrowPosition;
 
   private _roster: UiPlayer<AttributesType>[] = [];
   protected displayedAttributes!: string[];
   protected teamName!: TeamFullName;
-  protected firstRowElement: HTMLElement | null = null;
 
   constructor(
-    private gameService: BioBallEngineService<UiPlayer<AttributesType>>,
-    private hintService: HintService
+    private gameService: BioBallEngineService<UiPlayer<AttributesType>>
   ) {}
-
-  ngAfterViewChecked() {
-    // Show the hint once the table's first row element is available
-    const el = this.table.firstRowElement?.nativeElement;
-    if (el) {
-      this.hintService.showHint(HintType.ROSTER_SELECT);
-    }
-  }
 
   protected onRowClick(player: UiPlayer<AttributesType>): void {
     this.gameService.handlePlayerSelection(player);
