@@ -5,11 +5,18 @@
   <div class="timeline-container" [ngClass]="{ winner: winner }">
     <div class="timeline">
       <ng-container *ngIf="!compact; else compactTimeline">
-        <ng-container *ngFor="let grp of groups; let last = last">
-          <div class="stint-group" [ngClass]="'count-' + grp.stints.length">
+        <ng-container
+          *ngFor="let grp of groups; let last = last; let first = first"
+        >
+          <div
+            #stintGroup
+            class="stint-group"
+            [ngClass]="'count-' + grp.stints.length"
+          >
             <div class="logo-group" [ngClass]="'count-' + grp.stints.length">
               <ng-container *ngFor="let s of grp.stints">
                 <div
+                  #logoWrapper
                   class="logo-wrapper"
                   [ngClass]="'logo-border-color-' + s.logoBorderColor"
                   (click)="onLogoClick(s)"
@@ -24,6 +31,7 @@
             </div>
             <div
               *ngIf="!compact"
+              #yearsWrapper
               class="years"
               [ngClass]="'year-color-' + grp.stints[0].yearColor"
             >
@@ -34,6 +42,12 @@
             </div>
           </div>
           <div *ngIf="!last && !compact" class="arrow">→</div>
+          <hint
+            *ngIf="first && showHint"
+            [targetElement]="stintGroup"
+            [hintType]="hintType"
+            [arrowPosition]="arrowPosition"
+          ></hint>
         </ng-container>
       </ng-container>
     </div>

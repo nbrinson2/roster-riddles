@@ -7,6 +7,8 @@ import {
   AttributesType,
   CommonAttributes,
 } from 'src/app/game/bio-ball/models/bio-ball.models';
+import { HintType } from 'src/app/shared/components/hint/hint.service';
+import { HintArrowPosition } from 'src/app/shared/components/hint/hint.component';
 
 @Component({
   selector: 'bio-ball-player',
@@ -38,6 +40,9 @@ export class BioBallPlayerComponent {
 
     return '';
   }
+
+  protected readonly HintType = HintType;
+  protected readonly HintArrowPosition = HintArrowPosition;
 
   protected commonAttributes = CommonAttributes;
   protected orderedUiPlayerAttr!: string[];

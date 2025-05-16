@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
 import { HintArrowPosition } from '../../shared/components/hint/hint.component';
 import { HintService, HintType } from '../../shared/components/hint/hint.service';
-import { SlideUpService } from '../../shared/components/slide-up/slide-up.service';
 import { GAME_SERVICE } from '../../shared/utils/game-service.token';
 import { GameState } from '../career-path/services/career-path-engine/career-path-engine.service';
 import {
@@ -22,20 +21,12 @@ import { Data, InputPlaceHolderText } from './util/bio-ball.util';
   standalone: false
 })
 export class BioBallComponent {
-  protected readonly HintType = HintType;
-  protected readonly HintArrowPosition = HintArrowPosition;
-
   get selectedPlayers(): UiPlayer<AttributesType>[] {
     return this.gameService.selectedPlayers();
   }
 
-  get hasShownFirstPlayerHint(): boolean {
-    return this.hintService.hasShownFirstPlayerHint();
-  }
-
   constructor(
     private route: ActivatedRoute,
-    private slideUpService: SlideUpService,
     private hintService: HintService,
     private rosterSelectionService: RosterSelectionService,
     @Inject(GAME_SERVICE)
@@ -46,8 +37,12 @@ export class BioBallComponent {
     });
   }
 
+  ngAfterViewInit(): void {
+    this.hintService.showHint(HintType.BIO_BALL_ROSTER_SELECT);
+  }
+
   protected selectRoster(team: string): void {
-    this.hintService.hasShownFirstPlayerHint = true;
+    this.hintService.dismissHint();
     this.gameService.numberOfGuesses++;
 
     if (this.gameService.gameState() === GameState.LOST) {
