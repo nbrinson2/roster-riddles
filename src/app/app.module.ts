@@ -7,7 +7,7 @@ import { getAnalytics, provideAnalytics, ScreenTrackingService, UserTrackingServ
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
 import { initializeFirestore, provideFirestore } from '@angular/fire/firestore';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -40,6 +40,7 @@ import { CommonTableComponent } from './shared/components/table/common-table.com
 import { RosterByYearsTableComponent } from './nav/roster-by-years-table/roster-by-years-table.component';
 import { GameRuleListComponent } from './nav/how-to-play/game-rule-list/game-rule-list.component';
 import { SafeHtmlPipe } from './shared/utils/safe-html.pipe';
+import { GameSelectComponent } from './shared/components/game-select/game-select.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -60,17 +61,19 @@ import { SafeHtmlPipe } from './shared/utils/safe-html.pipe';
     RosterByYearsTableComponent,
     GameRuleListComponent,
     SafeHtmlPipe,
+    GameSelectComponent,
   ],
   imports: [
     BrowserModule,
     CommonModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    ReactiveFormsModule,
+    FormsModule,
     MatGridListModule,
     MatButtonModule,
     MatSidenavModule,
     MatTableModule,
-    ReactiveFormsModule,
     MatInputModule,
     MatAutocompleteModule,
     MatTooltipModule,
