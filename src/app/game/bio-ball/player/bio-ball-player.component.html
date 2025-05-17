@@ -16,7 +16,7 @@
               {{ getPlayerAttr(attr) }}
             </a>
             <hint
-              *ngIf="!inSearchResults"
+              *ngIf="!inSearchResults && showHint"
               [targetElement]="team"
               [hintType]="HintType.BIO_BALL_ROSTER_SELECT"
               [arrowPosition]="HintArrowPosition.TOP_LEFT"

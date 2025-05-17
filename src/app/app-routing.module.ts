@@ -9,7 +9,8 @@ import { CareerPathMlbResolver } from './game/career-path/resolvers/career-path-
 import { GameComponent } from './game/game.component';
 import { NavComponent } from './nav/nav.component';
 import { CareerPathEngineService } from './game/career-path/services/career-path-engine/career-path-engine.service';
-const routes: Routes = [
+
+export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'bio-ball/mlb', pathMatch: 'full' },
 
   {
@@ -72,7 +73,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(APP_ROUTES)],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

@@ -111,7 +111,9 @@ export class NavComponent implements OnInit, OnDestroy {
       });
 
     this.drawer.closedStart.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      this.hintService.dismissHint();
+      if (this.viewRoster) {
+        this.hintService.dismissHint();
+      }
     });
   }
 
@@ -153,11 +155,6 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewProfile = false;
     this.viewRoster = false;
     this.drawer.open();
-  }
-
-  protected resetState(): void {
-    this.slideUpService.hide();
-    this.rosterSelectionService.resetRosterSelection();
   }
 
   private setSelectedRosterAndOpenMenu(
