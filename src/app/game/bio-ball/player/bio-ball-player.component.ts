@@ -30,6 +30,7 @@ export class BioBallPlayerComponent {
     this.playerKeyToHeaderNameMap = this.getPlayerKeyToHeaderNameMap();
   }
   @Input() inSearchResults = true;
+  @Input() showHint = true;
 
   @Output() selectTeamEvent: EventEmitter<string> = new EventEmitter<string>();
 

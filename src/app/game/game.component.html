@@ -5,6 +5,9 @@
     <div class="title">
       <h1>ROSTER RIDDLES</h1>
     </div>
+    <div class="game-select-container">
+      <game-select [currentGameType]="currentGameType" (resetState)="resetState()"></game-select>
+    </div>
     <div class="search-container">
       <search></search>
     </div>

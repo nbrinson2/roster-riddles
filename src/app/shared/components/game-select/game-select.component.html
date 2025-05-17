@@ -1,0 +1,33 @@
+<div class="custom-dropdown" [class.open]="isOpen">
+  <!-- Toggle shows current game name -->
+  <button
+    type="button"
+    class="dropdown-toggle"
+    (click)="toggleDropdown()"
+    aria-haspopup="true"
+    [attr.aria-expanded]="isOpen"
+  >
+    <mat-icon class="current-game-icon">
+      {{ currentGame.icon }}
+    </mat-icon>
+    <span class="current-game-label">
+      {{ currentGame.label }}
+    </span>
+    <span class="arrow"></span>
+  </button>
+
+  <!-- Slide-down menu -->
+  <ul class="dropdown-menu" *ngIf="isOpen" @slideDownUp>
+    <li *ngFor="let game of games" routerLinkActive="active-game">
+      <a
+        class="dropdown-item"
+        [routerLink]="game.path"
+        (click)="selectGame()"
+      >
+        <mat-icon>{{ game.icon }}</mat-icon>
+        <span>{{ game.label }}</span>
+      </a>
+    </li>
+  
+  </ul>
+</div>
