@@ -52,3 +52,10 @@ export const HTP_CAREER_PATH_RULES: CareerPathRule[] = [
     description: 'Team logo: Click on the team logo to reveal players who played for the given team in the given years!',
   }
 ];
+
+export const HTP_CAREER_PATH_EASY_RULES: CareerPathRule[] = [
+  {
+    player: CAREER_PATH_PLAYERS[5],
+    description: 'The mystery player\'s career path is shown in the first row with the name hidden!',
+  },
+];

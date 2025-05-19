@@ -23,7 +23,10 @@
         ></roster-by-years-table>
       </ng-container>
       <ng-container *ngIf="viewMenu">
-        <how-to-play [gameType]="currentGameName"></how-to-play>
+        <how-to-play
+          [gameType]="currentGameName"
+          [currentGameMode]="currentGameMode()"
+        ></how-to-play>
       </ng-container>
       <!-- <ng-container *ngIf="loggedIn && viewProfile && user">
         <profile [user]="user"></profile>
@@ -62,8 +65,8 @@
               class="material-symbols-outlined logout-icon"
               (click)="logout()"
             >
-              logout
-            </span>
+              logout </span
+            >E
             <span
               class="material-symbols-outlined profile-icon"
               (click)="openProfileMenu()"

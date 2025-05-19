@@ -101,7 +101,7 @@ export class CareerPathEngineService
     this.allPlayers = players ?? this.allPlayers;
     this.guessablePlayers = [...this.allPlayers];
     this.selectNewTargetPlayer();
-    console.log('selectNewTargetPlayer', this.playerToGuess());
+
     this.numberOfGuesses = 0;
     this.gameState = GameState.PLAYING;
     this.isSearchDisabled = false;
