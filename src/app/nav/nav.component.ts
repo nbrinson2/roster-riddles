@@ -128,6 +128,13 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   protected handleDifficultyChange(difficulty: Difficulty): void {
+    if (this.slideUpService.isVisible()) {
+      this.slideUpService.hide(() => {
+        this.gameService.currentGameMode = difficulty;
+      });
+      return;
+    }
+
     this.gameService.currentGameMode = difficulty;
   }
 

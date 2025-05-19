@@ -1,8 +1,12 @@
 <div class="grid-wrapper">
   <mat-grid-list [cols]="numberOfColumns" rowHeight="40px">
-    <div *ngFor="let header of attrHeaders" class="tile-container">
+    <div
+      *ngFor="let header of attrHeaders; let i = index"
+      class="tile-container"
+    >
       <mat-grid-tile [colspan]="header.colSpan">
         <div
+          #headerElement
           class="column-content"
           [ngClass]="header.class"
           [class.clickable]="header.value !== undefined && !header.revealed"
@@ -20,6 +24,13 @@
           </div>
         </div>
       </mat-grid-tile>
+      <hint
+        *ngIf="showHint && i === 1"
+        [targetElement]="headerElement"
+        [hintType]="HintType.CAREER_PATH_ATTRIBUTE_REVEAL"
+        [arrowPosition]="HintArrowPosition.TOP_LEFT"
+      >
+      </hint>
     </div>
   </mat-grid-list>
 </div>

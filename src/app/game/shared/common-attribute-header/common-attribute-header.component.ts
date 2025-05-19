@@ -3,6 +3,8 @@ import { state } from '@angular/animations';
 import { animate } from '@angular/animations';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { GameState } from '../../career-path/services/career-path-engine/career-path-engine.service';
+import { HintService, HintType } from 'src/app/shared/components/hint/hint.service';
+import { HintArrowPosition } from 'src/app/shared/components/hint/hint.component';
 
 export interface Header {
   name: string;
@@ -32,7 +34,22 @@ export class CommonAttributeHeaderComponent {
   @Input() gameState!: GameState;
   @Input() attrHeaders!: Header[];
   @Input() numberOfColumns!: number;
+  @Input() showHint = false;
+
   @Output() columnClick = new EventEmitter<void>();
+
+  protected readonly HintType = HintType;
+  protected readonly HintArrowPosition = HintArrowPosition;
+
+  constructor(private hintService: HintService) {}
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      if (this.showHint) {
+        this.hintService.showHint(HintType.CAREER_PATH_ATTRIBUTE_REVEAL);
+      }
+    }, 0);
+  }
 
   toggle(header: Header): void {
     if (header.value === undefined || header.revealed || this.gameState !== GameState.PLAYING) {
