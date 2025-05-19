@@ -7,7 +7,8 @@ import { MlbPlayersService } from '../../../../shared/services/mlb-players/mlb-p
 import { getPlayerKeyToBackgroundColorMap } from '../../util/bio-ball.util';
 import { BioBallEngineService } from '../bio-ball-engine/bio-ball-engine.service';
 import { GameState } from 'src/app/game/career-path/services/career-path-engine/career-path-engine.service';
-import { GameType } from 'src/app/shared/services/common-game/common-game.service';
+import { GameType } from 'src/app/game/shared/constants/game.constants';
+import { Difficulty } from 'src/app/nav/difficulty-toggle/difficulty-toggle.component';
 
 @Injectable({ providedIn: 'root' })
 export class BioBallMlbService {
@@ -62,6 +63,14 @@ export class BioBallMlbService {
 
   public set currentGame(game: GameType) {
     this.gameEngine.currentGame = game;
+  }
+
+  public get currentGameMode(): Signal<Difficulty> {
+    return this.gameEngine.currentGameMode;
+  }
+
+  public set currentGameMode(mode: Difficulty) {
+    this.gameEngine.currentGameMode = mode;
   }
 
   constructor(

@@ -1,5 +1,3 @@
-@use '../../../../constants';
-
 mat-grid-list {
   width: 100%;
   font-size: 12px;
@@ -20,16 +18,6 @@ mat-grid-list {
       font-size: 18px;
     }  
   }
-}
-
-.team-column {
-  border-top-left-radius: 8px;
-  border-bottom-left-radius: 8px;
-}
-
-.pos-column {
-  border-top-right-radius: 8px;
-  border-bottom-right-radius: 8px;
 }
 
 // End result border colors

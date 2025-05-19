@@ -1,7 +1,8 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, Signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { first } from 'rxjs';
-import { HintService, HintType } from 'src/app/shared/components/hint/hint.service';
+import { Difficulty } from 'src/app/nav/difficulty-toggle/difficulty-toggle.component';
+import { HintService } from 'src/app/shared/components/hint/hint.service';
 import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
 import { GAME_SERVICE } from '../../shared/utils/game-service.token';
 import { TeamAbbreviationToFullNameMap } from '../bio-ball/constants/bio-ball-constants';
@@ -10,15 +11,12 @@ import {
   TeamType
 } from '../bio-ball/models/bio-ball.models';
 import { RosterSelectionService } from '../bio-ball/services/roster-selection/roster-selection.service';
-import {
-  InputPlaceHolderText
-} from '../bio-ball/util/bio-ball.util';
 import { CareerPathPlayer, TeamStint } from './models/career-path.models';
 import {
   CareerPathEngineService,
   GameState,
 } from './services/career-path-engine/career-path-engine.service';
-
+import { InputPlaceHolderText } from '../shared/constants/game.constants';
 export interface Data {
   players: CareerPathPlayer[];
 }
@@ -30,8 +28,6 @@ export interface Data {
   standalone: false,
 })
 export class CareerPathComponent {
-  public readonly GameState = GameState;
-
   get selectedPlayers(): CareerPathPlayer[] {
     return this.gameService.selectedPlayers();
   }
@@ -39,6 +35,12 @@ export class CareerPathComponent {
   get gameState(): GameState {
     return this.gameService.gameState();
   }
+
+  get currentGameMode(): Signal<Difficulty> {
+    return this.gameService.currentGameMode;
+  }
+
+  protected GameState = GameState;
 
   constructor(
     private route: ActivatedRoute,
@@ -54,6 +56,10 @@ export class CareerPathComponent {
   }
 
   protected selectTeam(team: TeamStint): void {
+    if (this.currentGameMode() === 'easy') {
+      return;
+    }
+    
     this.gameService.numberOfGuesses++;
 
     if (this.gameService.gameState() === GameState.LOST) {

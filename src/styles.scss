@@ -4,17 +4,35 @@ body {
 }
 body {
   margin: 0;
-  font-family: 'Luckiest Guy', cursive;
+  font-family: "Luckiest Guy", cursive;
 }
 
 .mat-app-background {
   background-color: black;
 }
 
+// ::-webkit-scrollbar {
+//   height: 10px;
+//   width: 10px;
+// }
+// ::-webkit-scrollbar-track {
+//   background: #111;
+//   border-radius: 8px;
+//   margin: 0.5rem;
+// }
+// ::-webkit-scrollbar-thumb {
+//   background-color: #cc1f41;
+//   border-radius: 10px;
+//   border: 2px solid #111;
+// }
+// ::-webkit-scrollbar-thumb:hover {
+//   background-color: #ff4c6a;
+// }
+
 // Mobile browser support
 @media only screen and (max-device-height: 1000px) {
- html,
- body {
+  html,
+  body {
     height: 92vh;
   }
 }

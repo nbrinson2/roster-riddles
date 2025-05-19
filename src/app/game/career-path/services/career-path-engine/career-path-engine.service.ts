@@ -1,16 +1,14 @@
 import { Injectable, signal, Signal } from '@angular/core';
-import { CareerPathPlayer } from '../../models/career-path.models';
-import { CommonGameService } from 'src/app/shared/services/common-game/common-game.service';
-import {
-  EndResultMessage,
-  InputPlaceHolderText,
-} from 'src/app/game/bio-ball/util/bio-ball.util';
-import { PlayerAttrColor } from 'src/app/shared/models/common-models';
-import { GameService } from 'src/app/shared/utils/game-service.token';
-import { applyFeedbackColors } from '../../utils/career-path.util';
-import { BehaviorSubject } from 'rxjs';
-import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
 import { HintService } from 'src/app/shared/components/hint/hint.service';
+import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
+import { CommonGameService } from 'src/app/shared/services/common-game/common-game.service';
+import { GameService } from 'src/app/shared/utils/game-service.token';
+import { CareerPathPlayer } from '../../models/career-path.models';
+import { applyFeedbackColors } from '../../utils/career-path.util';
+import { InputPlaceHolderText } from 'src/app/game/shared/constants/game.constants';
+import { MlbPlayersService } from 'src/app/shared/services/mlb-players/mlb-players.service';
+import { CountryBornFullName } from 'src/app/game/bio-ball/models/bio-ball.models';
+import { CountryBornAbbreviationMap } from 'src/app/game/bio-ball/constants/bio-ball-constants';
 
 export enum GameState {
   PLAYING = 'PLAYING',
@@ -45,22 +43,11 @@ export class CareerPathEngineService
 
   constructor(
     slideUpService: SlideUpService,
+    private mlbPlayersService: MlbPlayersService,
     private hintService: HintService
   ) {
     super(slideUpService);
-  }
-
-  public startNewGame(players?: CareerPathPlayer[]) {
-    this.allPlayers = players ?? this.allPlayers;
-    this.guessablePlayers = [...this.allPlayers];
-    // this.initializePlayerColorMaps();
-    this.selectNewTargetPlayer();
-
-    this.numberOfGuesses = 0;
-    this.gameState = GameState.PLAYING;
-    this.isSearchDisabled = false;
-    this.searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
-    this.selectedPlayers = [];
+    this.currentGameMode = 'easy';
   }
 
   public filterPlayers(searchTerm: string | null): CareerPathPlayer[] {
@@ -77,7 +64,6 @@ export class CareerPathEngineService
   }
 
   public handlePlayerSelection(guess: CareerPathPlayer): void {
-    // 1) Sanity checks & early exit
     if (
       !guess ||
       this.gameState() === GameState.LOST ||
@@ -92,21 +78,39 @@ export class CareerPathEngineService
 
     this.numberOfGuesses++;
 
-    // 3) Apply Mastermind-style feedback coloring
-    applyFeedbackColors(guess, this.playerToGuess() as CareerPathPlayer);
+    if (this.currentGameMode() === 'easy') {
+      this.updateSelectedPlayersAndGameStatus(guess);
+    } else {
+      applyFeedbackColors(guess, this.playerToGuess() as CareerPathPlayer);
+      this.updateSelectedPlayersAndGameStatus(guess);
+    }
+  }
 
-    // 4) Track the guess and update UI
-    this.selectedPlayers = [guess, ...this.selectedPlayers()];
-    // 2) Win / Lose conditions
-    if (this.isCorrectGuess(guess)) {
-      this.onWin();
-      return;
-    }
-    if (this.isOutOfGuesses()) {
-      this.onLose();
-      return;
-    }
+  protected updateStateAfterGuess(): void {
     this.updatePlaceholderWithRemainingGuesses();
+  }
+
+  protected startNewGameEasy(players?: CareerPathPlayer[]): void {
+    this.startNewGameHard(players);
+    if (this.playerToGuess()) {
+      this.setCareerPathAttributeHeaders();
+    }
+  }
+
+  protected startNewGameHard(players?: CareerPathPlayer[]): void {
+    this.allPlayers = players ?? this.allPlayers;
+    this.guessablePlayers = [...this.allPlayers];
+    this.selectNewTargetPlayer();
+
+    this.numberOfGuesses = 0;
+    this.gameState = GameState.PLAYING;
+    this.isSearchDisabled = false;
+    this.searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
+    this.selectedPlayers = [];
+  }
+
+  protected startNewGameNoMode(players?: CareerPathPlayer[]): void {
+    this.startNewGameHard(players);
   }
 
   private selectNewTargetPlayer(): void {
@@ -129,5 +133,68 @@ export class CareerPathEngineService
   private updatePlaceholderWithRemainingGuesses(): void {
     const remaining = this.allowedGuesses - this.numberOfGuesses;
     this.searchInputPlaceHolderText = `${remaining} ${InputPlaceHolderText.COUNT}`;
+  }
+
+  private updateSelectedPlayersAndGameStatus(guess: CareerPathPlayer): void {
+    if (this.isCorrectGuess(guess)) {
+      if (this.currentGameMode() !== 'easy') {
+        this.selectedPlayers = [guess, ...this.selectedPlayers()];
+      }
+      this.onWin();
+      return;
+    }
+
+    this.selectedPlayers = [guess, ...this.selectedPlayers()];
+
+    if (this.isOutOfGuesses()) {
+      this.onLose();
+      return;
+    }
+
+    this.updatePlaceholderWithRemainingGuesses();
+  }
+
+  private setCareerPathAttributeHeaders(): void {
+    this.mlbPlayersService
+      .getPlayer(this.playerToGuess().id)
+      .subscribe((player) => {
+        const playerDetails = player.people[0];
+        const countryAbbreviation =
+          CountryBornAbbreviationMap[
+            playerDetails.birthCountry as CountryBornFullName
+          ];
+        this.attributeHeaders = [
+          {
+            name: 'Drafted',
+            value: playerDetails.draftYear.toString(),
+            colSpan: 1,
+            class: 'bats-throws',
+          },
+          {
+            name: 'Bats/Throws',
+            value: `${playerDetails.batSide.code}/${playerDetails.pitchHand.code}`,
+            colSpan: 1,
+            class: 'bats-throws',
+          },
+          {
+            name: 'Born',
+            value: countryAbbreviation,
+            colSpan: 1,
+            class: 'bats-throws',
+          },
+          {
+            name: '#',
+            value: playerDetails.primaryNumber,
+            colSpan: 1,
+            class: 'bats-throws',
+          },
+          {
+            name: 'Pos',
+            value: playerDetails.primaryPosition.abbreviation,
+            colSpan: 1,
+            class: 'bats-throws',
+          },
+        ];
+      });
   }
 }

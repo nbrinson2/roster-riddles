@@ -12,10 +12,14 @@
         (keydown.enter)="handleEnterKey($event)"
         autofocus
       />
-      <mat-autocomplete #auto="matAutocomplete">
+      <mat-autocomplete
+        #auto="matAutocomplete"
+        class="custom-scrollbar"
+      >
         <ng-container *ngIf="searchInput.value">
           <mat-option
             *ngFor="let player of filteredPlayers | async"
+            [class.only-name]="currentGameMode === 'easy'"
             [value]="player.name"
             (click)="searchInput.value != undefined && selectPlayer(player)"
             #playerOption
@@ -24,11 +28,18 @@
               <bio-ball-player [player]="player"></bio-ball-player>
             </ng-container>
             <ng-container *ngIf="isCareerPathPlayer(player)">
-              <player-timeline
-                [playerName]="player.name"
-                [groups]="player.groups"
-                [compact]="true"
-              ></player-timeline>
+              <ng-container *ngIf="currentGameMode === 'easy'">
+                <div class="player-name-container">
+                  <span class="player-name">{{ player.name }}</span>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="currentGameMode === 'hard'">
+                <player-timeline
+                  [playerName]="player.name"
+                  [groups]="player.groups"
+                  [compact]="true"
+                ></player-timeline>
+              </ng-container>
             </ng-container>
           </mat-option>
         </ng-container>

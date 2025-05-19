@@ -63,37 +63,138 @@
   }
 
   /* make the timeline scrollable on narrow screens */
-  .timeline-container {
-    display: flex;
+  .timeline-wrapper {
+    position: relative;
     border: 1px solid #333;
     border-radius: 8px;
     margin-bottom: 1rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; // momentum scroll
-    scroll-snap-type: x mandatory;
-
-    &::-webkit-scrollbar {
-      height: 8px;
+    padding-bottom: 2px;  // reserve a 2px gap for the scrollbar underneath
+  
+    // ──────────────── CORNERS ────────────────
+    // 16×16 so an 8px radius can render
+    .corner {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      pointer-events: none;
+      transform: scale(0);
+      // animate via this single keyframe
+      @keyframes drawCorner {
+        from { transform: scale(0); }
+        to   { transform: scale(1); }
+      }
     }
-    &::-webkit-scrollbar-track {
-      background: #111;
-      border-radius: 8px;
-      margin: 0.5rem;
+  
+    .corner.top-left {
+      top: 0; left: 0;
+      border-top: 2px solid constants.$color-secondary;
+      border-left: 2px solid constants.$color-secondary;
+      border-radius: 8px 0 0 0;
+      transform-origin: left top;
     }
-    &::-webkit-scrollbar-thumb {
-      background-color: #cc1f41;
-      border-radius: 10px;
-      border: 2px solid #111;
+    .corner.top-right {
+      top: 0; right: 0;
+      border-top: 2px solid constants.$color-secondary;
+      border-right: 2px solid constants.$color-secondary;
+      border-radius: 0 8px 0 0;
+      transform-origin: right top;
     }
-    &::-webkit-scrollbar-thumb:hover {
-      background-color: #ff4c6a;
+    .corner.bottom-right {
+      bottom: 0; right: 0;
+      border-bottom: 2px solid constants.$color-secondary;
+      border-right: 2px solid constants.$color-secondary;
+      border-radius: 0 0 8px 0;
+      transform-origin: right bottom;
     }
-
+    .corner.bottom-left {
+      bottom: 0; left: 0;
+      border-bottom: 2px solid constants.$color-secondary;
+      border-left: 2px solid constants.$color-secondary;
+      border-radius: 0 0 0 8px;
+      transform-origin: left bottom;
+    }
+  
+    // ──────────────── SIDE‐BARS ────────────────
+    .bar {
+      position: absolute;
+      background: constants.$color-secondary;
+      pointer-events: none;
+    }
+    .bar.top {
+      top: 0;      left: 8px;
+      height: 2px; width: 0;
+    }
+    .bar.right {
+      top: 8px;    right: 0;
+      width: 2px;  height: 0;
+    }
+    .bar.bottom {
+      bottom: 0;   right: 8px;
+      height: 2px; width: 0;
+    }
+    .bar.left {
+      bottom: 8px; left: 0;
+      width: 2px;  height: 0;
+    }
+  
+    // ───────────── SEQUENCE ANIMATION ─────────────
     &.winner {
-      border-color: constants.$color-secondary;
+      // bars
+      .bar.top    { animation: drawTop    75ms linear    forwards   0ms;    }
+      .bar.right  { animation: drawRight  75ms linear    forwards 175ms;   }
+      .bar.bottom { animation: drawBottom 75ms linear    forwards 375ms;   }
+      .bar.left   { animation: drawLeft   75ms linear    forwards 575ms;   }
+  
+      // corners
+      .corner.top-right    { animation: drawCorner 75ms ease-in-out forwards 100ms; }
+      .corner.bottom-right { animation: drawCorner 75ms ease-in-out forwards 300ms; }
+      .corner.bottom-left  { animation: drawCorner 75ms ease-in-out forwards 500ms; }
+      .corner.top-left     { animation: drawCorner 75ms ease-in-out forwards 700ms; }
+      }
+  
+    @keyframes drawTop {
+      from { width: 0; }
+      to   { width: calc(100% - 16px); }
+    }
+    @keyframes drawRight {
+      from { height: 0; }
+      to   { height: calc(100% - 16px); }
+    }
+    @keyframes drawBottom {
+      from { width: 0; }
+      to   { width: calc(100% - 16px); }
+    }
+    @keyframes drawLeft {
+      from { height: 0; }
+      to   { height: calc(100% - 16px); }
+    }
+  
+    // ─────────── SCROLLABLE CONTENT + SCROLLBAR ───────────
+    .timeline-container {
+      display: flex;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+  
+      &::-webkit-scrollbar {
+        height: 8px;
+      }
+      &::-webkit-scrollbar-track {
+        background: #111;
+        border-radius: 8px;
+        margin: 0.5rem;
+      }
+      &::-webkit-scrollbar-thumb {
+        background-color: #cc1f41;
+        border-radius: 10px;
+        border: 2px solid #111;
+      }
+      &::-webkit-scrollbar-thumb:hover {
+        background-color: #ff4c6a;
+      }
     }
   }
-
+    
   .timeline {
     display: flex;
     align-items: center;

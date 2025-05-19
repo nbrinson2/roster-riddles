@@ -1,11 +1,12 @@
 <div class="career-path">
-  <ng-container *ngIf="selectedPlayers.length; else noData">
+  <ng-container *ngIf="selectedPlayers.length || currentGameMode() === 'easy'; else noData">
     <div class="player-card" *ngFor="let player of selectedPlayers; let first = first">
       <player-timeline
         [playerName]="player.name"
         [groups]="player.groups"
-        [winner]="first && gameState === GameState.WON"
-        [showHint]="first"
+        [winner]="currentGameMode() !== 'easy' && first && gameState === GameState.WON"
+        [showHint]="currentGameMode() !== 'easy' && first"
+        [gameMode]="currentGameMode()"
         (selectTeamEvent)="selectTeam($event)">
       </player-timeline>
     </div>

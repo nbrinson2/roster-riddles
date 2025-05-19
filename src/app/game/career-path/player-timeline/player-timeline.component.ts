@@ -15,18 +15,36 @@ import {
 import { TeamStint, TimelineGroup } from '../models/career-path.models';
 import { LogoService } from '../services/logo/logo.service';
 import { HintArrowPosition } from 'src/app/shared/components/hint/hint.component';
+import { Difficulty } from 'src/app/nav/difficulty-toggle/difficulty-toggle.component';
+import { trigger } from '@angular/animations';
+import { style } from '@angular/animations';
+import { state } from '@angular/animations';
+import { animate } from '@angular/animations';
+import { transition } from '@angular/animations';
 @Component({
   selector: 'player-timeline',
   templateUrl: './player-timeline.component.html',
   styleUrl: './player-timeline.component.scss',
   standalone: false,
+  animations: [
+    trigger('textSwap', [
+      state('name', style({ opacity: 1 })),
+      state('value', style({ opacity: 1 })),
+      transition('name <=> value', [
+        animate('150ms ease-in', style({ opacity: 0 })),
+        animate('150ms ease-out', style({ opacity: 1 }))
+      ])
+    ])
+  ]
 })
 export class PlayerTimelineComponent implements AfterViewInit {
-  @Input() playerName = 'Johnny Player';
+  @Input() playerName!: string;
   @Input() compact = false;
   @Input() winner = false;
   @Input() groups: TimelineGroup[] = [];
   @Input() showHint = false;
+  @Input() gameMode: Difficulty = 'easy';
+  @Input() isPlayerToGuess = false;
   @Output() selectTeamEvent = new EventEmitter<TeamStint>();
 
   @ViewChildren('yearsWrapper', { read: ElementRef })

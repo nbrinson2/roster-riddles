@@ -14,6 +14,11 @@
     <div *ngIf="showAttributeHeader" class="attr-header-container">
       <attribute-header></attribute-header>
     </div>
+    <ng-container *ngIf="currentGameMode === 'easy' && currentGameType === 'career-path'">
+      <div class="attr-header-container">
+        <career-path-easy-header [attributeHeaders]="attributeHeaders" [numberOfColumns]="5"></career-path-easy-header>
+      </div>
+    </ng-container>
   </div>
 
   <!-- this is where BioBallComponent (and any future child) will render -->
