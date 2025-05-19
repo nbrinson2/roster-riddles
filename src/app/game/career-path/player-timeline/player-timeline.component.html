@@ -1,73 +1,88 @@
 <!-- player-timeline.component.html -->
 <div class="player-timeline" [ngClass]="{ compact: compact }">
-  <h2 class="player-name">{{ playerName }}</h2>
+  <h2 class="player-name" [@textSwap]="winner ? 'value' : 'name'">
+    {{ gameMode === "easy" && !winner && isPlayerToGuess ? "???" : playerName }}
+  </h2>
 
-  <div class="timeline-container" [ngClass]="{ winner: winner }">
-    <div class="timeline">
-      <ng-container *ngIf="!compact; else compactTimeline">
-        <ng-container
-          *ngFor="let grp of groups; let last = last; let first = first"
-        >
-          <div
-            #stintGroup
-            class="stint-group"
-            [ngClass]="'count-' + grp.stints.length"
+  <div class="timeline-wrapper" [ngClass]="{ winner: winner }">
+    <!-- the four rounded corners -->
+    <span class="corner top-left"></span>
+    <span class="corner top-right"></span>
+    <span class="corner bottom-right"></span>
+    <span class="corner bottom-left"></span>
+
+    <!-- the four side bars that animate -->
+    <span class="bar top"></span>
+    <span class="bar right"></span>
+    <span class="bar bottom"></span>
+    <span class="bar left"></span>
+
+    <div class="timeline-container">
+      <div class="timeline">
+        <ng-container *ngIf="!compact; else compactTimeline">
+          <ng-container
+            *ngFor="let grp of groups; let last = last; let first = first"
           >
-            <div class="logo-group" [ngClass]="'count-' + grp.stints.length">
-              <ng-container *ngFor="let s of grp.stints">
-                <div
-                  #logoWrapper
-                  class="logo-wrapper"
-                  [ngClass]="'logo-border-color-' + s.logoBorderColor"
-                  (click)="onLogoClick(s)"
-                >
-                  <img
-                    class="team-logo"
-                    [src]="logoService.getLogoUrl(s.teamKey, s.from)"
-                    [alt]="s.teamKey + ' logo'"
-                  />
-                </div>
-              </ng-container>
-            </div>
             <div
-              *ngIf="!compact"
-              #yearsWrapper
-              class="years"
-              [ngClass]="'year-color-' + grp.stints[0].yearColor"
+              #stintGroup
+              class="stint-group"
+              [ngClass]="'count-' + grp.stints.length"
             >
-              {{ grp.from }}
-              <ng-container *ngIf="grp.from !== grp.to">
-                &ndash; {{ grp.to }}
-              </ng-container>
+              <div class="logo-group" [ngClass]="'count-' + grp.stints.length">
+                <ng-container *ngFor="let s of grp.stints">
+                  <div
+                    #logoWrapper
+                    class="logo-wrapper"
+                    [ngClass]="'logo-border-color-' + s.logoBorderColor"
+                    (click)="onLogoClick(s)"
+                  >
+                    <img
+                      class="team-logo"
+                      [src]="logoService.getLogoUrl(s.teamKey, s.from)"
+                      [alt]="s.teamKey + ' logo'"
+                    />
+                  </div>
+                </ng-container>
+              </div>
+              <div
+                *ngIf="!compact"
+                #yearsWrapper
+                class="years"
+                [ngClass]="'year-color-' + grp.stints[0].yearColor"
+              >
+                {{ grp.from }}
+                <ng-container *ngIf="grp.from !== grp.to">
+                  &ndash; {{ grp.to }}
+                </ng-container>
+              </div>
             </div>
-          </div>
-          <div *ngIf="!last && !compact" class="arrow">→</div>
-          <hint
-            *ngIf="first && showHint"
-            [targetElement]="stintGroup"
-            [hintType]="hintType"
-            [arrowPosition]="arrowPosition"
-          ></hint>
-        </ng-container>
-      </ng-container>
-    </div>
-
-    <!-- COMPACT MODE: flattened, no dates or arrows -->
-    <ng-template #compactTimeline>
-      <div class="logo-group compact">
-        <ng-container *ngFor="let s of flattenedStints">
-          <div
-            class="logo-wrapper"
-            [ngClass]="'logo-border-color-' + s.logoBorderColor"
-          >
-            <img
-              class="team-logo"
-              [src]="logoService.getLogoUrl(s.teamKey, s.from)"
-              [alt]="s.teamKey + ' logo'"
-            />
-          </div>
+            <div *ngIf="!last && !compact" class="arrow">→</div>
+            <hint
+              *ngIf="first && showHint"
+              [targetElement]="stintGroup"
+              [hintType]="hintType"
+              [arrowPosition]="arrowPosition"
+            ></hint>
+          </ng-container>
         </ng-container>
       </div>
-    </ng-template>
+      <!-- COMPACT MODE: flattened, no dates or arrows -->
+      <ng-template #compactTimeline>
+        <div class="logo-group compact">
+          <ng-container *ngFor="let s of flattenedStints">
+            <div
+              class="logo-wrapper"
+              [ngClass]="'logo-border-color-' + s.logoBorderColor"
+            >
+              <img
+                class="team-logo"
+                [src]="logoService.getLogoUrl(s.teamKey, s.from)"
+                [alt]="s.teamKey + ' logo'"
+              />
+            </div>
+          </ng-container>
+        </div>
+      </ng-template>
+    </div>
   </div>
 </div>

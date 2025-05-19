@@ -1,0 +1,48 @@
+@use '../../../constants';
+
+.difficulty-toggle {
+  width: 70px;
+  height: 26px;
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  background: constants.$color-secondary; // EASY
+  transition: background 0.3s ease;
+
+  .label {
+    position: absolute;
+    top: 50%;
+    /* default EASY: label on right */
+    right: 8px;
+    left: auto;
+    transform: translateY(-50%);
+    font-weight: 600;
+    font-size: 12px;
+    color: black;
+  }
+
+  .thumb {
+    position: absolute;
+    top: 2px;              // (26 - 22) / 2
+    left: 2px;             // inset for off‐state
+    width: 22px;
+    height: 22px;
+    background: #111;
+    border-radius: 50%;
+    transition: left 0.3s ease;
+  }
+
+  &.hard {
+    background: constants.$color-header;   // HARD
+
+    .label {
+      /* flip to left for HARD */
+      left: 8px;
+      right: auto;
+    }
+
+    .thumb {
+      left: calc(100% - 24px);  // 22px thumb + 2px right inset
+    }
+  }
+}

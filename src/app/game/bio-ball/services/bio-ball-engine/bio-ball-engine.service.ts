@@ -1,22 +1,19 @@
 import { Injectable, Signal, signal } from '@angular/core';
 import {
+  AttributesType,
+  UiPlayer,
+} from 'src/app/game/bio-ball/models/bio-ball.models';
+import { GameState } from 'src/app/game/career-path/services/career-path-engine/career-path-engine.service';
+import { InputPlaceHolderText } from 'src/app/game/shared/constants/game.constants';
+import {
   HintService,
   HintType,
 } from 'src/app/shared/components/hint/hint.service';
 import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
-import {
-  UiPlayer,
-  AttributesType,
-} from 'src/app/game/bio-ball/models/bio-ball.models';
 import { PlayerAttrColor } from 'src/app/shared/models/common-models';
-import {
-  EndResultMessage,
-  InputPlaceHolderText,
-} from '../../util/bio-ball.util';
-import { Headers } from '../../util/bio-ball.util';
 import { CommonGameService } from 'src/app/shared/services/common-game/common-game.service';
 import { GameService } from '../../../../shared/utils/game-service.token';
-import { GameState } from 'src/app/game/career-path/services/career-path-engine/career-path-engine.service';
+import { Headers } from '../../util/bio-ball.util';
 
 /**
  * Configuration for the GameEngineService—including attributes, compare logic,
@@ -64,7 +61,6 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
 
   public allPlayers: PlayerType[] = [];
   public guessablePlayers: PlayerType[] = [];
-  public headers = Headers;
 
   private _selectedPlayers = signal<PlayerType[]>([]);
   private _showAttributeHeader = signal<boolean>(true);
@@ -75,6 +71,8 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
     private hintService: HintService
   ) {
     super(slideUpService);
+    this.currentGameMode = 'n/a';
+    this.attributeHeaders = Headers;
   }
 
   /** Supply configuration before using the engine */
@@ -86,25 +84,6 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
   /** Set or reset the full list of possible players */
   public setAllPlayers(players: PlayerType[]): void {
     this.allPlayers = players;
-  }
-
-  /** Initialize or restart the game (requires configure() first) */
-  public startNewGame(players?: PlayerType[]): void {
-    if (!this.gameConfiguration) {
-      throw new Error(
-        'GameEngineService: must call configure() before starting a game'
-      );
-    }
-    this.allPlayers = players ?? this.allPlayers;
-    this.guessablePlayers = [...this.allPlayers];
-    this.initializePlayerColorMaps();
-    this.selectNewTargetPlayer();
-
-    this.numberOfGuesses = 0;
-    this.gameState = GameState.PLAYING;
-    this.isSearchDisabled = false;
-    this.searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
-    this.selectedPlayers = [];
   }
 
   /** Filter out already guessed and by name */
@@ -124,7 +103,11 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
 
   /** Handle one guess: update feedback, check end-of-game */
   public handlePlayerSelection(player: PlayerType): void {
-    if (!player || this.gameState() === GameState.LOST || this.isSearchDisabled) {
+    if (
+      !player ||
+      this.gameState() === GameState.LOST ||
+      this.isSearchDisabled
+    ) {
       return;
     }
     const isFirstPlayerSelected = this.selectedPlayers().length === 0;
@@ -149,6 +132,29 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
     } ${InputPlaceHolderText.COUNT}`;
     this.propagateAttributeColors(player);
   }
+
+  /** Initialize or restart the game (requires configure() first) */
+  protected startNewGameNoMode(players?: PlayerType[]): void {
+    if (!this.gameConfiguration) {
+      throw new Error(
+        'GameEngineService: must call configure() before starting a game'
+      );
+    }
+    this.allPlayers = players ?? this.allPlayers;
+    this.guessablePlayers = [...this.allPlayers];
+    this.initializePlayerColorMaps();
+    this.selectNewTargetPlayer();
+
+    this.numberOfGuesses = 0;
+    this.gameState = GameState.PLAYING;
+    this.isSearchDisabled = false;
+    this.searchInputPlaceHolderText = InputPlaceHolderText.GUESS;
+    this.selectedPlayers = [];
+  }
+
+  protected startNewGameEasy(players?: PlayerType[]): void {}
+  protected startNewGameHard(players?: PlayerType[]): void {}
+  protected updateStateAfterGuess(): void {}
 
   /** Propagate any non-NONE feedback to the remaining guessable players */
   private propagateAttributeColors(latestPlayer: PlayerType): void {

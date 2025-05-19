@@ -1,35 +1,12 @@
 import { MlbPlayerAttributes, MlbUiPlayer } from "src/app/game/bio-ball/models/mlb.models";
 import { PlayerAttrColor } from "src/app/shared/models/common-models";
-
-export interface Header {
-  name: string;
-  colSpan: number;
-  class: string;
-}
-
-export interface Header {
-  name: string;
-  colSpan: number;
-  class: string;
-}
+import { Header } from "src/app/game/shared/common-attribute-header/common-attribute-header.component";
 
 export interface Data {
   players: MlbUiPlayer[];
 }
 
-export enum EndResultMessage {
-  WIN = "You ol' sandbagger, you beat the game!!",
-  LOSE = "Just give up, you DO NOT know baseball.",
-}
-
-export enum InputPlaceHolderText {
-  GUESS = "Guess the mystery player",
-  COUNT = "guesses remaining",
-  WIN = "You guessed correctly!",
-  LOSE = "Go home, you lose.",
-}
-
-export const Headers = [
+export const Headers: Header[] = [
   { name: 'TEAM', colSpan: 1, class: 'team-column' },
   { name: 'LG./DIV.', colSpan: 2, class: 'lg-div-column' },
   { name: 'B', colSpan: 1, class: 'b-column' },
@@ -41,7 +18,6 @@ export const Headers = [
 
 export function getPlayerKeyToBackgroundColorMap(playerToGuess: MlbUiPlayer, selectedPlayer: MlbUiPlayer, initialize: boolean): Map<MlbPlayerAttributes, PlayerAttrColor> {
   const playerAttributes = Object.values(MlbPlayerAttributes).filter((key) => key !== MlbPlayerAttributes.NAME);
-  const backgroundColors = Object.values(PlayerAttrColor);
   const playerAttrBackgroundColorMap = new Map<MlbPlayerAttributes, PlayerAttrColor>();
 
   if (initialize) {

@@ -1,0 +1,25 @@
+<div class="grid-wrapper">
+  <mat-grid-list [cols]="numberOfColumns" rowHeight="40px">
+    <div *ngFor="let header of attrHeaders" class="tile-container">
+      <mat-grid-tile [colspan]="header.colSpan">
+        <div
+          class="column-content"
+          [ngClass]="header.class"
+          [class.clickable]="header.value !== undefined && !header.revealed"
+          (click)="toggle(header)"
+        >
+          <div
+            class="header-text"
+            [ngClass]="{
+              underline: !header.revealed && header.value !== undefined,
+              blue: header.revealed
+            }"
+            [@textSwap]="header.revealed ? 'value' : 'name'"
+          >
+            {{ header.revealed && header.value ? header.value : header.name }}
+          </div>
+        </div>
+      </mat-grid-tile>
+    </div>
+  </mat-grid-list>
+</div>

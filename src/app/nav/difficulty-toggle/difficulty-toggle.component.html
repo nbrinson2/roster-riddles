@@ -1,0 +1,10 @@
+<div
+  class="difficulty-toggle"
+  [class.hard]="value === 'hard'"
+  (click)="toggle()"
+  role="switch"
+  [attr.aria-checked]="value === 'hard'"
+>
+  <span class="label">{{ value === 'hard' ? 'HARD' : 'EASY' }}</span>
+  <span class="thumb"></span>
+</div>

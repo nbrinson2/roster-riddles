@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { GameType } from 'src/app/shared/services/common-game/common-game.service';
+import { GameType } from 'src/app/game/shared/constants/game.constants';
 import {
   BioBallRule,
   CareerPathRule,

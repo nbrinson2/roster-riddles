@@ -1,26 +1,40 @@
 import { Injectable, signal, Signal } from '@angular/core';
-import {
-  EndResultMessage,
-  InputPlaceHolderText,
-} from 'src/app/game/bio-ball/util/bio-ball.util';
 import { GameState } from 'src/app/game/career-path/services/career-path-engine/career-path-engine.service';
 import { SlideUpService } from '../../components/slide-up/slide-up.service';
-
-export enum GameType {
-  BIO_BALL = 'bio-ball',
-  CAREER_PATH = 'career-path',
-}
+import { Difficulty } from 'src/app/nav/difficulty-toggle/difficulty-toggle.component';
+import { EndResultMessage, InputPlaceHolderText } from 'src/app/game/shared/constants/game.constants';
+import { GameType } from 'src/app/game/shared/constants/game.constants';
+import { Header } from 'src/app/game/shared/common-attribute-header/common-attribute-header.component';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CommonGameService<T> {
+export abstract class CommonGameService<T> {
   get currentGame(): Signal<GameType> {
     return this._currentGame.asReadonly();
   }
 
   set currentGame(game: GameType) {
     this._currentGame.set(game);
+  }
+
+  get currentGameMode(): Signal<Difficulty> {
+    return this._currentGameMode.asReadonly();
+  }
+
+  set currentGameMode(mode: Difficulty) {
+    this._currentGameMode.set(mode);
+    if (mode !== 'n/a') {
+      this.startNewGame();
+    }
+  }
+
+  get attributeHeaders(): Signal<Header[]> {
+    return this._attributeHeaders.asReadonly();
+  }
+
+  set attributeHeaders(headers: Header[]) {
+    this._attributeHeaders.set(headers);
   }
 
   get searchInputPlaceHolderText(): Signal<string> {
@@ -58,20 +72,35 @@ export class CommonGameService<T> {
     this._numberOfGuesses = value;
   }
 
-
   public allowedGuesses = 9;
   public endResultText = EndResultMessage.WIN;
   public isSearchDisabled = false;
 
   private _currentGame = signal<GameType>(GameType.BIO_BALL);
+  private _currentGameMode = signal<Difficulty>('easy');
   private _searchInputPlaceHolderText = signal<string>(
     InputPlaceHolderText.GUESS
   );
   private _playerToGuess = signal<T>({} as T);
   private _gameState = signal<GameState>(GameState.PLAYING);
   private _numberOfGuesses = 0;
-
+  private _attributeHeaders = signal<Header[]>([]);
   constructor(private slideUpService: SlideUpService) {}
+
+  public startNewGame(players?: T[]): void {
+    if (this.currentGameMode() === 'easy') {
+      this.startNewGameEasy(players);
+    } else if (this.currentGameMode() === 'hard') {
+      this.startNewGameHard(players);
+    } else {
+      this.startNewGameNoMode(players);
+    }
+  }
+
+  public incrementNumberOfGuesses(): void {
+    this.numberOfGuesses++;
+    this.updateStateAfterGuess();
+  }
 
   /** Mark a win: show text, disable further input */
   public onWin(): void {
@@ -89,4 +118,9 @@ export class CommonGameService<T> {
     this.searchInputPlaceHolderText = InputPlaceHolderText.LOSE;
     this.gameState = GameState.LOST;
   }
+
+  protected abstract startNewGameEasy(players?: T[]): void;
+  protected abstract startNewGameHard(players?: T[]): void;
+  protected abstract startNewGameNoMode(players?: T[]): void;
+  protected abstract updateStateAfterGuess(): void;
 }

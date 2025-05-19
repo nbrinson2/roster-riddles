@@ -48,6 +48,12 @@
           <span class="material-symbols-outlined menu-icon"> info </span>
         </div>
         <div class="icons-right-container">
+          <ng-container *ngIf="currentGameMode() !== 'n/a'">
+            <difficulty-toggle
+              [value]="currentGameMode()"
+              (valueChange)="handleDifficultyChange($event)"
+            ></difficulty-toggle>
+          </ng-container>
           <div *ngIf="!loggedIn" class="login-button" (click)="openLoginMenu()">
             <span class="material-symbols-outlined login-icon"> login </span>
           </div>

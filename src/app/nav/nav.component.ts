@@ -21,8 +21,9 @@ import { HintService } from '../shared/components/hint/hint.service';
 import { GamePlayer } from '../shared/models/common-models';
 import { GAME_SERVICE, GameService } from '../shared/utils/game-service.token';
 import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
-import { GameType } from '../shared/services/common-game/common-game.service';
+import { GameType } from '../game/shared/constants/game.constants';
 import { CareerPathPlayerGenerator } from '../shared/utils/career-path-player-generator';
+import { Difficulty } from './difficulty-toggle/difficulty-toggle.component';
 
 enum MatDrawerPosition {
   END = 'end',
@@ -46,6 +47,10 @@ export class NavComponent implements OnInit, OnDestroy {
 
   get currentGameName(): GameType {
     return this.gameService.currentGame();
+  }
+
+  get currentGameMode(): Signal<Difficulty> {
+    return this.gameService.currentGameMode;
   }
 
   protected bioBallPlayerToGuess = computed(() => {
@@ -120,6 +125,10 @@ export class NavComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  protected handleDifficultyChange(difficulty: Difficulty): void {
+    this.gameService.currentGameMode = difficulty;
   }
 
   protected handlePlayerSelection(): void {

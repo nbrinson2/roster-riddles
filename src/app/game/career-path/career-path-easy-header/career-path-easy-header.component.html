@@ -1,0 +1,13 @@
+<common-attribute-header
+  [gameState]="gameState"
+  [attrHeaders]="attributeHeaders"
+  [numberOfColumns]="numberOfColumns"
+  (columnClick)="handleRevealAttribute()"
+></common-attribute-header>
+<player-timeline
+  [playerName]="playerToGuess.name"
+  [groups]="playerToGuess.groups"
+  [winner]="gameState === GameState.WON"
+  [showHint]="false"
+  [isPlayerToGuess]="true"
+></player-timeline>
