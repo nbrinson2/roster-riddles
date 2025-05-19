@@ -20,4 +20,17 @@
     ></player-timeline>
     <div class="text" [innerHTML]="rule.description | safeHtml"></div>
   </div>
+  <ng-container *ngIf="currentGameMode === 'easy'">
+    <div class="section">
+      <common-attribute-header
+        [attrHeaders]="CAREER_PATH_ATTRIBUTE_HEADERS"
+        [numberOfColumns]="5"
+        [showHint]="false"
+      ></common-attribute-header>
+      <div class="text">
+        The mystery player's attributes are able to be revealed by clicking on an
+        attribute, BUT it will cost you a guess!
+      </div>
+    </div>
+  </ng-container>
 </ng-container>

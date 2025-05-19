@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { GameType } from 'src/app/shared/services/common-game/common-game.service';
+import { GameType } from 'src/app/game/shared/constants/game.constants';
+import { Difficulty } from '../difficulty-toggle/difficulty-toggle.component';
 
 export enum HowToPlayDescription {
   BIO_BALL = 'Guess the mystery player within 9 guesses.',
@@ -15,6 +16,7 @@ export enum HowToPlayDescription {
 export class HowToPlayComponent {
   protected readonly GameType = GameType;
 
+  @Input() currentGameMode: Difficulty = 'easy';
   @Input() set gameType(value: GameType) {
     this._gameType = value;
     this.description = value === GameType.BIO_BALL ? HowToPlayDescription.BIO_BALL : HowToPlayDescription.CAREER_PATH;

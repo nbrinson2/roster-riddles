@@ -1,20 +1,20 @@
 <div class="content-container">
-  <mat-grid-list cols="9" rowHeight="40px">
-    <div *ngIf="!endOfGame" class="attr-container">
-      <div *ngFor="let header of attrHeaders" class="tile-container">
-        <mat-grid-tile [colspan]="header.colSpan">
-          <div class="column-content" [ngClass]="header.class">
-            {{ header.name }}
-          </div>
-        </mat-grid-tile>
-      </div>
-    </div>
-    <div *ngIf="endOfGame" class="end-result-header">
+  <div *ngIf="!endOfGame" class="attr-container">
+    <common-attribute-header
+      [attrHeaders]="attrHeaders"
+      [numberOfColumns]="9"
+    ></common-attribute-header>
+  </div>
+  <div *ngIf="endOfGame" class="end-result-header">
+    <mat-grid-list cols="9" rowHeight="40px">
       <mat-grid-tile colspan="9">
-        <div class="column-content end-result" [ngClass]="getEndResultBorderColor()">
-          <span class="end-result-text">{{ endResultText}}</span>
+        <div
+          class="column-content end-result"
+          [ngClass]="getEndResultBorderColor()"
+        >
+          <span class="end-result-text">{{ endResultText }}</span>
         </div>
       </mat-grid-tile>
-    </div>
-  </mat-grid-list>
+    </mat-grid-list>
+  </div>
 </div>

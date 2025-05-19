@@ -11,6 +11,7 @@ import {
 import { PlayerAttrColor } from 'src/app/shared/models/common-models';
 import { CountryBorn } from '../../../game/bio-ball/models/bio-ball.models';
 import { CareerPathPlayer } from 'src/app/game/career-path/models/career-path.models';
+import { Header } from 'src/app/game/shared/common-attribute-header/common-attribute-header.component';
 
 export const BIO_BALL_PLAYERS: MlbUiPlayer[] = [
   {
@@ -233,5 +234,70 @@ export const CAREER_PATH_PLAYERS: CareerPathPlayer[] = [
         ],
       },
     ],
+  },
+  {
+    id: 6,
+    name: '???',
+    groups: [
+      {
+        from: 2000,
+        to: 2003,
+        stints: [
+          {
+            teamKey: MlbTeamKey.PHILADELPHIA_PHILLIES,
+            from: 2000,
+            to: 2003,
+            logoBorderColor: PlayerAttrColor.NONE,
+            yearColor: PlayerAttrColor.NONE,
+          },
+        ],
+      },
+      {
+        from: 2004,
+        to: 2005,
+        stints: [
+          {
+            teamKey: MlbTeamKey.ARIZONA_DIAMONDBACKS,
+            from: 2004,
+            to: 2005,
+            logoBorderColor: PlayerAttrColor.NONE,
+            yearColor: PlayerAttrColor.NONE,
+          },
+        ],
+      },
+    ],
+  },
+];
+
+export const CAREER_PATH_ATTRIBUTE_HEADERS: Header[] = [
+  {
+    name: 'Drafted',
+    value: '2000',
+    colSpan: 1,
+    class: 'bats-throws',
+  },
+  {
+    name: 'Bats/Throws',
+    value: 'R/L',
+    colSpan: 1,
+    class: 'bats-throws',
+  },
+  {
+    name: 'Born',
+    value: 'USA',
+    colSpan: 1,
+    class: 'bats-throws',
+  },
+  {
+    name: '#',
+    value: '13',
+    colSpan: 1,
+    class: 'bats-throws',
+  },
+  {
+    name: 'Pos',
+    value: 'C',
+    colSpan: 1,
+    class: 'bats-throws',
   },
 ];

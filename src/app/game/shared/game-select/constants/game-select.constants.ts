@@ -1,7 +1,7 @@
 // game-select.constants.ts
 import { APP_ROUTES } from 'src/app/app-routing.module';
 import { Routes } from '@angular/router';
-import { GameType } from 'src/app/shared/services/common-game/common-game.service';
+import { GameType } from 'src/app/game/shared/constants/game.constants';
 
 export interface GameOption {
   type: GameType;

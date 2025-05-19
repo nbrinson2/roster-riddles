@@ -3,7 +3,7 @@ import { style, transition } from '@angular/animations';
 import { animate } from '@angular/animations';
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { GAME_OPTIONS, GameOption } from './constants/game-select.constants';
-import { GameType } from '../../services/common-game/common-game.service';
+import { GameType } from 'src/app/game/shared/constants/game.constants';
 
 @Component({
   selector: 'game-select',

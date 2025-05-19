@@ -30,7 +30,7 @@ import { ProfileComponent } from './nav/profile/profile.component';
 import { HintComponent } from './shared/components/hint/hint.component';
 import { SlideUpComponent } from './shared/components/slide-up/slide-up.component';
 import { BioBallPlayerComponent } from './game/bio-ball/player/bio-ball-player.component';
-import { SearchComponent } from './shared/components/search/search.component';
+import { SearchComponent } from './game/shared/search/search.component';
 import { GameComponent } from './game/game.component';
 import { HowToPlayComponent } from './nav/how-to-play/how-to-play.component';
 import { CareerPathComponent } from './game/career-path/career-path.component';
@@ -40,7 +40,11 @@ import { CommonTableComponent } from './shared/components/table/common-table.com
 import { RosterByYearsTableComponent } from './nav/roster-by-years-table/roster-by-years-table.component';
 import { GameRuleListComponent } from './nav/how-to-play/game-rule-list/game-rule-list.component';
 import { SafeHtmlPipe } from './shared/utils/safe-html.pipe';
-import { GameSelectComponent } from './shared/components/game-select/game-select.component';
+import { GameSelectComponent } from './game/shared/game-select/game-select.component';
+import { DifficultyToggleComponent } from './nav/difficulty-toggle/difficulty-toggle.component';
+import { CommonAttributeHeaderComponent } from './game/shared/common-attribute-header/common-attribute-header.component';
+import { CareerPathEasyHeaderComponent } from './game/career-path/career-path-easy-header/career-path-easy-header.component';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -62,6 +66,9 @@ import { GameSelectComponent } from './shared/components/game-select/game-select
     GameRuleListComponent,
     SafeHtmlPipe,
     GameSelectComponent,
+    DifficultyToggleComponent,
+    CommonAttributeHeaderComponent,
+    CareerPathEasyHeaderComponent,
   ],
   imports: [
     BrowserModule,

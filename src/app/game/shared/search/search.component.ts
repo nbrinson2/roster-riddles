@@ -19,6 +19,7 @@ import {
 import { GAME_SERVICE, GameService } from 'src/app/shared/utils/game-service.token';
 import { GamePlayer } from 'src/app/shared/models/common-models';
 import { CareerPathPlayer } from 'src/app/game/career-path/models/career-path.models';
+import { Difficulty } from 'src/app/nav/difficulty-toggle/difficulty-toggle.component';
 
 @Component({
   selector: 'search',
@@ -36,6 +37,10 @@ export class SearchComponent implements AfterViewInit {
 
   get placeHolderText(): string {
     return this.gameService.searchInputPlaceHolderText();
+  }
+
+  get currentGameMode(): Difficulty {
+    return this.gameService.currentGameMode();
   }
 
   protected searchControl = new FormControl();
