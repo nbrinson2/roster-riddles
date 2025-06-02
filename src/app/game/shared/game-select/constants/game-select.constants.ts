@@ -14,6 +14,7 @@ export interface GameOption {
 const ICON_MAP: Record<string, string> = {
   'bio-ball': 'sports_cricket',
   'career-path': 'timeline',
+  'nickname-streak': 'badge',
 };
 
 function formatLabel(path: string): string {

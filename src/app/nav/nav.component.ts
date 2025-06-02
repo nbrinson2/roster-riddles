@@ -92,6 +92,8 @@ export class NavComponent implements OnInit, OnDestroy {
           this.gameService.currentGame = GameType.BIO_BALL;
         } else if (e.urlAfterRedirects.startsWith('/career-path')) {
           this.gameService.currentGame = GameType.CAREER_PATH;
+        } else if (e.urlAfterRedirects.startsWith('/nickname-streak')) {
+          this.gameService.currentGame = GameType.NICKNAME_STREAK;
         } else {
           this.gameService.currentGame = GameType.BIO_BALL;
         }

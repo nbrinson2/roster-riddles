@@ -9,6 +9,9 @@ import { CareerPathMlbResolver } from './game/career-path/resolvers/career-path-
 import { GameComponent } from './game/game.component';
 import { NavComponent } from './nav/nav.component';
 import { CareerPathEngineService } from './game/career-path/services/career-path-engine/career-path-engine.service';
+import { NicknameStreakComponent } from './game/nickname-streak/nickname-streak.component';
+import { NicknameStreakEngineService } from './game/nickname-streak/services/nickname-streak-engine.service';
+import { NicknameStreakResolver } from './game/nickname-streak/resolvers/nickname-streak.resolver';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'bio-ball/mlb', pathMatch: 'full' },
@@ -62,6 +65,29 @@ export const APP_ROUTES: Routes = [
             component: CareerPathComponent,
             resolve: {
               players: CareerPathMlbResolver,
+            },
+          },
+        ],
+      },
+    ],
+  },
+
+  {
+    path: 'nickname-streak/:league',
+    component: NavComponent,
+    providers: [
+      { provide: GAME_SERVICE, useExisting: NicknameStreakEngineService },
+    ],
+    children: [
+      {
+        path: '',
+        component: GameComponent,
+        children: [
+          {
+            path: '',
+            component: NicknameStreakComponent,
+            resolve: {
+              players: NicknameStreakResolver,
             },
           },
         ],

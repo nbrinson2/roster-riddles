@@ -44,6 +44,7 @@ import { GameSelectComponent } from './game/shared/game-select/game-select.compo
 import { DifficultyToggleComponent } from './nav/difficulty-toggle/difficulty-toggle.component';
 import { CommonAttributeHeaderComponent } from './game/shared/common-attribute-header/common-attribute-header.component';
 import { CareerPathEasyHeaderComponent } from './game/career-path/career-path-easy-header/career-path-easy-header.component';
+import { NicknameStreakComponent } from './game/nickname-streak/nickname-streak.component';
 
 @NgModule({
   declarations: [
@@ -69,6 +70,7 @@ import { CareerPathEasyHeaderComponent } from './game/career-path/career-path-ea
     DifficultyToggleComponent,
     CommonAttributeHeaderComponent,
     CareerPathEasyHeaderComponent,
+    NicknameStreakComponent,
   ],
   imports: [
     BrowserModule,
