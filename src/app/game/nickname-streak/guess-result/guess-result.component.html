@@ -1,0 +1,20 @@
+<div
+  class="guess-result"
+  role="alert"
+  [attr.aria-label]="isCorrect 
+    ? fullName + ' guessed correctly' 
+    : fullName + ' guessed incorrectly'"
+  [ngClass]="{ correct: isCorrect, incorrect: !isCorrect }"
+>
+  <mat-icon
+    class="icon"
+    [attr.aria-label]="isCorrect ? 'Correct' : 'Incorrect'"
+    [color]="isCorrect ? 'primary' : 'warn'"
+    >{{ isCorrect ? 'check_circle' : 'cancel' }}</mat-icon
+  >
+
+  <div class="info">
+    <span class="full-name">{{ fullName }}</span>
+    <span *ngIf="isCorrect" class="nickname">"{{ nickname }}"</span>
+  </div>
+</div>

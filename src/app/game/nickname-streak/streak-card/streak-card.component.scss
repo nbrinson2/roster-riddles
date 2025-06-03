@@ -1,0 +1,73 @@
+@use '../../../../constants' as constants;
+
+.streak-card {
+  border: 1px solid #444;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER AREA */
+.streak-card__header {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+}
+
+.streak-card__header-item {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: baseline;
+}
+
+.label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #bbb;
+}
+
+.value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: constants.$color-secondary;
+}
+
+/* DIVIDER */
+.streak-card__divider {
+  margin: 0;
+  border: none;
+  border-top: 1px solid #444;
+  width: 100%;
+}
+
+/* BODY AREA (CENTERED NAME) */
+.streak-card__body {
+  font-family: constants.$font-family-secondary;
+  padding: 24px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1; /* push footer (if any) to bottom */
+}
+
+.streak-card__name {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .streak-card__name {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .streak-card__name {
+    font-size: 0.8rem;
+  }
+}
+

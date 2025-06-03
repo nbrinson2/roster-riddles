@@ -24,6 +24,7 @@ import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
 import { GameType } from '../game/shared/constants/game.constants';
 import { CareerPathPlayerGenerator } from '../shared/utils/career-path-player-generator';
 import { Difficulty } from './difficulty-toggle/difficulty-toggle.component';
+import { NicknameStreakEngineService } from '../game/nickname-streak/services/nickname-streak-engine.service';
 
 enum MatDrawerPosition {
   END = 'end',
@@ -53,6 +54,10 @@ export class NavComponent implements OnInit, OnDestroy {
     return this.gameService.currentGameMode;
   }
 
+  get nicknameStreakNicknameToGuess(): string {
+    return this.nicknameStreakEngineService.nicknameToGuess();
+  }
+
   protected bioBallPlayerToGuess = computed(() => {
     const player = this.playerToGuess();
     return player && 'colorMap' in player ? player : null;
@@ -61,6 +66,11 @@ export class NavComponent implements OnInit, OnDestroy {
   protected careerPathPlayerToGuess = computed(() => {
     const player = this.playerToGuess();
     return player && 'groups' in player ? player : null;
+  });
+
+  protected nicknameStreakPlayerToGuess = computed(() => {
+    const player = this.playerToGuess();
+    return player && 'nicknames' in player ? player : null;
   });
 
   // protected user?: SocialUser;
@@ -83,7 +93,7 @@ export class NavComponent implements OnInit, OnDestroy {
     private slideUpService: SlideUpService,
     @Inject(GAME_SERVICE)
     private gameService: GameService<GamePlayer>,
-    private careerPathPlayerGenerator: CareerPathPlayerGenerator
+    private nicknameStreakEngineService: NicknameStreakEngineService
   ) {
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
