@@ -5,6 +5,7 @@ import { Difficulty } from '../difficulty-toggle/difficulty-toggle.component';
 export enum HowToPlayDescription {
   BIO_BALL = 'Guess the mystery player within 9 guesses.',
   CAREER_PATH = 'Guess the mystery player within 9 guesses.',
+  NICKNAME_STREAK = 'Guess the name of the mystery player from their nickname.',
 }
 
 @Component({
@@ -19,7 +20,12 @@ export class HowToPlayComponent {
   @Input() currentGameMode: Difficulty = 'easy';
   @Input() set gameType(value: GameType) {
     this._gameType = value;
-    this.description = value === GameType.BIO_BALL ? HowToPlayDescription.BIO_BALL : HowToPlayDescription.CAREER_PATH;
+    this.description =
+      value === GameType.BIO_BALL
+        ? HowToPlayDescription.BIO_BALL
+        : value === GameType.CAREER_PATH
+        ? HowToPlayDescription.CAREER_PATH
+        : HowToPlayDescription.NICKNAME_STREAK;
   }
 
   get gameType(): GameType {

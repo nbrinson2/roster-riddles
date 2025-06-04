@@ -20,6 +20,7 @@ import { GAME_SERVICE, GameService } from 'src/app/shared/utils/game-service.tok
 import { GamePlayer } from 'src/app/shared/models/common-models';
 import { CareerPathPlayer } from 'src/app/game/career-path/models/career-path.models';
 import { Difficulty } from 'src/app/nav/difficulty-toggle/difficulty-toggle.component';
+import { NicknameStreakPlayer } from '../../nickname-streak/models/nickname-streak.models';
 
 @Component({
   selector: 'search',
@@ -66,6 +67,10 @@ export class SearchComponent implements AfterViewInit {
 
   protected isCareerPathPlayer(object: GamePlayer): object is CareerPathPlayer {
     return 'groups' in object;
+  }
+
+  protected isNicknameStreakPlayer(object: GamePlayer): object is NicknameStreakPlayer {
+    return 'nicknames' in object;
   }
 
   protected selectPlayer(player: GamePlayer): void {

@@ -6,6 +6,7 @@ import { GamePlayer } from '../shared/models/common-models';
 import { GAME_SERVICE, GameService } from '../shared/utils/game-service.token';
 import { RosterSelectionService } from './bio-ball/services/roster-selection/roster-selection.service';
 import { Header } from './shared/common-attribute-header/common-attribute-header.component';
+import { NicknameStreakPlayer } from './nickname-streak/models/nickname-streak.models';
 
 @Component({
   selector: 'game',
@@ -28,6 +29,18 @@ export class GameComponent {
 
   get attributeHeaders(): Header[] {
     return this.gameService.attributeHeaders();
+  }
+
+  get playerToGuess(): NicknameStreakPlayer {
+    return this.gameService.playerToGuess() as NicknameStreakPlayer;
+  }
+
+  get bestStreak(): number {
+    return this.gameService.bestStreak();
+  }
+
+  get currentStreak(): number {
+    return this.gameService.currentStreak();
   }
 
   constructor(

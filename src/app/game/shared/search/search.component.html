@@ -19,7 +19,7 @@
         <ng-container *ngIf="searchInput.value">
           <mat-option
             *ngFor="let player of filteredPlayers | async"
-            [class.only-name]="currentGameMode === 'easy'"
+            [class.only-name]="currentGameMode === 'easy' || isNicknameStreakPlayer(player)"
             [value]="player.name"
             (click)="searchInput.value != undefined && selectPlayer(player)"
             #playerOption
@@ -40,6 +40,11 @@
                   [compact]="true"
                 ></player-timeline>
               </ng-container>
+            </ng-container>
+            <ng-container *ngIf="isNicknameStreakPlayer(player)">
+              <div class="player-name-container">
+                <span class="player-name">{{ player.name }}</span>
+              </div>
             </ng-container>
           </mat-option>
         </ng-container>

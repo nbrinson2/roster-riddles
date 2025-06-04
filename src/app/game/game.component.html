@@ -19,6 +19,15 @@
         <career-path-easy-header [attributeHeaders]="attributeHeaders" [numberOfColumns]="5"></career-path-easy-header>
       </div>
     </ng-container>
+    <ng-container *ngIf="currentGameType === 'nickname-streak'">
+      <div class="attr-header-container">
+        <streak-card
+          [bestStreak]="bestStreak"
+          [currentStreak]="currentStreak"
+          [player]="playerToGuess"
+        ></streak-card>
+      </div>
+    </ng-container>
   </div>
 
   <!-- this is where BioBallComponent (and any future child) will render -->
