@@ -1,0 +1,120 @@
+@use '../../../../constants' as constants;
+
+/* 3) PARENT CARD STYLING */
+.guess-result {
+  display: flex;
+  align-items: center;
+  margin: 16px auto;        /* Center horizontally, with vertical gap */
+  padding: 16px 20px;       /* Increased padding to give breathing room */
+  border: 1px solid #444;
+  border-radius: 10px;      
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  overflow: hidden;         /* Never let children overflow the rounded corners */
+  transition:
+    border-color 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+  animation: guessResultFadeIn 0.4s ease-out;
+}
+
+/* 4) CORRECT VS INCORRECT VARIANTS */
+/*    a) Correct: greenish border + tint */
+.guess-result.correct {
+  border-color: constants.$color-secondary;
+  /* A slightly stronger shadow when correct: */
+  box-shadow: 0 4px 12px rgba(constants.$color-secondary, 0.3);
+}
+
+/*    b) Incorrect: reddish border + tint */
+.guess-result.incorrect {
+  border-color: constants.$color-tertiary;
+  box-shadow: 0 4px 12px rgba(constants.$color-tertiary, 0.3);
+}
+
+/* 5) ICON CIRCLE + COLORS */
+/*    Wrap the mat-icon in a circular background that also animates */
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;         /* bigger icon for emphasis */
+  width: 44px;             /* fixed circle size */
+  height: 44px;
+  border-radius: 50%;      /* perfect circle */
+  margin-right: 16px;      
+  background-color: rgba(255, 255, 255, 0.05); 
+  color: #bbb;             /* default muted color */
+
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/*    a) Icon when “correct” */
+.guess-result.correct .icon {
+  background-color: constants.$color-secondary; 
+  color: #fff;            
+}
+
+/*    b) Icon when “incorrect” */
+.guess-result.incorrect .icon {
+  background-color: constants.$color-tertiary;
+  color: #fff;
+}
+
+/* 6) TEXT CONTAINER: FULL NAME + NICKNAME */
+.info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  font-family: constants.$font-family-secondary;
+  color: #fff;
+  line-height: 1.2;        /* tighten up vertical spacing */
+}
+
+/*    a) Full name: larger, bolder */
+.full-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #f0f0f0;
+}
+
+/*    b) Nickname: italics + slight margin top */
+.nickname {
+  margin-top: 4px;
+  font-size: 1rem;
+  font-style: italic;
+}
+
+/* 7) RESPONSIVE TWEAKS */
+@media (max-width: 600px) {
+  .guess-result {
+    padding: 14px 16px;
+  }
+  .icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.6rem;
+  }
+  .full-name {
+    font-size: 1.1rem;
+  }
+  .nickname {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .guess-result {
+    padding: 12px 14px;
+  }
+  .icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1.4rem;
+  }
+  .full-name {
+    font-size: 1rem;
+  }
+  .nickname {
+    font-size: 0.7rem;
+  }
+}

@@ -72,6 +72,22 @@ export abstract class CommonGameService<T> {
     this._numberOfGuesses = value;
   }
 
+  get bestStreak(): Signal<number> {
+    return this._bestStreak.asReadonly();
+  }
+
+  set bestStreak(value: number) {
+    this._bestStreak.set(value);
+  }
+
+  get currentStreak(): Signal<number> {
+    return this._currentStreak.asReadonly();
+  }
+
+  set currentStreak(value: number) {
+    this._currentStreak.set(value);
+  }
+  
   public allowedGuesses = 9;
   public endResultText = EndResultMessage.WIN;
   public isSearchDisabled = false;
@@ -85,6 +101,9 @@ export abstract class CommonGameService<T> {
   private _gameState = signal<GameState>(GameState.PLAYING);
   private _numberOfGuesses = 0;
   private _attributeHeaders = signal<Header[]>([]);
+  private _bestStreak = signal<number>(0);
+  private _currentStreak = signal<number>(0);
+
   constructor(private slideUpService: SlideUpService) {}
 
   public startNewGame(players?: T[]): void {

@@ -92,6 +92,13 @@
             [groups]="player.groups"
           ></player-timeline>
         </ng-container>
+        <ng-container *ngIf="nicknameStreakPlayerToGuess() as player">
+          <guess-result
+            [fullName]="player.name"
+            [nickname]="nicknameStreakNicknameToGuess"
+            [isCorrect]="true"
+          ></guess-result>
+        </ng-container>
       </slide-up>
     </mat-sidenav-content>
   </mat-sidenav-container>

@@ -1,6 +1,7 @@
 export enum GameType {
   BIO_BALL = 'bio-ball',
   CAREER_PATH = 'career-path',
+  NICKNAME_STREAK = 'nickname-streak',
 }
 
 export enum EndResultMessage {

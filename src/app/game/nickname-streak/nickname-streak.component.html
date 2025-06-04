@@ -1,0 +1,8 @@
+<div class="guess-list" *ngIf="selectedPlayers.length">
+  <guess-result
+    *ngFor="let player of selectedPlayers"
+    [fullName]="player.name"
+    [nickname]="player.nicknameToGuess"
+    [isCorrect]="player.isCorrectGuess"
+  ></guess-result>
+</div>

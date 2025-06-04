@@ -18,6 +18,10 @@ export interface GameService<T> {
   get gameState(): Signal<GameState>;
   get numberOfGuesses(): number;
   set numberOfGuesses(value: number);
+  get bestStreak(): Signal<number>;
+  set bestStreak(value: number);
+  get currentStreak(): Signal<number>;
+  set currentStreak(value: number);
   isSearchDisabled: boolean;
 
   startNewGame(players?: T[]): void;
