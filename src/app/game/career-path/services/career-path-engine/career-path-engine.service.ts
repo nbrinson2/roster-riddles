@@ -163,10 +163,14 @@ export class CareerPathEngineService
           CountryBornAbbreviationMap[
             playerDetails.birthCountry as CountryBornFullName
           ];
+        const draftYear = playerDetails.draftYear
+          ? playerDetails.draftYear.toString()
+          : 'Undrafted';
+        
         this.attributeHeaders = [
           {
             name: 'Drafted',
-            value: playerDetails.draftYear.toString(),
+            value: draftYear,
             colSpan: 1,
             class: 'bats-throws',
           },

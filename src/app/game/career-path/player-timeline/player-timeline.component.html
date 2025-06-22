@@ -36,11 +36,16 @@
                     [ngClass]="'logo-border-color-' + s.logoBorderColor"
                     (click)="onLogoClick(s)"
                   >
-                    <img
-                      class="team-logo"
-                      [src]="logoService.getLogoUrl(s.teamKey, s.from)"
-                      [alt]="s.teamKey + ' logo'"
-                    />
+                    <ng-container *featureFlag="'mlbTeamLogos'; else noLogo">
+                      <img
+                        class="team-logo"
+                        [src]="logoService.getLogoUrl(s.teamKey, s.from)"
+                        [alt]="s.teamKey + ' logo'"
+                      />
+                    </ng-container>
+                    <ng-template #noLogo>
+                      {{ s.teamAbbreviation }}
+                    </ng-template>
                   </div>
                 </ng-container>
               </div>
@@ -74,11 +79,16 @@
               class="logo-wrapper"
               [ngClass]="'logo-border-color-' + s.logoBorderColor"
             >
-              <img
-                class="team-logo"
-                [src]="logoService.getLogoUrl(s.teamKey, s.from)"
-                [alt]="s.teamKey + ' logo'"
-              />
+              <ng-container *featureFlag="'mlbTeamLogos'; else noLogo">
+                <img
+                  class="team-logo"
+                  [src]="logoService.getLogoUrl(s.teamKey, s.from)"
+                  [alt]="s.teamKey + ' logo'"
+                />
+              </ng-container>
+              <ng-template #noLogo>
+                {{ s.teamAbbreviation }}
+              </ng-template>
             </div>
           </ng-container>
         </div>
