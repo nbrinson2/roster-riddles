@@ -11,6 +11,7 @@ import {
 import { PlayerAttrColor } from 'src/app/shared/models/common-models';
 import { teamKeyMap } from '../constants/career-path.constants';
 import { MlbTeamKey } from '../../bio-ball/models/mlb.models';
+import { MlbTeamAbbreviationMap, MlbTeamKeyToFullNameMap } from '../../bio-ball/constants/bio-ball-constants';
 
 @Injectable({
   providedIn: 'root',
@@ -40,14 +41,18 @@ export class CareerPathMlbResolver {
                 ? 'Los Angeles Angels of Anaheim'
                 : t.team;
               const slug =
-                teamKeyMap[raw] ||
+                (teamKeyMap[raw] ||
                 raw
                   .toLowerCase()
-                  .replace(/[\s’'.]+/g, '-') // spaces, apostrophes, periods → hyphens
-                  .replace(/-+/g, '-'); // collapse multiple hyphens
+                  .replace(/[\s’'.]+/g, '-')
+                  .replace(/-+/g, '-')) as MlbTeamKey;
+              const teamFullName = MlbTeamKeyToFullNameMap[slug];
+              const teamAbbreviation = MlbTeamAbbreviationMap[teamFullName];
 
               return {
-                teamKey: slug as MlbTeamKey,
+                teamKey: slug,
+                teamFullName,
+                teamAbbreviation,
                 from: t.yearStart,
                 to: t.yearEnd,
                 logoBorderColor: PlayerAttrColor.NONE,

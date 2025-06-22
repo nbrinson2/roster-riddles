@@ -21,6 +21,7 @@ import { style } from '@angular/animations';
 import { state } from '@angular/animations';
 import { animate } from '@angular/animations';
 import { transition } from '@angular/animations';
+
 @Component({
   selector: 'player-timeline',
   templateUrl: './player-timeline.component.html',
@@ -74,7 +75,7 @@ export class PlayerTimelineComponent implements AfterViewInit {
     private hintService: HintService
   ) {}
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.yearsWrappers.changes.subscribe(() => {
       const wrappers = this.yearsWrappers.toArray();
       if (

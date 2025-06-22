@@ -12,11 +12,16 @@
   <ng-template #teamsCell let-player>
     <div class="logo-group-compact">
       <div *ngFor="let team of player.teams" class="logo-wrapper">
-        <img
-          class="team-logo"
-          [src]="logoService.getLogoUrl(team.teamKey, team.from)"
-          [alt]="team.teamKey + ' logo'"
-        />
+        <ng-container *featureFlag="'mlbTeamLogos'; else noLogo">
+          <img
+            class="team-logo"
+            [src]="logoService.getLogoUrl(team.teamKey, team.from)"
+            [alt]="team.teamKey + ' logo'"
+          />
+        </ng-container>
+        <ng-template #noLogo>
+          {{ team.teamAbbreviation }}
+        </ng-template>
       </div>
     </div>
   </ng-template>

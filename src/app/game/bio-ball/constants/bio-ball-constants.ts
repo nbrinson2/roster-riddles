@@ -1,8 +1,6 @@
-import { MlbBatting, MlbBattingFullName, MlbHistoricalTeamFullName, MlbLeagueDivision, MlbLeagueDivisionFullName, MlbTeam, MlbTeamFullName, MlbTeamKey, MlbThrowing, MlbThrowingFullName } from "../models/mlb.models";
-import { CountryBornFullName, TeamFullName, TeamType } from "../models/bio-ball.models";
-import { CountryBorn } from "../models/bio-ball.models";
-import { NflTeamFullName } from "../models/nfl.models";
-import { NflTeam } from "../models/nfl.models";
+import { CountryBorn, CountryBornFullName, TeamType } from "../models/bio-ball.models";
+import { MlbBatting, MlbBattingFullName, MlbLeagueDivision, MlbLeagueDivisionFullName, MlbTeam, MlbTeamFullName, MlbTeamKey, MlbThrowing, MlbThrowingFullName } from "../models/mlb.models";
+import { NflTeam, NflTeamFullName } from "../models/nfl.models";
 
 export const MlbTeamAbbreviationMap: { [key in MlbTeamFullName]: MlbTeam } = {
     [MlbTeamFullName.ARIZONA_DIAMONDBACKS]: MlbTeam.ARI,
@@ -35,6 +33,14 @@ export const MlbTeamAbbreviationMap: { [key in MlbTeamFullName]: MlbTeam } = {
     [MlbTeamFullName.TEXAS_RANGERS]: MlbTeam.TEX,
     [MlbTeamFullName.TORONTO_BLUE_JAYS]: MlbTeam.TOR,
     [MlbTeamFullName.WASHINGTON_NATIONALS]: MlbTeam.WSN,
+    [MlbTeamFullName.CALIFORNIA_ANGELS]: MlbTeam.CAL,
+    [MlbTeamFullName.ANAHEIM_ANGELS]: MlbTeam.ANA,
+    [MlbTeamFullName.LOS_ANGELES_ANGELS_OF_ANAHEIM]: MlbTeam.LAA,
+    [MlbTeamFullName.CLEVELAND_INDIANS]: MlbTeam.CLE,
+    [MlbTeamFullName.FLORIDA_MARLINS]: MlbTeam.FLA,
+    [MlbTeamFullName.MONTREAL_EXPOS]: MlbTeam.MON,
+    [MlbTeamFullName.TAMPA_BAY_DEVIL_RAYS]: MlbTeam.TBD,
+    [MlbTeamFullName.ATHLETICS]: MlbTeam.ATH,
 };
 
 export const LeagueDivisionAbbreviationMap: { [key in MlbLeagueDivisionFullName]: MlbLeagueDivision } = {
@@ -116,11 +122,17 @@ export const MlbAbbreviationToFullNameMap: { [key in MlbTeam]: MlbTeamFullName }
   [MlbTeam.TEX]: MlbTeamFullName.TEXAS_RANGERS,
   [MlbTeam.TOR]: MlbTeamFullName.TORONTO_BLUE_JAYS,
   [MlbTeam.WSN]: MlbTeamFullName.WASHINGTON_NATIONALS,
+  [MlbTeam.CAL]: MlbTeamFullName.CALIFORNIA_ANGELS,
+  [MlbTeam.ANA]: MlbTeamFullName.ANAHEIM_ANGELS,
+  [MlbTeam.FLA]: MlbTeamFullName.FLORIDA_MARLINS,
+  [MlbTeam.MON]: MlbTeamFullName.MONTREAL_EXPOS,
+  [MlbTeam.TBD]: MlbTeamFullName.TAMPA_BAY_DEVIL_RAYS,
+  [MlbTeam.ATH]: MlbTeamFullName.ATHLETICS,
 };
 
-export const MlbTeamKeyToFullNameMap: { [key in MlbTeamKey]: MlbTeamFullName | MlbHistoricalTeamFullName } = {
+export const MlbTeamKeyToFullNameMap: { [key in MlbTeamKey]: MlbTeamFullName } = {
   [MlbTeamKey.ARIZONA_DIAMONDBACKS]: MlbTeamFullName.ARIZONA_DIAMONDBACKS,
-  [MlbTeamKey.ATHLETICS]: MlbHistoricalTeamFullName.ATHLETICS,
+  [MlbTeamKey.ATHLETICS]: MlbTeamFullName.ATHLETICS,
   [MlbTeamKey.ATLANTA_BRAVES]: MlbTeamFullName.ATLANTA_BRAVES,
   [MlbTeamKey.BALTIMORE_ORIOLES]: MlbTeamFullName.BALTIMORE_ORIOLES,
   [MlbTeamKey.BOSTON_RED_SOX]: MlbTeamFullName.BOSTON_RED_SOX,
@@ -150,16 +162,16 @@ export const MlbTeamKeyToFullNameMap: { [key in MlbTeamKey]: MlbTeamFullName | M
   [MlbTeamKey.TEXAS_RANGERS]: MlbTeamFullName.TEXAS_RANGERS,
   [MlbTeamKey.TORONTO_BLUE_JAYS]: MlbTeamFullName.TORONTO_BLUE_JAYS,
   [MlbTeamKey.WASHINGTON_NATIONALS]: MlbTeamFullName.WASHINGTON_NATIONALS,
-  [MlbTeamKey.CALIFORNIA_ANGELS]: MlbHistoricalTeamFullName.CALIFORNIA_ANGELS,
-  [MlbTeamKey.ANAHEIM_ANGELS]: MlbHistoricalTeamFullName.ANAHEIM_ANGELS,
-  [MlbTeamKey.LOS_ANGELES_ANGELS_OF_ANAHEIM]: MlbHistoricalTeamFullName.LOS_ANGELES_ANGELS_OF_ANAHEIM,
-  [MlbTeamKey.CLEVELAND_INDIANS]: MlbHistoricalTeamFullName.CLEVELAND_INDIANS,
-  [MlbTeamKey.FLORIDA_MARLINS]: MlbHistoricalTeamFullName.FLORIDA_MARLINS,
-  [MlbTeamKey.MONTREAL_EXPOS]: MlbHistoricalTeamFullName.MONTREAL_EXPOS,
-  [MlbTeamKey.TAMPA_BAY_DEVIL_RAYS]: MlbHistoricalTeamFullName.TAMPA_BAY_DEVIL_RAYS,
+  [MlbTeamKey.CALIFORNIA_ANGELS]: MlbTeamFullName.CALIFORNIA_ANGELS,
+  [MlbTeamKey.ANAHEIM_ANGELS]: MlbTeamFullName.ANAHEIM_ANGELS,
+  [MlbTeamKey.LOS_ANGELES_ANGELS_OF_ANAHEIM]: MlbTeamFullName.LOS_ANGELES_ANGELS_OF_ANAHEIM,
+  [MlbTeamKey.CLEVELAND_INDIANS]: MlbTeamFullName.CLEVELAND_INDIANS,
+  [MlbTeamKey.FLORIDA_MARLINS]: MlbTeamFullName.FLORIDA_MARLINS,
+  [MlbTeamKey.MONTREAL_EXPOS]: MlbTeamFullName.MONTREAL_EXPOS,
+  [MlbTeamKey.TAMPA_BAY_DEVIL_RAYS]: MlbTeamFullName.TAMPA_BAY_DEVIL_RAYS,
 };
 
-export const MlbTeamFullNameToKeyMap: { [key in MlbTeamFullName | MlbHistoricalTeamFullName]: MlbTeamKey } = {
+export const MlbTeamFullNameToKeyMap: { [key in MlbTeamFullName]: MlbTeamKey } = {
   [MlbTeamFullName.ARIZONA_DIAMONDBACKS]: MlbTeamKey.ARIZONA_DIAMONDBACKS,
   [MlbTeamFullName.ATLANTA_BRAVES]: MlbTeamKey.ATLANTA_BRAVES,
   [MlbTeamFullName.BALTIMORE_ORIOLES]: MlbTeamKey.BALTIMORE_ORIOLES,
@@ -190,14 +202,14 @@ export const MlbTeamFullNameToKeyMap: { [key in MlbTeamFullName | MlbHistoricalT
   [MlbTeamFullName.TEXAS_RANGERS]: MlbTeamKey.TEXAS_RANGERS,
   [MlbTeamFullName.TORONTO_BLUE_JAYS]: MlbTeamKey.TORONTO_BLUE_JAYS,
   [MlbTeamFullName.WASHINGTON_NATIONALS]: MlbTeamKey.WASHINGTON_NATIONALS,
-  [MlbHistoricalTeamFullName.ATHLETICS]: MlbTeamKey.ATHLETICS,
-  [MlbHistoricalTeamFullName.CALIFORNIA_ANGELS]: MlbTeamKey.CALIFORNIA_ANGELS,
-  [MlbHistoricalTeamFullName.ANAHEIM_ANGELS]: MlbTeamKey.ANAHEIM_ANGELS,
-  [MlbHistoricalTeamFullName.LOS_ANGELES_ANGELS_OF_ANAHEIM]: MlbTeamKey.LOS_ANGELES_ANGELS_OF_ANAHEIM,
-  [MlbHistoricalTeamFullName.CLEVELAND_INDIANS]: MlbTeamKey.CLEVELAND_INDIANS,
-  [MlbHistoricalTeamFullName.FLORIDA_MARLINS]: MlbTeamKey.FLORIDA_MARLINS,
-  [MlbHistoricalTeamFullName.MONTREAL_EXPOS]: MlbTeamKey.MONTREAL_EXPOS,
-  [MlbHistoricalTeamFullName.TAMPA_BAY_DEVIL_RAYS]: MlbTeamKey.TAMPA_BAY_DEVIL_RAYS,
+  [MlbTeamFullName.ATHLETICS]: MlbTeamKey.ATHLETICS,
+  [MlbTeamFullName.CALIFORNIA_ANGELS]: MlbTeamKey.CALIFORNIA_ANGELS,
+  [MlbTeamFullName.ANAHEIM_ANGELS]: MlbTeamKey.ANAHEIM_ANGELS,
+  [MlbTeamFullName.LOS_ANGELES_ANGELS_OF_ANAHEIM]: MlbTeamKey.LOS_ANGELES_ANGELS_OF_ANAHEIM,
+  [MlbTeamFullName.CLEVELAND_INDIANS]: MlbTeamKey.CLEVELAND_INDIANS,
+  [MlbTeamFullName.FLORIDA_MARLINS]: MlbTeamKey.FLORIDA_MARLINS,
+  [MlbTeamFullName.MONTREAL_EXPOS]: MlbTeamKey.MONTREAL_EXPOS,
+  [MlbTeamFullName.TAMPA_BAY_DEVIL_RAYS]: MlbTeamKey.TAMPA_BAY_DEVIL_RAYS,
 };
 
 export const NflAbbreviationToFullNameMap: { [key in NflTeam]: NflTeamFullName } = {

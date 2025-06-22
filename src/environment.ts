@@ -1,6 +1,13 @@
+import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
+
+const featureFlags: FeatureFlags = {
+  mlbTeamLogos: false,
+};
+
 export const environment = {
   production: false,
   baseUrl: 'http://localhost:7070/api/v1',
+  featureFlags,
 };
 
 // TODO: Uncomment this when we have a production environment for firebase
