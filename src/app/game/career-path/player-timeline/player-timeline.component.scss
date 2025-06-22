@@ -28,25 +28,27 @@
       }
     }
     .logo-group.compact {
-      display: flex !important;
+      display: flex;
       flex-wrap: wrap;
       justify-content: center;
     }
 
     .logo-wrapper {
-      width: constants.$logo-tiny !important;
-      height: constants.$logo-tiny !important;
-      border-width: 2px !important;
-      margin: 0 !important;
-      background: #fff !important;
+      width: constants.$logo-tiny;
+      height: constants.$logo-tiny;
+      border-width: 2px;
+      margin: 0;
+      color: constants.$color-header;
+      background: #fff;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
       border-radius: 50%; // ← make it circular
       overflow: hidden; // ← crop the img into the circle
+      font-size: 0.8rem;
 
       // center the image
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       .team-logo {
         max-width: 80%;
@@ -311,6 +313,9 @@
           align-items: center;
           justify-content: center;
           overflow: hidden;
+          color: constants.$color-header;
+          font-family: constants.$font-family-secondary;
+          font-size: 1.4rem;
           background: #eef4fb; // gentle bluish background
           transition: transform 0.2s ease, box-shadow 0.2s ease;
           cursor: pointer;
@@ -390,6 +395,7 @@
   .player-timeline .timeline .stint-group .logo-group .logo-wrapper {
     width: constants.$logo-medium;
     height: constants.$logo-medium;
+    font-size: 1.2rem;
   }
 
   .player-timeline .timeline .stint-group .logo-group .logo-wrapper .team-logo {
@@ -420,6 +426,7 @@
   .player-timeline .timeline .stint-group .logo-group.count-4 .logo-wrapper {
     width: constants.$logo-small;
     height: constants.$logo-small;
+    font-size: 1rem;
   }
 
   .player-timeline .timeline .arrow {

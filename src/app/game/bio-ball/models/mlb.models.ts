@@ -31,6 +31,12 @@ export enum MlbTeam {
   TEX = 'TEX', // Texas Rangers
   TOR = 'TOR', // Toronto Blue Jays
   WSN = 'WSN', // Washington Nationals
+  ATH = 'ATH', // Athletics
+  CAL = 'CAL', // California Angels
+  ANA = 'ANA', // Anaheim Angels
+  FLA = 'FLA', // Florida Marlins
+  MON = 'MON', // Montreal Expos
+  TBD = 'TBD', // Tampa Bay Devil Rays
 }
 
 export enum MlbTeamFullName {
@@ -64,9 +70,6 @@ export enum MlbTeamFullName {
   TEXAS_RANGERS = 'Texas Rangers',
   TORONTO_BLUE_JAYS = 'Toronto Blue Jays',
   WASHINGTON_NATIONALS = 'Washington Nationals',
-}
-
-export enum MlbHistoricalTeamFullName {
   ATHLETICS = 'Athletics',
   CALIFORNIA_ANGELS = 'California Angels',
   ANAHEIM_ANGELS = 'Anaheim Angels',

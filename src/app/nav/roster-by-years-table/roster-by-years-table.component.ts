@@ -8,6 +8,7 @@ import {
 import { MlbTeamFullNameToKeyMap } from 'src/app/game/bio-ball/constants/bio-ball-constants';
 import { TeamFullName } from 'src/app/game/bio-ball/models/bio-ball.models';
 import {
+  MlbTeam,
   MlbTeamFullName,
   MlbTeamKey,
 } from 'src/app/game/bio-ball/models/mlb.models';
@@ -31,6 +32,8 @@ interface RosterByYearsTableData {
 
 interface RosterTeam {
   teamKey: MlbTeamKey;
+  teamFullName: MlbTeamFullName;
+  teamAbbreviation: MlbTeam;
   from: number;
 }
 
@@ -115,6 +118,8 @@ export class RosterByYearsTableComponent {
     return player.groups.flatMap((group) =>
       group.stints.map((s) => ({
         teamKey: s.teamKey as MlbTeamKey,
+        teamFullName: s.teamFullName as MlbTeamFullName,
+        teamAbbreviation: s.teamAbbreviation as MlbTeam,
         from: s.from,
       }))
     );

@@ -47,6 +47,7 @@ import { CareerPathEasyHeaderComponent } from './game/career-path/career-path-ea
 import { NicknameStreakComponent } from './game/nickname-streak/nickname-streak.component';
 import { StreakCardComponent } from './game/nickname-streak/streak-card/streak-card.component';
 import { GuessResultComponent } from './game/nickname-streak/guess-result/guess-result.component';
+import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directive';
 
 @NgModule({
   declarations: [
@@ -75,6 +76,7 @@ import { GuessResultComponent } from './game/nickname-streak/guess-result/guess-
     NicknameStreakComponent,
     StreakCardComponent,
     GuessResultComponent,
+    FeatureFlagDirective,
   ],
   imports: [
     BrowserModule,
