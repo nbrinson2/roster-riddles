@@ -1,4 +1,11 @@
 HELP.md
+
+# Local Firebase web config (copy from src/config/firebase.local.example.ts)
+src/config/firebase.local.ts
+
+# Generated for production builds (see scripts/generate-env-prod.mjs)
+src/environment.prod.ts
+
 target/
 .angular/cache
 dist/

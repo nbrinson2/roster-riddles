@@ -2,6 +2,7 @@
   "name": "roster-riddles",
   "version": "0.0.0",
   "scripts": {
+    "prepare": "node scripts/ensure-firebase-local.mjs",
     "ng": "ng",
     "start": "node index.js",
     "dev": "nodemon index.js",
@@ -9,7 +10,7 @@
     "backend": "nodemon index.js",
     "dev:fullstack": "concurrently \"npm run frontend\" \"npm run backend\"",
     "build": "ng build",
-    "build:prod": "ng build --configuration production",
+    "build:prod": "node scripts/generate-env-prod.mjs && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
