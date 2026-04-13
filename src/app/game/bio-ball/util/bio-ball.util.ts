@@ -16,6 +16,16 @@ export const Headers: Header[] = [
   { name: 'POS.', colSpan: 1, class: 'pos-column' },
 ];
 
+export const PlayerAttributesToHeadersMap: Map<MlbPlayerAttributes, Header> = new Map([
+  [MlbPlayerAttributes.TEAM, Headers[0]],
+  [MlbPlayerAttributes.LG_DIV, Headers[1]],
+  [MlbPlayerAttributes.B, Headers[2]],
+  [MlbPlayerAttributes.T, Headers[3]],
+  [MlbPlayerAttributes.BORN, Headers[4]],
+  [MlbPlayerAttributes.AGE, Headers[5]],
+  [MlbPlayerAttributes.POS, Headers[6]],
+]);
+
 export function getPlayerKeyToBackgroundColorMap(playerToGuess: MlbUiPlayer, selectedPlayer: MlbUiPlayer, initialize: boolean): Map<MlbPlayerAttributes, PlayerAttrColor> {
   const playerAttributes = Object.values(MlbPlayerAttributes).filter((key) => key !== MlbPlayerAttributes.NAME);
   const playerAttrBackgroundColorMap = new Map<MlbPlayerAttributes, PlayerAttrColor>();

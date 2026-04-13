@@ -9,7 +9,7 @@ import {
 import { HintArrowPosition } from 'src/app/shared/components/hint/hint.component';
 import { HintType } from 'src/app/shared/components/hint/hint.service';
 import { MlbPlayerAttributes } from '../models/mlb.models';
-import { Headers } from '../util/bio-ball.util';
+import { Headers, PlayerAttributesToHeadersMap } from '../util/bio-ball.util';
 
 const ATTRIBUTE_ORDER = [
   MlbPlayerAttributes.TEAM,
@@ -98,12 +98,14 @@ export class BioBallPlayerComponent {
   }
 
   private getPlayerKeyToHeaderNameMap(): Map<string, string> {
-    const headerNames: string[] = Headers.map((header) => header.name);
     const playerAttrToHeadersMap = new Map<string, string>();
 
-    for (let i = 0; i < this.playerAttributes.length; i++) {
-      playerAttrToHeadersMap.set(this.playerAttributes[i], headerNames[i]);
-    }
+    this.playerAttributes.forEach((attr) => {
+      const header = PlayerAttributesToHeadersMap.get(attr as MlbPlayerAttributes);
+      if (header) {
+        playerAttrToHeadersMap.set(attr, header.name);
+      }
+    });
 
     return playerAttrToHeadersMap;
   }
