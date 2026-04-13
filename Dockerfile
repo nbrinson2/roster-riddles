@@ -31,9 +31,6 @@ ENV FIREBASE_API_KEY=$FIREBASE_API_KEY \
     FIREBASE_MEASUREMENT_ID=$FIREBASE_MEASUREMENT_ID \
     API_BASE_URL=$API_BASE_URL
 
-# prepare creates src/config/firebase.local.ts from example (needed for dev import graph)
-RUN npm run prepare
-
 # Build the application (generates src/environment.prod.ts then ng build)
 RUN npm run build:prod
 

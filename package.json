@@ -2,7 +2,6 @@
   "name": "roster-riddles",
   "version": "0.0.0",
   "scripts": {
-    "prepare": "node scripts/ensure-firebase-local.mjs",
     "ng": "ng",
     "start": "node index.js",
     "dev": "nodemon index.js",

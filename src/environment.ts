@@ -1,5 +1,5 @@
 import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
-import { firebaseConfig } from './config/firebase.local';
+import { firebaseConfig } from './config/firebase.development';
 
 const featureFlags: FeatureFlags = {
   mlbTeamLogos: false,
