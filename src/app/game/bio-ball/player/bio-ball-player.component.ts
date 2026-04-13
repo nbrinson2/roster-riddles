@@ -1,31 +1,41 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { Headers } from '../util/bio-ball.util';
 import {
-  UiPlayer,
-  TeamUiPlayer,
   AttributesType,
   CommonAttributes,
+  TeamUiPlayer,
+  UiPlayer,
 } from 'src/app/game/bio-ball/models/bio-ball.models';
-import { HintType } from 'src/app/shared/components/hint/hint.service';
 import { HintArrowPosition } from 'src/app/shared/components/hint/hint.component';
+import { HintType } from 'src/app/shared/components/hint/hint.service';
+import { MlbPlayerAttributes } from '../models/mlb.models';
+import { Headers } from '../util/bio-ball.util';
+
+const ATTRIBUTE_ORDER = [
+  MlbPlayerAttributes.TEAM,
+  MlbPlayerAttributes.LG_DIV,
+  MlbPlayerAttributes.B,
+  MlbPlayerAttributes.T,
+  MlbPlayerAttributes.BORN,
+  MlbPlayerAttributes.AGE,
+  MlbPlayerAttributes.POS,
+];
 
 @Component({
   selector: 'bio-ball-player',
   templateUrl: './bio-ball-player.component.html',
   styleUrls: ['./bio-ball-player.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class BioBallPlayerComponent {
   @Input() set player(player: UiPlayer<AttributesType>) {
     this._player = player;
     this.playerAttributes = Object.keys(this._player).filter(
       (attr) =>
-        attr !== CommonAttributes.NAME && attr !== CommonAttributes.COLOR_MAP
+        attr !== CommonAttributes.NAME && attr !== CommonAttributes.COLOR_MAP,
     );
-    this.orderedUiPlayerAttr = Object.values(this.playerAttributes).filter(
-      (attr) =>
-        attr !== CommonAttributes.NAME && attr !== CommonAttributes.COLOR_MAP
+    this.orderedUiPlayerAttr = ATTRIBUTE_ORDER.filter((attr) =>
+      this.playerAttributes.includes(attr),
     );
     this.playerKeyToHeaderNameMap = this.getPlayerKeyToHeaderNameMap();
   }
@@ -83,7 +93,7 @@ export class BioBallPlayerComponent {
 
   protected selectTeam(): void {
     this.selectTeamEvent.emit(
-      (this._player as TeamUiPlayer<AttributesType>).team
+      (this._player as TeamUiPlayer<AttributesType>).team,
     );
   }
 

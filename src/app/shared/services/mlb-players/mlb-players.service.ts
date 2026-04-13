@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { doc, docData, Firestore } from '@angular/fire/firestore';
 import {
   catchError,
   map,
@@ -13,6 +14,13 @@ import {
   MlbUiPlayer,
 } from 'src/app/game/bio-ball/models/mlb.models';
 
+export interface MlbPlayerCache {
+  players: MlbUiPlayer[];
+  count: number;
+  lastUpdated: string;
+  generatedAt: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -21,7 +29,7 @@ export class MlbPlayersService {
   teamsEndpoint = '/teams';
   playerEndpoint = '/people';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private firestore: Firestore) {}
 
   public getTeams(): Observable<MlbTeamsResponse> {
     const reqUrl = this.baseUrl + this.teamsEndpoint;
@@ -72,4 +80,21 @@ export class MlbPlayersService {
         })
       );
   }
-}
+
+  getPlayersSnapshot(): Observable<MlbUiPlayer[]> {
+    const cacheDocRef = doc(this.firestore, 'cache', 'mlb_players_snapshot');
+
+    return docData(cacheDocRef, { idField: 'id' }).pipe(
+      map((data: any) => {
+        if (!data || !data.players) {
+          console.warn('No MLB cache found in Firestore');
+          return [];
+        }
+        return data.players as MlbUiPlayer[];
+      }),
+      catchError(err => {
+        console.error('Error fetching MLB cache:', err);
+        return of([]); // fallback to empty → prevent app crash
+      })
+    );
+  }}
