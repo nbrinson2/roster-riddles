@@ -17,6 +17,7 @@ steps:
       - --allow-unauthenticated
       - --timeout=3600s
       - --memory=1024Mi
+      - --project=$PROJECT_ID
 
 substitutions:
   _FUNCTION_NAME: update-career-path-players-snapshot
