@@ -6,16 +6,7 @@
 # IAM: Cloud Build service account needs Cloud Functions Developer, Cloud Run Admin,
 #      and Service Account User on the runtime service account. See README.
 #
-# Step 1 removes an existing function with the same name so deploy does not hit 409 when
-# Cloud Run / Functions state is out of sync. Brief downtime during that window.
-
 steps:
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
-    entrypoint: bash
-    args:
-      - -c
-      - 'gcloud functions delete $_FUNCTION_NAME --region=$_FUNCTION_REGION --quiet || true'
-
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: gcloud
     args:
@@ -31,7 +22,8 @@ steps:
       - --allow-unauthenticated
 
 substitutions:
-  _FUNCTION_NAME: update-mlb-players-snapshot
+  # Must match `gcloud functions list` (here: underscores). Hyphenated name deploys a different function.
+  _FUNCTION_NAME: update_mlb_players_snapshot
   _FUNCTION_REGION: us-central1
 
 options:
