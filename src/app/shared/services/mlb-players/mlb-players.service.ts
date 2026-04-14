@@ -49,8 +49,9 @@ export class MlbPlayersService {
   }
 
   /**
-   * In production, fetches via same-origin Express proxy so statsapi.mlb.com does not
-   * appear in the browser Network tab (the server forwards to MLB).
+   * In production, always uses same-origin `/api/v1/mlb/people/:id` (Express → MLB).
+   * Does not use `environment.baseUrl`: a mis-set `API_BASE_URL` (e.g. statsapi) would
+   * send the browser to MLB directly and expose the host in the Network tab.
    */
   public getPlayer(id: number): Observable<MlbPlayerResponse> {
     const reqUrl = environment.production
@@ -59,11 +60,9 @@ export class MlbPlayersService {
     return this.http.get<MlbPlayerResponse>(reqUrl);
   }
 
-  /** Same-origin path when baseUrl is empty; full URL when baseUrl includes /api/v1 (local API). */
+  /** Relative path only — resolves to the app origin in the browser (Cloud Run + Express). */
   private playerProxyUrl(id: number): string {
-    const path = `/mlb/people/${id}`;
-    const base = environment.baseUrl?.replace(/\/$/, '') ?? '';
-    return base ? `${base}${path}` : `/api/v1${path}`;
+    return `/api/v1/mlb/people/${id}`;
   }
 
   public getRosterBySeason(
@@ -87,8 +86,11 @@ export class MlbPlayersService {
 
   /** simple wrapper to hit /people/{id} and pluck debutDate */
   public getPlayerDebutDate(id: number): Observable<string> {
+    const url = environment.production
+      ? this.playerProxyUrl(id)
+      : `${this.baseUrl}/people/${id}`;
     return this.http
-      .get<MlbPlayerResponse>(`${this.baseUrl}/people/${id}`)
+      .get<MlbPlayerResponse>(url)
       .pipe(
         map((resp) => resp.people[0]?.mlbDebutDate),
         catchError((err) => {
