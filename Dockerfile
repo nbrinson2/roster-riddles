@@ -54,6 +54,7 @@ RUN npm ci --omit=dev
 # Copy the built application from builder stage
 COPY --from=builder /app/dist ./dist
 COPY index.js .
+COPY server ./server
 
 # Expose the port the app runs on
 EXPOSE 3000

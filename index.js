@@ -2,6 +2,8 @@ import express from 'express';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
+import { requireFirebaseAuth } from './server/require-auth.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -13,7 +15,14 @@ app.use(express.json());
 
 const MLB_API = 'https://statsapi.mlb.com/api/v1';
 
+/** Public — load balancers / uptime checks */
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // API routes (must be registered before static / SPA fallback)
+
+/** Public — MLB proxy (game works when logged out) */
 app.get('/api/v1/mlb/people/:id', async (req, res, next) => {
   try {
     const url = `${MLB_API}/people/${encodeURIComponent(req.params.id)}`;
@@ -23,6 +32,18 @@ app.get('/api/v1/mlb/people/:id', async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+/**
+ * Protected — verifies Firebase ID token (Bearer). Example for Story 5; attach `requireFirebaseAuth`
+ * to future contest/score routes the same way.
+ */
+app.get('/api/v1/me', requireFirebaseAuth, (req, res) => {
+  res.status(200).json({
+    uid: req.user.uid,
+    email: req.user.email,
+    emailVerified: req.user.emailVerified,
+  });
 });
 
 // Serve static files from the Angular app
