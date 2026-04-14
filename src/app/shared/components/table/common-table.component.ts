@@ -102,6 +102,43 @@ export class CommonTableComponent<T> implements AfterViewInit {
     this.rowClick.emit(row);
   }
 
+  /**
+   * Resolves row values for both legacy UPPERCASE column ids (e.g. NAME) and
+   * camelCase keys (e.g. lgDiv). `col.toLowerCase()` alone is wrong for camelCase.
+   */
+  protected getCellValue(item: T, col: string): string {
+    const record = item as Record<string, unknown>;
+    if (Object.prototype.hasOwnProperty.call(record, col)) {
+      const v = record[col];
+      return this.cellValueToString(v);
+    }
+    const key = Object.keys(record).find(
+      (k) => k.toLowerCase() === col.toLowerCase()
+    );
+    if (key === undefined) {
+      return '';
+    }
+    return this.cellValueToString(record[key]);
+  }
+
+  /** Header text: supports legacy all-caps ids (NAME, TEAMS) and property keys (born → BORN). */
+  protected formatColumnHeader(col: string): string {
+    if (/^[A-Z][A-Z0-9._]*$/.test(col)) {
+      return col;
+    }
+    return col.toUpperCase();
+  }
+
+  private cellValueToString(value: unknown): string {
+    if (value === undefined || value === null) {
+      return '';
+    }
+    if (value instanceof Map) {
+      return '';
+    }
+    return String(value);
+  }
+
   onScroll(event: Event) {
     const element = event.target as HTMLElement;
     const threshold = 100; // pixels from bottom to trigger load
