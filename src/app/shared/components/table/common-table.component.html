@@ -10,14 +10,14 @@
       <!-- column definitions -->
       <ng-container *ngFor="let col of columns" [matColumnDef]="col">
         <th mat-header-cell *matHeaderCellDef [ngClass]="col === 'TEAMS' ? 'teams-column' : ''">
-          {{ col }}
+          {{ formatColumnHeader(col) }}
         </th>
         <td mat-cell *matCellDef="let item" [ngClass]="col === 'TEAMS' ? 'teams-column' : ''" [style.height]="rowHeight">
           <ng-container *ngIf="col === 'TEAMS' && teamsCellTpl; else defaultCell">
             <ng-container *ngTemplateOutlet="teamsCellTpl; context: { $implicit: item }"></ng-container>
           </ng-container>
           <ng-template #defaultCell>
-            {{ item[col.toLowerCase()] }}
+            {{ getCellValue(item, col) }}
           </ng-template>
         </td>
       </ng-container>

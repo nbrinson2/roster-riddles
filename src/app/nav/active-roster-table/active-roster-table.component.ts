@@ -13,11 +13,30 @@ import {
   TeamUiPlayer,
   UiPlayer,
 } from 'src/app/game/bio-ball/models/bio-ball.models';
+import { MlbPlayerAttributes } from 'src/app/game/bio-ball/models/mlb.models';
+import { NflPlayerAttributes } from 'src/app/game/bio-ball/models/nfl.models';
 import { BioBallEngineService } from 'src/app/game/bio-ball/services/bio-ball-engine/bio-ball-engine.service';
 import { HintArrowPosition } from 'src/app/shared/components/hint/hint.component';
 import {
   HintType
 } from 'src/app/shared/components/hint/hint.service';
+
+/** Sidebar roster: Name, B, T, Born, Pos, Age (team / lg-div hidden). */
+const MLB_ROSTER_COLUMN_ORDER: readonly MlbPlayerAttributes[] = [
+  MlbPlayerAttributes.NAME,
+  MlbPlayerAttributes.B,
+  MlbPlayerAttributes.T,
+  MlbPlayerAttributes.BORN,
+  MlbPlayerAttributes.POS,
+  MlbPlayerAttributes.AGE,
+];
+
+const NFL_ROSTER_COLUMN_ORDER: readonly NflPlayerAttributes[] = [
+  NflPlayerAttributes.NAME,
+  NflPlayerAttributes.POS,
+  NflPlayerAttributes.COLLEGE,
+  NflPlayerAttributes.JERSEY_NUMBER,
+];
 
 @Component({
   selector: 'active-roster-table',
@@ -34,14 +53,19 @@ export class ActiveRosterTableComponent {
       this.teamName = TeamAbbreviationToFullNameMap[
         player.team as TeamType
       ] as TeamFullName;
-      this.displayedAttributes = Object.keys(player)
-        .filter(
-          (attr) =>
-            !Object.values(HiddenPlayerRosterAttributes).includes(
-              attr as HiddenPlayerRosterAttributes
-            )
-        )
-        .map((attr) => attr.toUpperCase());
+      const visibleKeys = Object.keys(player).filter(
+        (attr) =>
+          !Object.values(HiddenPlayerRosterAttributes).includes(
+            attr as HiddenPlayerRosterAttributes
+          )
+      );
+      const isMlbRoster =
+        visibleKeys.includes(MlbPlayerAttributes.BORN) &&
+        visibleKeys.includes(MlbPlayerAttributes.T);
+      const order = isMlbRoster
+        ? MLB_ROSTER_COLUMN_ORDER
+        : NFL_ROSTER_COLUMN_ORDER;
+      this.displayedAttributes = order.filter((k) => visibleKeys.includes(k));
     }
   }
 
