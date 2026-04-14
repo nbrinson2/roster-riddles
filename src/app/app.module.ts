@@ -10,6 +10,7 @@ import { initializeFirestore, provideFirestore } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
@@ -48,6 +49,7 @@ import { NicknameStreakComponent } from './game/nickname-streak/nickname-streak.
 import { StreakCardComponent } from './game/nickname-streak/streak-card/streak-card.component';
 import { GuessResultComponent } from './game/nickname-streak/guess-result/guess-result.component';
 import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directive';
+import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +79,7 @@ import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directi
     StreakCardComponent,
     GuessResultComponent,
     FeatureFlagDirective,
+    LoginPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -95,6 +98,7 @@ import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directi
     MatCardModule,
     MatIconModule,
     MatMenuModule,
+    MatFormFieldModule,
   ],
   providers: [
     provideFirebaseApp(() => initializeApp(environment.firebase)),

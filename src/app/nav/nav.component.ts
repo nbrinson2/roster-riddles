@@ -9,7 +9,9 @@ import {
 } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
 import { NavigationEnd, Router } from '@angular/router';
+import type { User } from 'firebase/auth';
 import { filter, Subject, takeUntil } from 'rxjs';
+import { AuthService } from '../auth/auth.service';
 import {
   AttributesType,
   TeamFullName,
@@ -72,7 +74,7 @@ export class NavComponent implements OnInit, OnDestroy {
     return player && 'nicknames' in player ? player : null;
   });
 
-  // protected user?: SocialUser;
+  protected user: User | null = null;
   protected loggedIn = false;
   protected viewMenu = true;
   protected viewProfile = false;
@@ -90,6 +92,7 @@ export class NavComponent implements OnInit, OnDestroy {
     private rosterSelectionService: RosterSelectionService,
     private router: Router,
     private slideUpService: SlideUpService,
+    private authService: AuthService,
     @Inject(GAME_SERVICE)
     private gameService: GameService<GamePlayer>,
     private nicknameStreakEngineService: NicknameStreakEngineService
@@ -110,6 +113,13 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.authService.user$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((user) => {
+        this.user = user;
+        this.loggedIn = !!user;
+      });
+
     this.rosterSelectionService.activeRoster$
       .pipe(takeUntil(this.destroy$))
       .subscribe((roster) => {
@@ -171,9 +181,11 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   protected logout(): void {
-    // this.user = undefined;
-    this.loggedIn = false;
-    // this.authService.signOut();
+    void this.authService.signOut();
+  }
+
+  protected onLoginSuccess(): void {
+    this.drawer.close();
   }
 
   protected openLoginMenu(): void {

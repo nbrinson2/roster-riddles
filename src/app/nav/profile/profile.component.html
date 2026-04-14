@@ -1,9 +1,14 @@
 <div class="header">
   <span class="material-symbols-outlined account-icon"> account_circle </span>
-  <!-- <h1>{{ user.name }}</h1> -->
+  <h1 *ngIf="user?.displayName || user?.email">
+    {{ user?.displayName || user?.email }}
+  </h1>
 </div>
 <div class="content-container">
   <div class="section">
+    <div class="text" *ngIf="user && user.displayName && user.email && user.displayName !== user.email">
+      {{ user.email }}
+    </div>
     <div class="text">Profile and statistics coming soon!</div>
   </div>
 </div>

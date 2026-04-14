@@ -1,0 +1,113 @@
+@use '../../../_constants' as constants;
+
+.login-panel {
+  padding: 0 16px 24px;
+  font-family: constants.$font-family-secondary;
+}
+
+.login-title {
+  color: #cc1f41;
+  font-family: constants.$font-family;
+  font-size: 22px;
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 20px;
+
+  h1 {
+    color: #cc1f41;
+    font-family: constants.$font-family;
+    font-size: 28px;
+    margin: 0;
+  }
+}
+
+.login-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+.google-button {
+  width: 100%;
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #eee;
+}
+
+.google-button-label {
+  font-family: constants.$font-family-secondary;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 13px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  span {
+    padding: 0 12px;
+  }
+}
+
+.email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.submit-button {
+  margin-top: 8px;
+  width: 100%;
+  font-family: constants.$font-family-secondary;
+}
+
+.message {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.4;
+
+  &.error {
+    color: #ff8a80;
+  }
+
+  &.success {
+    color: #b9f6ca;
+  }
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  text-align: center;
+}
+
+.link {
+  background: none;
+  border: none;
+  color: #cc1f41;
+  cursor: pointer;
+  font-family: constants.$font-family-secondary;
+  font-size: 14px;
+  text-decoration: underline;
+  padding: 4px;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

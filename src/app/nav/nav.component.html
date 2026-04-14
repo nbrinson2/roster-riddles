@@ -28,21 +28,14 @@
           [currentGameMode]="currentGameMode()"
         ></how-to-play>
       </ng-container>
-      <!-- <ng-container *ngIf="loggedIn && viewProfile && user">
+      <ng-container *ngIf="loggedIn && viewProfile && user">
         <profile [user]="user"></profile>
-      </ng-container> -->
+      </ng-container>
       <div
         *ngIf="!loggedIn && !viewProfile && !viewMenu && !viewRoster"
         class="login-menu"
       >
-        <div class="login-title">
-          <h1>Login</h1>
-        </div>
-        <div class="login-content">
-          <div class="google-login-button">
-            <p>Coming soon!</p>
-          </div>
-        </div>
+        <login-panel (authSuccess)="onLoginSuccess()"></login-panel>
       </div>
     </mat-sidenav>
     <mat-sidenav-content>
@@ -65,8 +58,8 @@
               class="material-symbols-outlined logout-icon"
               (click)="logout()"
             >
-              logout </span
-            >E
+              logout
+            </span>
             <span
               class="material-symbols-outlined profile-icon"
               (click)="openProfileMenu()"
