@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -49,6 +49,7 @@ import { NicknameStreakComponent } from './game/nickname-streak/nickname-streak.
 import { StreakCardComponent } from './game/nickname-streak/streak-card/streak-card.component';
 import { GuessResultComponent } from './game/nickname-streak/guess-result/guess-result.component';
 import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directive';
+import { authHttpInterceptor } from './auth/auth-http.interceptor';
 import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
 
 @NgModule({
@@ -105,7 +106,7 @@ import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
     provideFirestore(() => initializeFirestore(getApp(), {}, 'roster-riddles')),
     provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([authHttpInterceptor])),
     ScreenTrackingService,
     UserTrackingService,
   ],

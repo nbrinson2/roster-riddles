@@ -63,6 +63,11 @@
             <span
               class="material-symbols-outlined profile-icon"
               (click)="openProfileMenu()"
+              (keydown.enter)="openProfileMenu()"
+              (keydown.space)="$event.preventDefault(); openProfileMenu()"
+              role="button"
+              tabindex="0"
+              aria-label="Account"
             >
               person
             </span>
