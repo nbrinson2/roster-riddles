@@ -118,12 +118,6 @@ Typical trigger: push to **`main`**, path filter **`daily-job/**`**, IAM on the 
 
 Each function **`cloudbuild`** runs **`gcloud functions deploy`** only. **`_FUNCTION_NAME` must match the function id from **`gcloud functions list`** (hyphens vs underscores are different resources; the MLB snapshot function id is **`update_mlb_players_snapshot`**).
 
-### Troubleshooting: build exits `1` after “Completed with warnings” / `[Service]...warning`
-
-The deploy often finishes **[Build]** then shows **`[Service]...warning`** and **`Completed with warnings`**, but **`gcloud` still exits with status 1**, so Cloud Build marks the step failed. The real message is usually a few lines above—open the **full** step log (or run **`gcloud builds log BUILD_ID`**) and search for **`WARNING`** / **`ERROR`** after **`[Service]`**.
-
-Typical cause: **`--allow-unauthenticated`** needs IAM on the backing Cloud Run service. Grant the **Cloud Build** service account ( **`PROJECT_NUMBER@cloudbuild.gserviceaccount.com`** ) at least **Cloud Functions Developer**, **Cloud Run Admin**, and **Service Account User** on the **runtime** service account used by the function (see [troubleshooting](https://cloud.google.com/functions/docs/troubleshooting)). Without **Run Admin** / **`run.services.setIamPolicy`**, the public invoker binding can fail and the CLI returns non‑zero.
-
 ### Troubleshooting: `409` — Cloud Run service already exists (functions deploy)
 
 Gen **2** functions are backed by a **Cloud Run** service with the same name. If **`gcloud functions deploy`** returns **`Could not create Cloud Run service ... already exists`**, a **standalone Cloud Run** service may be using the name without going through Cloud Functions, or Functions/Run state may be out of sync.

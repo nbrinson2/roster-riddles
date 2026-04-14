@@ -20,7 +20,6 @@ steps:
       - --entry-point=update_mlb_players_snapshot
       - --trigger-http
       - --allow-unauthenticated
-      - --project=$PROJECT_ID
 
 substitutions:
   # Must match `gcloud functions list` (here: underscores). Hyphenated name deploys a different function.
