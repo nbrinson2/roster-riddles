@@ -1,15 +1,7 @@
 # Deploy the career-path snapshot function (long-running: many MLB API calls).
 # Create a separate Cloud Build trigger with path filter daily-job/** or only this file.
-#
-# Deletes any existing function with the same name first (avoids 409 conflicts); brief downtime.
 
 steps:
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
-    entrypoint: bash
-    args:
-      - -c
-      - 'gcloud functions delete $_FUNCTION_NAME --region=$_FUNCTION_REGION --quiet || true'
-
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
     entrypoint: gcloud
     args:

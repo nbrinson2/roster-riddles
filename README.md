@@ -116,11 +116,11 @@ Gen **2** functions are deployed with **`gcloud functions deploy`** (not Cloud R
 
 Typical trigger: push to **`main`**, path filter **`daily-job/**`**, IAM on the Cloud Build service account for Cloud Functions + Firestore.
 
-Each function **`cloudbuild`** runs **`gcloud functions delete`** for **`$_FUNCTION_NAME`** (ignored if missing), then **`gcloud functions deploy`**, to avoid **`409`** conflicts when Functions and Cloud Run state disagree. Expect a **short window** where the HTTP URL returns errors between delete and successful deploy. **`_FUNCTION_NAME` must match the function id from **`gcloud functions list`** (hyphens vs underscores are different resources; the MLB snapshot function id is **`update_mlb_players_snapshot`**).
+Each function **`cloudbuild`** runs **`gcloud functions deploy`** only. **`_FUNCTION_NAME` must match the function id from **`gcloud functions list`** (hyphens vs underscores are different resources; the MLB snapshot function id is **`update_mlb_players_snapshot`**).
 
 ### Troubleshooting: `409` — Cloud Run service already exists (functions deploy)
 
-Gen **2** functions are backed by a **Cloud Run** service with the same name. The delete-then-deploy step usually clears mismatches. If **`gcloud functions deploy`** still returns **`Could not create Cloud Run service ... already exists`**, a **standalone Cloud Run** service may be using the name without going through Cloud Functions.
+Gen **2** functions are backed by a **Cloud Run** service with the same name. If **`gcloud functions deploy`** returns **`Could not create Cloud Run service ... already exists`**, a **standalone Cloud Run** service may be using the name without going through Cloud Functions, or Functions/Run state may be out of sync.
 
 **Resolve (pick one):**
 
