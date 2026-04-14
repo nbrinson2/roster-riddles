@@ -5,18 +5,23 @@
 #   _FIREBASE_STORAGE_BUCKET, _FIREBASE_MESSAGING_SENDER_ID, _FIREBASE_APP_ID
 # Optional: _FIREBASE_MEASUREMENT_ID, _API_BASE_URL
 #
-# Also set: _AR_HOSTNAME, _AR_PROJECT_ID, _AR_REPOSITORY, _SERVICE_NAME (image name).
+# Also set: _AR_HOSTNAME, _AR_PROJECT_ID, _AR_REPOSITORY, _AR_IMAGE_PATH (Artifact Registry
+# image path under the repo — Cloud Run “deploy from source” often uses
+# roster-riddles/roster-riddles), _CLOUD_RUN_SERVICE (service name for gcloud run deploy).
 #
 # If these are missing, `npm run build:prod` fails: generate-env-prod.mjs exits 1.
 # In Cloud Build → your trigger → Substitution variables — add each _FIREBASE_* key
 # with the same values you use for local production builds / Firebase web app config.
+#
+# IMPORTANT: The default Cloud Run continuous-deployment trigger runs `docker build -f Dockerfile`
+# only (no --build-arg). You must set the trigger to use THIS file: see README “Production”.
 
 steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - build
       - '-t'
-      - '$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_SERVICE_NAME:$SHORT_SHA'
+      - '$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_AR_IMAGE_PATH:$COMMIT_SHA'
       - '.'
       - '--build-arg'
       - 'FIREBASE_API_KEY=$_FIREBASE_API_KEY'
@@ -35,12 +40,31 @@ steps:
       - '--build-arg'
       - 'API_BASE_URL=$_API_BASE_URL'
 
+  # Push before deploy: the `images:` shortcut pushes only after *all* steps, which would run deploy too early.
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - '$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_AR_IMAGE_PATH:$COMMIT_SHA'
+
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - $_CLOUD_RUN_SERVICE
+      - --image=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_AR_IMAGE_PATH:$COMMIT_SHA
+      - --region=$_DEPLOY_REGION
+      - --platform=managed
+      - --quiet
+
 # Defaults for local `gcloud builds submit`; the trigger overrides these with your console values.
 substitutions:
   _AR_HOSTNAME: us-east1-docker.pkg.dev
   _AR_PROJECT_ID: roster-riddles-457600
   _AR_REPOSITORY: cloud-run-source-deploy
-  _SERVICE_NAME: roster-riddles
+  # Artifact Registry docker image path (after repository name); matches Cloud Run source-deploy layout.
+  _AR_IMAGE_PATH: roster-riddles/roster-riddles
+  _CLOUD_RUN_SERVICE: roster-riddles
   _DEPLOY_REGION: us-east1
   _API_BASE_URL: ''
   _FIREBASE_API_KEY: ''
@@ -50,9 +74,6 @@ substitutions:
   _FIREBASE_MESSAGING_SENDER_ID: ''
   _FIREBASE_APP_ID: ''
   _FIREBASE_MEASUREMENT_ID: ''
-
-images:
-  - '$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_SERVICE_NAME:$SHORT_SHA'
 
 options:
   logging: CLOUD_LOGGING_ONLY
