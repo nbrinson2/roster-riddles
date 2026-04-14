@@ -1,0 +1,25 @@
+# Deploy the career-path snapshot function (long-running: many MLB API calls).
+# Create a separate Cloud Build trigger with path filter daily-job/** or only this file.
+
+steps:
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - functions
+      - deploy
+      - update-career-path-players-snapshot
+      - --gen2
+      - --region=$_FUNCTION_REGION
+      - --runtime=python311
+      - --source=daily-job
+      - --entry-point=update_career_path_players_snapshot
+      - --trigger-http
+      - --allow-unauthenticated
+      - --timeout=3600s
+      - --memory=1024Mi
+
+substitutions:
+  _FUNCTION_REGION: us-central1
+
+options:
+  logging: CLOUD_LOGGING_ONLY

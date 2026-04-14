@@ -11,11 +11,23 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 
+const MLB_API = 'https://statsapi.mlb.com/api/v1';
+
+// API routes (must be registered before static / SPA fallback)
+app.get('/api/v1/mlb/people/:id', async (req, res, next) => {
+  try {
+    const url = `${MLB_API}/people/${encodeURIComponent(req.params.id)}`;
+    const r = await fetch(url);
+    const body = await r.text();
+    res.status(r.status).type('application/json').send(body);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // Serve static files from the Angular app
 const distPath = join(__dirname, 'dist/roster-riddles/browser');
 app.use('/', express.static(distPath));
-
-// API routes
 
 // SPA fallback - serve index.html for any route not found
 app.use((req, res, next) => {

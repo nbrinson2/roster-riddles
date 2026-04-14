@@ -1,0 +1,28 @@
+# Deploy Python Cloud Function (Gen2) from daily-job/ — use a dedicated Cloud Build trigger.
+# Cloud Functions are managed by the Functions API; Cloud Run's "Connect to repo" is disabled for them.
+#
+# Trigger: push to main, optional path filter: daily-job/**
+#
+# IAM: Cloud Build service account needs Cloud Functions Developer, Cloud Run Admin,
+#      and Service Account User on the runtime service account. See README.
+
+steps:
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - functions
+      - deploy
+      - update-mlb-players-snapshot
+      - --gen2
+      - --region=$_FUNCTION_REGION
+      - --runtime=python311
+      - --source=daily-job
+      - --entry-point=update_mlb_players_snapshot
+      - --trigger-http
+      - --allow-unauthenticated
+
+substitutions:
+  _FUNCTION_REGION: us-central1
+
+options:
+  logging: CLOUD_LOGGING_ONLY

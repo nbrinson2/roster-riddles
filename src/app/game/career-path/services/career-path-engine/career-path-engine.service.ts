@@ -1,4 +1,5 @@
 import { Injectable, signal, Signal } from '@angular/core';
+import { catchError, of, take } from 'rxjs';
 import { HintService } from 'src/app/shared/components/hint/hint.service';
 import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
 import { CommonGameService } from 'src/app/shared/services/common-game/common-game.service';
@@ -6,7 +7,9 @@ import { GameService } from 'src/app/shared/utils/game-service.token';
 import { CareerPathPlayer } from '../../models/career-path.models';
 import { applyFeedbackColors } from '../../utils/career-path.util';
 import { InputPlaceHolderText } from 'src/app/game/shared/constants/game.constants';
+import { Header } from 'src/app/game/shared/common-attribute-header/common-attribute-header.component';
 import { MlbPlayersService } from 'src/app/shared/services/mlb-players/mlb-players.service';
+import { MlbPlayerResponse } from 'src/app/game/bio-ball/models/mlb.models';
 import { CountryBornFullName } from 'src/app/game/bio-ball/models/bio-ball.models';
 import { CountryBornAbbreviationMap } from 'src/app/game/bio-ball/constants/bio-ball-constants';
 
@@ -155,18 +158,50 @@ export class CareerPathEngineService
   }
 
   private setCareerPathAttributeHeaders(): void {
+    const target = this.playerToGuess() as CareerPathPlayer | undefined;
+    if (!target?.id) {
+      this.attributeHeaders = this.placeholderCareerPathAttributeHeaders();
+      return;
+    }
+
+    const requestedId = target.id;
+
     this.mlbPlayersService
-      .getPlayer(this.playerToGuess().id)
+      .getPlayer(requestedId)
+      .pipe(
+        take(1),
+        catchError((err) => {
+          console.error('Career path header details failed', err);
+          return of(null as MlbPlayerResponse | null);
+        })
+      )
       .subscribe((player) => {
-        const playerDetails = player.people[0];
+        const current = this.playerToGuess() as CareerPathPlayer | undefined;
+        if (!current || current.id !== requestedId) {
+          return;
+        }
+
+        const playerDetails = player?.people?.[0];
+        if (!playerDetails) {
+          this.attributeHeaders = this.placeholderCareerPathAttributeHeaders();
+          return;
+        }
+
         const countryAbbreviation =
           CountryBornAbbreviationMap[
             playerDetails.birthCountry as CountryBornFullName
-          ];
+          ] ??
+          playerDetails.birthCountry ??
+          '—';
+
         const draftYear = playerDetails.draftYear
-          ? playerDetails.draftYear.toString()
+          ? String(playerDetails.draftYear)
           : 'Undrafted';
-        
+
+        const batsThrows = `${playerDetails.batSide?.code ?? '—'}/${
+          playerDetails.pitchHand?.code ?? '—'
+        }`;
+
         this.attributeHeaders = [
           {
             name: 'Drafted',
@@ -176,7 +211,7 @@ export class CareerPathEngineService
           },
           {
             name: 'Bats/Throws',
-            value: `${playerDetails.batSide.code}/${playerDetails.pitchHand.code}`,
+            value: batsThrows,
             colSpan: 1,
             class: 'bats-throws',
           },
@@ -188,17 +223,28 @@ export class CareerPathEngineService
           },
           {
             name: '#',
-            value: playerDetails.primaryNumber,
+            value: playerDetails.primaryNumber ?? '—',
             colSpan: 1,
             class: 'bats-throws',
           },
           {
             name: 'Pos',
-            value: playerDetails.primaryPosition.abbreviation,
+            value: playerDetails.primaryPosition?.abbreviation ?? '—',
             colSpan: 1,
             class: 'bats-throws',
           },
         ];
       });
+  }
+
+  private placeholderCareerPathAttributeHeaders(): Header[] {
+    const value = '—';
+    return [
+      { name: 'Drafted', value, colSpan: 1, class: 'bats-throws' },
+      { name: 'Bats/Throws', value, colSpan: 1, class: 'bats-throws' },
+      { name: 'Born', value, colSpan: 1, class: 'bats-throws' },
+      { name: '#', value, colSpan: 1, class: 'bats-throws' },
+      { name: 'Pos', value, colSpan: 1, class: 'bats-throws' },
+    ];
   }
 }
