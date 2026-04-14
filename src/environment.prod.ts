@@ -6,6 +6,15 @@ const featureFlags: FeatureFlags = {
 
 export const environment = {
   production: true,
-  baseUrl: '',
+  baseUrl: "",
   featureFlags,
+  firebase: {
+    apiKey: "x",
+    authDomain: "x",
+    projectId: "x",
+    storageBucket: "x",
+    messagingSenderId: "x",
+    appId: "x",
+    measurementId: "x",
+  },
 };

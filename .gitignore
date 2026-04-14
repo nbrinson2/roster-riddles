@@ -1,10 +1,41 @@
 HELP.md
+
+# Generated for production builds (see scripts/generate-env-prod.mjs)
+src/environment.prod.ts
+
 target/
 .angular/cache
 dist/
 node_modules/
 
+# Local env / secrets (never commit API keys or service accounts)
+.env
+.env.*
+!.env.example
+
+# Python (daily-job scripts, one-off uploads)
+.venv/
+venv/
+.venv-upload/
+__pycache__/
+*.py[cod]
+
+# Logs & Firebase local debug
+*.log
+npm-debug.log*
+firebase-debug.log*
+firestore-debug.log
+
+# Test output
+coverage/
+
+# OS
+.DS_Store
+Thumbs.db
 
 ### VS Code ###
 .vscode/
+
+### JetBrains ###
+.idea/
 

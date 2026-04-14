@@ -17,14 +17,13 @@ import {
 } from '../game/bio-ball/models/bio-ball.models';
 import { RosterSelectionService } from '../game/bio-ball/services/roster-selection/roster-selection.service';
 import { CareerPathPlayer } from '../game/career-path/models/career-path.models';
+import { NicknameStreakEngineService } from '../game/nickname-streak/services/nickname-streak-engine.service';
+import { GameType } from '../game/shared/constants/game.constants';
 import { HintService } from '../shared/components/hint/hint.service';
+import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
 import { GamePlayer } from '../shared/models/common-models';
 import { GAME_SERVICE, GameService } from '../shared/utils/game-service.token';
-import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
-import { GameType } from '../game/shared/constants/game.constants';
-import { CareerPathPlayerGenerator } from '../shared/utils/career-path-player-generator';
 import { Difficulty } from './difficulty-toggle/difficulty-toggle.component';
-import { NicknameStreakEngineService } from '../game/nickname-streak/services/nickname-streak-engine.service';
 
 enum MatDrawerPosition {
   END = 'end',
