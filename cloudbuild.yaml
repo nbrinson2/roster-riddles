@@ -1,5 +1,15 @@
-# Matches trigger substitutions from Cloud Run / Artifact Registry (see Google Cloud console).
-# Firebase values are passed into Docker build-args for scripts/generate-env-prod.mjs.
+# Docker image for the Angular + Express app.
+#
+# REQUIRED trigger substitutions (non-empty), passed as --build-arg to Docker:
+#   _FIREBASE_API_KEY, _FIREBASE_AUTH_DOMAIN, _FIREBASE_PROJECT_ID,
+#   _FIREBASE_STORAGE_BUCKET, _FIREBASE_MESSAGING_SENDER_ID, _FIREBASE_APP_ID
+# Optional: _FIREBASE_MEASUREMENT_ID, _API_BASE_URL
+#
+# Also set: _AR_HOSTNAME, _AR_PROJECT_ID, _AR_REPOSITORY, _SERVICE_NAME (image name).
+#
+# If these are missing, `npm run build:prod` fails: generate-env-prod.mjs exits 1.
+# In Cloud Build → your trigger → Substitution variables — add each _FIREBASE_* key
+# with the same values you use for local production builds / Firebase web app config.
 
 steps:
   - name: gcr.io/cloud-builders/docker

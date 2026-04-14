@@ -31,6 +31,12 @@ ENV FIREBASE_API_KEY=$FIREBASE_API_KEY \
     FIREBASE_MEASUREMENT_ID=$FIREBASE_MEASUREMENT_ID \
     API_BASE_URL=$API_BASE_URL
 
+# Fail fast with a clear message if Cloud Build did not pass --build-arg (see cloudbuild.yaml + trigger substitutions)
+RUN if [ -z "${FIREBASE_API_KEY:-}" ] || [ -z "${FIREBASE_PROJECT_ID:-}" ]; then \
+  echo "ERROR: Firebase build-args are empty. Set Cloud Build substitution variables _FIREBASE_API_KEY, _FIREBASE_AUTH_DOMAIN, _FIREBASE_PROJECT_ID, _FIREBASE_STORAGE_BUCKET, _FIREBASE_MESSAGING_SENDER_ID, _FIREBASE_APP_ID on the trigger that runs this Dockerfile (and optional _FIREBASE_MEASUREMENT_ID, _API_BASE_URL)." >&2; \
+  exit 1; \
+fi
+
 # Build the application (generates src/environment.prod.ts then ng build)
 RUN npm run build:prod
 
