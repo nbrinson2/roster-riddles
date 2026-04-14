@@ -31,7 +31,8 @@ steps:
       - --allow-unauthenticated
 
 substitutions:
-  _FUNCTION_NAME: update-mlb-players-snapshot
+  # Must match `gcloud functions list` (here: underscores). Hyphenated name deploys a different function.
+  _FUNCTION_NAME: update_mlb_players_snapshot
   _FUNCTION_REGION: us-central1
 
 options:
