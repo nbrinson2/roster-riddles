@@ -1,7 +1,8 @@
 HELP.md
 
-# Generated for production builds (see scripts/generate-env-prod.mjs)
+# Generated for CI / Docker builds (see scripts/generate-env-prod.mjs)
 src/environment.prod.ts
+src/environment.staging.ts
 
 target/
 .angular/cache
@@ -12,6 +13,10 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+# Service account JSON (e.g. Firebase Admin key for roster-riddles-staging); keep `secrets/.gitkeep` only
+secrets/**
+!secrets/.gitkeep
 
 # Python (daily-job scripts, one-off uploads)
 .venv/

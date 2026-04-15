@@ -10,9 +10,11 @@
     "dev:fullstack": "concurrently \"npm run frontend\" \"npm run backend\"",
     "build": "ng build",
     "build:prod": "node scripts/generate-env-prod.mjs && ng build --configuration production",
+    "build:staging": "DEPLOYMENT=staging node scripts/generate-env-prod.mjs && ng build --configuration staging",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:firestore-rules": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/verify-firestore-rules.mjs\""
+    "test:firestore-rules": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/verify-firestore-rules.mjs\"",
+    "mirror:firestore-cache": "node ./scripts/mirror-firestore-cache.mjs"
   },
   "type": "module",
   "private": true,
@@ -29,6 +31,7 @@
     "@angular/platform-browser-dynamic": "^19.2.8",
     "@angular/router": "^19.2.8",
     "auth-guard": "^1.0.12",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
     "firebase": "^11.6.1",
     "firebase-admin": "^13.8.0",
@@ -37,13 +40,14 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
-    "@firebase/rules-unit-testing": "^4.0.1",
     "@angular-devkit/build-angular": "^19.2.9",
     "@angular/cli": "~19.2.9",
     "@angular/compiler-cli": "^19.2.8",
+    "@firebase/rules-unit-testing": "^4.0.1",
     "@types/jasmine": "~4.3.1",
     "concurrently": "^9.1.2",
     "cors": "^2.8.5",
+    "firebase-tools": "^13.35.0",
     "jasmine-core": "~5.1.2",
     "karma": "~6.4.1",
     "karma-chrome-launcher": "~3.1.1",
@@ -51,7 +55,6 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "nodemon": "^3.1.10",
-    "firebase-tools": "^13.35.0",
     "typescript": "~5.8.3"
   },
   "description": "This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.0.",

@@ -60,6 +60,25 @@
                 "with": "src/environment.prod.ts"
               }]
             },
+            "staging": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "2mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "10kb"
+                }
+              ],
+              "outputHashing": "all",
+              "fileReplacements": [{
+                "replace": "src/environment.ts",
+                "with": "src/environment.staging.ts"
+              }]
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
@@ -77,6 +96,9 @@
           "configurations": {
             "production": {
               "buildTarget": "roster-riddles:build:production"
+            },
+            "staging": {
+              "buildTarget": "roster-riddles:build:staging"
             },
             "development": {
               "buildTarget": "roster-riddles:build:development"

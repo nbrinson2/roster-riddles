@@ -1,10 +1,25 @@
+/**
+ * Writes `src/environment.prod.ts` or `src/environment.staging.ts` from env vars.
+ * CI/CD should set FIREBASE_* (and optional API_BASE_URL) per deployment target — use a **different**
+ * Firebase project for staging vs production by using different substitution values per trigger.
+ *
+ * DEPLOYMENT=staging  → environment.staging.ts (Angular config `staging`)
+ * DEPLOYMENT=production | unset → environment.prod.ts (Angular config `production`)
+ */
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
-const outFile = path.join(root, 'src/environment.prod.ts');
+
+const deployment = (process.env.DEPLOYMENT || 'production').toLowerCase();
+const isStaging = deployment === 'staging';
+const outFile = path.join(
+  root,
+  'src',
+  isStaging ? 'environment.staging.ts' : 'environment.prod.ts',
+);
 
 const required = [
   ['FIREBASE_API_KEY', process.env.FIREBASE_API_KEY],
@@ -22,15 +37,21 @@ if (missing.length) {
     missing.map(([k]) => k).join(', '),
   );
   console.error(
-    'Set them in Cloud Build (substitutions or Secret Manager) or export them locally before npm run build:prod.',
+    'Set them in Cloud Build (substitutions or Secret Manager) or export them locally before build.',
   );
   process.exit(1);
 }
 
 const measurementId = process.env.FIREBASE_MEASUREMENT_ID ?? '';
 const apiBaseUrl = process.env.API_BASE_URL ?? '';
+const deploymentLiteral = isStaging ? 'staging' : 'production';
+// Staging on Spark: single (default) DB. Production: named DB unless FIRESTORE_DATABASE_ID overrides.
+const firestoreDatabaseId = isStaging
+  ? '(default)'
+  : (process.env.FIRESTORE_DATABASE_ID ?? 'roster-riddles').trim();
 
 const content = `import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
+import type { DeploymentEnvironment } from './environment.types';
 
 const featureFlags: FeatureFlags = {
   mlbTeamLogos: false,
@@ -38,6 +59,8 @@ const featureFlags: FeatureFlags = {
 
 export const environment = {
   production: true,
+  deployment: '${deploymentLiteral}' as DeploymentEnvironment,
+  firestoreDatabaseId: ${JSON.stringify(firestoreDatabaseId)},
   baseUrl: ${JSON.stringify(apiBaseUrl)},
   featureFlags,
   firebase: {
@@ -53,4 +76,4 @@ export const environment = {
 `;
 
 fs.writeFileSync(outFile, content, 'utf8');
-console.log('[generate-env-prod] Wrote', outFile);
+console.log('[generate-env-prod] Wrote', outFile, `(${deploymentLiteral})`);

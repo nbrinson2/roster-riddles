@@ -6,7 +6,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { getAnalytics, provideAnalytics, ScreenTrackingService, UserTrackingService } from '@angular/fire/analytics';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
-import { initializeFirestore, provideFirestore } from '@angular/fire/firestore';
+import { provideFirestore } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,8 +19,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { getApp } from 'firebase/app';
 import { environment } from 'src/environment';
+import { getConfiguredFirestore } from './config/firestore-instance';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AttributeHeaderComponent } from './game/bio-ball/attribute-header/attribute-header.component';
@@ -103,7 +103,7 @@ import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
   ],
   providers: [
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideFirestore(() => initializeFirestore(getApp(), {}, 'roster-riddles')),
+    provideFirestore(() => getConfiguredFirestore()),
     provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),
     provideHttpClient(withInterceptors([authHttpInterceptor])),

@@ -1,5 +1,6 @@
 /**
  * Firebase Admin SDK — credentials from environment only (never commit keys).
+ * Which GCP/Firebase project this validates tokens for follows your deployment (see docs/environment-matrix.md).
  *
  * Resolution order:
  * 1. `FIREBASE_SERVICE_ACCOUNT_JSON` — full service account JSON string (e.g. Cloud Run secret).

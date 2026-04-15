@@ -12,7 +12,9 @@ RUN npm install
 # Copy the rest of the application
 COPY . .
 
-# Firebase + API config for the Angular production bundle (set in Cloud Build / trigger)
+# Firebase + API config for the Angular bundle (set in Cloud Build / trigger per environment).
+# Use separate triggers + substitution sets for production vs staging Firebase projects.
+ARG DEPLOYMENT=production
 ARG FIREBASE_API_KEY
 ARG FIREBASE_AUTH_DOMAIN
 ARG FIREBASE_PROJECT_ID
@@ -22,7 +24,8 @@ ARG FIREBASE_APP_ID
 ARG FIREBASE_MEASUREMENT_ID
 ARG API_BASE_URL=
 
-ENV FIREBASE_API_KEY=$FIREBASE_API_KEY \
+ENV DEPLOYMENT=$DEPLOYMENT \
+    FIREBASE_API_KEY=$FIREBASE_API_KEY \
     FIREBASE_AUTH_DOMAIN=$FIREBASE_AUTH_DOMAIN \
     FIREBASE_PROJECT_ID=$FIREBASE_PROJECT_ID \
     FIREBASE_STORAGE_BUCKET=$FIREBASE_STORAGE_BUCKET \
@@ -37,8 +40,9 @@ RUN if [ -z "${FIREBASE_API_KEY:-}" ] || [ -z "${FIREBASE_PROJECT_ID:-}" ]; then
   exit 1; \
 fi
 
-# Build the application (generates src/environment.prod.ts then ng build)
-RUN npm run build:prod
+# Generate env file + Angular build (production or staging config)
+RUN node scripts/generate-env-prod.mjs && \
+    if [ "$DEPLOYMENT" = "staging" ]; then npx ng build --configuration staging; else npx ng build --configuration production; fi
 
 # Stage 2: Serve the application
 FROM node:20-alpine
