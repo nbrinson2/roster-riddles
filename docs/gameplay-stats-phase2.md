@@ -119,14 +119,14 @@ Single document, updated **only by trusted code** after validating events (trans
 | `streaks` | `map` | At minimum: `currentWinStreak`, `bestWinStreak` (definitions: consecutive `result: won` in `createdAt` order). |
 | `bests` | `map` | At minimum: `fastestWinMs` (min `durationMs` where `result == won`), `fewestMistakesWin` (min `mistakeCount` where `result == won`). Can be scoped by `gameMode` in a nested structure if needed. |
 
-**Reads:** authenticated user may **read** their own `stats`; **writes** from the client are **denied** (see future rules change).
+**Reads:** authenticated user may **read** their own `stats` subcollection documents; **writes** from the client are **denied** in `firestore.rules` (Story 3).
 
 ---
 
 ## 5. Security model (reference for rules + Express owners)
 
-- **Clients** do not write directly to `gameplayEvents` or `stats` in the target design; they use **HTTPS + Firebase Auth** to the Express API (or Callable Functions), which uses the **Admin SDK**.
-- **`firestore.rules`:** tighten `users/{userId}` so subcollections `gameplayEvents` and document `stats` are not writable by end users once the API is live (exact rule text is a follow-on story).
+- **Clients** do not write directly to `gameplayEvents` or `stats`; they use **HTTPS + Firebase Auth** to the Express API, which uses the **Admin SDK** (bypasses rules).
+- **`firestore.rules` (Story 3):** `users/{userId}/gameplayEvents/{eventId}` — **read** own events only; **create/update/delete** `false`. `users/{userId}/stats/{docId}` — **read** own aggregates only; **create/update/delete** `false`. Deploy: [firestore-rules-deploy.md](firestore-rules-deploy.md).
 
 ---
 
@@ -134,7 +134,7 @@ Single document, updated **only by trusted code** after validating events (trans
 
 | Role | Owner | Status |
 |------|--------|--------|
-| Firestore rules | *TBD — team* | Pending review |
+| Firestore rules | *TBD — team* | Story 3 rules merged — deploy per [firestore-rules-deploy.md](firestore-rules-deploy.md) |
 | Express / API | *TBD — team* | Pending review |
 
 *Update this table when reviewers acknowledge the design.*
@@ -146,4 +146,5 @@ Single document, updated **only by trusted code** after validating events (trans
 - `src/app/app-routing.module.ts` — route prefixes.
 - `src/app/game/shared/constants/game.constants.ts` — `GameType`.
 - `src/app/nav/difficulty-toggle/difficulty-toggle.component.ts` — `Difficulty`.
-- `firestore.rules` — current `users/{userId}` match.
+- `firestore.rules` — `users/{userId}`, `gameplayEvents`, `stats`.
+- `docs/firestore-rules-deploy.md` — staging + prod deploy steps.

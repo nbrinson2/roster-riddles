@@ -13,6 +13,18 @@ service cloud.firestore {
       allow update, delete: if signedIn() && request.auth.uid == userId;
     }
 
+    // Gameplay events: append-only via Admin SDK / Express — clients may read own events only.
+    match /users/{userId}/gameplayEvents/{eventId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create, update, delete: if false;
+    }
+
+    // Aggregates: written only by trusted backends (Admin SDK). Clients may read own stats doc(s).
+    match /users/{userId}/stats/{docId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create, update, delete: if false;
+    }
+
     // Future contest / money paths — deny all client reads/writes; use Admin SDK or trusted backends.
     match /contests/{document=**} {
       allow read, write: if false;
