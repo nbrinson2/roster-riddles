@@ -3,6 +3,7 @@ import express from 'express';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
+import { postGameplayEvent } from './server/gameplay-events.js';
 import { requireFirebaseAuth } from './server/require-auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -46,6 +47,13 @@ app.get('/api/v1/me', requireFirebaseAuth, (req, res) => {
     emailVerified: req.user.emailVerified,
   });
 });
+
+/** Append-only gameplay event (Admin SDK). Idempotent on `clientSessionId`. */
+app.post(
+  '/api/v1/me/gameplay-events',
+  requireFirebaseAuth,
+  postGameplayEvent,
+);
 
 // Serve static files from the Angular app
 const distPath = join(__dirname, 'dist/roster-riddles/browser');
