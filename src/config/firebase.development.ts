@@ -1,6 +1,9 @@
 import type { FirebaseOptions } from 'firebase/app';
 
-/** Shared Firebase web app config for local `ng serve` (client-safe; also used from Cloud Build for prod). */
+/**
+ * Legacy **roster-riddles-457600** web config (optional). Local dev now uses `firebase.staging.ts` + staging project.
+ * Keep for reference or one-off builds against the old project.
+ */
 export const firebaseConfig: FirebaseOptions = {
   apiKey: 'AIzaSyDXagzOOHwH4vIbSEFlFxkPQVFrScKJERQ',
   authDomain: 'roster-riddles-457600.firebaseapp.com',

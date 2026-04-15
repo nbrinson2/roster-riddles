@@ -3,18 +3,22 @@
 # REQUIRED trigger substitutions (non-empty), passed as --build-arg to Docker:
 #   _FIREBASE_API_KEY, _FIREBASE_AUTH_DOMAIN, _FIREBASE_PROJECT_ID,
 #   _FIREBASE_STORAGE_BUCKET, _FIREBASE_MESSAGING_SENDER_ID, _FIREBASE_APP_ID
-# Optional: _FIREBASE_MEASUREMENT_ID, _API_BASE_URL
+# Optional: _FIREBASE_MEASUREMENT_ID, _API_BASE_URL, _DEPLOYMENT (default production; use `staging` + staging Firebase subs for a staging service)
+# Optional Stripe (Phase 1): _STRIPE_PUBLISHABLE_KEY — test (`pk_test_`) for staging trigger, live (`pk_live_`) for prod only (see docs/stripe.md)
 #
 # Also set: _AR_HOSTNAME, _AR_PROJECT_ID, _AR_REPOSITORY, _AR_IMAGE_PATH (Artifact Registry
 # image path under the repo — Cloud Run “deploy from source” often uses
-# roster-riddles/roster-riddles), _CLOUD_RUN_SERVICE (service name for gcloud run deploy).
+# roster-riddles/roster-riddles), _SERVICE_NAME (Cloud Run service for gcloud run deploy).
 #
 # If these are missing, `npm run build:prod` fails: generate-env-prod.mjs exits 1.
 # In Cloud Build → your trigger → Substitution variables — add each _FIREBASE_* key
 # with the same values you use for local production builds / Firebase web app config.
 #
 # IMPORTANT: The default Cloud Run continuous-deployment trigger runs `docker build -f Dockerfile`
-# only (no --build-arg). You must set the trigger to use THIS file: see README “Production”.
+# only (no --build-arg). You must set the trigger to use THIS file — see README and
+# `scripts/create-web-build-trigger.sh`.
+#
+# Built-in substitution `$PROJECT_ID` is the GCP project running the build (set `gcloud builds submit --project` or trigger project).
 
 steps:
   - name: gcr.io/cloud-builders/docker
@@ -23,6 +27,8 @@ steps:
       - '-t'
       - '$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_AR_IMAGE_PATH:$COMMIT_SHA'
       - '.'
+      - '--build-arg'
+      - 'DEPLOYMENT=$_DEPLOYMENT'
       - '--build-arg'
       - 'FIREBASE_API_KEY=$_FIREBASE_API_KEY'
       - '--build-arg'
@@ -39,6 +45,8 @@ steps:
       - 'FIREBASE_MEASUREMENT_ID=$_FIREBASE_MEASUREMENT_ID'
       - '--build-arg'
       - 'API_BASE_URL=$_API_BASE_URL'
+      - '--build-arg'
+      - 'STRIPE_PUBLISHABLE_KEY=$_STRIPE_PUBLISHABLE_KEY'
 
   # Push before deploy: the `images:` shortcut pushes only after *all* steps, which would run deploy too early.
   - name: gcr.io/cloud-builders/docker
@@ -51,10 +59,13 @@ steps:
     args:
       - run
       - deploy
-      - $_CLOUD_RUN_SERVICE
+      - $_SERVICE_NAME
+      - --project=$PROJECT_ID
       - --image=$_AR_HOSTNAME/$_AR_PROJECT_ID/$_AR_REPOSITORY/$_AR_IMAGE_PATH:$COMMIT_SHA
       - --region=$_DEPLOY_REGION
       - --platform=managed
+      # Public web app + SPA; remove or use IAM if the service must stay private.
+      - --allow-unauthenticated
       - --quiet
 
 # Defaults for local `gcloud builds submit`; the trigger overrides these with your console values.
@@ -64,9 +75,11 @@ substitutions:
   _AR_REPOSITORY: cloud-run-source-deploy
   # Artifact Registry docker image path (after repository name); matches Cloud Run source-deploy layout.
   _AR_IMAGE_PATH: roster-riddles/roster-riddles
-  _CLOUD_RUN_SERVICE: roster-riddles
+  _SERVICE_NAME: roster-riddles
   _DEPLOY_REGION: us-east1
   _API_BASE_URL: ''
+  _STRIPE_PUBLISHABLE_KEY: ''
+  _DEPLOYMENT: 'production'
   _FIREBASE_API_KEY: ''
   _FIREBASE_AUTH_DOMAIN: ''
   _FIREBASE_PROJECT_ID: ''
@@ -77,3 +90,7 @@ substitutions:
 
 options:
   logging: CLOUD_LOGGING_ONLY
+  # Angular + Docker can exceed the default 10m on cold caches.
+  machineType: E2_HIGHCPU_8
+
+timeout: 1800s

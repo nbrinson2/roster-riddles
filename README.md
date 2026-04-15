@@ -53,6 +53,13 @@ Runs the Angular dev server and Express together (`concurrently`).
 
 The app uses the **named Firestore database** **`roster-riddles`** (`initializeFirestore(..., 'roster-riddles')`). Deploy **security rules** for that database in the Firebase console (not only the default database).
 
+### Stripe (Phase 1 — test vs live)
+
+Payments are not integrated yet. **Non-production** (local, staging) must use **Stripe test** keys only (`sk_test_…`, `pk_test_…`); **production** uses **live** keys supplied via Secret Manager / Cloud Run and CI substitutions — never commit real keys.
+
+- **Variable names and where they are set:** [docs/stripe.md](docs/stripe.md)
+- **Local placeholders:** `.env.example` (commented; copy to `.env` if you need Stripe locally)
+
 ## Build
 
 | Command | Purpose |
@@ -65,7 +72,34 @@ The app uses the **named Firestore database** **`roster-riddles`** (`initializeF
 ## Production (Docker & Cloud Build)
 
 - **`Dockerfile`**: install deps, `npm run build:prod` with Firebase build-args, serve `dist/roster-riddles/browser` with **`node index.js`** on port **3000** (or `PORT`). The container serves the Angular app **and** the Express MLB proxy route above.
-- **`cloudbuild.yaml`**: Docker image for the web app; substitutions such as `_AR_HOSTNAME`, `_AR_PROJECT_ID`, `_AR_REPOSITORY`, `_SERVICE_NAME`, and `_FIREBASE_*` — mirror these on your Cloud Build trigger.
+- **`cloudbuild.yaml`**: Docker image for the web app; substitutions such as `_AR_HOSTNAME`, `_AR_PROJECT_ID`, `_AR_REPOSITORY`, `_SERVICE_NAME` (Cloud Run service), and `_FIREBASE_*` — mirror these on your Cloud Build trigger.
+
+### Cloud Build trigger (use `cloudbuild.yaml`, not Dockerfile-only)
+
+If the trigger already shows **Build configuration: `cloudbuild.yaml`** (like the main **`roster-riddles`** web deploy), you do **not** need to recreate it — focus on **substitution variables** and IAM below. Use **`scripts/create-web-build-trigger.sh`** only when adding a new trigger or repo.
+
+**Wrong setup:** A trigger that runs **`docker build -f Dockerfile`** with no substitutions — the Angular step fails because Firebase build-args are empty.
+
+**Console fix:** [Cloud Build → Triggers](https://console.cloud.google.com/cloud-build/triggers) → your trigger → **Edit** → **Configuration** → **Cloud Build configuration file** → Repository / **`cloudbuild.yaml`** (root) → Save. Add **Substitution variables** for `_FIREBASE_*` as in the next section.
+
+**CLI — create a new trigger** (GitHub 2nd gen connection; set `GITHUB_REPO` to the name shown under **Repositories** in Cloud Build):
+
+```bash
+export GCP_PROJECT_ID=your-gcp-project
+export CB_REGION=us-central1   # region where the GitHub *connection* was created
+export GITHUB_CONNECTION=your-connection-name
+export GITHUB_REPO=owner-repo-name
+./scripts/create-web-build-trigger.sh
+```
+
+**CLI — repoint an existing trigger** (replace `TRIGGER_ID` from `gcloud builds triggers list --region=REGION`):
+
+```bash
+gcloud builds triggers update TRIGGER_ID \
+  --project=YOUR_PROJECT --region=REGION \
+  --build-config=cloudbuild.yaml \
+  --branch-pattern='^main$'
+```
 
 ### Troubleshooting: `Missing required environment variables` during `npm run build:prod` in Docker
 
@@ -78,7 +112,7 @@ The production Angular bundle is built **inside the image**; `scripts/generate-e
 1. Open [Cloud Build → Triggers](https://console.cloud.google.com/cloud-build/triggers) and edit the **roster-riddles** trigger (or create one for branch `main`).
 2. Under **Configuration**, choose **Cloud Build configuration file (yaml or json)** (not “Dockerfile” or “Autodetected”).
 3. Set **Location** to the repository and path **`cloudbuild.yaml`** (repository root).
-4. Under **Substitution variables**, add **user-defined** substitutions for **`_FIREBASE_API_KEY`**, **`_FIREBASE_AUTH_DOMAIN`**, **`_FIREBASE_PROJECT_ID`**, **`_FIREBASE_STORAGE_BUCKET`**, **`_FIREBASE_MESSAGING_SENDER_ID`**, **`_FIREBASE_APP_ID`** (and optionally **`_FIREBASE_MEASUREMENT_ID`**, **`_API_BASE_URL`**) using the same values as your Firebase web app. Adjust **`_AR_IMAGE_PATH`** only if your Artifact Registry image path differs from the default in **`cloudbuild.yaml`** (it matches Cloud Run **source deploy** paths like `.../roster-riddles/roster-riddles`).
+4. Under **Substitution variables**, add **user-defined** substitutions for **`_FIREBASE_API_KEY`**, **`_FIREBASE_AUTH_DOMAIN`**, **`_FIREBASE_PROJECT_ID`**, **`_FIREBASE_STORAGE_BUCKET`**, **`_FIREBASE_MESSAGING_SENDER_ID`**, **`_FIREBASE_APP_ID`** (and optionally **`_FIREBASE_MEASUREMENT_ID`**, **`_API_BASE_URL`**, **`_STRIPE_PUBLISHABLE_KEY`** — test key on the staging trigger, live only on production; see **`docs/stripe.md`**) using the same values as your Firebase web app. Adjust **`_AR_IMAGE_PATH`** only if your Artifact Registry image path differs from the default in **`cloudbuild.yaml`** (it matches Cloud Run **source deploy** paths like `.../roster-riddles/roster-riddles`).
 
 The Cloud Build service account needs permission to push to Artifact Registry and to deploy Cloud Run (for example **Artifact Registry Writer** and **Cloud Run Admin** on the project, or a custom role that includes those capabilities).
 

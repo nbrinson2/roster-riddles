@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { getAnalytics, provideAnalytics, ScreenTrackingService, UserTrackingService } from '@angular/fire/analytics';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { getAuth, provideAuth } from '@angular/fire/auth';
-import { initializeFirestore, provideFirestore } from '@angular/fire/firestore';
+import { provideFirestore } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,8 +19,8 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { getApp } from 'firebase/app';
 import { environment } from 'src/environment';
+import { getConfiguredFirestore } from './config/firestore-instance';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AttributeHeaderComponent } from './game/bio-ball/attribute-header/attribute-header.component';
@@ -48,6 +49,8 @@ import { NicknameStreakComponent } from './game/nickname-streak/nickname-streak.
 import { StreakCardComponent } from './game/nickname-streak/streak-card/streak-card.component';
 import { GuessResultComponent } from './game/nickname-streak/guess-result/guess-result.component';
 import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directive';
+import { authHttpInterceptor } from './auth/auth-http.interceptor';
+import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
 
 @NgModule({
   declarations: [
@@ -77,6 +80,7 @@ import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directi
     StreakCardComponent,
     GuessResultComponent,
     FeatureFlagDirective,
+    LoginPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -95,13 +99,14 @@ import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directi
     MatCardModule,
     MatIconModule,
     MatMenuModule,
+    MatFormFieldModule,
   ],
   providers: [
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideFirestore(() => initializeFirestore(getApp(), {}, 'roster-riddles')),
+    provideFirestore(() => getConfiguredFirestore()),
     provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([authHttpInterceptor])),
     ScreenTrackingService,
     UserTrackingService,
   ],
