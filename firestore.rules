@@ -1,0 +1,37 @@
+rules_version = '2';
+// Target database id: roster-riddles (matches Angular `initializeFirestore(..., 'roster-riddles')`).
+// Deploy: Firebase Console → Firestore → select database "roster-riddles" → Rules,
+// or: firebase deploy --only firestore:roster-riddles (with firebase.json below).
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Profiles: only the signed-in user may access `users/{uid}` (equivalent to auth.uid == path uid).
+    match /users/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create: if signedIn() && request.auth.uid == userId;
+      allow update, delete: if signedIn() && request.auth.uid == userId;
+    }
+
+    // Future contest / money paths — deny all client reads/writes; use Admin SDK or trusted backends.
+    match /contests/{document=**} {
+      allow read, write: if false;
+    }
+    match /contestEntries/{document=**} {
+      allow read, write: if false;
+    }
+    match /ledgers/{document=**} {
+      allow read, write: if false;
+    }
+
+    // Game caches: public read; writes only via jobs / Admin SDK.
+    match /cache/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
+
+function signedIn() {
+  return request.auth != null;
+}

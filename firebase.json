@@ -1,0 +1,16 @@
+{
+  "firestore": [
+    {
+      "database": "roster-riddles",
+      "rules": "firestore.rules",
+      "indexes": "firestore.indexes.json"
+    }
+  ],
+  "emulators": {
+    "singleProjectMode": true,
+    "firestore": {
+      "host": "127.0.0.1",
+      "port": 9400
+    }
+  }
+}
