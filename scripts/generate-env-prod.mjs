@@ -1,6 +1,6 @@
 /**
  * Writes `src/environment.prod.ts` or `src/environment.staging.ts` from env vars.
- * CI/CD should set FIREBASE_* (and optional API_BASE_URL) per deployment target — use a **different**
+ * CI/CD should set FIREBASE_* (and optional API_BASE_URL, STRIPE_PUBLISHABLE_KEY) per deployment target — use a **different**
  * Firebase project for staging vs production by using different substitution values per trigger.
  *
  * DEPLOYMENT=staging  → environment.staging.ts (Angular config `staging`)
@@ -50,6 +50,8 @@ const firestoreDatabaseId = isStaging
   ? '(default)'
   : (process.env.FIRESTORE_DATABASE_ID ?? 'roster-riddles').trim();
 
+const stripePublishableKey = process.env.STRIPE_PUBLISHABLE_KEY ?? '';
+
 const content = `import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
 import type { DeploymentEnvironment } from './environment.types';
 
@@ -62,6 +64,7 @@ export const environment = {
   deployment: '${deploymentLiteral}' as DeploymentEnvironment,
   firestoreDatabaseId: ${JSON.stringify(firestoreDatabaseId)},
   baseUrl: ${JSON.stringify(apiBaseUrl)},
+  stripePublishableKey: ${JSON.stringify(stripePublishableKey)},
   featureFlags,
   firebase: {
     apiKey: ${JSON.stringify(process.env.FIREBASE_API_KEY)},

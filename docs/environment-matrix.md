@@ -23,3 +23,7 @@ Separate **Firebase projects** (or at minimum separate web apps + Admin credenti
 
 - **Dev** uses checked-in `firebase.staging.ts` (same staging project as CI staging builds; client-safe web config only).
 - **Staging / prod** bundles must **not** embed production config in git: run `scripts/generate-env-prod.mjs` before `ng build`, which writes gitignored `environment.prod.ts` or `environment.staging.ts`.
+
+## Stripe (future payments)
+
+- See [stripe.md](./stripe.md). Non-prod uses **test** keys only; prod **live** keys via CI/Secret Manager — `STRIPE_PUBLISHABLE_KEY` at build, `STRIPE_SECRET_KEY` at runtime on Cloud Run.

@@ -23,6 +23,8 @@ ARG FIREBASE_MESSAGING_SENDER_ID
 ARG FIREBASE_APP_ID
 ARG FIREBASE_MEASUREMENT_ID
 ARG API_BASE_URL=
+# Optional — Stripe publishable key for Angular (`pk_test_` staging / `pk_live` prod); see docs/stripe.md
+ARG STRIPE_PUBLISHABLE_KEY=
 
 ENV DEPLOYMENT=$DEPLOYMENT \
     FIREBASE_API_KEY=$FIREBASE_API_KEY \
@@ -32,7 +34,8 @@ ENV DEPLOYMENT=$DEPLOYMENT \
     FIREBASE_MESSAGING_SENDER_ID=$FIREBASE_MESSAGING_SENDER_ID \
     FIREBASE_APP_ID=$FIREBASE_APP_ID \
     FIREBASE_MEASUREMENT_ID=$FIREBASE_MEASUREMENT_ID \
-    API_BASE_URL=$API_BASE_URL
+    API_BASE_URL=$API_BASE_URL \
+    STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY
 
 # Fail fast with a clear message if Cloud Build did not pass --build-arg (see cloudbuild.yaml + trigger substitutions)
 RUN if [ -z "${FIREBASE_API_KEY:-}" ] || [ -z "${FIREBASE_PROJECT_ID:-}" ]; then \

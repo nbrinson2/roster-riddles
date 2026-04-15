@@ -13,6 +13,8 @@ export const environment = {
   /** Staging project (Spark): single `(default)` database. */
   firestoreDatabaseId: '(default)',
   baseUrl: 'http://localhost:7070/api/v1',
+  /** Stripe.js publishable key (`pk_test_…`); baked at CI build via `STRIPE_PUBLISHABLE_KEY` for staging/prod. */
+  stripePublishableKey: '',
   featureFlags,
   firebase: firebaseConfig,
 };
