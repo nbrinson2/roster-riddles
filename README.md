@@ -72,7 +72,34 @@ Payments are not integrated yet. **Non-production** (local, staging) must use **
 ## Production (Docker & Cloud Build)
 
 - **`Dockerfile`**: install deps, `npm run build:prod` with Firebase build-args, serve `dist/roster-riddles/browser` with **`node index.js`** on port **3000** (or `PORT`). The container serves the Angular app **and** the Express MLB proxy route above.
-- **`cloudbuild.yaml`**: Docker image for the web app; substitutions such as `_AR_HOSTNAME`, `_AR_PROJECT_ID`, `_AR_REPOSITORY`, `_SERVICE_NAME`, and `_FIREBASE_*` — mirror these on your Cloud Build trigger.
+- **`cloudbuild.yaml`**: Docker image for the web app; substitutions such as `_AR_HOSTNAME`, `_AR_PROJECT_ID`, `_AR_REPOSITORY`, `_SERVICE_NAME` (Cloud Run service), and `_FIREBASE_*` — mirror these on your Cloud Build trigger.
+
+### Cloud Build trigger (use `cloudbuild.yaml`, not Dockerfile-only)
+
+If the trigger already shows **Build configuration: `cloudbuild.yaml`** (like the main **`roster-riddles`** web deploy), you do **not** need to recreate it — focus on **substitution variables** and IAM below. Use **`scripts/create-web-build-trigger.sh`** only when adding a new trigger or repo.
+
+**Wrong setup:** A trigger that runs **`docker build -f Dockerfile`** with no substitutions — the Angular step fails because Firebase build-args are empty.
+
+**Console fix:** [Cloud Build → Triggers](https://console.cloud.google.com/cloud-build/triggers) → your trigger → **Edit** → **Configuration** → **Cloud Build configuration file** → Repository / **`cloudbuild.yaml`** (root) → Save. Add **Substitution variables** for `_FIREBASE_*` as in the next section.
+
+**CLI — create a new trigger** (GitHub 2nd gen connection; set `GITHUB_REPO` to the name shown under **Repositories** in Cloud Build):
+
+```bash
+export GCP_PROJECT_ID=your-gcp-project
+export CB_REGION=us-central1   # region where the GitHub *connection* was created
+export GITHUB_CONNECTION=your-connection-name
+export GITHUB_REPO=owner-repo-name
+./scripts/create-web-build-trigger.sh
+```
+
+**CLI — repoint an existing trigger** (replace `TRIGGER_ID` from `gcloud builds triggers list --region=REGION`):
+
+```bash
+gcloud builds triggers update TRIGGER_ID \
+  --project=YOUR_PROJECT --region=REGION \
+  --build-config=cloudbuild.yaml \
+  --branch-pattern='^main$'
+```
 
 ### Troubleshooting: `Missing required environment variables` during `npm run build:prod` in Docker
 
