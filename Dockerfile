@@ -25,6 +25,9 @@ ARG FIREBASE_MEASUREMENT_ID
 ARG API_BASE_URL=
 # Optional — Stripe publishable key for Angular (`pk_test_` staging / `pk_live` prod); see docs/stripe.md
 ARG STRIPE_PUBLISHABLE_KEY=
+# Express Admin SDK must use the same DB as the Angular client (`environment.firestoreDatabaseId`).
+# Production: `roster-riddles`. Staging builds: pass empty so Express uses `(default)` (see server/admin-firestore.js).
+ARG FIRESTORE_DATABASE_ID=roster-riddles
 
 ENV DEPLOYMENT=$DEPLOYMENT \
     FIREBASE_API_KEY=$FIREBASE_API_KEY \
@@ -35,7 +38,8 @@ ENV DEPLOYMENT=$DEPLOYMENT \
     FIREBASE_APP_ID=$FIREBASE_APP_ID \
     FIREBASE_MEASUREMENT_ID=$FIREBASE_MEASUREMENT_ID \
     API_BASE_URL=$API_BASE_URL \
-    STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY
+    STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY \
+    FIRESTORE_DATABASE_ID=$FIRESTORE_DATABASE_ID
 
 # Fail fast with a clear message if Cloud Build did not pass --build-arg (see cloudbuild.yaml + trigger substitutions)
 RUN if [ -z "${FIREBASE_API_KEY:-}" ] || [ -z "${FIREBASE_PROJECT_ID:-}" ]; then \
@@ -51,6 +55,9 @@ RUN node scripts/generate-env-prod.mjs && \
 FROM node:20-alpine
 
 WORKDIR /app
+
+ARG FIRESTORE_DATABASE_ID=roster-riddles
+ENV FIRESTORE_DATABASE_ID=$FIRESTORE_DATABASE_ID
 
 # Copy package files for production dependencies
 COPY package*.json ./

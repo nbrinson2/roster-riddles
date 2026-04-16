@@ -91,7 +91,7 @@
 | **Endpoint** | `POST /api/v1/me/gameplay-events` |
 | **Auth** | `Authorization: Bearer <Firebase ID token>` (same pattern as `GET /api/v1/me`) |
 | **Implementation** | `server/gameplay-events.js` — validates with **Zod**, writes with **Admin SDK** to `users/{uid}/gameplayEvents/{eventId}` |
-| **Firestore DB** | Server uses **`FIRESTORE_DATABASE_ID`** (omit or `(default)` for staging; production often `roster-riddles`) so it matches the Angular `firestoreDatabaseId`. |
+| **Firestore DB** | Server uses **`FIRESTORE_DATABASE_ID`** (omit or `(default)` for staging; production often `roster-riddles`) so it matches the Angular `firestoreDatabaseId`. **Cloud Run / Docker:** bake or set this env var at runtime — if unset, Admin SDK uses **`(default)`** while the client may use **`roster-riddles`**, causing failed writes or data in the wrong database. See [Troubleshooting: POST /gameplay-events 500](#troubleshooting-post-gameplay-events-500). |
 | **Angular client (Story 5)** | `GameplayTelemetryService` — `POST` on win/loss from `CommonGameService`, `abandoned` when navigating away while `PLAYING`; gated by `featureFlags.gameplayTelemetry` and `environment.sendGameplayEvents`. |
 | **Profile UI (Story 6)** | `ProfileComponent` reads `users/{uid}/stats/summary` via Firestore client (`docData`) for spot-checks vs console. |
 
@@ -149,6 +149,18 @@ Single document id **`summary`** (subcollection `stats`), updated **only by trus
 
 - **Script:** `scripts/verify-stats-reconciliation.mjs` — replay `gameplayEvents` with `applyEventToStatsTree` and diff against `stats/summary`.
 - **QA steps:** [stats-reconciliation.md](stats-reconciliation.md) — pick user `uid`, run `npm run verify:stats-reconciliation -- <uid>`, expect exit **0** and no diff.
+
+### Troubleshooting: POST /gameplay-events 500
+
+If **`POST /api/v1/me/gameplay-events`** returns **500** in production while Auth works:
+
+1. **Database mismatch (most common)** — The Angular bundle targets **`environment.firestoreDatabaseId`** (often **`roster-riddles`** from `generate-env-prod.mjs`). Express uses **`process.env.FIRESTORE_DATABASE_ID`** in `server/admin-firestore.js`. If that env var is **missing** on Cloud Run, the server uses Firestore **`(default)`** instead of the named database, which can cause transaction failures or writes that never show up in the client’s DB.
+   - **Fix (deploy):** Ensure the container sets **`FIRESTORE_DATABASE_ID=roster-riddles`** (see `Dockerfile` runtime `ENV` and `cloudbuild.yaml` `_FIRESTORE_DATABASE_ID`).
+   - **Fix (immediate):** `gcloud run services update SERVICE_NAME --region=REGION --set-env-vars FIRESTORE_DATABASE_ID=roster-riddles` (use your service name/region).
+2. **IAM** — Cloud Run’s service account needs Firestore access in the Firebase/GCP project (e.g. **Datastore User** / **Cloud Datastore User**).
+3. **Logs** — Structured lines from `gameplay-events` include **`requestId`**, **`outcome: write_failed`**, and **`errorMessage`** / **`firestoreCode`** (see [gameplay-observability.md](gameplay-observability.md)). Correlate with **`X-Request-ID`** on the response.
+
+---
 
 ## 8. Observability (Story 9)
 
