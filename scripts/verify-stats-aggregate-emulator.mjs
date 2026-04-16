@@ -78,7 +78,7 @@ async function run() {
   }
 
   const dupSession = sessions[0];
-  const dupEventId = computeGameplayEventId(uid, dupSessionId);
+  const dupEventId = computeGameplayEventId(uid, dupSession);
   const dup = await transactionalAppendEventAndUpdateStats(
     db,
     uid,
