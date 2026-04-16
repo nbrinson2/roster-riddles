@@ -94,7 +94,15 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  const dbId = process.env.FIRESTORE_DATABASE_ID?.trim();
+  console.log(
+    JSON.stringify({
+      component: 'server',
+      message: 'listening',
+      port: Number(port),
+      firestoreDatabaseId: dbId || '(default)',
+    }),
+  );
 }).on('error', (err) => {
   console.error('Server failed to start:', err);
 });
