@@ -89,7 +89,7 @@ export abstract class CommonGameService<T> {
     this._currentStreak.set(value);
   }
   
-  public allowedGuesses = 1;
+  public allowedGuesses = 9;
   public endResultText = EndResultMessage.WIN;
   public isSearchDisabled = false;
 
