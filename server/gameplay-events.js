@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
-import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { Timestamp } from 'firebase-admin/firestore';
 import { z } from 'zod';
 import { getAdminFirestore } from './admin-firestore.js';
+import { transactionalAppendEventAndUpdateStats } from './stats-aggregate.js';
 
 /** Max single-session duration we accept (48h). */
 export const MAX_DURATION_MS = 48 * 60 * 60 * 1000;
@@ -182,7 +183,7 @@ export async function postGameplayEvent(req, res) {
     .collection('gameplayEvents')
     .doc(eventId);
 
-  const firestorePayload = {
+  const eventPayloadSansCreatedAt = {
     schemaVersion: parsed.schemaVersion,
     gameMode: parsed.gameMode,
     result: parsed.result,
@@ -190,7 +191,6 @@ export async function postGameplayEvent(req, res) {
     mistakeCount: parsed.mistakeCount,
     clientSessionId: parsed.clientSessionId,
     uid,
-    createdAt: FieldValue.serverTimestamp(),
     ...(parsed.league !== undefined ? { league: parsed.league } : {}),
     ...(parsed.difficulty !== undefined ? { difficulty: parsed.difficulty } : {}),
     ...(parsed.clientOccurredAt !== undefined
@@ -213,14 +213,19 @@ export async function postGameplayEvent(req, res) {
   let existing = null;
 
   try {
-    await db.runTransaction(async (tx) => {
-      const snap = await tx.get(eventRef);
-      if (snap.exists) {
-        existing = snap.data() ?? null;
-        return;
-      }
-      tx.set(eventRef, firestorePayload);
-    });
+    const out = await transactionalAppendEventAndUpdateStats(
+      db,
+      uid,
+      eventId,
+      eventPayloadSansCreatedAt,
+      {
+        result: parsed.result,
+        gameMode: parsed.gameMode,
+        durationMs: parsed.durationMs,
+        mistakeCount: parsed.mistakeCount,
+      },
+    );
+    existing = out.existing;
   } catch (err) {
     console.error('[gameplay-events] transaction failed:', err?.message ?? err);
     return res.status(500).json({

@@ -39,6 +39,15 @@ npm run test:firestore-rules
 
 Runs the Firestore emulator and `scripts/verify-firestore-rules.mjs`.
 
+Stats aggregate logic (Story 4):
+
+```bash
+npm run test:server
+npm run test:stats-emulator
+```
+
+(`test:stats-emulator` needs the Firestore emulator port free — default **9450** in `firebase.json`.)
+
 ## Notes
 
 - **Admin SDK** (Express, jobs) **bypasses** security rules; rules constrain **client** SDK access only.

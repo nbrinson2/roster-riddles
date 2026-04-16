@@ -106,18 +106,20 @@ Use **`modeMetrics`** only when a future metric cannot be expressed as a single 
 
 ---
 
-## 4. Aggregate document: `users/{uid}/stats`
+## 4. Aggregate document: `users/{uid}/stats/summary`
 
-Single document, updated **only by trusted code** after validating events (transaction or deterministic recompute).
+Single document id **`summary`** (subcollection `stats`), updated **only by trusted code** in the **same Firestore transaction** as a new gameplay event insert (see `server/stats-aggregate.js`).
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `aggregateVersion` | `number` (int) | Bump when the aggregate schema or recomputation logic changes. |
-| `updatedAt` | `Timestamp` | Last time aggregates were written. |
-| `lastPlayedAt` | `Timestamp` | Last completed recorded game (`createdAt` of latest counted event, or equivalent). |
-| `totals` | `map` | Example keys: `gamesPlayed`, `wins`, `losses`, `abandoned` (all non-negative integers). May be split by `gameMode` later, e.g. `totalsByMode`. |
-| `streaks` | `map` | At minimum: `currentWinStreak`, `bestWinStreak` (definitions: consecutive `result: won` in `createdAt` order). |
-| `bests` | `map` | At minimum: `fastestWinMs` (min `durationMs` where `result == won`), `fewestMistakesWin` (min `mistakeCount` where `result == won`). Can be scoped by `gameMode` in a nested structure if needed. |
+| `aggregateVersion` | `number` (int) | Schema version for this aggregate shape (`STATS_SCHEMA_VERSION` in server code). |
+| `updatedAt` | `Timestamp` | Server time when aggregates were written (`FieldValue.serverTimestamp()`). |
+| `statsUpdatedAt` | `Timestamp` | Same purpose as `updatedAt` — duplicate field for debugging / grep in exports. |
+| `lastPlayedAt` | `Timestamp` | Same instant as the last applied event’s `createdAt` (written in one transaction). |
+| `totals` | `map` | `gamesPlayed`, `wins`, `losses`, `abandoned`. |
+| `totalsByMode` | `map` | Per `gameMode` key: same counters as `totals`. |
+| `streaks` | `map` | `currentWinStreak`, `bestWinStreak` — consecutive `won` in **API processing order** (not calendar-day based). |
+| `bests` | `map` | Global `fastestWinMs`, `fewestMistakesWin`, plus `byMode.{gameMode}` for the same two metrics (wins only). |
 
 **Reads:** authenticated user may **read** their own `stats` subcollection documents; **writes** from the client are **denied** in `firestore.rules` (Story 3).
 

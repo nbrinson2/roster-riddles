@@ -14,6 +14,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:firestore-rules": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/verify-firestore-rules.mjs\"",
+    "test:server": "node --test \"server/*.test.js\"",
+    "test:stats-emulator": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/verify-stats-aggregate-emulator.mjs\"",
     "mirror:firestore-cache": "node ./scripts/mirror-firestore-cache.mjs"
   },
   "type": "module",
