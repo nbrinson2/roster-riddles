@@ -145,6 +145,13 @@ Single document id **`summary`** (subcollection `stats`), updated **only by trus
 
 ---
 
+## 7. Verification toolkit (Story 8)
+
+- **Script:** `scripts/verify-stats-reconciliation.mjs` — replay `gameplayEvents` with `applyEventToStatsTree` and diff against `stats/summary`.
+- **QA steps:** [stats-reconciliation.md](stats-reconciliation.md) — pick user `uid`, run `npm run verify:stats-reconciliation -- <uid>`, expect exit **0** and no diff.
+
+---
+
 ## References
 
 - `src/app/app-routing.module.ts` — route prefixes.
