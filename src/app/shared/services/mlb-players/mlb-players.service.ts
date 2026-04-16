@@ -17,7 +17,6 @@ import {
 } from 'src/app/game/bio-ball/models/mlb.models';
 import { CareerPathPlayerResponse } from 'src/app/game/career-path/models/career-path.models';
 import { NicknameStreakPlayer } from 'src/app/game/nickname-streak/models/nickname-streak.models';
-import { environment } from 'src/environment';
 
 export interface MlbPlayerCache {
   players: MlbUiPlayer[];
@@ -49,15 +48,11 @@ export class MlbPlayersService {
   }
 
   /**
-   * In production, always uses same-origin `/api/v1/mlb/people/:id` (Express → MLB).
-   * Does not use `environment.baseUrl`: a mis-set `API_BASE_URL` (e.g. statsapi) would
-   * send the browser to MLB directly and expose the host in the Network tab.
+   * Always uses same-origin `/api/v1/mlb/people/:id` (Express → MLB).
+   * The browser cannot call `statsapi.mlb.com` directly (CORS); dev uses `proxy.conf.json` → :3000.
    */
   public getPlayer(id: number): Observable<MlbPlayerResponse> {
-    const reqUrl = environment.production
-      ? this.playerProxyUrl(id)
-      : `${this.baseUrl}${this.playerEndpoint}/${id}`;
-    return this.http.get<MlbPlayerResponse>(reqUrl);
+    return this.http.get<MlbPlayerResponse>(this.playerProxyUrl(id));
   }
 
   /** Relative path only — resolves to the app origin in the browser (Cloud Run + Express). */
@@ -86,9 +81,7 @@ export class MlbPlayersService {
 
   /** simple wrapper to hit /people/{id} and pluck debutDate */
   public getPlayerDebutDate(id: number): Observable<string> {
-    const url = environment.production
-      ? this.playerProxyUrl(id)
-      : `${this.baseUrl}/people/${id}`;
+    const url = this.playerProxyUrl(id);
     return this.http
       .get<MlbPlayerResponse>(url)
       .pipe(

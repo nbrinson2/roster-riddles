@@ -12,6 +12,7 @@ import {
 import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
 import { PlayerAttrColor } from 'src/app/shared/models/common-models';
 import { CommonGameService } from 'src/app/shared/services/common-game/common-game.service';
+import { GameplayTelemetryService } from 'src/app/shared/services/gameplay-telemetry/gameplay-telemetry.service';
 import { GameService } from '../../../../shared/utils/game-service.token';
 import { Headers } from '../../util/bio-ball.util';
 
@@ -68,9 +69,10 @@ export class BioBallEngineService<PlayerType extends UiPlayer<AttributesType>>
 
   constructor(
     slideUpService: SlideUpService,
-    private hintService: HintService
+    private hintService: HintService,
+    gameplayTelemetry: GameplayTelemetryService,
   ) {
-    super(slideUpService);
+    super(slideUpService, gameplayTelemetry);
     this.currentGameMode = 'n/a';
     this.attributeHeaders = Headers;
   }

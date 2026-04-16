@@ -57,6 +57,7 @@ import type { DeploymentEnvironment } from './environment.types';
 
 const featureFlags: FeatureFlags = {
   mlbTeamLogos: false,
+  gameplayTelemetry: true,
 };
 
 export const environment = {
@@ -65,6 +66,7 @@ export const environment = {
   firestoreDatabaseId: ${JSON.stringify(firestoreDatabaseId)},
   baseUrl: ${JSON.stringify(apiBaseUrl)},
   stripePublishableKey: ${JSON.stringify(stripePublishableKey)},
+  sendGameplayEvents: true,
   featureFlags,
   firebase: {
     apiKey: ${JSON.stringify(process.env.FIREBASE_API_KEY)},

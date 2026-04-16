@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { GameType } from '../game/shared/constants/game.constants';
 import { Difficulty } from '../nav/difficulty-toggle/difficulty-toggle.component';
 import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
@@ -15,40 +15,24 @@ import { NicknameStreakPlayer } from './nickname-streak/models/nickname-streak.m
   standalone: false
 })
 export class GameComponent {
-  get currentGameType(): GameType {
-    return this.gameService.currentGame();
-  }
+  /** Template: `GameType.CAREER_PATH` etc. */
+  protected readonly GameType = GameType;
 
-  get currentGameMode(): Difficulty {
-    return this.gameService.currentGameMode();
-  }
+  private readonly gameService = inject<GameService<GamePlayer>>(GAME_SERVICE);
+  private readonly slideUpService = inject(SlideUpService);
+  private readonly rosterSelectionService = inject(RosterSelectionService);
 
-  get showAttributeHeader(): boolean {
-    return this.gameService.showAttributeHeader();
-  }
-
-  get attributeHeaders(): Header[] {
-    return this.gameService.attributeHeaders();
-  }
-
-  get playerToGuess(): NicknameStreakPlayer {
-    return this.gameService.playerToGuess() as NicknameStreakPlayer;
-  }
-
-  get bestStreak(): number {
-    return this.gameService.bestStreak();
-  }
-
-  get currentStreak(): number {
-    return this.gameService.currentStreak();
-  }
-
-  constructor(
-    private slideUpService: SlideUpService,
-    private rosterSelectionService: RosterSelectionService,
-    @Inject(GAME_SERVICE)
-    private gameService: GameService<GamePlayer>,
-  ) {}
+  readonly currentGameType = computed(() => this.gameService.currentGame());
+  readonly currentGameMode = computed(() => this.gameService.currentGameMode());
+  readonly showAttributeHeader = computed(() =>
+    this.gameService.showAttributeHeader(),
+  );
+  readonly attributeHeaders = computed(() => this.gameService.attributeHeaders());
+  readonly playerToGuess = computed(
+    () => this.gameService.playerToGuess() as NicknameStreakPlayer,
+  );
+  readonly bestStreak = computed(() => this.gameService.bestStreak());
+  readonly currentStreak = computed(() => this.gameService.currentStreak());
 
   protected startNewGame(): void {
     if (this.slideUpService.isVisible()) {
@@ -66,3 +50,4 @@ export class GameComponent {
     this.rosterSelectionService.resetRosterSelection();
   }
 }
+

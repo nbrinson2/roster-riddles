@@ -4,6 +4,8 @@ import type { DeploymentEnvironment } from './environment.types';
 
 const featureFlags: FeatureFlags = {
   mlbTeamLogos: false,
+  /** When false, gameplay completion is not POSTed (see `GameplayTelemetryService`). */
+  gameplayTelemetry: true,
 };
 
 export const environment = {
@@ -12,7 +14,13 @@ export const environment = {
   deployment: 'development' as DeploymentEnvironment,
   /** Staging project (Spark): single `(default)` database. */
   firestoreDatabaseId: '(default)',
-  baseUrl: 'http://localhost:7070/api/v1',
+  /**
+   * Empty string = same origin as `ng serve` (e.g. :4300) so `/api/*` hits `proxy.conf.json` → Express :3000.
+   * Do not use `http://localhost:3000/...` from the browser (CORS); avoid a random port with nothing listening.
+   */
+  baseUrl: '',
+  /** Set to `false` to skip gameplay telemetry POSTs without changing feature flags. */
+  sendGameplayEvents: true,
   /** Stripe.js publishable key (`pk_test_…`); baked at CI build via `STRIPE_PUBLISHABLE_KEY` for staging/prod. */
   stripePublishableKey: '',
   featureFlags,

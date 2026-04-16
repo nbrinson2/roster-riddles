@@ -92,6 +92,7 @@
 | **Auth** | `Authorization: Bearer <Firebase ID token>` (same pattern as `GET /api/v1/me`) |
 | **Implementation** | `server/gameplay-events.js` — validates with **Zod**, writes with **Admin SDK** to `users/{uid}/gameplayEvents/{eventId}` |
 | **Firestore DB** | Server uses **`FIRESTORE_DATABASE_ID`** (omit or `(default)` for staging; production often `roster-riddles`) so it matches the Angular `firestoreDatabaseId`. |
+| **Angular client (Story 5)** | `GameplayTelemetryService` — `POST` on win/loss from `CommonGameService`, `abandoned` when navigating away while `PLAYING`; gated by `featureFlags.gameplayTelemetry` and `environment.sendGameplayEvents`. |
 
 ---
 

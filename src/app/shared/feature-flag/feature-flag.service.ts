@@ -3,7 +3,7 @@ import { environment } from 'src/environment';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-export type FlagKey = 'mlbTeamLogos';
+export type FlagKey = 'mlbTeamLogos' | 'gameplayTelemetry';
 
 export interface FeatureFlags {
   [key: string]: boolean;
