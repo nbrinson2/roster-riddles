@@ -48,6 +48,15 @@ npm run test:stats-emulator
 
 (`test:stats-emulator` needs the Firestore emulator port free — default **9450** in `firebase.json`.)
 
+**`firebase emulators:exec`:** The CLI stops the emulator when the **child process exits**. Child scripts must finish so Node can exit:
+
+| Script | Teardown |
+|--------|----------|
+| `verify-firestore-rules.mjs` | `testEnv.cleanup()` in a **`finally`** block (always runs on pass/fail), then **`exitEmulatorExecChild`** |
+| `verify-stats-aggregate-emulator.mjs`, `stats-concurrency-load-test.mjs` | **`deleteFirebaseAdminApp(admin)`** in **`finally`** (closes Admin gRPC), then **`exitEmulatorExecChild`** |
+
+Shared helpers live in **`scripts/emulator-child-exit.mjs`**. Without releasing **firebase-admin** or cleaning up **rules-unit-testing**, open handles can keep Node alive and the emulator will **not** shut down.
+
 ## Composite indexes (leaderboards — `firestore.indexes.json`)
 
 Indexes for collection-group queries on `stats/summary` live in **`firestore.indexes.json`**. Deploy them with the **same** command as rules, targeting the named database:

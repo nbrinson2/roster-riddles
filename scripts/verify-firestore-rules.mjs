@@ -11,6 +11,7 @@ import {
   initializeTestEnvironment,
 } from '@firebase/rules-unit-testing';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { exitEmulatorExecChild } from './emulator-child-exit.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -25,57 +26,71 @@ const unauth = testEnv.unauthenticatedContext().firestore();
 const alice = testEnv.authenticatedContext('alice').firestore();
 const bob = testEnv.authenticatedContext('bob').firestore();
 
-await testEnv.clearFirestore();
+let exitCode = 0;
+try {
+  await testEnv.clearFirestore();
 
-// users/{uid}: owner can write own doc
-await assertSucceeds(
-  setDoc(doc(alice, 'users', 'alice'), {
-    email: 'a@test.com',
-    emailVerified: true,
-  })
-);
+  // users/{uid}: owner can write own doc
+  await assertSucceeds(
+    setDoc(doc(alice, 'users', 'alice'), {
+      email: 'a@test.com',
+      emailVerified: true,
+    }),
+  );
 
-// cannot write another user's doc
-await assertFails(setDoc(doc(alice, 'users', 'bob'), { x: 1 }));
+  // cannot write another user's doc
+  await assertFails(setDoc(doc(alice, 'users', 'bob'), { x: 1 }));
 
-// cannot write own profile when unauthenticated
-await assertFails(setDoc(doc(unauth, 'users', 'alice'), { x: 1 }));
+  // cannot write own profile when unauthenticated
+  await assertFails(setDoc(doc(unauth, 'users', 'alice'), { x: 1 }));
 
-// owner can read own
-await assertSucceeds(getDoc(doc(alice, 'users', 'alice')));
+  // owner can read own
+  await assertSucceeds(getDoc(doc(alice, 'users', 'alice')));
 
-// cannot read another user's profile
-await assertFails(getDoc(doc(alice, 'users', 'bob')));
+  // cannot read another user's profile
+  await assertFails(getDoc(doc(alice, 'users', 'bob')));
 
-// users/{uid}/gameplayEvents: owner may read; client writes denied (Admin SDK only)
-await assertSucceeds(
-  getDoc(doc(alice, 'users', 'alice', 'gameplayEvents', 'no-such-event'))
-);
-await assertFails(
-  setDoc(doc(alice, 'users', 'alice', 'gameplayEvents', 'evt1'), { x: 1 })
-);
-await assertFails(
-  getDoc(doc(alice, 'users', 'bob', 'gameplayEvents', 'evt1'))
-);
+  // users/{uid}/gameplayEvents: owner may read; client writes denied (Admin SDK only)
+  await assertSucceeds(
+    getDoc(doc(alice, 'users', 'alice', 'gameplayEvents', 'no-such-event')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'users', 'alice', 'gameplayEvents', 'evt1'), { x: 1 }),
+  );
+  await assertFails(
+    getDoc(doc(alice, 'users', 'bob', 'gameplayEvents', 'evt1')),
+  );
 
-// users/{uid}/stats: owner may read; client writes denied
-await assertSucceeds(getDoc(doc(alice, 'users', 'alice', 'stats', 'summary')));
-await assertFails(
-  setDoc(doc(alice, 'users', 'alice', 'stats', 'summary'), { wins: 99 })
-);
-await assertFails(getDoc(doc(alice, 'users', 'bob', 'stats', 'summary')));
+  // users/{uid}/stats: owner may read; client writes denied
+  await assertSucceeds(getDoc(doc(alice, 'users', 'alice', 'stats', 'summary')));
+  await assertFails(
+    setDoc(doc(alice, 'users', 'alice', 'stats', 'summary'), { wins: 99 }),
+  );
+  await assertFails(getDoc(doc(alice, 'users', 'bob', 'stats', 'summary')));
 
-// cache: read allowed (even when doc is missing; rules still apply to the path)
-await assertSucceeds(getDoc(doc(unauth, 'cache', 'no-such-doc')));
+  // cache: read allowed (even when doc is missing; rules still apply to the path)
+  await assertSucceeds(getDoc(doc(unauth, 'cache', 'no-such-doc')));
 
-// cache: client cannot write
-await assertFails(setDoc(doc(alice, 'cache', 'y'), { bad: true }));
+  // cache: client cannot write
+  await assertFails(setDoc(doc(alice, 'cache', 'y'), { bad: true }));
 
-// future contest path: deny
-await assertFails(setDoc(doc(alice, 'contests', 'w1'), { a: 1 }));
+  // future contest path: deny
+  await assertFails(setDoc(doc(alice, 'contests', 'w1'), { a: 1 }));
 
-// ledgers: deny
-await assertFails(setDoc(doc(alice, 'ledgers', 'l1'), { a: 1 }));
+  // ledgers: deny
+  await assertFails(setDoc(doc(alice, 'ledgers', 'l1'), { a: 1 }));
 
-await testEnv.cleanup();
-console.log('Firestore rules verification passed.');
+  console.log('Firestore rules verification passed.');
+} catch (err) {
+  console.error(err);
+  exitCode = 1;
+} finally {
+  try {
+    await testEnv.cleanup();
+  } catch (e) {
+    console.error('testEnv.cleanup failed:', e);
+    exitCode = 1;
+  }
+}
+
+exitEmulatorExecChild(exitCode);

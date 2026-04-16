@@ -6,6 +6,10 @@ import admin from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
 import { computeGameplayEventId } from '../server/gameplay-events.js';
 import {
+  deleteFirebaseAdminApp,
+  exitEmulatorExecChild,
+} from './emulator-child-exit.mjs';
+import {
   STATS_DOC_ID,
   transactionalAppendEventAndUpdateStats,
 } from '../server/stats-aggregate.js';
@@ -109,7 +113,14 @@ async function run() {
   console.log('Stats aggregate emulator integration passed.');
 }
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+run()
+  .catch((err) => {
+    console.error(err);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await deleteFirebaseAdminApp(admin);
+    exitEmulatorExecChild(
+      typeof process.exitCode === 'number' ? process.exitCode : 0,
+    );
+  });
