@@ -27,7 +27,16 @@ export async function requireFirebaseAuth(req, res, next) {
     try {
       admin = ensureFirebaseAdminInitialized();
     } catch (initErr) {
-      console.error('[auth] Firebase Admin init failed:', initErr);
+      console.error(
+        JSON.stringify({
+          component: 'auth',
+          severity: 'ERROR',
+          requestId: req.requestId ?? null,
+          outcome: 'admin_init_failed',
+          message:
+            initErr instanceof Error ? initErr.message : String(initErr),
+        }),
+      );
       return res.status(503).json({
         error: {
           code: 'server_misconfigured',
@@ -46,7 +55,15 @@ export async function requireFirebaseAuth(req, res, next) {
     req.user = user;
     next();
   } catch (err) {
-    console.warn('[auth] verifyIdToken failed:', err?.message ?? err);
+    console.warn(
+      JSON.stringify({
+        component: 'auth',
+        severity: 'WARNING',
+        requestId: req.requestId ?? null,
+        outcome: 'invalid_token',
+        message: err instanceof Error ? err.message : String(err),
+      }),
+    );
     return sendUnauthorized(res, 'invalid_token', 'Invalid or expired token.');
   }
 }

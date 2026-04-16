@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { Timestamp } from 'firebase-admin/firestore';
 import { z } from 'zod';
 import { getAdminFirestore } from './admin-firestore.js';
+import { logGameplayEventLine } from './gameplay-event-log.js';
 import { transactionalAppendEventAndUpdateStats } from './stats-aggregate.js';
 
 /** Max single-session duration we accept (48h). */
@@ -148,8 +149,18 @@ function echoFromStored(data) {
  * @type {import('express').RequestHandler}
  */
 export async function postGameplayEvent(req, res) {
+  const startMs = Date.now();
+  const requestId = req.requestId ?? 'unknown';
+
   const uid = req.user?.uid;
   if (!uid) {
+    logGameplayEventLine({
+      requestId,
+      uid: null,
+      httpStatus: 401,
+      outcome: 'unauthorized',
+      latencyMs: Date.now() - startMs,
+    });
     return res.status(401).json({
       error: { code: 'unauthorized', message: 'Missing authenticated user.' },
     });
@@ -160,6 +171,14 @@ export async function postGameplayEvent(req, res) {
     parsed = gameplayEventBodySchema.parse(req.body ?? {});
   } catch (err) {
     if (err instanceof z.ZodError) {
+      logGameplayEventLine({
+        requestId,
+        uid,
+        httpStatus: 400,
+        outcome: 'validation_error',
+        latencyMs: Date.now() - startMs,
+        validationIssueCount: err.issues.length,
+      });
       return res.status(400).json({
         error: {
           code: 'validation_error',
@@ -175,7 +194,18 @@ export async function postGameplayEvent(req, res) {
   try {
     db = getAdminFirestore();
   } catch (initErr) {
-    console.error('[gameplay-events] Firestore init failed:', initErr);
+    const msg =
+      initErr instanceof Error ? initErr.message.slice(0, 300) : String(initErr);
+    logGameplayEventLine({
+      requestId,
+      uid,
+      httpStatus: 503,
+      outcome: 'firestore_init_failed',
+      latencyMs: Date.now() - startMs,
+      gameMode: parsed.gameMode,
+      result: parsed.result,
+      errorMessage: msg,
+    });
     return res.status(503).json({
       error: {
         code: 'server_misconfigured',
@@ -235,7 +265,24 @@ export async function postGameplayEvent(req, res) {
     );
     existing = out.existing;
   } catch (err) {
-    console.error('[gameplay-events] transaction failed:', err?.message ?? err);
+    const msg =
+      err instanceof Error ? err.message.slice(0, 500) : String(err);
+    const code =
+      err && typeof err === 'object' && 'code' in err
+        ? String(/** @type {{ code?: unknown }} */ (err).code)
+        : undefined;
+    logGameplayEventLine({
+      requestId,
+      uid,
+      eventId,
+      gameMode: parsed.gameMode,
+      result: parsed.result,
+      httpStatus: 500,
+      outcome: 'write_failed',
+      latencyMs: Date.now() - startMs,
+      firestoreCode: code,
+      errorMessage: msg,
+    });
     return res.status(500).json({
       error: {
         code: 'write_failed',
@@ -245,6 +292,17 @@ export async function postGameplayEvent(req, res) {
   }
 
   if (existing) {
+    logGameplayEventLine({
+      requestId,
+      uid,
+      eventId,
+      gameMode: parsed.gameMode,
+      result: parsed.result,
+      httpStatus: 200,
+      outcome: 'idempotent_replay',
+      idempotentReplay: true,
+      latencyMs: Date.now() - startMs,
+    });
     return res.status(200).json({
       eventId,
       idempotentReplay: true,
@@ -255,11 +313,31 @@ export async function postGameplayEvent(req, res) {
   const final = await eventRef.get();
   const data = final.data();
   if (!data) {
+    logGameplayEventLine({
+      requestId,
+      uid,
+      eventId,
+      gameMode: parsed.gameMode,
+      result: parsed.result,
+      httpStatus: 500,
+      outcome: 'read_after_write_failed',
+      latencyMs: Date.now() - startMs,
+    });
     return res.status(500).json({
       error: { code: 'read_failed', message: 'Event write succeeded but read failed.' },
     });
   }
 
+  logGameplayEventLine({
+    requestId,
+    uid,
+    eventId,
+    gameMode: parsed.gameMode,
+    result: parsed.result,
+    httpStatus: 201,
+    outcome: 'event_created',
+    latencyMs: Date.now() - startMs,
+  });
   return res.status(201).json({
     eventId,
     event: echoFromStored(data),

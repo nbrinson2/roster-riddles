@@ -180,6 +180,8 @@ npm run verify:stats-reconciliation -- <firebase-uid>
 
 Exit **0** means no diff. Full steps and flags: [docs/stats-reconciliation.md](docs/stats-reconciliation.md).
 
+**Gameplay API logging** (structured JSON, request ids, no secrets): [docs/gameplay-observability.md](docs/gameplay-observability.md).
+
 ## Other
 
 - **`scripts/generate-env-prod.mjs`** — production `environment.prod.ts` for Docker/CI.

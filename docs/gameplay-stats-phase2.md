@@ -150,6 +150,11 @@ Single document id **`summary`** (subcollection `stats`), updated **only by trus
 - **Script:** `scripts/verify-stats-reconciliation.mjs` — replay `gameplayEvents` with `applyEventToStatsTree` and diff against `stats/summary`.
 - **QA steps:** [stats-reconciliation.md](stats-reconciliation.md) — pick user `uid`, run `npm run verify:stats-reconciliation -- <uid>`, expect exit **0** and no diff.
 
+## 8. Observability (Story 9)
+
+- **Logging:** Structured JSON lines for gameplay events (`requestId`, `uid`, `eventId`, `gameMode`, `latencyMs`, `result`, `httpStatus`, `outcome`). See [gameplay-observability.md](gameplay-observability.md).
+- **Indexes:** No composite indexes required for current writes/queries; see same doc if adding filtered `gameplayEvents` queries.
+
 ---
 
 ## References

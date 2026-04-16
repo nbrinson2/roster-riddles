@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 import { postGameplayEvent } from './server/gameplay-events.js';
 import { requireFirebaseAuth } from './server/require-auth.js';
+import { requestIdMiddleware } from './server/request-id.middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,6 +15,7 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
+app.use(requestIdMiddleware);
 
 const MLB_API = 'https://statsapi.mlb.com/api/v1';
 
@@ -67,10 +69,28 @@ app.use((req, res, next) => {
   next();
 });
 
-// Error handling middleware
+// Error handling middleware (no secrets; include request id for correlation)
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
+  const requestId = req.requestId ?? 'unknown';
+  console.error(
+    JSON.stringify({
+      component: 'express',
+      severity: 'ERROR',
+      requestId,
+      message: err instanceof Error ? err.message : String(err),
+      // stack is not a secret; omit body/headers to avoid leaking tokens
+    }),
+  );
+  if (err instanceof Error && err.stack) {
+    console.error(err.stack);
+  }
+  res.status(500).json({
+    error: {
+      code: 'internal_error',
+      message: 'Something broke!',
+      requestId,
+    },
+  });
 });
 
 app.listen(port, () => {
