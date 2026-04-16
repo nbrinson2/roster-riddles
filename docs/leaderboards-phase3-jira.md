@@ -142,13 +142,15 @@ Single pipeline: on relevant gameplay outcome, update per-user leaderboard input
 
 **Acceptance criteria**
 
-- [ ] Writes go through **Admin SDK** or secured Cloud Function — not client-direct to authoritative fields.
-- [ ] Documented idempotency for retries (same event/session as Phase 2).
-- [ ] Unit tests for merge rules (e.g. max score vs last score).
+- [x] Writes go through **Admin SDK** or secured Cloud Function — not client-direct to authoritative fields.
+- [x] Documented idempotency for retries (same event/session as Phase 2).
+- [x] Unit tests for merge rules (e.g. max score vs last score).
 
 **Dependencies**
 
 - Phase 2 event ingestion; Story A0 scoring rules.
+
+**Deliverable:** [`docs/leaderboards-trusted-writer-c1.md`](leaderboards-trusted-writer-c1.md) (trusted path + idempotency + merge semantics), [`server/stats-aggregate.js`](../server/stats-aggregate.js) (JSDoc cross-links), [`server/stats-aggregate.test.js`](../server/stats-aggregate.test.js) (`leaderboard score fields` tests).
 
 ---
 

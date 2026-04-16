@@ -3,7 +3,8 @@
 **Status:** Implemented (schema + indexes + types)  
 **Depends on:** [leaderboards-phase3-adr.md](leaderboards-phase3-adr.md) (Story A0), [gameplay-stats-phase2.md](gameplay-stats-phase2.md)  
 **See also (batch path):** [leaderboards-schema-precomputed.md](leaderboards-schema-precomputed.md) (Story B2) — same score semantics; precomputed top-K docs for cheap reads at scale.  
-**Indexes & pagination (Story B3):** [leaderboards-indexes-pagination.md](leaderboards-indexes-pagination.md) — composite indexes, `limit` / `startAfter`, deploy.
+**Indexes & pagination (Story B3):** [leaderboards-indexes-pagination.md](leaderboards-indexes-pagination.md) — composite indexes, `limit` / `startAfter`, deploy.  
+**Trusted writes (Story C1):** [leaderboards-trusted-writer-c1.md](leaderboards-trusted-writer-c1.md) — `stats/summary` updates only via Admin SDK + idempotent events.
 
 ## Summary
 
