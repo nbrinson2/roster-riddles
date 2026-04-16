@@ -96,13 +96,7 @@ export class GameplayTelemetryService {
   }
 
   private shouldSend(): boolean {
-    if (!this.featureFlags.isEnabledSnapshot('gameplayTelemetry')) {
-      return false;
-    }
-    if (environment.sendGameplayEvents === false) {
-      return false;
-    }
-    return true;
+    return this.featureFlags.isEnabledSnapshot('gameplayTelemetry');
   }
 
   private sendTerminal(
