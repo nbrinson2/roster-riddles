@@ -1,14 +1,233 @@
-<div class="header">
-  <span class="material-symbols-outlined account-icon"> account_circle </span>
-  <h1 *ngIf="user?.displayName || user?.email">
-    {{ user?.displayName || user?.email }}
-  </h1>
-</div>
-<div class="content-container">
-  <div class="section">
-    <div class="text" *ngIf="user && user.displayName && user.email && user.displayName !== user.email">
-      {{ user.email }}
+<div class="profile-page">
+  <header class="header">
+    <div class="avatar-wrap">
+      <span class="material-symbols-outlined account-icon">account_circle</span>
     </div>
-    <div class="text">Profile and statistics coming soon!</div>
+    <h1 *ngIf="user?.displayName || user?.email">
+      {{ user?.displayName || user?.email }}
+    </h1>
+    <p
+      class="email-line"
+      *ngIf="
+        user &&
+        user.displayName &&
+        user.email &&
+        user.displayName !== user.email
+      "
+    >
+      {{ user.email }}
+    </p>
+  </header>
+
+  <div class="content-container">
+    <section class="stats-section" *ngIf="showStatsSection()">
+      <h2 class="stats-heading">Your game statistics</h2>
+      <p *ngIf="statsDoc() as doc" class="text stats-hint">
+        These statistics are generated automatically from your game activity and
+        updated after each session.
+      </p>
+
+      <mat-card class="stats-card loading-card" *ngIf="statsLoading()">
+        <mat-card-content>
+          <p class="text loading-line">Loading statistics…</p>
+        </mat-card-content>
+      </mat-card>
+
+      <ng-container *ngIf="!statsLoading()">
+        <ng-container *ngIf="statsDoc() as doc; else noStatsDoc">
+          <ng-container *ngIf="totalsOrDefault(doc) as t">
+            <mat-card class="stats-card overview-card">
+              <mat-card-header>
+                <mat-card-title>Overview</mat-card-title>
+                <mat-card-subtitle>
+                  <ng-container *ngIf="winRatePercent(t) != null; else subNoGp">
+                    Win rate {{ winRatePercent(t) }}% · finished games
+                    {{ t.wins + t.losses }}
+                  </ng-container>
+                  <ng-template #subNoGp
+                    >Play a game to see your split</ng-template
+                  >
+                </mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="hero-stat">
+                  <span class="hero-stat__value">{{ t.gamesPlayed }}</span>
+                  <span class="hero-stat__label">games played</span>
+                </div>
+
+                <div class="outcome-block" *ngIf="t.gamesPlayed > 0">
+                  <div class="outcome-legend">
+                    <span class="lg lg--win"
+                      ><span class="dot"></span> Wins {{ t.wins }}</span
+                    >
+                    <span class="lg lg--loss"
+                      ><span class="dot"></span> Losses {{ t.losses }}</span
+                    >
+                    <span class="lg lg--abandon"
+                      ><span class="dot"></span> Abandoned
+                      {{ t.abandoned }}</span
+                    >
+                  </div>
+                  <div
+                    class="outcome-track"
+                    role="img"
+                    [attr.aria-label]="
+                      'Outcome mix: ' +
+                      t.wins +
+                      ' wins, ' +
+                      t.losses +
+                      ' losses, ' +
+                      t.abandoned +
+                      ' abandoned'
+                    "
+                  >
+                    <span
+                      class="seg seg--win"
+                      *ngIf="outcomeWidths(t).w > 0"
+                      [style.width.%]="outcomeWidths(t).w"
+                    ></span>
+                    <span
+                      class="seg seg--loss"
+                      *ngIf="outcomeWidths(t).l > 0"
+                      [style.width.%]="outcomeWidths(t).l"
+                    ></span>
+                    <span
+                      class="seg seg--abandon"
+                      *ngIf="outcomeWidths(t).a > 0"
+                      [style.width.%]="outcomeWidths(t).a"
+                    ></span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <div class="two-col">
+              <mat-card
+                class="stats-card streak-card"
+                *ngIf="doc.streaks as st"
+              >
+                <mat-card-header class="stats-card__header-row">
+                  <mat-icon class="card-ico">local_fire_department</mat-icon>
+                  <div class="stats-card__titles">
+                    <mat-card-title>Streaks</mat-card-title>
+                    <mat-card-subtitle
+                      >Win streaks across all modes</mat-card-subtitle
+                    >
+                  </div>
+                </mat-card-header>
+                <mat-card-content>
+                  <dl class="mini-dl">
+                    <div class="mini-row">
+                      <dt>Current</dt>
+                      <dd>{{ st.currentWinStreak }}</dd>
+                    </div>
+                    <div class="mini-row">
+                      <dt>Best</dt>
+                      <dd>{{ st.bestWinStreak }}</dd>
+                    </div>
+                  </dl>
+                </mat-card-content>
+              </mat-card>
+
+              <mat-card class="stats-card streak-card" *ngIf="doc.bests as b">
+                <mat-card-header class="stats-card__header-row">
+                  <mat-icon class="card-ico">emoji_events</mat-icon>
+                  <div class="stats-card__titles">
+                    <mat-card-title>Bests (wins)</mat-card-title>
+                    <mat-card-subtitle>Personal records</mat-card-subtitle>
+                  </div>
+                </mat-card-header>
+                <mat-card-content>
+                  <dl class="mini-dl">
+                    <div class="mini-row">
+                      <dt>Fastest win</dt>
+                      <dd>{{ formatMs(b.fastestWinMs) }}</dd>
+                    </div>
+                    <div class="mini-row">
+                      <dt>Fewest mistakes</dt>
+                      <dd>{{ b.fewestMistakesWin ?? "—" }}</dd>
+                    </div>
+                  </dl>
+                </mat-card-content>
+              </mat-card>
+            </div>
+
+            <mat-card
+              class="stats-card modes-card"
+              *ngIf="doc.totalsByMode && modesSortedByPlay(doc).length"
+            >
+              <mat-card-header>
+                <mat-card-title>By mode</mat-card-title>
+                <mat-card-subtitle
+                  >Played · wins · losses · abandoned</mat-card-subtitle
+                >
+              </mat-card-header>
+              <mat-card-content>
+                <div
+                  class="mode-row"
+                  *ngFor="let row of modesSortedByPlay(doc)"
+                >
+                  <div class="mode-row__head">
+                    <mat-icon class="mode-ico">{{
+                      modeIcon(row.key)
+                    }}</mat-icon>
+                    <span class="mode-title">{{ modeLabel(row.key) }}</span>
+                  </div>
+                  <div class="mode-chips">
+                    <span class="chip">P {{ row.value.gamesPlayed }}</span>
+                    <span class="chip chip--win">W {{ row.value.wins }}</span>
+                    <span class="chip chip--loss"
+                      >L {{ row.value.losses }}</span
+                    >
+                    <span class="chip chip--abandon"
+                      >A {{ row.value.abandoned }}</span
+                    >
+                  </div>
+                  <div
+                    class="mode-mini-track"
+                    *ngIf="row.value.gamesPlayed > 0"
+                  >
+                    <span
+                      class="seg seg--win"
+                      *ngIf="outcomeWidths(row.value).w > 0"
+                      [style.width.%]="outcomeWidths(row.value).w"
+                    ></span>
+                    <span
+                      class="seg seg--loss"
+                      *ngIf="outcomeWidths(row.value).l > 0"
+                      [style.width.%]="outcomeWidths(row.value).l"
+                    ></span>
+                    <span
+                      class="seg seg--abandon"
+                      *ngIf="outcomeWidths(row.value).a > 0"
+                      [style.width.%]="outcomeWidths(row.value).a"
+                    ></span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <footer class="stats-meta">
+              Last played: {{ formatFirestoreTime(doc.lastPlayedAt) }} · Stats
+              updated:
+              {{ formatFirestoreTime(doc.statsUpdatedAt ?? doc.updatedAt) }}
+              <span *ngIf="doc.aggregateVersion != null">
+                · v{{ doc.aggregateVersion }}</span
+              >
+            </footer>
+          </ng-container>
+        </ng-container>
+        <ng-template #noStatsDoc>
+          <mat-card class="stats-card empty-card">
+            <mat-card-content>
+              <p class="text">
+                No statistics document yet. Play and finish a game while signed
+                in to see totals here.
+              </p>
+            </mat-card-content>
+          </mat-card>
+        </ng-template>
+      </ng-container>
+    </section>
   </div>
 </div>

@@ -1,5 +1,6 @@
 import { computed, Injectable, signal, Signal } from '@angular/core';
 import { CommonGameService } from 'src/app/shared/services/common-game/common-game.service';
+import { GameplayTelemetryService } from 'src/app/shared/services/gameplay-telemetry/gameplay-telemetry.service';
 import { NicknameStreakPlayer } from '../models/nickname-streak.models';
 import { GameService } from 'src/app/shared/utils/game-service.token';
 import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
@@ -47,8 +48,11 @@ export class NicknameStreakEngineService
   private _selectedPlayers = signal<NicknameStreakPlayerToGuess[]>([]);
   private _showAttributeHeader = signal<boolean>(false);
 
-  constructor(slideUpService: SlideUpService) {
-    super(slideUpService);
+  constructor(
+    slideUpService: SlideUpService,
+    gameplayTelemetry: GameplayTelemetryService,
+  ) {
+    super(slideUpService, gameplayTelemetry);
     this.currentGameMode = 'n/a';
     this.guessableNicknames = this.allPlayers
       .map((player) => player.nicknames)
@@ -148,6 +152,13 @@ export class NicknameStreakEngineService
     this.currentStreak = this.currentStreak() + 1;
     this.bestStreak = Math.max(this.bestStreak(), this.currentStreak());
     this.selectNewTargetPlayer();
+    // Each pick is its own win or loss for stats: record a win, then start a new telemetry round for the next nickname.
+    this.gameplayTelemetry.recordWin(
+      this.currentGame(),
+      this.currentGameMode(),
+      this.mistakeCountForTerminal('won'),
+    );
+    this.gameplayTelemetry.onRoundStarted();
   }
 
   private onIncorrectGuess(guess: NicknameStreakPlayer): void {

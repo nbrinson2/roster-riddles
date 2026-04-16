@@ -8,7 +8,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { MatDrawer } from '@angular/material/sidenav';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import type { User } from 'firebase/auth';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
@@ -24,6 +24,7 @@ import { GameType } from '../game/shared/constants/game.constants';
 import { HintService } from '../shared/components/hint/hint.service';
 import { SlideUpService } from '../shared/components/slide-up/slide-up.service';
 import { GamePlayer } from '../shared/models/common-models';
+import { GameplayTelemetryService } from '../shared/services/gameplay-telemetry/gameplay-telemetry.service';
 import { GAME_SERVICE, GameService } from '../shared/utils/game-service.token';
 import { Difficulty } from './difficulty-toggle/difficulty-toggle.component';
 
@@ -95,24 +96,37 @@ export class NavComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     @Inject(GAME_SERVICE)
     private gameService: GameService<GamePlayer>,
-    private nicknameStreakEngineService: NicknameStreakEngineService
-  ) {
-    this.router.events
-      .pipe(filter((e) => e instanceof NavigationEnd))
-      .subscribe((e: NavigationEnd) => {
-        if (e.urlAfterRedirects.startsWith('/bio-ball')) {
-          this.gameService.currentGame = GameType.BIO_BALL;
-        } else if (e.urlAfterRedirects.startsWith('/career-path')) {
-          this.gameService.currentGame = GameType.CAREER_PATH;
-        } else if (e.urlAfterRedirects.startsWith('/nickname-streak')) {
-          this.gameService.currentGame = GameType.NICKNAME_STREAK;
-        } else {
-          this.gameService.currentGame = GameType.BIO_BALL;
-        }
-      });
-  }
+    private nicknameStreakEngineService: NicknameStreakEngineService,
+    private gameplayTelemetry: GameplayTelemetryService,
+  ) {}
 
   ngOnInit(): void {
+    /** Initial URL — `NavigationEnd` may have fired before this subscription exists. */
+    this.applyGameTypeFromUrl(this.router.url);
+
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((e: NavigationEnd) => {
+        this.applyGameTypeFromUrl(e.urlAfterRedirects);
+      });
+
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationStart => e instanceof NavigationStart),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((e) => {
+        const fromUrl = this.router.url;
+        this.gameplayTelemetry.tryRecordAbandonOnNavigate(
+          fromUrl,
+          e.url,
+          this.gameService,
+        );
+      });
+
     this.authService.user$
       .pipe(takeUntil(this.destroy$))
       .subscribe((user) => {
@@ -146,6 +160,20 @@ export class NavComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  /** Keep `gameService.currentGame` aligned with the route (dropdown + headers). */
+  private applyGameTypeFromUrl(rawUrl: string): void {
+    const path = rawUrl.split(/[?#]/)[0];
+    if (path.startsWith('/bio-ball')) {
+      this.gameService.currentGame = GameType.BIO_BALL;
+    } else if (path.startsWith('/career-path')) {
+      this.gameService.currentGame = GameType.CAREER_PATH;
+    } else if (path.startsWith('/nickname-streak')) {
+      this.gameService.currentGame = GameType.NICKNAME_STREAK;
+    } else {
+      this.gameService.currentGame = GameType.BIO_BALL;
+    }
   }
 
   protected handleDifficultyChange(difficulty: Difficulty): void {

@@ -169,6 +169,19 @@ npm test
 
 Karma + Jasmine.
 
+### QA: stats vs events (gameplay telemetry)
+
+To verify that **`users/{uid}/stats/summary`** matches a full replay of **`gameplayEvents`** (same logic as `server/stats-aggregate.js`), use Firebase Admin credentials and run:
+
+```bash
+export FIRESTORE_DATABASE_ID=roster-riddles   # or your DB id; see .env.example
+npm run verify:stats-reconciliation -- <firebase-uid>
+```
+
+Exit **0** means no diff. Full steps and flags: [docs/stats-reconciliation.md](docs/stats-reconciliation.md).
+
+**Gameplay API logging** (structured JSON, request ids, no secrets): [docs/gameplay-observability.md](docs/gameplay-observability.md).
+
 ## Other
 
 - **`scripts/generate-env-prod.mjs`** — production `environment.prod.ts` for Docker/CI.

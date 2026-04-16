@@ -5,6 +5,7 @@ import { Difficulty } from 'src/app/nav/difficulty-toggle/difficulty-toggle.comp
 import { EndResultMessage, InputPlaceHolderText } from 'src/app/game/shared/constants/game.constants';
 import { GameType } from 'src/app/game/shared/constants/game.constants';
 import { Header } from 'src/app/game/shared/common-attribute-header/common-attribute-header.component';
+import { GameplayTelemetryService } from '../gameplay-telemetry/gameplay-telemetry.service';
 
 @Injectable({
   providedIn: 'root',
@@ -88,7 +89,7 @@ export abstract class CommonGameService<T> {
     this._currentStreak.set(value);
   }
   
-  public allowedGuesses = 9;
+  public allowedGuesses = 1;
   public endResultText = EndResultMessage.WIN;
   public isSearchDisabled = false;
 
@@ -104,7 +105,10 @@ export abstract class CommonGameService<T> {
   private _bestStreak = signal<number>(0);
   private _currentStreak = signal<number>(0);
 
-  constructor(private slideUpService: SlideUpService) {}
+  constructor(
+    private slideUpService: SlideUpService,
+    protected readonly gameplayTelemetry: GameplayTelemetryService,
+  ) {}
 
   public startNewGame(players?: T[]): void {
     if (this.currentGameMode() === 'easy') {
@@ -114,6 +118,7 @@ export abstract class CommonGameService<T> {
     } else {
       this.startNewGameNoMode(players);
     }
+    this.gameplayTelemetry.onRoundStarted();
   }
 
   public incrementNumberOfGuesses(): void {
@@ -127,6 +132,11 @@ export abstract class CommonGameService<T> {
     this.isSearchDisabled = true;
     this.searchInputPlaceHolderText = InputPlaceHolderText.WIN;
     this.gameState = GameState.WON;
+    this.gameplayTelemetry.recordWin(
+      this.currentGame(),
+      this.currentGameMode(),
+      this.mistakeCountForTerminal('won'),
+    );
   }
 
   /** Mark a loss when guesses are exhausted */
@@ -136,6 +146,19 @@ export abstract class CommonGameService<T> {
     this.isSearchDisabled = true;
     this.searchInputPlaceHolderText = InputPlaceHolderText.LOSE;
     this.gameState = GameState.LOST;
+    this.gameplayTelemetry.recordLoss(
+      this.currentGame(),
+      this.currentGameMode(),
+      this.mistakeCountForTerminal('lost'),
+    );
+  }
+
+  /** Wrong guesses before terminal outcome (aligned with server `mistakeCount`). */
+  protected mistakeCountForTerminal(result: 'won' | 'lost'): number {
+    if (result === 'won') {
+      return Math.max(0, this.numberOfGuesses - 1);
+    }
+    return this.numberOfGuesses;
   }
 
   protected abstract startNewGameEasy(players?: T[]): void;

@@ -47,6 +47,24 @@ await assertSucceeds(getDoc(doc(alice, 'users', 'alice')));
 // cannot read another user's profile
 await assertFails(getDoc(doc(alice, 'users', 'bob')));
 
+// users/{uid}/gameplayEvents: owner may read; client writes denied (Admin SDK only)
+await assertSucceeds(
+  getDoc(doc(alice, 'users', 'alice', 'gameplayEvents', 'no-such-event'))
+);
+await assertFails(
+  setDoc(doc(alice, 'users', 'alice', 'gameplayEvents', 'evt1'), { x: 1 })
+);
+await assertFails(
+  getDoc(doc(alice, 'users', 'bob', 'gameplayEvents', 'evt1'))
+);
+
+// users/{uid}/stats: owner may read; client writes denied
+await assertSucceeds(getDoc(doc(alice, 'users', 'alice', 'stats', 'summary')));
+await assertFails(
+  setDoc(doc(alice, 'users', 'alice', 'stats', 'summary'), { wins: 99 })
+);
+await assertFails(getDoc(doc(alice, 'users', 'bob', 'stats', 'summary')));
+
 // cache: read allowed (even when doc is missing; rules still apply to the path)
 await assertSucceeds(getDoc(doc(unauth, 'cache', 'no-such-doc')));
 

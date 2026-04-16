@@ -3,6 +3,7 @@ import { catchError, of, take } from 'rxjs';
 import { HintService } from 'src/app/shared/components/hint/hint.service';
 import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
 import { CommonGameService } from 'src/app/shared/services/common-game/common-game.service';
+import { GameplayTelemetryService } from 'src/app/shared/services/gameplay-telemetry/gameplay-telemetry.service';
 import { GameService } from 'src/app/shared/utils/game-service.token';
 import { CareerPathPlayer } from '../../models/career-path.models';
 import { applyFeedbackColors } from '../../utils/career-path.util';
@@ -47,9 +48,10 @@ export class CareerPathEngineService
   constructor(
     slideUpService: SlideUpService,
     private mlbPlayersService: MlbPlayersService,
-    private hintService: HintService
+    private hintService: HintService,
+    gameplayTelemetry: GameplayTelemetryService,
   ) {
-    super(slideUpService);
+    super(slideUpService, gameplayTelemetry);
     this.currentGameMode = 'easy';
   }
 
