@@ -87,16 +87,18 @@ Specify documents that support **composite queries** (e.g. `weekId + score DESC`
 
 **Description**
 
-If ADR chooses **scheduled recomputation**, define e.g. `leaderboards/{scope}/{period}/top` documents: fixed-size arrays or paginated chunks, `generatedAt`, `schemaVersion`. Specify how writers merge partial updates vs full rebuild.
+If ADR chooses **scheduled recomputation**, define snapshot documents (v1: **`leaderboards/snapshots/{boardId}`**), fixed-size **`entries`** arrays, **`generatedAt`**, **`schemaVersion`**, **`tieBreakPolicy`**. **Hybrid with B1:** same scores from `users/{uid}/stats/summary`; B1 = query-time collection-group reads; B2 = scheduled **full `set()`** replace (no client partial merge in v1).
 
 **Acceptance criteria**
 
-- [ ] Document shape + max size considerations (1 MiB limit).
-- [ ] Idempotent job behavior (same input → same output; safe retries).
+- [x] Document shape + max size considerations (1 MiB limit).
+- [x] Idempotent job behavior (same input → same output; safe retries).
 
 **Dependencies**
 
-- Story A0; mutually exclusive implementation with B1 for the same dimension or hybrid clearly described.
+- Story A0; mutually exclusive implementation with B1 for the same dimension or hybrid clearly described (see deliverable doc).
+
+**Deliverable:** [`docs/leaderboards-schema-precomputed.md`](leaderboards-schema-precomputed.md), [`src/app/shared/models/leaderboard-snapshot.model.ts`](../src/app/shared/models/leaderboard-snapshot.model.ts), [`firestore.rules`](../firestore.rules) (`leaderboards/snapshots/*` read/write matrix).
 
 ---
 

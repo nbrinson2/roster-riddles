@@ -36,6 +36,18 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Precomputed leaderboards (Story B2): one doc per board; Admin SDK writers only.
+    // Other paths under leaderboards/ have no rule → denied by default.
+    match /leaderboards/snapshots/{boardId} {
+      allow read: if boardId in [
+        'global',
+        'bio-ball',
+        'career-path',
+        'nickname-streak',
+      ];
+      allow create, update, delete: if false;
+    }
+
     // Game caches: public read; writes only via jobs / Admin SDK.
     match /cache/{document=**} {
       allow read: if true;
