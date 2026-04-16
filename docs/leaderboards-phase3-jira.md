@@ -66,9 +66,11 @@ Specify documents that support **composite queries** (e.g. `weekId + score DESC`
 
 **Acceptance criteria**
 
-- [ ] Schema diagram + example document JSON in `docs/`.
-- [ ] Rules impact listed (new paths read/write matrix).
-- [ ] No PII beyond what product approves (e.g. optional display name only).
+- [x] Schema diagram + example document JSON in `docs/`.
+- [x] Rules impact listed (new paths read/write matrix).
+- [x] No PII beyond what product approves (e.g. optional display name only).
+
+**Deliverable:** [`docs/leaderboards-schema-query-path.md`](leaderboards-schema-query-path.md), [`firestore.indexes.json`](../firestore.indexes.json) (collection-group indexes), [`src/app/shared/models/leaderboard-query.model.ts`](../src/app/shared/models/leaderboard-query.model.ts).
 
 **Dependencies**
 

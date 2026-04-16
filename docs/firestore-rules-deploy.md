@@ -48,6 +48,25 @@ npm run test:stats-emulator
 
 (`test:stats-emulator` needs the Firestore emulator port free — default **9450** in `firebase.json`.)
 
+## Composite indexes (leaderboards — `firestore.indexes.json`)
+
+Indexes for collection-group queries on `stats/summary` live in **`firestore.indexes.json`**. Deploy them with the **same** command as rules, targeting the named database:
+
+```bash
+firebase deploy --only firestore:roster-riddles --project <PROD_PROJECT_ID>
+```
+
+**Do not** use `--only firestore:indexes` alone when `firebase.json` uses a **named** database array entry — some `firebase-tools` versions skip index prepare and crash. Use **`firestore:<database-id>`** (e.g. `firestore:roster-riddles`).
+
+If the CLI reports an **orphan** index (extra index in GCP not in the repo), run the same command **interactively** and accept deletion, or pass **`--force`** after reviewing (see Firebase CLI help).
+
+If deploy returns **409 index already exists**, the global index may already be **READY**; the CLI can still try to recreate it. Options:
+
+1. Open **Firestore → Indexes** in the console and confirm which `stats` collection-group indexes exist; or  
+2. Add any missing index with **`gcloud firestore indexes composite create`** (same `--collection-group=stats`, `--query-scope=COLLECTION_GROUP`, and field paths as in **`firestore.indexes.json`**). Hyphenated map keys need **backticks** in the field path (e.g. `` totalsByMode.`bio-ball`.wins ``).
+
+Index definitions require **`__name__` as the last field** in each composite index.
+
 ## Notes
 
 - **Admin SDK** (Express, jobs) **bypasses** security rules; rules constrain **client** SDK access only.
