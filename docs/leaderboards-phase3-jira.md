@@ -115,13 +115,15 @@ For each query pattern (weekly + mode + score sort, etc.), specify **collection 
 
 **Acceptance criteria**
 
-- [ ] `firestore.indexes.json` entries (or explicit “none yet” with rationale).
-- [ ] README or doc: how to deploy indexes in staging/prod.
-- [ ] Client/server contract: `startAfter`, `limit`, stable ordering when scores tie (secondary sort key, e.g. `uid` or `updatedAt`).
+- [x] `firestore.indexes.json` entries (or explicit “none yet” with rationale).
+- [x] README or doc: how to deploy indexes in staging/prod.
+- [x] Client/server contract: `startAfter`, `limit`, stable ordering when scores tie (secondary sort key, e.g. `uid` or `updatedAt`).
 
 **Dependencies**
 
 - Story B1 (and B2 if applicable).
+
+**Deliverable:** [`docs/leaderboards-indexes-pagination.md`](leaderboards-indexes-pagination.md), [`firestore.indexes.json`](../firestore.indexes.json), [`src/app/shared/models/leaderboard-query.model.ts`](../src/app/shared/models/leaderboard-query.model.ts) (`LEADERBOARD_*_PAGE_SIZE`), cross-links from B1 + [firestore-rules-deploy.md](firestore-rules-deploy.md) (indexes §).
 
 ---
 

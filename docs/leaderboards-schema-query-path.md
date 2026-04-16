@@ -2,7 +2,8 @@
 
 **Status:** Implemented (schema + indexes + types)  
 **Depends on:** [leaderboards-phase3-adr.md](leaderboards-phase3-adr.md) (Story A0), [gameplay-stats-phase2.md](gameplay-stats-phase2.md)  
-**See also (batch path):** [leaderboards-schema-precomputed.md](leaderboards-schema-precomputed.md) (Story B2) — same score semantics; precomputed top-K docs for cheap reads at scale.
+**See also (batch path):** [leaderboards-schema-precomputed.md](leaderboards-schema-precomputed.md) (Story B2) — same score semantics; precomputed top-K docs for cheap reads at scale.  
+**Indexes & pagination (Story B3):** [leaderboards-indexes-pagination.md](leaderboards-indexes-pagination.md) — composite indexes, `limit` / `startAfter`, deploy.
 
 ## Summary
 
@@ -91,25 +92,9 @@ Each scope needs a **composite index** (document id + sort field). See `firestor
 
 ## Firestore indexes
 
-Composite **collection group** indexes are defined in **`firestore.indexes.json`** for:
+Composite **collection group** indexes are listed and explained in **[leaderboards-indexes-pagination.md](leaderboards-indexes-pagination.md)** (Story B3), including the canonical **`orderBy`** chain, **`limit`** caps (`LEADERBOARD_MAX_PAGE_SIZE`), and **`startAfter`** pagination. Source of truth: **`firestore.indexes.json`** (four indexes on `stats`: global + three modes).
 
-1. `__name__` (document id) + `totals.wins` (global)
-2. `__name__` + `totalsByMode.bio-ball.wins`
-3. `__name__` + `totalsByMode.career-path.wins`
-4. `__name__` + `totalsByMode.nickname-streak.wins`
-
-Deploy to the **`roster-riddles`** database (see [firestore-rules-deploy.md](firestore-rules-deploy.md)):
-
-```bash
-# Use the database id so named-DB config is included (see firebase.json).
-firebase deploy --only firestore:roster-riddles --project <project-id>
-```
-
-Avoid `--only firestore:indexes` alone with a **named** database in `firebase.json` — some `firebase-tools` versions skip prepare and error. Deploying `firestore:roster-riddles` deploys **indexes and rules** for that database.
-
-Composite indexes put **`__name__` last** (Firestore requirement) after the sort field (e.g. `totals.wins`).
-
-After deploy, wait for indexes to build in the Firebase console before relying on queries in production.
+Deploy indexes with rules to the **`roster-riddles`** database — see [firestore-rules-deploy.md](firestore-rules-deploy.md) § Composite indexes.
 
 ## Security rules impact (read/write matrix)
 
@@ -124,4 +109,5 @@ No rule change is required for Story B1 as long as leaderboard data is served on
 
 - `server/stats-aggregate.js` — aggregate shape
 - `src/app/shared/models/user-stats.model.ts` — client types for `stats/summary`
-- `src/app/shared/models/leaderboard-query.model.ts` — virtual row for API responses
+- `src/app/shared/models/leaderboard-query.model.ts` — virtual row for API responses + page size caps
+- [leaderboards-indexes-pagination.md](leaderboards-indexes-pagination.md) — indexes + pagination (Story B3)
