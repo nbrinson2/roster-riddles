@@ -70,6 +70,7 @@ export class GameplayTelemetryService {
   /**
    * Leaving the game route while still PLAYING (navigation away mid-round).
    * Does not fire when the round already ended (won/lost) or when staying on the same game+league path.
+   * Does not fire when the user made no guesses (opening a game and leaving without playing is not abandoned).
    */
   tryRecordAbandonOnNavigate(
     fromUrl: string,
@@ -89,9 +90,12 @@ export class GameplayTelemetryService {
     if (!this.isLeavingGameContext(fromUrl, toPath)) {
       return;
     }
+    const mistakeCount = game.numberOfGuesses;
+    if (mistakeCount < 1) {
+      return;
+    }
     const gt = game.currentGame();
     const difficulty = game.currentGameMode();
-    const mistakeCount = game.numberOfGuesses;
     this.sendTerminal('abandoned', gt, difficulty, mistakeCount);
   }
 

@@ -152,6 +152,13 @@ export class NicknameStreakEngineService
     this.currentStreak = this.currentStreak() + 1;
     this.bestStreak = Math.max(this.bestStreak(), this.currentStreak());
     this.selectNewTargetPlayer();
+    // Each pick is its own win or loss for stats: record a win, then start a new telemetry round for the next nickname.
+    this.gameplayTelemetry.recordWin(
+      this.currentGame(),
+      this.currentGameMode(),
+      this.mistakeCountForTerminal('won'),
+    );
+    this.gameplayTelemetry.onRoundStarted();
   }
 
   private onIncorrectGuess(guess: NicknameStreakPlayer): void {

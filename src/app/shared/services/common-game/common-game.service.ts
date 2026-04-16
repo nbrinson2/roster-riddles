@@ -107,7 +107,7 @@ export abstract class CommonGameService<T> {
 
   constructor(
     private slideUpService: SlideUpService,
-    private gameplayTelemetry: GameplayTelemetryService,
+    protected readonly gameplayTelemetry: GameplayTelemetryService,
   ) {}
 
   public startNewGame(players?: T[]): void {

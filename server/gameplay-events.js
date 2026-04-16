@@ -66,6 +66,14 @@ export const gameplayEventBodySchema = z
         });
       }
     }
+    if (data.result === 'abandoned' && data.mistakeCount < 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          'Abandoned sessions require at least one guess (mistakeCount >= 1).',
+        path: ['mistakeCount'],
+      });
+    }
   });
 
 /**
