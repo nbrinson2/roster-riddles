@@ -10,7 +10,7 @@ Separate **Firebase projects** (or at minimum separate web apps + Admin credenti
 
 ## CI/CD
 
-- **Cloud Build / Docker**: `--build-arg` passes `FIREBASE_*`, `API_BASE_URL`, and `DEPLOYMENT` (`production` | `staging`). See `Dockerfile` and `cloudbuild.yaml`.
+- **Cloud Build / Docker**: `--build-arg` passes `FIREBASE_*`, `API_BASE_URL`, `DEPLOYMENT` (`production` | `staging`), and **`FIRESTORE_DATABASE_ID`** (production: `roster-riddles`; staging: often **empty** so Express uses `(default)` — must match Angular `firestoreDatabaseId`). See `Dockerfile` and `cloudbuild.yaml`.
 - **Secrets**: Prefer **Secret Manager** or trigger **substitutions**, not literals in `cloudbuild.yaml` for real projects.
 
 ## Express
