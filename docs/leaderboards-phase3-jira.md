@@ -191,13 +191,17 @@ Express (or BFF) routes return JSON: rows with rank, score, uid/displayName per 
 
 **Acceptance criteria**
 
-- [ ] OpenAPI or README examples for query params (`scope`, `week`, `gameMode`, `pageSize`, `cursor`).
-- [ ] Rate limiting hooks (see Epic F) callable from middleware.
-- [ ] Structured logging: `requestId`, scope, latency, row count (Story 9 pattern).
+- [x] OpenAPI or README examples for query params (`scope`, `week`, `gameMode`, `pageSize`, `cursor`).
+- [x] Rate limiting hooks (see Epic F) callable from middleware.
+- [x] Structured logging: `requestId`, scope, latency, row count (Story 9 pattern).
 
 **Dependencies**
 
 - Stories B1–B3, C1.
+
+**Deliverable:** [`docs/leaderboards-api-d1.md`](leaderboards-api-d1.md), [`server/leaderboards.http.js`](../server/leaderboards.http.js), [`server/leaderboard-query.js`](../server/leaderboard-query.js), [`server/leaderboard-log.js`](../server/leaderboard-log.js), [`server/rate-limit-hooks.middleware.js`](../server/rate-limit-hooks.middleware.js), route in [`index.js`](../index.js).
+
+**Notes (v1):** Per-mode boards use **`scope`** (`bio-ball`, etc.); there is no separate **`gameMode`** query param. **`week`** returns 400 (weekly out of scope). Leaderboard **`GET`** is **public** (no Bearer required); **`displayName`** from Auth when resolvable.
 
 ---
 

@@ -4,6 +4,8 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 import { postGameplayEvent } from './server/gameplay-events.js';
+import { getLeaderboardPage } from './server/leaderboards.http.js';
+import { leaderboardRateLimitHookMiddleware } from './server/rate-limit-hooks.middleware.js';
 import { requireFirebaseAuth } from './server/require-auth.js';
 import { requestIdMiddleware } from './server/request-id.middleware.js';
 
@@ -55,6 +57,16 @@ app.post(
   '/api/v1/me/gameplay-events',
   requireFirebaseAuth,
   postGameplayEvent,
+);
+
+/**
+ * Public leaderboard page (Admin SDK collection-group query). Pagination + optional display names from Auth.
+ * Story D1 — see docs/leaderboards-api-d1.md
+ */
+app.get(
+  '/api/v1/leaderboards',
+  leaderboardRateLimitHookMiddleware,
+  getLeaderboardPage,
 );
 
 // Serve static files from the Angular app
