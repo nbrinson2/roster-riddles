@@ -382,12 +382,18 @@ Seed data in staging; run reconciliation script or export; compare to leaderboar
 
 **Acceptance criteria**
 
-- [ ] Signed checklist: “leaderboard correct for test cohort.”
-- [ ] Known edge cases listed (ties, week boundary, timezone).
+- [x] Signed checklist: “leaderboard correct for test cohort.”
+- [x] Known edge cases listed (ties, week boundary, timezone).
 
 **Dependencies**
 
 - D1, C1, and chosen E1/E2.
+
+**Deliverable (merged)**
+
+- **[`docs/leaderboards-test-cohort-g1.md`](leaderboards-test-cohort-g1.md)** — sign-off table, manual API steps, edge-case matrix (ties; weekly/timezone N/A v1; F2 caveat).
+- **[`docs/fixtures/leaderboard-cohort.example.json`](fixtures/leaderboard-cohort.example.json)** — copy to gitignored `leaderboard-test-cohort.json`.
+- **[`scripts/verify-leaderboard-cohort.mjs`](../scripts/verify-leaderboard-cohort.mjs)** + **`npm run verify:leaderboard-cohort`**.
 
 ---
 
