@@ -11,6 +11,10 @@
         {
           "fieldPath": "windowStart",
           "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
         }
       ]
     },
@@ -24,6 +28,10 @@
         },
         {
           "fieldPath": "windowEnd",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "__name__",
           "order": "ASCENDING"
         }
       ]

@@ -57,10 +57,10 @@ Composite indexes in **`firestore.indexes.json`** support:
 | Open contests by window start | `where('status','==','open')` + `orderBy('windowStart','desc')` |
 | Scheduled / open by end time | `where('status','in',[...])` + `orderBy('windowEnd','asc')` — *may require index tuning if `in` + `orderBy` differ; add indexes when the exact client query is fixed* |
 
-**Deployed indexes (B1):**
+**Deployed indexes (B1):** each composite includes a final **`__name__`** field (Firestore / GCP canonical form — match `gcloud firestore indexes composite list`).
 
-1. **`status`** ↑, **`windowStart`** ↓ — list by status and sort by start (e.g. “newest open contest first”).
-2. **`status`** ↑, **`windowEnd`** ↑ — sort by contest end (e.g. “ending soon” for open).
+1. **`status`** ↑, **`windowStart`** ↓, **`__name__`** ↓ — list by status and sort by start (e.g. “newest open contest first”).
+2. **`status`** ↑, **`windowEnd`** ↑, **`__name__`** ↑ — sort by contest end (e.g. “ending soon” for open).
 
 **Single-field** filters on `gameMode` use automatic indexes; combine with `orderBy`/`where` in implementation stories and add composite indexes if the console suggests.
 

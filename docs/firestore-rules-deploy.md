@@ -94,12 +94,40 @@ firebase deploy --only firestore:roster-riddles --project <PROD_PROJECT_ID>
 
 If the CLI reports an **orphan** index (extra index in GCP not in the repo), run the same command **interactively** and accept deletion, or pass **`--force`** after reviewing (see Firebase CLI help).
 
-If deploy returns **409 index already exists**, the global index may already be **READY**; the CLI can still try to recreate it. Options:
+### “Indexes in your project but not in your file” + **409** on deploy
 
-1. Open **Firestore → Indexes** in the console and confirm which `stats` collection-group indexes exist; or  
-2. Add any missing index with **`gcloud firestore indexes composite create`** (same `--collection-group=stats`, `--query-scope=COLLECTION_GROUP`, and field paths as in **`firestore.indexes.json`**). Hyphenated map keys need **backticks** in the field path (e.g. `` totalsByMode.`bio-ball`.wins ``).
+Sometimes the CLI lists **`stats`** composite indexes as missing from **`firestore.indexes.json`** even though they are present, then asks to delete them. If you answer **No** (keep remote indexes), the deploy may still try to **create** indexes from the file and return **HTTP 409 — index already exists** on `collectionGroups/stats/indexes`.
 
-Index definitions require **`__name__` as the last field** in each composite index.
+That is usually **CLI / API drift** (same logical index, different canonical field-path string), not a bad repo file. Do **not** delete production indexes blindly.
+
+**Unblock rules (no index step):**
+
+```bash
+npm run deploy:firestore:staging:rules
+```
+
+That uploads **`firestore.rules`** without reconciling composite indexes (use when you only changed rules).
+
+**Fix index deploy (pick one):**
+
+1. **Reconcile from GCP** — List composite indexes and align the repo with what the API returns:
+   ```bash
+   gcloud firestore indexes composite list \
+     --database='(default)' \
+     --project=roster-riddles-staging \
+     --format=json
+   ```
+   Compare **`fields[].fieldPath`** to **`firestore.indexes.json`**. If staging uses a different spelling than backticked map keys, adjust the JSON to match (then redeploy).
+
+2. **Create only new indexes in the console** — For **`contests`** composites, use **Firestore → Indexes → Composite → Add** with the same fields as in **`firestore.indexes.json`** (`status` + `windowStart` / `windowEnd`), then keep deploying until the CLI stops fighting `stats` indexes.
+
+3. **Upgrade `firebase-tools`** — Several versions mishandle index reconciliation (see [firebase-tools#8859](https://github.com/firebase/firebase-tools/issues/8859)); try the latest **firebase-tools** in **`devDependencies`**.
+
+If deploy returns **409 index already exists** without the orphan prompt, the index is often already **Enabled** in the console; the failure is duplicate **create**, not a missing index.
+
+**Manual `gcloud` create** (same `--collection-group=stats`, `--query-scope=COLLECTION_GROUP`, and field paths as in **`firestore.indexes.json`**). Hyphenated map keys need **backticks** in the field path (e.g. `` totalsByMode.`bio-ball`.wins ``).
+
+Index definitions require **`__name__` as the last field** in each composite index for **`stats`** leaderboard queries.
 
 ## Notes
 

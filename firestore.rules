@@ -1,10 +1,18 @@
 rules_version = '2';
-// Target database id: roster-riddles (matches Angular `initializeFirestore(..., 'roster-riddles')`).
-// Deploy: Firebase Console → Firestore → select database "roster-riddles" → Rules,
-// or: firebase deploy --only firestore:roster-riddles (with firebase.json below).
+// Deploy: `firebase deploy --only firestore:(default)|firestore:roster-riddles` per `firebase.json`.
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Public read caches (writes only from Admin SDK / Cloud Functions)
+    match /cache/{docId} {
+      allow read: if docId == 'mlb_players_snapshot'
+        || docId == 'career_path_players_snapshot_meta'
+        || docId == 'career_path_players_snapshot'
+        || docId.matches('^career_path_shard_[0-9]+$')
+        || docId == 'mlb_nicknames';
+      allow write: if false;
+    }
 
     // Profiles: only the signed-in user may access `users/{uid}` (equivalent to auth.uid == path uid).
     match /users/{userId} {
@@ -43,7 +51,6 @@ service cloud.firestore {
     }
 
     // Precomputed leaderboards (Story B2): one doc per board under snapshots/boards (even path segments).
-    // Story F1: request rate limits are enforced in Express, not in rules (Firestore has no per-IP RPS primitive).
     // Other paths under leaderboards/ have no rule → denied by default.
     match /leaderboards/snapshots/boards/{boardId} {
       allow read: if boardId in [
@@ -59,6 +66,10 @@ service cloud.firestore {
     match /cache/{document=**} {
       allow read: if true;
       allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
