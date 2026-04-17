@@ -69,17 +69,20 @@ Authoritative **`contests/{id}`** documents with **typed** fields, validation on
 
 **Acceptance criteria**
 
-- [ ] Document shape and example JSON in `docs/` linked from ADR.
-- [ ] **`firestore.rules`** allow authenticated users **read** where product allows; **no** client writes to `status` or window fields unless explicitly designed (prefer server-only).
-- [ ] Composite indexes as needed for listing contests (document queries in story notes).
+- [x] Document shape and example JSON in `docs/` linked from ADR.
+- [x] **`firestore.rules`** allow authenticated users **read** where product allows; **no** client writes to `status` or window fields unless explicitly designed (prefer server-only).
+- [x] Composite indexes as needed for listing contests (document queries in story notes).
 
 **Dependencies**
 
 - Story A0.
 
-**Deliverable**
+**Deliverable (merged)**
 
-- Firestore rules + `firestore.indexes.json` updates; optional `src/app/shared/models/contest.model.ts` (or server mirror).
+- **[`docs/weekly-contests-schema-contests.md`](weekly-contests-schema-contests.md)** — field table, example JSON, query notes.
+- **[`firestore.rules`](../firestore.rules)** — `contests/{contestId}` read if signed-in; no client writes; subpaths denied until B2+.
+- **[`firestore.indexes.json`](../firestore.indexes.json)** — `status` + `windowStart` / `windowEnd` composite indexes.
+- **[`src/app/shared/models/contest.model.ts`](../src/app/shared/models/contest.model.ts)** — `ContestDocument`, `ContestStatus`, schema version + defaults.
 
 ---
 

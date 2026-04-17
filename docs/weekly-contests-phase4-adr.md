@@ -109,7 +109,7 @@ This ADR narrows **product and technical** choices for the **first** weekly-cont
 | `updatedAt` | `Timestamp` | Yes | Server time at last contest update. |
 | `metadata` | `map` | No | Admin notes, feature flags, **no PII**. |
 
-**Indexes (implementation story):** query by `status`, `windowStart`/`windowEnd`, `gameMode` as needed for list UIs.
+**Indexes:** see [weekly-contests-schema-contests.md](weekly-contests-schema-contests.md) (composite indexes for `status` + `windowStart` / `windowEnd`).
 
 ### `contests/{contestId}/entries/{uid}`
 
@@ -254,6 +254,7 @@ Align with [firestore.rules](../firestore.rules) updates in implementation stori
 
 ## References
 
+- [weekly-contests-schema-contests.md](weekly-contests-schema-contests.md) — `contests/{contestId}` field list, example JSON, indexes (Story B1)  
 - [gameplay-stats-phase2.md](gameplay-stats-phase2.md) — event + aggregate schemas  
 - [leaderboards-phase3-adr.md](leaderboards-phase3-adr.md) — tie-break; weekly deferred in Phase 3  
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — backlog and Story A0  

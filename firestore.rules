@@ -25,8 +25,14 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Future contest / money paths — deny all client reads/writes; use Admin SDK or trusted backends.
-    match /contests/{document=**} {
+    // Weekly contests (Phase 4 B1): `contests/{contestId}` — signed-in read; writes via Admin SDK only.
+    match /contests/{contestId} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+
+    // Subpaths (entries, results, payouts, …) — Stories B2+; deny clients until those rules ship.
+    match /contests/{contestId}/{document=**} {
       allow read, write: if false;
     }
     match /contestEntries/{document=**} {
