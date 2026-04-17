@@ -68,6 +68,10 @@ Composite indexes in **`firestore.indexes.json`** support:
 
 See **`src/app/shared/models/contest.model.ts`** — `ContestDocument`, `ContestStatus`, `CONTEST_SCHEMA_VERSION`.
 
+## Related
+
+- Entries (join / idempotent `entries/{uid}`): [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md) — Story B2.
+
 ## References
 
 - [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md) — lifecycle and scoring semantics  

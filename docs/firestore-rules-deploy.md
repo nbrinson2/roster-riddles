@@ -125,6 +125,16 @@ That uploads **`firestore.rules`** without reconciling composite indexes (use wh
 
 If deploy returns **409 index already exists** without the orphan prompt, the index is often already **Enabled** in the console; the failure is duplicate **create**, not a missing index.
 
+**409 but the indexes still show up / become READY**
+
+Firestore’s index API returns **409 Conflict** when a **create** request matches an index that **already exists** or is still **CREATING** (same definition). The Firebase CLI may still report an error and exit **non-zero** even though:
+
+- The index was **already there** from a previous deploy or console link, or  
+- The first request created it and a **retry** hit 409, or  
+- The index finishes building moments later.
+
+**What to do:** Treat deploy as successful for indexes if **`gcloud firestore indexes composite list`** (or the console) shows every composite from **`firestore.indexes.json`** with **`state: READY`**. Align the JSON with **`fields[].fieldPath`** from `gcloud` output (including **`__name__`** and order) so the next deploy stops issuing redundant creates. Upgrading **`firebase-tools`** also reduces noisy 409s ([firebase-tools#8859](https://github.com/firebase/firebase-tools/issues/8859)).
+
 **Manual `gcloud` create** (same `--collection-group=stats`, `--query-scope=COLLECTION_GROUP`, and field paths as in **`firestore.indexes.json`**). Hyphenated map keys need **backticks** in the field path (e.g. `` totalsByMode.`bio-ball`.wins ``).
 
 Index definitions require **`__name__` as the last field** in each composite index for **`stats`** leaderboard queries.

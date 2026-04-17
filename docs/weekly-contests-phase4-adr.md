@@ -113,6 +113,8 @@ This ADR narrows **product and technical** choices for the **first** weekly-cont
 
 ### `contests/{contestId}/entries/{uid}`
 
+Full field list and indexes: [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md).
+
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `schemaVersion` | `number` | Yes | Entry document schema (start at `1`). |

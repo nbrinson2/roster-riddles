@@ -99,13 +99,20 @@ Choose **physical layout** (e.g. `contests/{contestId}/entries/{uid}` or `contes
 
 **Acceptance criteria**
 
-- [ ] **Idempotent join:** duplicate POSTs or retries create **one** entry; documented behavior for late join after `open` ends (reject with clear error).
-- [ ] Rules snapshot ties to **`rulesVersion`** active at join time (or explicit mismatch handling).
-- [ ] Indexes for “my entries” and admin queries if required.
+- [x] **Idempotent join:** duplicate POSTs or retries create **one** entry; documented behavior for late join after `open` ends (reject with clear error).
+- [x] Rules snapshot ties to **`rulesVersion`** active at join time (or explicit mismatch handling).
+- [x] Indexes for “my entries” and admin queries if required.
 
 **Dependencies**
 
 - Stories A0, B1.
+
+**Deliverable (merged)**
+
+- **[`docs/weekly-contests-schema-entries.md`](weekly-contests-schema-entries.md)** — path `contests/{contestId}/entries/{uid}`, fields, idempotency, late-join policy pointer (API in C1).
+- **[`firestore.rules`](../firestore.rules)** — read **own** entry doc only; **no** client writes.
+- **[`firestore.indexes.json`](../firestore.indexes.json)** — collection group **`entries`**: `uid` + `joinedAt` + `__name__` (my-entries query).
+- **[`src/app/shared/models/contest-entry.model.ts`](../src/app/shared/models/contest-entry.model.ts)** — `ContestEntryDocument`.
 
 ---
 
