@@ -6,6 +6,9 @@
     <div class="lb-hero-text">
       <h1 class="lb-title">Leaderboard</h1>
       <p class="lb-subtitle">All-time wins</p>
+      <p *ngIf="listingEmailVerifiedRequired" class="lb-policy-hint">
+        Verified email is required to appear on this board.
+      </p>
     </div>
   </header>
 

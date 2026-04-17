@@ -4,7 +4,8 @@
 import admin from 'firebase-admin';
 import { FieldPath } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
-import { displayNamesForUids } from './auth-display-names.js';
+import { fetchAuthFieldsForUids } from './auth-display-names.js';
+import { isLeaderboardEmailVerifiedEnforced } from './leaderboard-email-verified.js';
 import { getAdminFirestore } from './admin-firestore.js';
 import { firestoreTimestampToIso } from './firestore-timestamp-iso.js';
 import { logLeaderboardLine } from './leaderboard-log.js';
@@ -245,16 +246,26 @@ export async function getLeaderboardPage(req, res) {
   );
 
   const uids = sorted.map((r) => r.uid);
-  const names = await displayNamesForUids(uids, auth);
+  const authFields = await fetchAuthFieldsForUids(uids, auth);
+  const requireVerified = isLeaderboardEmailVerifiedEnforced();
 
-  const entries = sorted.map((r, i) => ({
-    rank: startRank + i,
-    uid: r.uid,
-    score: r.score,
-    scope,
-    tieBreakKey: r.uid,
-    displayName: names.get(r.uid) ?? null,
-  }));
+  /** @type {{ rank: number, uid: string, score: number, scope: string, tieBreakKey: string, displayName: string | null }[]} */
+  const entries = [];
+  for (let si = 0; si < sorted.length; si++) {
+    const r = sorted[si];
+    if (requireVerified && !authFields.get(r.uid)?.emailVerified) {
+      continue;
+    }
+    const f = authFields.get(r.uid);
+    entries.push({
+      rank: startRank + si,
+      uid: r.uid,
+      score: r.score,
+      scope,
+      tieBreakKey: r.uid,
+      displayName: f?.displayName ?? null,
+    });
+  }
 
   /** @type {string | undefined} */
   let nextPageToken;
@@ -296,6 +307,9 @@ export async function getLeaderboardPage(req, res) {
     pageSize,
     entries,
     snapshotGeneratedAt,
+    listingPolicy: {
+      emailVerifiedRequired: requireVerified,
+    },
     ...(nextPageToken ? { nextPageToken } : {}),
   });
 }

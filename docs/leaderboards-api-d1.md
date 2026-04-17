@@ -42,11 +42,13 @@ v1 does **not** use a separate `gameMode` param; per-mode boards use **`scope`**
     }
   ],
   "snapshotGeneratedAt": "2026-04-15T12:00:00.000Z",
+  "listingPolicy": { "emailVerifiedRequired": true },
   "nextPageToken": "…"
 }
 ```
 
 - **`snapshotGeneratedAt`:** ISO 8601 time from the precomputed snapshot doc’s **`generatedAt`** for this **`scope`** (Story E2), or **`null`** if no snapshot exists yet. One extra Firestore read per request.
+- **`listingPolicy.emailVerifiedRequired`:** Story F2 — when **`true`**, rows omit Firebase users without **`emailVerified`** (see [leaderboards-duplicate-accounts-f2.md](leaderboards-duplicate-accounts-f2.md)). **`false`** when **`LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`** on the server (QA only).
 
 `nextPageToken` is omitted when there is no further page.
 
@@ -102,12 +104,17 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [schemaVersion, scope, pageSize, entries, snapshotGeneratedAt]
+                required: [schemaVersion, scope, pageSize, entries, snapshotGeneratedAt, listingPolicy]
                 properties:
                   schemaVersion: { type: integer }
                   scope: { type: string }
                   pageSize: { type: integer }
                   snapshotGeneratedAt: { type: string, nullable: true, format: date-time }
+                  listingPolicy:
+                    type: object
+                    required: [emailVerifiedRequired]
+                    properties:
+                      emailVerifiedRequired: { type: boolean }
                   entries:
                     type: array
                     items:
@@ -151,6 +158,7 @@ GET /api/v1/leaderboards?scope=bio-ball&pageSize=10
 |------|------|
 | `server/leaderboards.http.js` | Express handler, **`snapshotGeneratedAt`** |
 | `server/auth-display-names.js` | Auth display name lookup (shared with snapshot job) |
+| `server/leaderboard-email-verified.js` | Story F2 — omit unverified Auth users from listings |
 | `server/leaderboard-query.js` | Scope → Firestore field, token encode/decode, tie-break sort |
 | `server/leaderboard-log.js` | Structured logs |
 | `server/leaderboard-snapshot-job.js` | Batch rebuild of B2 snapshot docs (Story E2) |
@@ -174,4 +182,5 @@ Manual check: run Express + `ng serve` with `proxy.conf.json`; click **leaderboa
 - [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story D1
 - [leaderboards-batch-e2.md](leaderboards-batch-e2.md) — Story E2 (scheduled rebuild + `snapshotGeneratedAt`)
 - [leaderboards-rate-limits-f1.md](leaderboards-rate-limits-f1.md) — Story F1 (API rate limits)
+- [leaderboards-duplicate-accounts-f2.md](leaderboards-duplicate-accounts-f2.md) — Story F2 (verified email to list)
 - [leaderboards-realtime-e1.md](leaderboards-realtime-e1.md) — Story E1 (optional HTTP short-poll vs B2 snapshot listener)

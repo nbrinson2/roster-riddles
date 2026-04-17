@@ -19,6 +19,8 @@ interface LeaderboardApiResponse {
   entries: LeaderboardEntryRow[];
   /** ISO 8601 from precomputed snapshot doc `generatedAt` (Story E2), if any. */
   snapshotGeneratedAt?: string | null;
+  /** Story F2 — public listing omits unverified Auth emails when true. */
+  listingPolicy?: { emailVerifiedRequired?: boolean };
   nextPageToken?: string;
 }
 
@@ -48,6 +50,8 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
   protected nextPageToken: string | null = null;
   /** B2 snapshot mode — from `generatedAt` on the precomputed doc. */
   protected lastUpdatedLabel: string | null = null;
+  /** Story F2 — show “verified email” hint (HTTP from API; snapshot heuristic for production). */
+  protected listingEmailVerifiedRequired = false;
   private destroy$ = new Subject<void>();
   private snapshotUnsub: Unsubscribe | null = null;
 
@@ -78,6 +82,7 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
     this.entries = [];
     this.errorMessage = null;
     this.lastUpdatedLabel = null;
+    this.listingEmailVerifiedRequired = false;
     if (environment.leaderboardUseFirestoreSnapshot) {
       this.attachSnapshotListener();
     } else {
@@ -116,6 +121,7 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
           this.entries = [...this.entries, ...res.entries];
           this.nextPageToken = res.nextPageToken ?? null;
           this.applySnapshotGeneratedAtFromApi(res);
+          this.applyListingPolicyFromApi(res);
           this.loadingMore = false;
         },
         error: (err: HttpErrorResponse) => {
@@ -131,6 +137,7 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
     this.entries = [];
     this.nextPageToken = null;
     this.lastUpdatedLabel = null;
+    this.listingEmailVerifiedRequired = false;
     const url = this.buildUrl({});
     this.http
       .get<LeaderboardApiResponse>(url)
@@ -140,6 +147,7 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
           this.entries = res.entries;
           this.nextPageToken = res.nextPageToken ?? null;
           this.applySnapshotGeneratedAtFromApi(res);
+          this.applyListingPolicyFromApi(res);
           this.loading = false;
         },
         error: (err: HttpErrorResponse) => {
@@ -174,7 +182,13 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
         this.entries = res.entries;
         this.nextPageToken = res.nextPageToken ?? null;
         this.applySnapshotGeneratedAtFromApi(res);
+        this.applyListingPolicyFromApi(res);
       });
+  }
+
+  private applyListingPolicyFromApi(res: LeaderboardApiResponse): void {
+    this.listingEmailVerifiedRequired =
+      res.listingPolicy?.emailVerifiedRequired === true;
   }
 
   private applySnapshotGeneratedAtFromApi(res: LeaderboardApiResponse): void {
@@ -199,6 +213,8 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
     this.entries = [];
     this.nextPageToken = null;
     this.lastUpdatedLabel = null;
+    this.listingEmailVerifiedRequired =
+      environment.deployment === 'production';
 
     const db = getConfiguredFirestore();
     const d = doc(db, 'leaderboards', 'snapshots', 'boards', this.scope);
@@ -209,6 +225,8 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
         if (!snap.exists()) {
           this.entries = [];
           this.lastUpdatedLabel = null;
+          this.listingEmailVerifiedRequired =
+            environment.deployment === 'production';
           return;
         }
         const raw = snap.data() as LeaderboardSnapshotDocument;

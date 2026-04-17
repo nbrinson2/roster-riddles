@@ -72,6 +72,15 @@ $lb-muted: rgba(255, 255, 255, 0.55);
   text-transform: none;
 }
 
+.lb-policy-hint {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: $lb-muted;
+  letter-spacing: 0.02em;
+  max-width: 22rem;
+}
+
 .lb-updated {
   margin: -4px 0 12px;
   font-size: 0.8rem;

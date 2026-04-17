@@ -328,12 +328,17 @@ Product picks minimum bar: verified email, captcha on signup, or “shadow” pe
 
 **Acceptance criteria**
 
-- [ ] Rule enforced in API or Auth trigger; documented in user-facing FAQ if needed.
-- [ ] Test accounts bypass documented for QA only.
+- [x] Rule enforced in API or Auth trigger; documented in user-facing FAQ if needed.
+- [x] Test accounts bypass documented for QA only.
 
 **Dependencies**
 
 - Story A0.
+
+**Deliverable (merged)**
+
+- **[`docs/leaderboards-duplicate-accounts-f2.md`](leaderboards-duplicate-accounts-f2.md)** — design, FAQ line, QA env `LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`.
+- **Code:** [`server/leaderboard-email-verified.js`](../server/leaderboard-email-verified.js); [`server/auth-display-names.js`](../server/auth-display-names.js) (`fetchAuthFieldsForUids`); [`GET /api/v1/leaderboards`](../server/leaderboards.http.js) + snapshot job filter; response **`listingPolicy`**; leaderboard panel hint.
 
 ---
 

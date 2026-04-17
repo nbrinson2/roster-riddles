@@ -95,7 +95,7 @@ Weekly boards require one of:
 |---------|----------|-----------|
 | **API rate limits** (GET leaderboard, POST events) | **P0** | Required on public/costly paths; align with Express middleware / gateway (see Phase 3 Epic F). |
 | **Duplicate accounts** | **P1** | No fingerprinting in v1; document follow-up. Optional: **one account per email** is already enforced by normal Auth usage. |
-| **Verified email to appear on board** | **P1** (product) | **Recommended default:** only users with **`emailVerified === true`** appear in published rankings; others see “verify email” or are omitted. Implement as flag in ADR amendment if PM disagrees. |
+| **Verified email to appear on board** | **P1** (product) | **Implemented (Story F2):** only users with **`emailVerified === true`** appear in **`GET /api/v1/leaderboards`** and snapshot rebuilds unless **`LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`** (QA). See [leaderboards-duplicate-accounts-f2.md](leaderboards-duplicate-accounts-f2.md). |
 | **Prize / KYC verification** | **Deferred** | Out of scope until contests exist; track in backlog. |
 
 ## Consequences

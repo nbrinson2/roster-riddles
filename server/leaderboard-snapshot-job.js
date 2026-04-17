@@ -4,7 +4,8 @@
 import { FieldPath, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import admin from 'firebase-admin';
-import { displayNamesForUids } from './auth-display-names.js';
+import { fetchAuthFieldsForUids } from './auth-display-names.js';
+import { filterSortedForVerifiedLeaderboard } from './leaderboard-email-verified.js';
 import { getAdminFirestore } from './admin-firestore.js';
 import { ensureFirebaseAdminInitialized } from './firebase-admin-init.js';
 import {
@@ -53,15 +54,19 @@ export async function rebuildLeaderboardSnapshotForScope(db, auth, scope) {
   );
 
   const uids = sorted.map((r) => r.uid);
-  const names = await displayNamesForUids(uids, auth);
+  const authFields = await fetchAuthFieldsForUids(uids, auth);
+  const listed = filterSortedForVerifiedLeaderboard(sorted, authFields);
 
-  const entries = sorted.map((r, i) => ({
-    rank: i + 1,
-    uid: r.uid,
-    score: r.score,
-    tieBreakKey: r.uid,
-    displayName: names.get(r.uid) ?? null,
-  }));
+  const entries = listed.map((r, i) => {
+    const f = authFields.get(r.uid);
+    return {
+      rank: i + 1,
+      uid: r.uid,
+      score: r.score,
+      tieBreakKey: r.uid,
+      displayName: f?.displayName ?? null,
+    };
+  });
 
   const docRef = db.doc(`leaderboards/snapshots/boards/${scope}`);
   const payload = {
