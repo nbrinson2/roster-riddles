@@ -61,6 +61,20 @@ const contestJoinConsume = createFixedWindowLimiter({
   windowMs: contestJoinWindowMs,
 });
 
+const contestReadWindowMs = parsePositiveInt(
+  process.env.CONTEST_READ_RATE_LIMIT_WINDOW_MS,
+  60_000,
+);
+const contestReadMax = parsePositiveInt(
+  process.env.CONTEST_READ_RATE_LIMIT_MAX,
+  120,
+);
+
+const contestReadConsume = createFixedWindowLimiter({
+  maxRequests: contestReadMax,
+  windowMs: contestReadWindowMs,
+});
+
 /**
  * @type {import('express').RequestHandler}
  */
@@ -116,6 +130,27 @@ export function contestJoinRateLimitHookMiddleware(req, res, next) {
       return { allowed: true, retryAfterSec: null };
     }
     return contestJoinConsume(`cj:${uid}`);
+  };
+  next();
+}
+
+/**
+ * After `requireFirebaseAuth` — per-uid fixed window (Story D2 GET contests).
+ * @type {import('express').RequestHandler}
+ */
+export function contestReadRateLimitHookMiddleware(req, res, next) {
+  /**
+   * @returns {Promise<RateLimitResult>}
+   */
+  req.consumeContestReadRateLimit = async () => {
+    if (rateLimitsGloballyDisabled()) {
+      return { allowed: true, retryAfterSec: null };
+    }
+    const uid = req.user?.uid;
+    if (!uid) {
+      return { allowed: true, retryAfterSec: null };
+    }
+    return contestReadConsume(`cr:${uid}`);
   };
   next();
 }

@@ -85,3 +85,4 @@ Structured lines: `component: contest_join`, `outcome`, `requestId`, `httpStatus
 ## References
 
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Story C1  
+- [weekly-contests-api-d2.md](weekly-contests-api-d2.md) — Story D2 (list/detail reads)  

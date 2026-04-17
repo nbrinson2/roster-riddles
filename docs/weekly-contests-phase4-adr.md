@@ -232,7 +232,7 @@ Example: “Your contest rank uses your **first 10 Bio Ball games** (unless the 
 
 | Path | Client read | Client write |
 |------|-------------|--------------|
-| `contests/{id}` | Authenticated read of **non-sensitive** fields per product (may hide internal `metadata`). | **Denied** for `status`, `window*`, authoritative fields — **server/admin only**. |
+| `contests/{id}` | Authenticated read of **non-sensitive** fields per product (may hide internal `metadata`). HTTP: **`GET /api/v1/contests`** / **`GET /api/v1/contests/:contestId`** omit `metadata` ([weekly-contests-api-d2.md](weekly-contests-api-d2.md)). | **Denied** for `status`, `window*`, authoritative fields — **server/admin only**. |
 | `contests/{id}/entries/{uid}` | User may read **own** entry; public read of others **optional** per product (leaderboard-style). | **Join** only via **trusted API** (`POST` Express or CF), not direct Firestore create. |
 | `contests/{id}/results/*`, `payouts/*` | **Signed-in** read (v1; see [weekly-contests-schema-results.md](weekly-contests-schema-results.md)). | **Denied** — Admin SDK only. |
 

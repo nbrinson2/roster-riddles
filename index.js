@@ -4,12 +4,14 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 import { postContestJoin } from './server/contest-join.http.js';
+import { getContestDetail, getContestList } from './server/contest-read.http.js';
 import { postContestTransition } from './server/contest-transition.http.js';
 import { postGameplayEvent } from './server/gameplay-events.js';
 import { getLeaderboardPage } from './server/leaderboards.http.js';
 import { postRebuildLeaderboardSnapshots } from './server/leaderboards-snapshot-rebuild.http.js';
 import {
   contestJoinRateLimitHookMiddleware,
+  contestReadRateLimitHookMiddleware,
   gameplayEventRateLimitHookMiddleware,
   leaderboardRateLimitHookMiddleware,
 } from './server/rate-limit-hooks.middleware.js';
@@ -73,6 +75,23 @@ app.post(
   requireFirebaseAuth,
   contestJoinRateLimitHookMiddleware,
   postContestJoin,
+);
+
+/**
+ * Contest list + detail — authenticated; public-safe fields only (Story D2).
+ * Register list route before `/:contestId` so `/contests` is not captured as an id.
+ */
+app.get(
+  '/api/v1/contests',
+  requireFirebaseAuth,
+  contestReadRateLimitHookMiddleware,
+  getContestList,
+);
+app.get(
+  '/api/v1/contests/:contestId',
+  requireFirebaseAuth,
+  contestReadRateLimitHookMiddleware,
+  getContestDetail,
 );
 
 /**

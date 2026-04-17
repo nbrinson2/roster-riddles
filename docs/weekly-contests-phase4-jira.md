@@ -249,12 +249,18 @@ Expose minimal fields for UI; hide internal admin notes. Pagination if list grow
 
 **Acceptance criteria**
 
-- [ ] Document OpenAPI or markdown contract.
-- [ ] Staging verified with C2.
+- [x] Document OpenAPI or markdown contract.
+- [ ] Staging verified with C2 (manual QA).
 
 **Dependencies**
 
 - Story B1.
+
+**Deliverable (merged)**
+
+- **[`docs/weekly-contests-api-d2.md`](weekly-contests-api-d2.md)** — contract, query params, errors, rate limits.
+- **`GET /api/v1/contests`**, **`GET /api/v1/contests/:contestId`** — [`index.js`](../index.js); [`server/contest-read.http.js`](../server/contest-read.http.js); [`server/contest-public.js`](../server/contest-public.js); [`server/contest-read-log.js`](../server/contest-read-log.js); [`contestReadRateLimitHookMiddleware`](../server/rate-limit-hooks.middleware.js).
+- **[`server/contest-public.test.js`](../server/contest-public.test.js)** — projection tests.
 
 ---
 
