@@ -39,7 +39,7 @@
 ## Security rules
 
 - **Read:** Authenticated user may read **only** `contests/{contestId}/entries/{uid}` where **`uid == request.auth.uid`**. No public or cross-user reads of other entrants’ entry docs (product may relax in a later story).
-- **Write:** **Denied** to clients — joins go through **Admin SDK** (trusted `POST` in Story C1).
+- **Write:** **Denied** to clients — joins use **`POST /api/v1/contests/:contestId/join`** (Express + Admin SDK). See [weekly-contests-api-c1.md](weekly-contests-api-c1.md).
 
 ## Queries & indexes
 

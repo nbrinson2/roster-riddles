@@ -161,13 +161,18 @@ Express (or Cloud Function) endpoint: verify Firebase **ID token**, load contest
 
 **Acceptance criteria**
 
-- [ ] Returns **409/400** with stable `error.code` for wrong status, closed window, duplicate safe cases.
-- [ ] Idempotent: same user+contest → **200** with same entry identity (or **204** if designed idempotent noop).
-- [ ] Rate limit considered (reuse patterns from leaderboard F1 if appropriate).
+- [x] Returns **400** with stable `error.code` for wrong status, closed window; idempotent duplicate → **200** (not 409).
+- [x] Idempotent: same user+contest → **200** with **`idempotentReplay: true`** and entry payload.
+- [x] Rate limit: per-uid fixed window (`CONTEST_JOIN_RATE_LIMIT_*`, `RATE_LIMITS_DISABLED`).
 
 **Dependencies**
 
 - Stories B1, B2.
+
+**Deliverable (merged)**
+
+- **[`docs/weekly-contests-api-c1.md`](weekly-contests-api-c1.md)** — contract, errors, env.
+- **`POST /api/v1/contests/:contestId/join`** in [`index.js`](../index.js); [`server/contest-join.http.js`](../server/contest-join.http.js), [`server/contest-join-log.js`](../server/contest-join-log.js); [`contestJoinRateLimitHookMiddleware`](../server/rate-limit-hooks.middleware.js).
 
 ---
 

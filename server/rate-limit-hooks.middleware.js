@@ -47,6 +47,20 @@ const gameplayConsume = createFixedWindowLimiter({
   windowMs: gameplayWindowMs,
 });
 
+const contestJoinWindowMs = parsePositiveInt(
+  process.env.CONTEST_JOIN_RATE_LIMIT_WINDOW_MS,
+  60_000,
+);
+const contestJoinMax = parsePositiveInt(
+  process.env.CONTEST_JOIN_RATE_LIMIT_MAX,
+  30,
+);
+
+const contestJoinConsume = createFixedWindowLimiter({
+  maxRequests: contestJoinMax,
+  windowMs: contestJoinWindowMs,
+});
+
 /**
  * @type {import('express').RequestHandler}
  */
@@ -81,6 +95,27 @@ export function gameplayEventRateLimitHookMiddleware(req, res, next) {
       return { allowed: true, retryAfterSec: null };
     }
     return gameplayConsume(`gp:${uid}`);
+  };
+  next();
+}
+
+/**
+ * After `requireFirebaseAuth` — per-uid fixed window (Story C1).
+ * @type {import('express').RequestHandler}
+ */
+export function contestJoinRateLimitHookMiddleware(req, res, next) {
+  /**
+   * @returns {Promise<RateLimitResult>}
+   */
+  req.consumeContestJoinRateLimit = async () => {
+    if (rateLimitsGloballyDisabled()) {
+      return { allowed: true, retryAfterSec: null };
+    }
+    const uid = req.user?.uid;
+    if (!uid) {
+      return { allowed: true, retryAfterSec: null };
+    }
+    return contestJoinConsume(`cj:${uid}`);
   };
   next();
 }

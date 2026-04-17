@@ -3,10 +3,12 @@ import express from 'express';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
+import { postContestJoin } from './server/contest-join.http.js';
 import { postGameplayEvent } from './server/gameplay-events.js';
 import { getLeaderboardPage } from './server/leaderboards.http.js';
 import { postRebuildLeaderboardSnapshots } from './server/leaderboards-snapshot-rebuild.http.js';
 import {
+  contestJoinRateLimitHookMiddleware,
   gameplayEventRateLimitHookMiddleware,
   leaderboardRateLimitHookMiddleware,
 } from './server/rate-limit-hooks.middleware.js';
@@ -62,6 +64,14 @@ app.post(
   requireFirebaseAuth,
   gameplayEventRateLimitHookMiddleware,
   postGameplayEvent,
+);
+
+/** Join weekly contest — authenticated; idempotent entry under `contests/{id}/entries/{uid}` (Story C1). */
+app.post(
+  '/api/v1/contests/:contestId/join',
+  requireFirebaseAuth,
+  contestJoinRateLimitHookMiddleware,
+  postContestJoin,
 );
 
 /**
