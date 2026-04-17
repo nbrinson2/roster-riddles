@@ -73,7 +73,7 @@ Weekly boards require one of:
 
 ### Option B — Collection-group query on `stats`
 
-- **Query:** `collectionGroup('stats')` with `documentId == 'summary'` (or path convention per deployed rules) + `orderBy('totals.wins')` with composite index.
+- **Query:** `collectionGroup('stats')` + `orderBy` wins + `orderBy(documentId())` with composite index (no bare `documentId == 'summary'` filter on collection groups; v1 only has `summary` under each `stats`).
 - **Reads:** Proportional to **limit**; still expensive if misused without caps.
 - **Use when:** Staging smoke tests or very small user base; document **max `limit`** (e.g. 50) in API.
 

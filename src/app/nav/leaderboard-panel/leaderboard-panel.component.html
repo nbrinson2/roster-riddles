@@ -1,0 +1,105 @@
+<div class="leaderboard-panel">
+  <header class="lb-hero">
+    <div class="lb-hero-icon" aria-hidden="true">
+      <span class="material-symbols-outlined">emoji_events</span>
+    </div>
+    <div class="lb-hero-text">
+      <h1 class="lb-title">Leaderboard</h1>
+      <p class="lb-subtitle">All-time wins</p>
+    </div>
+  </header>
+
+  <div class="lb-toolbar">
+    <label class="lb-label" for="lb-scope-select">Board</label>
+    <div class="lb-select-wrap">
+      <select
+        id="lb-scope-select"
+        class="lb-select"
+        [value]="scope"
+        (change)="onScopeSelect($any($event.target).value)"
+      >
+        <option *ngFor="let s of scopes" [value]="s.value">{{ s.label }}</option>
+      </select>
+      <span class="material-symbols-outlined lb-select-chevron" aria-hidden="true"
+        >expand_more</span
+      >
+    </div>
+  </div>
+
+  <div class="lb-body">
+    <div *ngIf="loading" class="state state-loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Loading rankings…</span>
+    </div>
+
+    <div
+      *ngIf="!loading && errorMessage"
+      class="state state-error"
+      role="alert"
+    >
+      {{ errorMessage }}
+    </div>
+
+    <div
+      *ngIf="!loading && !errorMessage && entries.length === 0"
+      class="state state-empty"
+    >
+      <span class="material-symbols-outlined state-empty-icon"
+        >sports_baseball</span
+      >
+      <p>No scores yet. Finish a game to climb the board.</p>
+    </div>
+
+    <div
+      *ngIf="!loading && !errorMessage && entries.length > 0"
+      class="table-card"
+    >
+      <div class="lb-table-head row">
+        <span class="col-rank">#</span>
+        <span class="col-name">Player</span>
+        <span class="col-score">Wins</span>
+      </div>
+      <div class="lb-table-body">
+        <div
+          class="lb-row row"
+          *ngFor="let e of entries; trackBy: trackByRank"
+          [class.lb-row--gold]="e.rank === 1"
+          [class.lb-row--silver]="e.rank === 2"
+          [class.lb-row--bronze]="e.rank === 3"
+        >
+          <span class="col-rank">
+            <span
+              *ngIf="isTopThree(e.rank)"
+              class="material-symbols-outlined lb-medal"
+              [class.lb-medal--1]="e.rank === 1"
+              [class.lb-medal--2]="e.rank === 2"
+              [class.lb-medal--3]="e.rank === 3"
+              aria-hidden="true"
+              >military_tech</span
+            >
+            <span class="lb-rank-num">{{ e.rank }}</span>
+          </span>
+          <span class="col-name" [title]="e.displayName || e.uid">{{
+            e.displayName || e.uid
+          }}</span>
+          <span class="col-score">{{ e.score }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="nextPageToken && !loading" class="lb-footer">
+      <button
+        mat-stroked-button
+        type="button"
+        class="lb-load-more"
+        (click)="loadMore()"
+        [disabled]="loadingMore"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true"
+          >expand_more</span
+        >
+        {{ loadingMore ? "Loading…" : "Load more" }}
+      </button>
+    </div>
+  </div>
+</div>

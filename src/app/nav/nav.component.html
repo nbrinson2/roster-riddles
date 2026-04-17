@@ -22,6 +22,9 @@
           (playerSelected)="handlePlayerSelection()"
         ></roster-by-years-table>
       </ng-container>
+      <ng-container *ngIf="viewLeaderboard">
+        <leaderboard-panel></leaderboard-panel>
+      </ng-container>
       <ng-container *ngIf="viewMenu">
         <how-to-play
           [gameType]="currentGameName"
@@ -32,7 +35,9 @@
         <profile [user]="user"></profile>
       </ng-container>
       <div
-        *ngIf="!loggedIn && !viewProfile && !viewMenu && !viewRoster"
+        *ngIf="
+          !loggedIn && !viewProfile && !viewMenu && !viewRoster && !viewLeaderboard
+        "
         class="login-menu"
       >
         <login-panel (authSuccess)="onLoginSuccess()"></login-panel>
@@ -40,8 +45,21 @@
     </mat-sidenav>
     <mat-sidenav-content>
       <div class="nav-container">
-        <div class="menu-icon-container" (click)="openMenu()">
-          <span class="material-symbols-outlined menu-icon"> info </span>
+        <div class="nav-left-icons">
+          <div class="menu-icon-container" (click)="openMenu()">
+            <span class="material-symbols-outlined menu-icon">info</span>
+          </div>
+          <div
+            class="menu-icon-container"
+            role="button"
+            tabindex="0"
+            aria-label="Open leaderboard"
+            (click)="openLeaderboard()"
+            (keydown.enter)="openLeaderboard()"
+            (keydown.space)="$event.preventDefault(); openLeaderboard()"
+          >
+            <span class="material-symbols-outlined menu-icon">leaderboard</span>
+          </div>
         </div>
         <div class="icons-right-container">
           <ng-container *ngIf="currentGameMode() !== 'n/a'">

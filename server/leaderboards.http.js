@@ -200,9 +200,14 @@ export async function getLeaderboardPage(req, res) {
   }
 
   const winsField = winsOrderFieldForScope(scope);
+  /**
+   * Do **not** use `where(FieldPath.documentId(), '==', 'summary')` on a collection
+   * group — Firestore requires a full resource path for that filter, not a single
+   * segment. v1 only writes `users/{uid}/stats/summary` under `stats`; no extra `where`.
+   * @see https://firebase.google.com/docs/firestore/query-data/queries#collection-groups
+   */
   let q = db
     .collectionGroup('stats')
-    .where(FieldPath.documentId(), '==', STATS_DOC_ID)
     .orderBy(winsField, 'desc')
     .orderBy(FieldPath.documentId(), 'asc')
     .limit(pageSize + 1);

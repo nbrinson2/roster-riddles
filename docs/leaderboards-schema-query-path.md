@@ -9,7 +9,7 @@
 
 ## Summary
 
-v1 leaderboards rank users by **all-time `wins`** (see ADR). The **query path** reuses the existing Phase 2 aggregate document **`users/{uid}/stats/summary`** as the authoritative per-user row. There is **no separate `leaderboardEntries` collection** for v1: “rows” are **`stats/summary`** documents queried via **collection group** `stats`, filtered to document id **`summary`**, and ordered by the appropriate **`wins`** field.
+v1 leaderboards rank users by **all-time `wins`** (see ADR). The **query path** reuses the existing Phase 2 aggregate document **`users/{uid}/stats/summary`** as the authoritative per-user row. There is **no separate `leaderboardEntries` collection** for v1: “rows” are **`stats/summary`** documents queried via **collection group** `stats` and ordered by the appropriate **`wins`** field. The server does **not** use `where(documentId == 'summary')` on that collection group (Firestore requires a full path for that filter); v1 assumes **`summary` is the only doc** under each user’s `stats` subcollection.
 
 **Weekly / `weekId`:** Out of scope for v1 (reserved in ADR). No `weekId` field in v1 query path.
 
@@ -78,8 +78,7 @@ Rank is **not** stored in Firestore. The **trusted server** (Express Admin SDK o
 ### Global all-time
 
 - Collection group: `stats`
-- Filter: document id == `summary`
-- Order by: `totals.wins` descending
+- Order by: `totals.wins` descending, then `FieldPath.documentId()` ascending (see B3)
 - Limit: cap (e.g. 50)
 
 ### Per-mode all-time

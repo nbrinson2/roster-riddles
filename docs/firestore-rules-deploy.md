@@ -4,32 +4,47 @@ The repo’s rules file targets **gameplay stats** (`users/{uid}/gameplayEvents/
 
 ## Production (named database `roster-riddles`)
 
-The Angular production app uses the **named** database `roster-riddles` (see `firebase.json` → `firestore[0].database`).
+The Angular production app uses the **named** database `roster-riddles` (second `firestore` entry in `firebase.json`; staging uses the first entry, `(default)`).
 
-1. Use the **production** Firebase / GCP project (see `docs/environment-matrix.md`).
+1. Use the **production** Firebase / GCP project (see [environment-matrix.md](environment-matrix.md); verify project id in GCP — `npm run deploy:firestore:prod` defaults to `roster-riddles-457600`).
 2. From the repo root:
 
    ```bash
-   firebase deploy --only firestore:roster-riddles --project <PROD_PROJECT_ID>
+   npm run deploy:firestore:prod
    ```
 
-3. In the [Firebase console](https://console.firebase.google.com/) → **Firestore** → select database **`roster-riddles`** → **Rules** and confirm the revision matches what you expect.
+   Or: `firebase deploy --only firestore:roster-riddles --project <PROD_PROJECT_ID>` if your prod project id differs.
 
-## Staging (typically `(default)` database)
+3. In the [Firebase console](https://console.firebase.google.com/) → **Firestore** → database **`roster-riddles`** → **Rules** / **Indexes** and confirm.
 
-The staging app usually uses the **`(default)`** Firestore database in the **staging** project (`roster-riddles-staging`).
+## Staging (`(default)` database — `roster-riddles-staging`)
 
-1. If `firebase.json` in this repo only lists `roster-riddles`, either:
-   - **Add** a second `firestore` entry for `"database": "(default)"` pointing at the same `firestore.rules` (and deploy only the databases that exist in that project), or  
-   - **Paste** the contents of `firestore.rules` into the console: Firestore → **(default)** → **Rules** → Publish.
+The staging app uses the **`(default)`** Firestore database (see [environment-matrix.md](environment-matrix.md)). **`firebase.json`** includes a `firestore` entry for **`(default)`** so rules and **`firestore.indexes.json`** (leaderboard collection-group indexes) can be deployed to staging.
 
-2. CLI example when `(default)` is configured in `firebase.json`:
+Deploy **only** the default database to staging (avoids touching a named DB that may not exist in the staging project):
 
-   ```bash
-   firebase deploy --only firestore --project roster-riddles-staging
-   ```
+```bash
+firebase deploy --only "firestore:(default)" --project roster-riddles-staging
+```
 
-   Use `--only firestore:<database-id>` if you need a single database.
+Or use the npm script (same command):
+
+```bash
+npm run deploy:firestore:staging
+```
+
+After deploy, open **Firebase console** → **Firestore** → database **`(default)`** → **Indexes** and wait until composite indexes show **Enabled** before relying on `GET /api/v1/leaderboards` against staging.
+
+**First-time / drift:** If indexes were never deployed to staging, this command is the fix. Re-run after changing `firestore.indexes.json`.
+
+### Production vs staging
+
+| Target | Typical project | Database id | Command |
+|--------|-----------------|-------------|---------|
+| Staging | `roster-riddles-staging` | `(default)` | `npm run deploy:firestore:staging` |
+| Production | e.g. `roster-riddles-457600` (verify in GCP) | `roster-riddles` (named) | `npm run deploy:firestore:prod` |
+
+Do **not** assume indexes deployed to production’s named DB also exist on staging — deploy staging explicitly.
 
 ## Verification (local)
 
@@ -59,7 +74,17 @@ Shared helpers live in **`scripts/emulator-child-exit.mjs`**. Without releasing 
 
 ## Composite indexes (leaderboards — `firestore.indexes.json`)
 
-Indexes for collection-group queries on `stats/summary` live in **`firestore.indexes.json`**. Deploy them with the **same** command as rules, targeting the named database:
+Indexes for collection-group queries on `stats` live in **`firestore.indexes.json`**. Deploy them **per project / per database** (staging `(default)` vs production `roster-riddles`):
+
+```bash
+# Staging — see § Staging above
+npm run deploy:firestore:staging
+
+# Production — named database
+npm run deploy:firestore:prod
+```
+
+Equivalent raw CLI for production:
 
 ```bash
 firebase deploy --only firestore:roster-riddles --project <PROD_PROJECT_ID>

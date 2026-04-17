@@ -65,6 +65,12 @@ mat-sidenav {
   z-index: 200;
   margin: 10px;
 
+  .nav-left-icons {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   .menu-icon-container {
     display: flex;
     align-items: center;

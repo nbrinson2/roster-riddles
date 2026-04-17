@@ -80,6 +80,7 @@ export class NavComponent implements OnInit, OnDestroy {
   protected viewMenu = true;
   protected viewProfile = false;
   protected viewRoster = false;
+  protected viewLeaderboard = false;
   protected matDrawerPosition = MatDrawerPosition.START;
   protected selectedRoster?: UiPlayer<AttributesType>[];
   protected selectedRosterByYears?: CareerPathPlayer[];
@@ -197,6 +198,16 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewMenu = true;
     this.viewProfile = false;
     this.viewRoster = false;
+    this.viewLeaderboard = false;
+    this.drawer.open();
+  }
+
+  protected openLeaderboard(): void {
+    this.matDrawerPosition = MatDrawerPosition.START;
+    this.viewMenu = false;
+    this.viewProfile = false;
+    this.viewRoster = false;
+    this.viewLeaderboard = true;
     this.drawer.open();
   }
 
@@ -204,6 +215,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.matDrawerPosition = MatDrawerPosition.END;
     this.viewMenu = false;
     this.viewRoster = false;
+    this.viewLeaderboard = false;
     this.viewProfile = true;
     this.drawer.open();
   }
@@ -221,6 +233,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewMenu = false;
     this.viewProfile = false;
     this.viewRoster = false;
+    this.viewLeaderboard = false;
     this.drawer.open();
   }
 
@@ -251,6 +264,7 @@ export class NavComponent implements OnInit, OnDestroy {
   private openRosterMenu(): void {
     this.viewMenu = false;
     this.viewProfile = false;
+    this.viewLeaderboard = false;
     this.viewRoster = true;
     this.matDrawerPosition = MatDrawerPosition.START;
     this.drawer.open();

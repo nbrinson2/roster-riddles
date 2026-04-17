@@ -141,6 +141,15 @@ GET /api/v1/leaderboards?scope=bio-ball&pageSize=10
 | `server/rate-limit-hooks.middleware.js` | `consumeLeaderboardRateLimit` stub |
 | `index.js` | Route registration |
 
+### Angular UI (Story D2)
+
+| File | Role |
+|------|------|
+| `src/app/nav/leaderboard-panel/` | Panel in `mat-sidenav` — scope toggles, table, load more, loading/error/empty |
+| `src/app/nav/nav.component.*` | `leaderboard` Material Symbol next to `info`; `openLeaderboard()` opens **start** sidenav |
+
+Manual check: run Express + `ng serve` with `proxy.conf.json`; click **leaderboard** (left of info); sidenav opens from the left; data loads from `GET /api/v1/leaderboards`.
+
 ## References
 
 - [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story D1

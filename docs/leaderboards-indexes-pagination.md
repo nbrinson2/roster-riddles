@@ -15,7 +15,7 @@
 
 | Read strategy | Mechanism | Indexes |
 |---------------|-----------|---------|
-| **Query path (B1)** | `collectionGroup('stats')` with `documentId == 'summary'` and `orderBy` on a wins field | Required — see [Deployed indexes](#deployed-indexes). |
+| **Query path (B1)** | `collectionGroup('stats')` with `orderBy` on a wins field (no `documentId == 'summary'` filter in Admin SDK — see [Canonical query](#canonical-server-query-per-board)) | Required — see [Deployed indexes](#deployed-indexes). |
 | **Batch path (B2)** | Single document read per board | None |
 
 All collection-group leaderboard queries run in **trusted code** (Admin SDK). Clients **cannot** run cross-user `stats` queries under current rules.
@@ -42,7 +42,6 @@ const { FieldPath } = require('firebase-admin/firestore');
 
 // Global board — use the row matching firestore.indexes.json index #1
 db.collectionGroup('stats')
-  .where(FieldPath.documentId(), '==', 'summary')
   .orderBy('totals.wins', 'desc')
   .orderBy(FieldPath.documentId(), 'asc')
   .limit(pageSize);
@@ -50,7 +49,7 @@ db.collectionGroup('stats')
 
 Per-mode boards replace the first `orderBy` field with the corresponding `totalsByMode.<mode>.wins` path (same strings as in the index).
 
-**Filter:** `documentId == 'summary'` restricts to aggregate docs and keeps the collection group meaningful.
+**Do not** add `where(FieldPath.documentId(), '==', 'summary')` on a **collection group** query: Firestore requires the `documentId` equality value to be a **full document path** (an even number of path segments), not the bare last segment `'summary'`. In v1 the only document under each user’s `stats` subcollection is **`summary`** (see Phase 2 pipeline), so ordering over `collectionGroup('stats')` is sufficient. If other `stats/*` docs are added later, introduce a dedicated field (e.g. `leaderboardSource: 'summary'`) and `where` on that field plus a matching composite index.
 
 ## Stable ordering & ties
 
@@ -72,7 +71,6 @@ Per-mode boards replace the first `orderBy` field with the corresponding `totals
 
 ```js
 let q = db.collectionGroup('stats')
-  .where(FieldPath.documentId(), '==', 'summary')
   .orderBy('totals.wins', 'desc')
   .orderBy(FieldPath.documentId(), 'asc')
   .limit(pageSize);

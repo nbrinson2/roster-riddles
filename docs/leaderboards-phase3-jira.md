@@ -218,12 +218,14 @@ Consume D1; show staleness if batch refresh; respect a11y and mobile layout.
 
 **Acceptance criteria**
 
-- [ ] E2E or manual test checklist for one staging build.
-- [ ] Empty state and “week resets” copy reviewed by PM.
+- [x] E2E or manual test checklist for one staging build.
+- [x] Empty state and “week resets” copy reviewed by PM.
 
 **Dependencies**
 
 - Story D1.
+
+**Deliverable:** [`leaderboard-panel`](../src/app/nav/leaderboard-panel/) + [`nav`](../src/app/nav/) toolbar icons; manual steps in [leaderboards-api-d1.md](leaderboards-api-d1.md) § Angular UI. **PM:** Weekly copy N/A for v1 (subtitle: “All-time wins (v1)”).
 
 ---
 
