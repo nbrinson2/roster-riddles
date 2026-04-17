@@ -17,6 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from 'src/environment';
@@ -51,6 +52,7 @@ import { GuessResultComponent } from './game/nickname-streak/guess-result/guess-
 import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directive';
 import { authHttpInterceptor } from './auth/auth-http.interceptor';
 import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
+import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-panel.component';
 
 @NgModule({
   declarations: [
@@ -81,6 +83,7 @@ import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
     GuessResultComponent,
     FeatureFlagDirective,
     LoginPanelComponent,
+    LeaderboardPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -100,6 +103,7 @@ import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
     MatIconModule,
     MatMenuModule,
     MatFormFieldModule,
+    MatProgressSpinnerModule,
   ],
   providers: [
     provideFirebaseApp(() => initializeApp(environment.firebase)),

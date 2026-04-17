@@ -23,6 +23,20 @@ export const environment = {
   sendGameplayEvents: true,
   /** Stripe.js publishable key (`pk_test_…`); baked at CI build via `STRIPE_PUBLISHABLE_KEY` for staging/prod. */
   stripePublishableKey: '',
+  /**
+   * Story E1 — optional HTTP poll of `GET /api/v1/leaderboards` (ms). `0` = off.
+   * Ignored when `leaderboardUseFirestoreSnapshot` is true.
+   */
+  leaderboardPollIntervalMs: 0,
+  /**
+   * Story E1 — when true, leaderboard panel listens to precomputed B2 docs under leaderboards/snapshots/boards (see docs) instead of the HTTP API (D1).
+   * **Development:** false (use HTTP + proxy). **Staging:** false via `build:staging`. **Production:** true via `generate-env-prod.mjs` (listener on snapshot docs).
+   */
+  leaderboardUseFirestoreSnapshot: false,
+  /**
+   * Story G2 — hide left-nav leaderboard panel (staging/prod: set via `LEADERBOARDS_UI_ENABLED` at build).
+   */
+  leaderboardsUiEnabled: true,
   featureFlags,
   firebase: firebaseConfig,
 };

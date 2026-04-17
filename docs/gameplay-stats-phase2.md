@@ -171,6 +171,7 @@ If **`POST /api/v1/me/gameplay-events`** returns **500** in production while Aut
 
 ## References
 
+- [Leaderboards Phase 3 ADR](leaderboards-phase3-adr.md) — v1 scope (wins-based boards; weekly follow-up).
 - `src/app/app-routing.module.ts` — route prefixes.
 - `src/app/game/shared/constants/game.constants.ts` — `GameType`.
 - `src/app/nav/difficulty-toggle/difficulty-toggle.component.ts` — `Difficulty`.

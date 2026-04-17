@@ -1,0 +1,23 @@
+{
+  "$schemaNote": "Copy to repo-root leaderboard-test-cohort.json (gitignored) or pass path as argv[1]. Use real Firebase Auth uids from staging.",
+  "cohort": [
+    {
+      "uid": "REPLACE_STAGING_UID_ALPHA",
+      "expected": { "global": 12, "bio-ball": 5, "career-path": 4, "nickname-streak": 3 }
+    },
+    {
+      "uid": "REPLACE_STAGING_UID_BRAVO",
+      "expected": { "global": 12, "bio-ball": 2, "career-path": 10, "nickname-streak": 0 }
+    },
+    {
+      "uid": "REPLACE_STAGING_UID_CHARLIE",
+      "expected": { "global": 3 }
+    }
+  ],
+  "expectedGlobalOrder": [
+    "REPLACE_STAGING_UID_ALPHA",
+    "REPLACE_STAGING_UID_BRAVO",
+    "REPLACE_STAGING_UID_CHARLIE"
+  ],
+  "comment": "expectedGlobalOrder: among cohort only, wins desc then uid asc. Placeholder UIDs tie at 12: ALPHA < BRAVO lexicographically; replace with real staging uids and recompute order."
+}

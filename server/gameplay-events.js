@@ -166,6 +166,28 @@ export async function postGameplayEvent(req, res) {
     });
   }
 
+  const rl = await req.consumeGameplayEventRateLimit?.();
+  if (rl && rl.allowed === false) {
+    const retry = rl.retryAfterSec ?? null;
+    if (retry != null) {
+      res.setHeader('Retry-After', String(retry));
+    }
+    logGameplayEventLine({
+      requestId,
+      uid,
+      httpStatus: 429,
+      outcome: 'rate_limited',
+      latencyMs: Date.now() - startMs,
+    });
+    return res.status(429).json({
+      error: {
+        code: 'rate_limited',
+        message: 'Too many gameplay events. Try again later.',
+        ...(retry != null ? { retryAfterSec: retry } : {}),
+      },
+    });
+  }
+
   let parsed;
   try {
     parsed = gameplayEventBodySchema.parse(req.body ?? {});

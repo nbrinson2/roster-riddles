@@ -34,6 +34,9 @@ firestore-debug.log
 # Test output
 coverage/
 
+# Story G1 — local leaderboard cohort fixture (copy from docs/fixtures example)
+leaderboard-test-cohort.json
+
 # OS
 .DS_Store
 Thumbs.db

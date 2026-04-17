@@ -27,6 +27,7 @@ import { GamePlayer } from '../shared/models/common-models';
 import { GameplayTelemetryService } from '../shared/services/gameplay-telemetry/gameplay-telemetry.service';
 import { GAME_SERVICE, GameService } from '../shared/utils/game-service.token';
 import { Difficulty } from './difficulty-toggle/difficulty-toggle.component';
+import { environment } from 'src/environment';
 
 enum MatDrawerPosition {
   END = 'end',
@@ -41,6 +42,8 @@ enum MatDrawerPosition {
 })
 export class NavComponent implements OnInit, OnDestroy {
   protected readonly GameType = GameType;
+  /** Story G2 — false when staging/prod built with LEADERBOARDS_UI_ENABLED=false */
+  protected readonly leaderboardsUiEnabled = environment.leaderboardsUiEnabled;
 
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
 
@@ -80,6 +83,7 @@ export class NavComponent implements OnInit, OnDestroy {
   protected viewMenu = true;
   protected viewProfile = false;
   protected viewRoster = false;
+  protected viewLeaderboard = false;
   protected matDrawerPosition = MatDrawerPosition.START;
   protected selectedRoster?: UiPlayer<AttributesType>[];
   protected selectedRosterByYears?: CareerPathPlayer[];
@@ -197,6 +201,16 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewMenu = true;
     this.viewProfile = false;
     this.viewRoster = false;
+    this.viewLeaderboard = false;
+    this.drawer.open();
+  }
+
+  protected openLeaderboard(): void {
+    this.matDrawerPosition = MatDrawerPosition.START;
+    this.viewMenu = false;
+    this.viewProfile = false;
+    this.viewRoster = false;
+    this.viewLeaderboard = true;
     this.drawer.open();
   }
 
@@ -204,6 +218,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.matDrawerPosition = MatDrawerPosition.END;
     this.viewMenu = false;
     this.viewRoster = false;
+    this.viewLeaderboard = false;
     this.viewProfile = true;
     this.drawer.open();
   }
@@ -221,6 +236,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewMenu = false;
     this.viewProfile = false;
     this.viewRoster = false;
+    this.viewLeaderboard = false;
     this.drawer.open();
   }
 
@@ -251,6 +267,7 @@ export class NavComponent implements OnInit, OnDestroy {
   private openRosterMenu(): void {
     this.viewMenu = false;
     this.viewProfile = false;
+    this.viewLeaderboard = false;
     this.viewRoster = true;
     this.matDrawerPosition = MatDrawerPosition.START;
     this.drawer.open();

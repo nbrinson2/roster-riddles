@@ -112,6 +112,39 @@ describe('applyEventToStatsTree', () => {
   });
 });
 
+/**
+ * Leaderboard v1 ranks by `wins` on `stats/summary` (Story C1 — same merge as Phase 2).
+ */
+describe('leaderboard score fields (Phase 3 C1)', () => {
+  it('increments totals.wins only for won results', () => {
+    let s = applyEventToStatsTree(null, W());
+    assert.equal(s.totals.wins, 1);
+    s = applyEventToStatsTree(s, L());
+    assert.equal(s.totals.wins, 1);
+    s = applyEventToStatsTree(s, W());
+    assert.equal(s.totals.wins, 2);
+    s = applyEventToStatsTree(s, A());
+    assert.equal(s.totals.wins, 2);
+  });
+
+  it('increments per-mode wins in parallel with global wins for that mode', () => {
+    let s = applyEventToStatsTree(null, W('nickname-streak'));
+    assert.equal(s.totals.wins, 1);
+    assert.equal(s.totalsByMode['nickname-streak'].wins, 1);
+    s = applyEventToStatsTree(s, W('nickname-streak'));
+    assert.equal(s.totals.wins, 2);
+    assert.equal(s.totalsByMode['nickname-streak'].wins, 2);
+    assert.equal(s.totalsByMode['bio-ball']?.wins ?? 0, 0);
+  });
+
+  it('wins are cumulative event counts, not a max() of a client score field', () => {
+    let s = applyEventToStatsTree(null, W('bio-ball', 100, 0));
+    s = applyEventToStatsTree(s, W('bio-ball', 50, 0));
+    assert.equal(s.totals.wins, 2);
+    assert.equal(s.totalsByMode['bio-ball'].wins, 2);
+  });
+});
+
 describe('normalizeStatsFromFirestore', () => {
   it('fills missing fields from partial Firestore doc', () => {
     const n = normalizeStatsFromFirestore({

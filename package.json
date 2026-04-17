@@ -15,9 +15,14 @@
     "test": "ng test",
     "test:firestore-rules": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/verify-firestore-rules.mjs\"",
     "test:server": "node --test \"server/*.test.js\"",
+    "rebuild:leaderboard-snapshots": "node scripts/rebuild-leaderboard-snapshots.mjs",
     "test:stats-emulator": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/verify-stats-aggregate-emulator.mjs\"",
+    "test:stats-concurrency": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/stats-concurrency-load-test.mjs\"",
     "verify:stats-reconciliation": "node ./scripts/verify-stats-reconciliation.mjs",
-    "mirror:firestore-cache": "node ./scripts/mirror-firestore-cache.mjs"
+    "verify:leaderboard-cohort": "node ./scripts/verify-leaderboard-cohort.mjs",
+    "mirror:firestore-cache": "node ./scripts/mirror-firestore-cache.mjs",
+    "deploy:firestore:staging": "firebase deploy --only \"firestore:(default)\" --project roster-riddles-staging",
+    "deploy:firestore:prod": "firebase deploy --only firestore:roster-riddles --project roster-riddles-457600"
   },
   "type": "module",
   "private": true,

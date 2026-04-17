@@ -1,5 +1,6 @@
 /**
  * Incremental user stats for `users/{uid}/stats/summary` after each new gameplay event.
+ * Leaderboard scores (v1 `wins`) are derived from this aggregate — see docs/leaderboards-trusted-writer-c1.md.
  * @see docs/gameplay-stats-phase2.md
  */
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
@@ -217,6 +218,8 @@ export function buildStatsFirestoreDocument(tree, lastPlayedAtTs) {
 
 /**
  * Single transaction: insert event if absent; if inserted, update stats.
+ * Trusted writer for leaderboard-eligible `totals.wins` / `totalsByMode.*.wins` (Admin SDK only).
+ * @see docs/leaderboards-trusted-writer-c1.md
  * @param {import('firebase-admin/firestore').Firestore} db
  * @param {string} uid
  * @param {string} eventId
