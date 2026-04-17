@@ -11,6 +11,42 @@ export type ContestFinalTieBreakPolicy =
 
 export type ContestStandingTier = 'full' | 'partial';
 
+/** Nested audit under `results/final` — Story E3 (see docs/weekly-contests-schema-results.md). */
+export interface ContestTieResolutionAudit {
+  schemaVersion: number;
+  policyRef: string;
+  leagueGamesN: number;
+  coinFlipOrRandomTieBreak: boolean;
+  summary: string;
+  comparisonSteps: {
+    tierA_fullSlate: unknown[];
+    tierB_partialSlate: unknown[];
+  };
+  statIdentityGroups: ContestStatIdentityGroupAudit[];
+}
+
+/** One group of entrants who tied on slate stats; order among them is by uid only. */
+export interface ContestStatIdentityGroupAudit {
+  tier: ContestStandingTier;
+  ranks: number[];
+  uidsInOrder: string[];
+  resolvedBy: {
+    step: string;
+    randomness: string;
+  };
+  equalOnStats:
+    | {
+        wins: number;
+        losses: number;
+        abandoned: number;
+        leagueGamesN: number;
+      }
+    | {
+        wins: number;
+        gamesPlayed: number;
+      };
+}
+
 /** One row in `standings` after scoring (immutable snapshot). */
 export interface ContestStandingRow {
   rank: number;
@@ -43,6 +79,6 @@ export interface ContestFinalResultsDocument {
   eventSource: string;
   /** Optional monotonic retry counter for idempotent scoring jobs. */
   scoringAttempt?: number;
-  /** Optional structured tie audit — avoid PII beyond public display. */
-  tieResolution?: Record<string, unknown> | unknown[];
+  /** Structured tie audit (Story E3). */
+  tieResolution?: ContestTieResolutionAudit;
 }

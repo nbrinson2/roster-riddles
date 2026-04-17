@@ -28,7 +28,7 @@
 | `scoringJobId` | `string` | Yes | Idempotency / trace id (opaque). |
 | `eventSource` | `string` | Yes | e.g. `gameplayEvents_first_n_bio_ball_after_join`. |
 | `scoringAttempt` | `number` | No | Monotonic attempt counter for job retries (optional). |
-| `tieResolution` | `map` \| `array` | No | Optional structured tie audit (product-defined; keep **no PII** beyond public display). |
+| `tieResolution` | `map` | No | **Story E3** — structured tie audit (see [Tie resolution (`tieResolution`)](#tie-resolution-tieresolution)). **No PII** beyond optional public `displayName` on rows. |
 
 ### Standing row
 
@@ -55,6 +55,20 @@
 | `finalizedAt` | `Timestamp` | Yes | When committed. |
 | `payoutJobId` | `string` | No | Correlates with scoring job if separate. |
 
+## Tie resolution (`tieResolution`)
+
+Populated by the scoring job (**Story E3**) so support can explain ordering when stats match before the final key.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `schemaVersion` | `number` | Nested audit schema; **`1`**. |
+| `policyRef` | `string` | Same logical policy as top-level **`tieBreakPolicy`**. |
+| `leagueGamesN` | `number` | Copy for context. |
+| `coinFlipOrRandomTieBreak` | `boolean` | **`false`** in v1 — ADR forbids random tie-breaks. |
+| `summary` | `string` | Short human-readable rationale. |
+| `comparisonSteps` | `object` | **`tierA_fullSlate`** / **`tierB_partialSlate`** step lists (field + direction + notes). |
+| `statIdentityGroups` | `array` | Only groups where **≥ 2** entrants shared the same pre-uid stats; each entry documents **`uidsInOrder`**, **`ranks`**, **`equalOnStats`**, and **`resolvedBy.step`** (`uid_utf8_lexicographic_asc`). Omitted entries mean no stat-only ties in that contest. |
+
 ## Example `results/final` payload (QA)
 
 ```json
@@ -70,7 +84,24 @@
   "eventSource": "gameplayEvents_first_n_bio_ball_after_join",
   "scoringAttempt": 1,
   "tieResolution": {
-    "summary": "Ordered by mini-league rules; uid asc as final key."
+    "schemaVersion": 1,
+    "policyRef": "mini_league_wins_desc_losses_asc_uid_asc",
+    "leagueGamesN": 10,
+    "coinFlipOrRandomTieBreak": false,
+    "summary": "Ordering follows ADR mini-league tiers; within identical stat tuples, rank order is by Firebase Auth uid UTF-8 string ascending (deterministic, no randomness).",
+    "comparisonSteps": {
+      "tierA_fullSlate": [{ "order": 1, "field": "slate_tier", "rule": "full_before_partial" }],
+      "tierB_partialSlate": [{ "order": 1, "field": "slate_tier", "rule": "full_before_partial" }]
+    },
+    "statIdentityGroups": [
+      {
+        "tier": "full",
+        "ranks": [1, 2],
+        "uidsInOrder": ["uidAlice", "uidBob"],
+        "resolvedBy": { "step": "uid_utf8_lexicographic_asc", "randomness": "none" },
+        "equalOnStats": { "wins": 8, "losses": 2, "abandoned": 0, "leagueGamesN": 10 }
+      }
+    ]
   },
   "standings": [
     {

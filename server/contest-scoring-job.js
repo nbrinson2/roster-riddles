@@ -10,6 +10,7 @@ import {
   tallySlate,
   TIE_BREAK_POLICY,
 } from './contest-scoring-core.js';
+import { buildTieResolutionAudit } from './contest-scoring-tie-audit.js';
 import { evaluateTransitionGuards, isContestStatus } from './contest-transitions.js';
 import { logContestScoringLine } from './contest-scoring-log.js';
 
@@ -246,6 +247,20 @@ export async function runContestScoringJob({ db, contestId, scoringJobId, reques
     tier: row.tier,
   }));
 
+  const tieResolution = buildTieResolutionAudit({
+    tieBreakPolicy: TIE_BREAK_POLICY,
+    leagueGamesN,
+    orderedStandingRows: standings.map((s) => ({
+      uid: s.uid,
+      rank: s.rank,
+      tier: s.tier,
+      wins: s.wins,
+      losses: s.losses,
+      abandoned: s.abandoned,
+      gamesPlayed: s.gamesPlayed,
+    })),
+  });
+
   const finalDoc = {
     schemaVersion: 1,
     computedAt: FieldValue.serverTimestamp(),
@@ -257,10 +272,7 @@ export async function runContestScoringJob({ db, contestId, scoringJobId, reques
     tieBreakPolicy: TIE_BREAK_POLICY,
     scoringJobId: jobId,
     eventSource: EVENT_SOURCE,
-    tieResolution: {
-      summary:
-        'Tier A (full slate) before tier B (partial); ties: wins desc, losses asc, abandoned asc, uid asc; partial: wins desc, gamesPlayed desc, uid asc.',
-    },
+    tieResolution,
   };
 
   const dryRunLines = standings.map((s) => ({

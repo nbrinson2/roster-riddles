@@ -47,7 +47,7 @@ Only **`contestId`** is required (regex same as other contest routes).
 
 ## Writes (atomic batch transaction)
 
-1. **`contests/{contestId}/results/final`** — standings, tie policy, `eventSource`, `scoringJobId`, optional `tieResolution` summary.
+1. **`contests/{contestId}/results/final`** — standings, tie policy, `eventSource`, `scoringJobId`, structured **`tieResolution`** audit ([Story E3](weekly-contests-schema-results.md#tie-resolution-tieresolution)).
 2. **`contests/{contestId}/payouts/dryRun`** — `FAKE_USD`, **`notRealMoney: true`**, simple lines (rank 1 → **10000** cents dry-run; others **0** in v1).
 3. **`contests/{contestId}`** — **`status: paid`**, **`updatedAt`**.
 
@@ -78,10 +78,11 @@ JSON lines: **`component: contest_scoring`**, **`contestId`**, `phase: score`, `
 | File | Role |
 |------|------|
 | `server/contest-scoring-core.js` | Slate tally + ADR sort + dense ranks |
+| `server/contest-scoring-tie-audit.js` | Story E3 — `tieResolution` blob |
 | `server/contest-scoring-job.js` | Firestore reads/writes |
 | `server/contest-scoring.http.js` | HTTP handler |
 | `server/contest-internal-auth.js` | Shared internal secret helpers |
 
 ## References
 
-- [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Story E2  
+- [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Stories E2, E3  

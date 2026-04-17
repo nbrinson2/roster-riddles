@@ -151,7 +151,12 @@ Written only by **trusted** code after validation:
 | `scoringJobId` | `string` | Idempotency / trace id. |
 | `eventSource` | `string` | e.g. `gameplayEvents_first_n_bio_ball_after_join`. |
 
-**Tie resolution audit:** Deterministic ordering per [Mini-league scoring](#mini-league-scoring); **`rank`** may be dense or competition-style per product as long as **`standings[]` order** is stable.
+**Tie resolution audit (Story E3):** Deterministic ordering per [Mini-league scoring](#mini-league-scoring); **`rank`** is **dense** in v1 (`assignDenseRanks`). The **`results/final.tieResolution`** object records:
+
+- **`comparisonSteps`** — machine-readable ordering for tier A vs B (same rules as `compareStandingRows`).
+- **`statIdentityGroups`** — for every set of **≥ 2** entrants who matched on all ADR fields **before** the final **`uid`** key, the ordered **`uidsInOrder`** / **`ranks`** and **`equalOnStats`**. No coin flips; **`coinFlipOrRandomTieBreak: false`**.
+
+Full field list: [weekly-contests-schema-results.md](weekly-contests-schema-results.md#tie-resolution-tieresolution).
 
 **Rules:** **No client write** to `results/*`. Schema: [weekly-contests-schema-results.md](weekly-contests-schema-results.md).
 

@@ -336,12 +336,20 @@ Human- and machine-readable structure so support can answer “why #2 and #3 tie
 
 **Acceptance criteria**
 
-- [ ] Documented in ADR + example JSON.
-- [ ] Referenced from final standings doc.
+- [x] Documented in ADR + example JSON.
+- [x] Referenced from final standings doc.
 
 **Dependencies**
 
 - Story E2.
+
+**Deliverable (merged)**
+
+- [`server/contest-scoring-tie-audit.js`](../server/contest-scoring-tie-audit.js) — build `tieResolution` for `results/final`.
+- [`server/contest-scoring-tie-audit.test.js`](../server/contest-scoring-tie-audit.test.js) — unit tests.
+- [`server/contest-scoring-job.js`](../server/contest-scoring-job.js) — writes structured `tieResolution`.
+- [`docs/weekly-contests-schema-results.md`](weekly-contests-schema-results.md), [`docs/weekly-contests-phase4-adr.md`](weekly-contests-phase4-adr.md) — schema + ADR cross-links.
+- [`src/app/shared/models/contest-results-final.model.ts`](../src/app/shared/models/contest-results-final.model.ts) — TypeScript types.
 
 ---
 
