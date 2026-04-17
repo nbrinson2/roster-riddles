@@ -94,3 +94,4 @@ curl -sS -X POST "http://localhost:3000/api/internal/v1/contests/$CONTEST_ID/tra
 
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Story D1  
 - [weekly-contests-schema-contests.md](weekly-contests-schema-contests.md) — contest document fields  
+- [weekly-contests-ops-e1.md](weekly-contests-ops-e1.md) — Story E1 (automated `open`→`scoring` when `windowEnd` passes)  

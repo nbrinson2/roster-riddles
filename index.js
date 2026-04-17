@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 import { postContestJoin } from './server/contest-join.http.js';
 import { getContestDetail, getContestList } from './server/contest-read.http.js';
+import { postContestCloseDueWindows } from './server/contest-close-due-windows.http.js';
 import { postContestTransition } from './server/contest-transition.http.js';
 import { postGameplayEvent } from './server/gameplay-events.js';
 import { getLeaderboardPage } from './server/leaderboards.http.js';
@@ -120,6 +121,15 @@ app.post(
 app.post(
   '/api/internal/v1/contests/:contestId/transition',
   postContestTransition,
+);
+
+/**
+ * Story E1 — Cloud Scheduler / cron: close join windows and enqueue scoring worker.
+ * @see docs/weekly-contests-ops-e1.md
+ */
+app.post(
+  '/api/internal/v1/contests/close-due-windows',
+  postContestCloseDueWindows,
 );
 
 // Serve static files from the Angular app

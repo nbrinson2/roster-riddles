@@ -279,12 +279,17 @@ Reliable **at-least-once** trigger; dedupe so multiple schedulers don’t corrup
 
 **Acceptance criteria**
 
-- [ ] Missed trigger recovery documented (manual replay command).
-- [ ] Logs with `component: contest_scoring` (or similar) and `contestId`.
+- [x] Missed trigger recovery documented (manual replay command).
+- [x] Logs with `component: contest_scoring` (or similar) and `contestId`.
 
 **Dependencies**
 
 - Stories D1, B1.
+
+**Deliverable (merged)**
+
+- **[`docs/weekly-contests-ops-e1.md`](weekly-contests-ops-e1.md)** — hook contract, env, recovery, Scheduler example.
+- **`POST /api/internal/v1/contests/close-due-windows`** — [`index.js`](../index.js); [`server/contest-close-due-windows.http.js`](../server/contest-close-due-windows.http.js); [`server/contest-scoring-log.js`](../server/contest-scoring-log.js).
 
 ---
 
