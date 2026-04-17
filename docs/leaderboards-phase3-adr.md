@@ -96,7 +96,7 @@ Weekly boards require one of:
 | **API rate limits** (GET leaderboard, POST events) | **P0** | Required on public/costly paths; align with Express middleware / gateway (see Phase 3 Epic F). |
 | **Duplicate accounts** | **P1** | No fingerprinting in v1; document follow-up. Optional: **one account per email** is already enforced by normal Auth usage. |
 | **Verified email to appear on board** | **P1** (product) | **Implemented (Story F2):** only users with **`emailVerified === true`** appear in **`GET /api/v1/leaderboards`** and snapshot rebuilds unless **`LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`** (QA). See [leaderboards-duplicate-accounts-f2.md](leaderboards-duplicate-accounts-f2.md). |
-| **Prize / KYC verification** | **Deferred** | Out of scope until contests exist; track in backlog. |
+| **Prize / KYC verification** | **Deferred (Story F3)** | **Leaderboards v1:** no prize claim path. When contests exist: manual review + claim API + audit (see [leaderboards-prize-verification-f3.md](leaderboards-prize-verification-f3.md)). |
 
 ## Consequences
 
@@ -116,6 +116,7 @@ Weekly boards require one of:
 - Query-path schema (Story B1): [leaderboards-schema-query-path.md](leaderboards-schema-query-path.md)
 - Aggregate logic: `server/stats-aggregate.js`
 - Jira-style backlog: [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md)
+- Prize / verification (deferred): [leaderboards-prize-verification-f3.md](leaderboards-prize-verification-f3.md) (Story F3)
 
 ## Sign-off
 

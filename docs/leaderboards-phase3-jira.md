@@ -355,11 +355,15 @@ Out of scope for many v1s; story exists so Jira tracks explicit deferral or thin
 
 **Acceptance criteria**
 
-- [ ] Either “deferred” with ADR note or minimal flow with owner.
+- [x] Either “deferred” with ADR note or minimal flow with owner.
 
 **Dependencies**
 
 - Story A0.
+
+**Deliverable (merged)**
+
+- **Deferred path:** ADR anti-abuse table updated + **[`docs/leaderboards-prize-verification-f3.md`](leaderboards-prize-verification-f3.md)** — v1 scope, future claim/review shape, owners, “what not to do.”
 
 ---
 
