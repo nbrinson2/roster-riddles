@@ -90,7 +90,29 @@ Equivalent raw CLI for production:
 firebase deploy --only firestore:roster-riddles --project <PROD_PROJECT_ID>
 ```
 
-**Do not** use `--only firestore:indexes` alone when `firebase.json` uses a **named** database array entry — some `firebase-tools` versions skip index prepare and crash. Use **`firestore:<database-id>`** (e.g. `firestore:roster-riddles`).
+### Pull indexes from GCP into `firestore.indexes.json`
+
+Use the **Firebase CLI** from this repo (`firebase-tools` — e.g. `npx firebase-tools` or `./node_modules/.bin/firebase`). The subcommand is **`firestore:indexes`** (colon; **`firebase firestore indexes`** is invalid).
+
+Staging (`(default)` database):
+
+```bash
+npx firebase-tools firestore:indexes --project roster-riddles-staging --database "(default)" --non-interactive > firestore.indexes.json
+```
+
+Production (named database `roster-riddles`):
+
+```bash
+npx firebase-tools firestore:indexes --project roster-riddles-457600 --database roster-riddles --non-interactive > firestore.indexes.json
+```
+
+Omit **`--database "(default)"`** only if you are sure the CLI default matches; quoting **`(default)`** avoids shell errors. Review the diff before committing — this **overwrites** the file.
+
+**Do not** use `--only firestore:indexes` **alone** when `firebase.json` lists **multiple** Firestore databases. In current `firebase-tools`, that filter does not select any database (the CLI drops the `indexes` token), so **no indexes are deployed** and you may see no index step in the log. Use one of:
+
+- **Rules + indexes (recommended):** `npm run deploy:firestore:prod` / `deploy:firestore:staging` (same as `--only firestore:roster-riddles` or `firestore:(default)`).
+- **Indexes only:** `npm run deploy:firestore:prod:indexes` / `deploy:firestore:staging:indexes` (compound `--only firestore:indexes,firestore:<database-id>`).
+- **Rules only:** `npm run deploy:firestore:prod:rules` / `deploy:firestore:staging:rules` (compound `--only firestore:rules,firestore:<database-id>` — `firestore:rules` alone also selects no database with a multi-entry `firebase.json`).
 
 If the CLI reports an **orphan** index (extra index in GCP not in the repo), run the same command **interactively** and accept deletion, or pass **`--force`** after reviewing (see Firebase CLI help).
 
@@ -100,13 +122,15 @@ Sometimes the CLI lists **`stats`** composite indexes as missing from **`firesto
 
 That is usually **CLI / API drift** (same logical index, different canonical field-path string), not a bad repo file. Do **not** delete production indexes blindly.
 
-**Unblock rules (no index step):**
+**Rules only (no index step):**
 
 ```bash
 npm run deploy:firestore:staging:rules
+# production:
+npm run deploy:firestore:prod:rules
 ```
 
-That uploads **`firestore.rules`** without reconciling composite indexes (use when you only changed rules).
+These upload **`firestore.rules`** for the matching database only and **skip** composite index reconciliation (use when you only changed rules).
 
 **Fix index deploy (pick one):**
 

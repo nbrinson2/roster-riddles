@@ -5,6 +5,7 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { z } from 'zod';
 import { getAdminFirestore } from './admin-firestore.js';
+import { resolveSecretFromEnv } from './contest-internal-auth.js';
 import {
   evaluateTransitionGuards,
   isContestStatus,
@@ -28,7 +29,7 @@ const bodySchema = z
   .strict();
 
 function getOperatorSecret() {
-  return process.env.CONTESTS_OPERATOR_SECRET?.trim() ?? '';
+  return resolveSecretFromEnv('CONTESTS_OPERATOR_SECRET');
 }
 
 /**

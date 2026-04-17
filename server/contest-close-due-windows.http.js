@@ -5,30 +5,15 @@
  */
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { getAdminFirestore } from './admin-firestore.js';
+import {
+  extractBearerOrHeaderSecret,
+  getContestsOperatorOrCronSecret,
+  resolveSecretFromEnv,
+} from './contest-internal-auth.js';
 import { evaluateTransitionGuards, isContestStatus } from './contest-transitions.js';
 import { logContestScoringLine } from './contest-scoring-log.js';
 
 const BIO_BALL = 'bio-ball';
-
-/**
- * Prefer dedicated cron secret; fall back to operator secret for small deployments.
- */
-function getWindowCronSecret() {
-  return (
-    process.env.CONTEST_WINDOW_CRON_SECRET?.trim() ||
-    process.env.CONTESTS_OPERATOR_SECRET?.trim() ||
-    ''
-  );
-}
-
-/**
- * @param {import('express').Request} req
- */
-function extractBearerSecret(req) {
-  const h = req.headers.authorization;
-  if (typeof h !== 'string' || !h.startsWith('Bearer ')) return '';
-  return h.slice('Bearer '.length).trim();
-}
 
 function parseBatchSize() {
   const raw = process.env.CONTEST_CLOSE_WINDOW_BATCH_SIZE?.trim() ?? '';
@@ -62,7 +47,7 @@ async function postScoringWebhook(contestId, requestId) {
     return { ok: true, skipped: true };
   }
 
-  const secret = process.env.CONTEST_SCORING_WEBHOOK_SECRET?.trim() ?? '';
+  const secret = resolveSecretFromEnv('CONTEST_SCORING_WEBHOOK_SECRET');
   const body = JSON.stringify({
     contestId,
     trigger: 'window_closed',
@@ -121,7 +106,7 @@ export async function postContestCloseDueWindows(req, res) {
   const requestId = req.requestId ?? 'unknown';
   const startMs = Date.now();
 
-  const configured = getWindowCronSecret();
+  const configured = getContestsOperatorOrCronSecret();
   if (!configured) {
     logContestScoringLine({
       requestId,
@@ -138,11 +123,7 @@ export async function postContestCloseDueWindows(req, res) {
     });
   }
 
-  const provided =
-    extractBearerSecret(req) ||
-    (typeof req.headers['x-contest-window-cron-secret'] === 'string'
-      ? req.headers['x-contest-window-cron-secret'].trim()
-      : '');
+  const provided = extractBearerOrHeaderSecret(req);
 
   if (provided !== configured) {
     logContestScoringLine({

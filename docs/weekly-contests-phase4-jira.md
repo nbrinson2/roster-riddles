@@ -306,13 +306,20 @@ Trusted code path using Admin SDK: query events in `[windowStart, windowEnd)` (o
 
 **Acceptance criteria**
 
-- [ ] Deterministic ordering for ties (same as ADR).
-- [ ] **Idempotent** job: re-run does not duplicate rows or flip winners without explicit admin reset story.
-- [ ] Performance note: bounded reads; avoid full table scan if possible.
+- [x] Deterministic ordering for ties (same as ADR).
+- [x] **Idempotent** job: re-run does not duplicate rows or flip winners without explicit admin reset story.
+- [x] Performance note: bounded reads; avoid full table scan if possible.
 
 **Dependencies**
 
 - Stories B3, E1, Phase 2 event indexes if querying events.
+
+**Deliverable (merged)**
+
+- **[`docs/weekly-contests-ops-e2.md`](weekly-contests-ops-e2.md)** — contract, E1 webhook wiring, index note.
+- **`POST /api/internal/v1/contests/run-scoring`** — [`index.js`](../index.js); [`server/contest-scoring.http.js`](../server/contest-scoring.http.js); [`server/contest-scoring-job.js`](../server/contest-scoring-job.js); [`server/contest-scoring-core.js`](../server/contest-scoring-core.js); [`server/contest-internal-auth.js`](../server/contest-internal-auth.js).
+- **[`server/contest-scoring-core.test.js`](../server/contest-scoring-core.test.js)** — tie/slate unit tests.
+- **[`firestore.indexes.json`](../firestore.indexes.json)** — `gameplayEvents` composite for `gameMode` + `createdAt`.
 
 ---
 

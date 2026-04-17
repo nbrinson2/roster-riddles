@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { postContestJoin } from './server/contest-join.http.js';
 import { getContestDetail, getContestList } from './server/contest-read.http.js';
 import { postContestCloseDueWindows } from './server/contest-close-due-windows.http.js';
+import { postContestRunScoring } from './server/contest-scoring.http.js';
 import { postContestTransition } from './server/contest-transition.http.js';
 import { postGameplayEvent } from './server/gameplay-events.js';
 import { getLeaderboardPage } from './server/leaderboards.http.js';
@@ -131,6 +132,12 @@ app.post(
   '/api/internal/v1/contests/close-due-windows',
   postContestCloseDueWindows,
 );
+
+/**
+ * Story E2 — scoring worker (body `{ contestId }`). Register before `/:contestId` routes.
+ * @see docs/weekly-contests-ops-e2.md
+ */
+app.post('/api/internal/v1/contests/run-scoring', postContestRunScoring);
 
 // Serve static files from the Angular app
 const distPath = join(__dirname, 'dist/roster-riddles/browser');

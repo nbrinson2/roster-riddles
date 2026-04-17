@@ -48,8 +48,8 @@ If **neither** cron nor operator secret is configured → **503** `server_miscon
 | `CONTEST_WINDOW_CRON_SECRET` | Preferred secret for this hook (omit if reusing operator secret). |
 | `CONTESTS_OPERATOR_SECRET` | Fallback when `CONTEST_WINDOW_CRON_SECRET` is unset. |
 | `CONTEST_CLOSE_WINDOW_BATCH_SIZE` | Batch size (default **25**, max **100**). |
-| `CONTEST_SCORING_WEBHOOK_URL` | Optional. If set, each successful transition triggers `POST` with JSON `{ contestId, trigger, requestId }`. |
-| `CONTEST_SCORING_WEBHOOK_SECRET` | Optional `Authorization: Bearer` value for the outbound POST. |
+| `CONTEST_SCORING_WEBHOOK_URL` | Optional. Point to **`POST /api/internal/v1/contests/run-scoring`** (Story E2). Body: `{ contestId, trigger, requestId }`. |
+| `CONTEST_SCORING_WEBHOOK_SECRET` | Optional `Authorization: Bearer` for the outbound POST — typically the **same** value as `CONTESTS_OPERATOR_SECRET` so the E2 route accepts the call. |
 
 ## Logging
 
