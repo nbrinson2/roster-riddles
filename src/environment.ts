@@ -37,6 +37,10 @@ export const environment = {
    * Story G2 — hide left-nav leaderboard panel (staging/prod: set via `LEADERBOARDS_UI_ENABLED` at build).
    */
   leaderboardsUiEnabled: true,
+  /**
+   * Story C2 — hide weekly contests drawer (staging/prod: `WEEKLY_CONTESTS_UI_ENABLED` via `generate-env-prod.mjs`).
+   */
+  weeklyContestsUiEnabled: true,
   featureFlags,
   firebase: firebaseConfig,
 };

@@ -189,12 +189,18 @@ Angular (or existing shell): read contests user can see, show **window** in user
 
 **Acceptance criteria**
 
-- [ ] User can complete join for staging contest end-to-end.
-- [ ] Rules version shown matches what is stored on entry.
+- [ ] User can complete join for staging contest end-to-end (manual QA).
+- [x] Rules version shown matches what is stored on entry (join success + `entries/{uid}` listener; checkbox ties to `rulesVersion`).
 
 **Dependencies**
 
-- Story C1, read API for contest list (Story D2 or B1 reads).
+- Story C1; contest list uses **Firestore signed-in reads** on `contests` (Story B1). REST list (D2) optional later.
+
+**Deliverable (merged)**
+
+- **[`src/app/nav/contests-panel/`](../src/app/nav/contests-panel/)** — list (open + scheduled Bio Ball), detail with rules narrative per `rulesVersion`, dry-run payout banner, accept checkbox, `POST /api/v1/contests/:contestId/join`, own-entry snapshot.
+- **`environment.weeklyContestsUiEnabled`** — [`src/environment.ts`](../src/environment.ts); staging/prod via **`WEEKLY_CONTESTS_UI_ENABLED`** in [`scripts/generate-env-prod.mjs`](../scripts/generate-env-prod.mjs); stub [`src/environment.prod.ts`](../src/environment.prod.ts).
+- **Nav** — event icon opens drawer ([`nav.component`](../src/app/nav/nav.component.ts)).
 
 ---
 

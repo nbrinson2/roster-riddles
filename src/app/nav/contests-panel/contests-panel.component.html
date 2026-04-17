@@ -1,0 +1,156 @@
+<div class="contests-panel">
+  <header class="cc-hero">
+    <div class="cc-hero-icon" aria-hidden="true">
+      <span class="material-symbols-outlined">event</span>
+    </div>
+    <div class="cc-hero-text">
+      <h1 class="cc-title">Weekly contests</h1>
+      <p class="cc-subtitle">Bio Ball mini-leagues</p>
+    </div>
+  </header>
+
+  <p class="cc-dry-run" role="note">{{ dryRunCopy }}</p>
+
+  <div *ngIf="!loggedIn" class="cc-sign-in state state-empty">
+    <span class="material-symbols-outlined state-empty-icon">login</span>
+    <p>Sign in to see open and upcoming contests.</p>
+    <button
+      mat-stroked-button
+      type="button"
+      class="cc-sign-in-btn"
+      (click)="onRequestSignIn()"
+    >
+      Sign in
+    </button>
+  </div>
+
+  <div *ngIf="loggedIn" class="cc-body">
+    <div *ngIf="loading" class="state state-loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Loading contests…</span>
+    </div>
+
+    <div
+      *ngIf="!loading && listError"
+      class="state state-error"
+      role="alert"
+    >
+      {{ listError }}
+    </div>
+
+    <div
+      *ngIf="!loading && !listError && !selected && rows.length === 0"
+      class="state state-empty"
+    >
+      <span class="material-symbols-outlined state-empty-icon"
+        >event_busy</span
+      >
+      <p>No open or upcoming Bio Ball contests right now.</p>
+    </div>
+
+    <div *ngIf="!loading && !listError && !selected && rows.length > 0" class="cc-list">
+      <button
+        type="button"
+        class="cc-card"
+        *ngFor="let row of rows"
+        (click)="selectRow(row)"
+      >
+        <div class="cc-card-top">
+          <span class="cc-chip" [class.cc-chip--open]="row.status === 'open'">{{
+            statusLabel(row.status)
+          }}</span>
+          <span class="cc-card-title">{{ row.title }}</span>
+        </div>
+        <p class="cc-card-window">
+          {{ formatWindowLocal(row.windowStart, row.windowEnd) }}
+        </p>
+        <p class="cc-card-meta">
+          Rules v{{ row.rulesVersion }} · {{ row.leagueGamesN }} games in slate
+        </p>
+      </button>
+    </div>
+
+    <div *ngIf="selected" class="cc-detail">
+      <button
+        type="button"
+        class="cc-back"
+        mat-button
+        (click)="clearSelection()"
+      >
+        <span class="material-symbols-outlined" aria-hidden="true"
+          >arrow_back</span
+        >
+        All contests
+      </button>
+
+      <h2 class="cc-detail-title">{{ selected.title }}</h2>
+      <p class="cc-detail-window">
+        {{ formatWindowLocal(selected.windowStart, selected.windowEnd) }}
+      </p>
+      <p class="cc-detail-meta">
+        Status: {{ statusLabel(selected.status) }} · Rules version
+        {{ selected.rulesVersion }} · Slate size {{ selected.leagueGamesN }}
+      </p>
+
+      <p *ngIf="joinDisabledReason(selected)" class="cc-hint">
+        {{ joinDisabledReason(selected) }}
+      </p>
+
+      <div class="cc-rules-block">
+        <h3 class="cc-rules-heading">Rules summary</h3>
+        <p *ngFor="let para of ruleParagraphs(selected.rulesVersion)" class="cc-rules-para">
+          {{ para }}
+        </p>
+      </div>
+
+      <div *ngIf="entryRulesVersion != null" class="cc-entry-banner" role="status">
+        <span class="material-symbols-outlined" aria-hidden="true">check_circle</span>
+        <div>
+          <strong>You are entered.</strong>
+          Rules accepted version {{ entryRulesVersion }} (stored on your entry).
+        </div>
+      </div>
+
+      <div *ngIf="joinSuccess" class="cc-success" role="status">
+        {{ joinSuccess }}
+      </div>
+      <div *ngIf="joinError" class="cc-join-error" role="alert">
+        {{ joinError }}
+      </div>
+
+      <label
+        class="cc-accept"
+        *ngIf="
+          loggedIn &&
+          canAttemptJoin(selected) &&
+          entryRulesVersion == null
+        "
+      >
+        <input
+          type="checkbox"
+          [(ngModel)]="rulesCheckbox"
+          name="rulesAccept"
+        />
+        <span
+          >I have read the rules above and accept rules version
+          {{ selected.rulesVersion }} for this contest.</span
+        >
+      </label>
+
+      <button
+        mat-flat-button
+        type="button"
+        class="cc-join-btn"
+        *ngIf="
+          loggedIn &&
+          canAttemptJoin(selected) &&
+          entryRulesVersion == null
+        "
+        [disabled]="!rulesCheckbox || joinSubmitting"
+        (click)="submitJoin()"
+      >
+        {{ joinSubmitting ? "Joining…" : "Join contest" }}
+      </button>
+    </div>
+  </div>
+</div>

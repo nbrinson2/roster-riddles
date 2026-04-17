@@ -3,6 +3,7 @@ import type { DeploymentEnvironment } from './environment.types';
 
 const featureFlags: FeatureFlags = {
   mlbTeamLogos: false,
+  gameplayTelemetry: true,
 };
 
 export const environment = {
@@ -14,6 +15,8 @@ export const environment = {
   sendGameplayEvents: true,
   leaderboardPollIntervalMs: 0,
   leaderboardUseFirestoreSnapshot: false,
+  leaderboardsUiEnabled: true,
+  weeklyContestsUiEnabled: true,
   featureFlags,
   firebase: {
     apiKey: "x",

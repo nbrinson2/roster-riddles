@@ -58,6 +58,9 @@ const leaderboardUseFirestoreSnapshot = !isStaging;
 /** Story G2 — omit panel when Cloud Build sets LEADERBOARDS_UI_ENABLED=false */
 const leaderboardsUiEnabled = process.env.LEADERBOARDS_UI_ENABLED !== 'false';
 
+/** Story C2 — omit weekly contests drawer when WEEKLY_CONTESTS_UI_ENABLED=false */
+const weeklyContestsUiEnabled = process.env.WEEKLY_CONTESTS_UI_ENABLED !== 'false';
+
 const content = `import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
 import type { DeploymentEnvironment } from './environment.types';
 
@@ -76,6 +79,7 @@ export const environment = {
   leaderboardPollIntervalMs: 0,
   leaderboardUseFirestoreSnapshot: ${leaderboardUseFirestoreSnapshot},
   leaderboardsUiEnabled: ${leaderboardsUiEnabled},
+  weeklyContestsUiEnabled: ${weeklyContestsUiEnabled},
   featureFlags,
   firebase: {
     apiKey: ${JSON.stringify(process.env.FIREBASE_API_KEY)},
