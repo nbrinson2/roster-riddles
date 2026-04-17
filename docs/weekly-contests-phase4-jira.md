@@ -219,12 +219,20 @@ Define **who** moves `scheduled`→`open` (clock vs manual), `open`→`scoring` 
 
 **Acceptance criteria**
 
-- [ ] Matrix of allowed transitions in ADR or ops doc; code matches.
-- [ ] **No** client-direct status flips unless explicitly out of scope (then rules deny).
+- [x] Matrix of allowed transitions in ADR or ops doc; code matches.
+- [x] **No** client-direct status flips — Firestore rules deny client writes on `contests/*`; transitions via **`POST /api/internal/v1/contests/:contestId/transition`** (secret).
 
 **Dependencies**
 
 - Story B1.
+
+**Deliverable (merged)**
+
+- **[`docs/weekly-contests-ops-d1.md`](weekly-contests-ops-d1.md)** — transition matrix, endpoint, env, examples.
+- **[`server/contest-transitions.js`](../server/contest-transitions.js)** — adjacency + guards (`open`→`scoring` / `windowEnd` + optional `force`).
+- **[`server/contest-transition.http.js`](../server/contest-transition.http.js)**, **[`server/contest-transition-log.js`](../server/contest-transition-log.js)** — transactional update, structured logs.
+- **[`index.js`](../index.js)** — `POST /api/internal/v1/contests/:contestId/transition`.
+- **[`server/contest-transitions.test.js`](../server/contest-transitions.test.js)** — matrix + time guard unit tests.
 
 ---
 

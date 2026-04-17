@@ -89,6 +89,8 @@ This ADR narrows **product and technical** choices for the **first** weekly-cont
 
 **`paid` semantics in v1:** “Dry-run payout rows are **final** and **not real money**.”
 
+**Server enforcement (Story D1):** The matrix above is implemented in application code; illegal edges return **400**. The `open` → `scoring` transition additionally requires **`now >= windowEnd`** unless a trusted operator uses an explicit **force** flag on the internal API. See [weekly-contests-ops-d1.md](weekly-contests-ops-d1.md).
+
 ---
 
 ## Entities and Firestore layout

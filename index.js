@@ -4,6 +4,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 import { postContestJoin } from './server/contest-join.http.js';
+import { postContestTransition } from './server/contest-transition.http.js';
 import { postGameplayEvent } from './server/gameplay-events.js';
 import { getLeaderboardPage } from './server/leaderboards.http.js';
 import { postRebuildLeaderboardSnapshots } from './server/leaderboards-snapshot-rebuild.http.js';
@@ -91,6 +92,15 @@ app.get(
 app.post(
   '/api/internal/v1/leaderboard-snapshots/rebuild',
   postRebuildLeaderboardSnapshots,
+);
+
+/**
+ * Contest lifecycle — Story D1. Bearer `CONTESTS_OPERATOR_SECRET` (or `x-contests-operator-secret`).
+ * @see docs/weekly-contests-ops-d1.md
+ */
+app.post(
+  '/api/internal/v1/contests/:contestId/transition',
+  postContestTransition,
 );
 
 // Serve static files from the Angular app
