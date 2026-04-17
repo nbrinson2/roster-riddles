@@ -17,6 +17,8 @@ interface LeaderboardApiResponse {
   scope: LeaderboardScope;
   pageSize: number;
   entries: LeaderboardEntryRow[];
+  /** ISO 8601 from precomputed snapshot doc `generatedAt` (Story E2), if any. */
+  snapshotGeneratedAt?: string | null;
   nextPageToken?: string;
 }
 
@@ -113,6 +115,7 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.entries = [...this.entries, ...res.entries];
           this.nextPageToken = res.nextPageToken ?? null;
+          this.applySnapshotGeneratedAtFromApi(res);
           this.loadingMore = false;
         },
         error: (err: HttpErrorResponse) => {
@@ -127,6 +130,7 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
     this.errorMessage = null;
     this.entries = [];
     this.nextPageToken = null;
+    this.lastUpdatedLabel = null;
     const url = this.buildUrl({});
     this.http
       .get<LeaderboardApiResponse>(url)
@@ -135,6 +139,7 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.entries = res.entries;
           this.nextPageToken = res.nextPageToken ?? null;
+          this.applySnapshotGeneratedAtFromApi(res);
           this.loading = false;
         },
         error: (err: HttpErrorResponse) => {
@@ -168,7 +173,23 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
       .subscribe((res) => {
         this.entries = res.entries;
         this.nextPageToken = res.nextPageToken ?? null;
+        this.applySnapshotGeneratedAtFromApi(res);
       });
+  }
+
+  private applySnapshotGeneratedAtFromApi(res: LeaderboardApiResponse): void {
+    if (environment.leaderboardUseFirestoreSnapshot) {
+      return;
+    }
+    const iso = res.snapshotGeneratedAt;
+    if (typeof iso !== 'string' || !iso.trim()) {
+      this.lastUpdatedLabel = null;
+      return;
+    }
+    const d = new Date(iso);
+    this.lastUpdatedLabel = Number.isNaN(d.getTime())
+      ? null
+      : d.toLocaleString();
   }
 
   private attachSnapshotListener(): void {

@@ -30,7 +30,7 @@ export const environment = {
   leaderboardPollIntervalMs: 0,
   /**
    * Story E1 — when true, leaderboard panel listens to precomputed B2 docs under leaderboards/snapshots/boards (see docs) instead of the HTTP API (D1).
-   * Use false for local dev unless snapshot docs exist; wins live in users/{uid}/stats/summary and are read by GET /api/v1/leaderboards.
+   * **Development:** false (use HTTP + proxy). **Staging:** false via `build:staging`. **Production:** true via `generate-env-prod.mjs` (listener on snapshot docs).
    */
   leaderboardUseFirestoreSnapshot: false,
   featureFlags,

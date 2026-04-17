@@ -41,11 +41,24 @@ v1 does **not** use a separate `gameMode` param; per-mode boards use **`scope`**
       "displayName": "Player Name"
     }
   ],
+  "snapshotGeneratedAt": "2026-04-15T12:00:00.000Z",
   "nextPageToken": "…"
 }
 ```
 
+- **`snapshotGeneratedAt`:** ISO 8601 time from the precomputed snapshot doc’s **`generatedAt`** for this **`scope`** (Story E2), or **`null`** if no snapshot exists yet. One extra Firestore read per request.
+
 `nextPageToken` is omitted when there is no further page.
+
+## Batch rebuild hook (Story E2)
+
+| | |
+|---|---|
+| **POST** | `/api/internal/v1/leaderboard-snapshots/rebuild` |
+| **Auth** | `Authorization: Bearer <LEADERBOARD_SNAPSHOT_CRON_SECRET>` (or `X-Cron-Secret`) |
+| **Purpose** | Rebuild all **`leaderboards/snapshots/boards/*`** documents from **`stats/summary`** |
+
+See [leaderboards-batch-e2.md](leaderboards-batch-e2.md) for Scheduler setup and `npm run rebuild:leaderboard-snapshots`.
 
 ## Errors
 
@@ -89,11 +102,12 @@ paths:
             application/json:
               schema:
                 type: object
-                required: [schemaVersion, scope, pageSize, entries]
+                required: [schemaVersion, scope, pageSize, entries, snapshotGeneratedAt]
                 properties:
                   schemaVersion: { type: integer }
                   scope: { type: string }
                   pageSize: { type: integer }
+                  snapshotGeneratedAt: { type: string, nullable: true, format: date-time }
                   entries:
                     type: array
                     items:
@@ -135,9 +149,12 @@ GET /api/v1/leaderboards?scope=bio-ball&pageSize=10
 
 | File | Role |
 |------|------|
-| `server/leaderboards.http.js` | Express handler |
+| `server/leaderboards.http.js` | Express handler, **`snapshotGeneratedAt`** |
+| `server/auth-display-names.js` | Auth display name lookup (shared with snapshot job) |
 | `server/leaderboard-query.js` | Scope → Firestore field, token encode/decode, tie-break sort |
 | `server/leaderboard-log.js` | Structured logs |
+| `server/leaderboard-snapshot-job.js` | Batch rebuild of B2 snapshot docs (Story E2) |
+| `server/leaderboards-snapshot-rebuild.http.js` | `POST` rebuild endpoint |
 | `server/rate-limit-hooks.middleware.js` | `consumeLeaderboardRateLimit` stub |
 | `index.js` | Route registration |
 
@@ -153,4 +170,5 @@ Manual check: run Express + `ng serve` with `proxy.conf.json`; click **leaderboa
 ## References
 
 - [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story D1
+- [leaderboards-batch-e2.md](leaderboards-batch-e2.md) — Story E2 (scheduled rebuild + `snapshotGeneratedAt`)
 - [leaderboards-realtime-e1.md](leaderboards-realtime-e1.md) — Story E1 (optional HTTP short-poll vs B2 snapshot listener)

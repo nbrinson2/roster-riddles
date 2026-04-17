@@ -106,3 +106,4 @@ Deploy rules after changing: `firebase deploy --only firestore:roster-riddles`.
 - Rules: `firestore.rules`
 - Jira: [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) Story B2
 - Optional real-time: [leaderboards-realtime-e1.md](leaderboards-realtime-e1.md) (Story E1 — `onSnapshot` on one doc per board)
+- Batch refresh: [leaderboards-batch-e2.md](leaderboards-batch-e2.md) (Story E2 — scheduler + rebuild hook)

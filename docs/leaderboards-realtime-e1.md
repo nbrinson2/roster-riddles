@@ -87,7 +87,7 @@ Compare to B2 listener: polling shifts cost toward **HTTP + server Firestore rea
 
 | `environment` field | Purpose |
 |---------------------|--------|
-| `leaderboardUseFirestoreSnapshot` | `true` → B2 `onSnapshot` on `leaderboards/snapshots/boards/{scope}`; `false` → D1 HTTP (default). |
+| `leaderboardUseFirestoreSnapshot` | `true` → B2 `onSnapshot` on `leaderboards/snapshots/boards/{scope}`; `false` → D1 HTTP. **Generated builds:** production `true`, staging and dev `false` (`generate-env-prod.mjs` / `environment.ts`). |
 | `leaderboardPollIntervalMs` | D1 only; `> 0` enables periodic refresh (ms); `0` = off (default). |
 
 ## Troubleshooting: “No data” but Firestore has stats

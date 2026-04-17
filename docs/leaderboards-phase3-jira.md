@@ -271,13 +271,18 @@ Job reads source of truth (aggregates or events sample), writes precomputed docs
 
 **Acceptance criteria**
 
-- [ ] Scheduler YAML or console screenshot for staging.
-- [ ] Logs/metrics for job duration and failure (align Story 9).
-- [ ] “Data as of” timestamp exposed to API/UI.
+- [x] Scheduler YAML or console screenshot for staging.
+- [x] Logs/metrics for job duration and failure (align Story 9).
+- [x] “Data as of” timestamp exposed to API/UI.
 
 **Dependencies**
 
 - Story B2, C1.
+
+**Deliverable (merged)**
+
+- **[`docs/leaderboards-batch-e2.md`](leaderboards-batch-e2.md)** — batch job, `POST /api/internal/v1/leaderboard-snapshots/rebuild`, Cloud Scheduler `gcloud` example + console steps, env `LEADERBOARD_SNAPSHOT_CRON_SECRET`, `npm run rebuild:leaderboard-snapshots`.
+- **Code:** [`server/leaderboard-snapshot-job.js`](../server/leaderboard-snapshot-job.js), [`server/leaderboards-snapshot-rebuild.http.js`](../server/leaderboards-snapshot-rebuild.http.js), [`server/leaderboard-snapshot-log.js`](../server/leaderboard-snapshot-log.js); **`GET /api/v1/leaderboards`** returns **`snapshotGeneratedAt`**; leaderboard panel shows “Data as of” from API or snapshot doc.
 
 ---
 
