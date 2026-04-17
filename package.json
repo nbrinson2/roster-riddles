@@ -23,7 +23,8 @@
     "mirror:firestore-cache": "node ./scripts/mirror-firestore-cache.mjs",
     "deploy:firestore:staging": "firebase deploy --only \"firestore:(default)\" --project roster-riddles-staging",
     "deploy:firestore:staging:rules": "firebase deploy --only firestore:rules --project roster-riddles-staging",
-    "deploy:firestore:prod": "firebase deploy --only firestore:roster-riddles --project roster-riddles-457600"
+    "deploy:firestore:prod": "firebase deploy --only firestore:roster-riddles --project roster-riddles-457600",
+    "deploy:firestore:prod:rules": "firebase deploy --only firestore:rules --project roster-riddles-457600"
   },
   "type": "module",
   "private": true,

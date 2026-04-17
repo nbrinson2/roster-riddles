@@ -71,6 +71,7 @@ See **`src/app/shared/models/contest.model.ts`** — `ContestDocument`, `Contest
 ## Related
 
 - Entries (join / idempotent `entries/{uid}`): [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md) — Story B2.
+- Final standings & dry-run payouts: [weekly-contests-schema-results.md](weekly-contests-schema-results.md) — Story B3.
 
 ## References
 

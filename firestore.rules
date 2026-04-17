@@ -45,7 +45,17 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Other contest subpaths (results, payouts, …) — deny clients until B3+ / payouts stories.
+    // Phase 4 B3: immutable `results/*` and `payouts/*` — signed-in read; Admin SDK writes only.
+    match /contests/{contestId}/results/{resultDocId} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+    match /contests/{contestId}/payouts/{payoutDocId} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+
+    // Any other contest subpaths — deny clients.
     match /contests/{contestId}/{document=**} {
       allow read, write: if false;
     }

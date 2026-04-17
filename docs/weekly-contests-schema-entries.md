@@ -56,4 +56,5 @@ See **`src/app/shared/models/contest-entry.model.ts`**.
 
 ## References
 
+- [weekly-contests-schema-results.md](weekly-contests-schema-results.md) — Story B3 (immutable `results/final`, `payouts/dryRun`)
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Story B2  

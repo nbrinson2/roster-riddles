@@ -92,8 +92,25 @@ try {
     }),
   );
 
-  // other contest subpaths (e.g. results): deny
-  await assertFails(getDoc(doc(alice, 'contests', 'c1', 'results', 'final')));
+  // contests/.../results/* and payouts/*: signed-in read; no client writes (Story B3)
+  await assertSucceeds(
+    getDoc(doc(alice, 'contests', 'c1', 'results', 'final')),
+  );
+  await assertFails(
+    getDoc(doc(unauth, 'contests', 'c1', 'results', 'final')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'results', 'final'), { schemaVersion: 1 }),
+  );
+  await assertSucceeds(
+    getDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun'), { x: 1 }),
+  );
+
+  // unknown contest subpath: deny
+  await assertFails(getDoc(doc(alice, 'contests', 'c1', 'scratch', 'x')));
 
   // ledgers: deny
   await assertFails(setDoc(doc(alice, 'ledgers', 'l1'), { a: 1 }));

@@ -129,13 +129,20 @@ After scoring, persist **immutable** artifacts (path per ADR), e.g. final ordere
 
 **Acceptance criteria**
 
-- [ ] No client write access to standings documents.
-- [ ] **Idempotent scoring job:** safe retries; document `jobId` / monotonic `attempt` if needed.
-- [ ] Example payload in docs for QA comparison.
+- [x] No client write access to standings documents.
+- [x] **Idempotent scoring job:** safe retries; document `jobId` / monotonic `attempt` if needed.
+- [x] Example payload in docs for QA comparison.
 
 **Dependencies**
 
 - Stories A0, B1, B2.
+
+**Deliverable (merged)**
+
+- **[`docs/weekly-contests-schema-results.md`](weekly-contests-schema-results.md)** — `results/final`, `payouts/dryRun`, standing rows, tie metadata, QA JSON.
+- **[`firestore.rules`](../firestore.rules)** — `results/*`, `payouts/*` read if signed-in; no client writes.
+- **[`src/app/shared/models/contest-results-final.model.ts`](../src/app/shared/models/contest-results-final.model.ts)** — `ContestFinalResultsDocument`, `ContestStandingRow`.
+- **[`src/app/shared/models/contest-payouts-dry-run.model.ts`](../src/app/shared/models/contest-payouts-dry-run.model.ts)** — dry-run payout lines.
 
 ---
 

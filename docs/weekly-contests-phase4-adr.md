@@ -151,11 +151,11 @@ Written only by **trusted** code after validation:
 
 **Tie resolution audit:** Deterministic ordering per [Mini-league scoring](#mini-league-scoring); **`rank`** may be dense or competition-style per product as long as **`standings[]` order** is stable.
 
-**Rules:** **No client write** to `results/*`.
+**Rules:** **No client write** to `results/*`. Schema: [weekly-contests-schema-results.md](weekly-contests-schema-results.md).
 
 ### Dry-run payouts
 
-**Path (v1):** `contests/{contestId}/payouts/dryRun` **or** embedded under `results/final` as `dryRunPayouts` (implementation story picks one; **single** artifact for “what would be paid” is enough).
+**Path (v1):** `contests/{contestId}/payouts/dryRun` **or** embedded under `results/final` as `dryRunPayouts` (implementation story picks one; **single** artifact for “what would be paid” is enough). Field list: [weekly-contests-schema-results.md](weekly-contests-schema-results.md).
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -232,7 +232,7 @@ Example: “Your contest rank uses your **first 10 Bio Ball games** (unless the 
 |------|-------------|--------------|
 | `contests/{id}` | Authenticated read of **non-sensitive** fields per product (may hide internal `metadata`). | **Denied** for `status`, `window*`, authoritative fields — **server/admin only**. |
 | `contests/{id}/entries/{uid}` | User may read **own** entry; public read of others **optional** per product (leaderboard-style). | **Join** only via **trusted API** (`POST` Express or CF), not direct Firestore create. |
-| `contests/{id}/results/*`, `payouts/*` | Read-only for clients if product wants transparency. | **Denied** for all clients. |
+| `contests/{id}/results/*`, `payouts/*` | **Signed-in** read (v1; see [weekly-contests-schema-results.md](weekly-contests-schema-results.md)). | **Denied** — Admin SDK only. |
 
 Align with [firestore.rules](../firestore.rules) updates in implementation stories.
 
@@ -257,6 +257,7 @@ Align with [firestore.rules](../firestore.rules) updates in implementation stori
 ## References
 
 - [weekly-contests-schema-contests.md](weekly-contests-schema-contests.md) — `contests/{contestId}` field list, example JSON, indexes (Story B1)  
+- [weekly-contests-schema-results.md](weekly-contests-schema-results.md) — `results/final`, `payouts/dryRun`, tie metadata (Story B3)  
 - [gameplay-stats-phase2.md](gameplay-stats-phase2.md) — event + aggregate schemas  
 - [leaderboards-phase3-adr.md](leaderboards-phase3-adr.md) — tie-break; weekly deferred in Phase 3  
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — backlog and Story A0  
