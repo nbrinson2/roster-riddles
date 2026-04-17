@@ -72,6 +72,7 @@ See [leaderboards-batch-e2.md](leaderboards-batch-e2.md) for Scheduler setup and
 | 400 | `stale_page_token` | cursor doc missing (data changed) |
 | 429 | `rate_limited` | leaderboard IP limit exceeded (Story F1) |
 | 503 | `server_misconfigured` | Admin SDK / Firestore not configured |
+| 503 | `service_unavailable` | **`LEADERBOARDS_DISABLED=true`** on the server — public reads off ([leaderboards-runbook.md](leaderboards-runbook.md) Story G2) |
 
 ## OpenAPI 3.0 fragment
 
@@ -179,6 +180,7 @@ Manual check: run Express + `ng serve` with `proxy.conf.json`; click **leaderboa
 
 ## References
 
+- [leaderboards-runbook.md](leaderboards-runbook.md) — Story G2 (indexes, rebuild, logging, kill switch)
 - [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story D1
 - [leaderboards-batch-e2.md](leaderboards-batch-e2.md) — Story E2 (scheduled rebuild + `snapshotGeneratedAt`)
 - [leaderboards-rate-limits-f1.md](leaderboards-rate-limits-f1.md) — Story F1 (API rate limits)

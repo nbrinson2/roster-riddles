@@ -55,6 +55,9 @@ const stripePublishableKey = process.env.STRIPE_PUBLISHABLE_KEY ?? '';
 /** Firestore onSnapshot on B2 snapshot docs (E1). Prod: true; staging/dev: false. */
 const leaderboardUseFirestoreSnapshot = !isStaging;
 
+/** Story G2 — omit panel when Cloud Build sets LEADERBOARDS_UI_ENABLED=false */
+const leaderboardsUiEnabled = process.env.LEADERBOARDS_UI_ENABLED !== 'false';
+
 const content = `import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
 import type { DeploymentEnvironment } from './environment.types';
 
@@ -72,6 +75,7 @@ export const environment = {
   sendGameplayEvents: true,
   leaderboardPollIntervalMs: 0,
   leaderboardUseFirestoreSnapshot: ${leaderboardUseFirestoreSnapshot},
+  leaderboardsUiEnabled: ${leaderboardsUiEnabled},
   featureFlags,
   firebase: {
     apiKey: ${JSON.stringify(process.env.FIREBASE_API_KEY)},

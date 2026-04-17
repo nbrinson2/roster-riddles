@@ -22,7 +22,7 @@
           (playerSelected)="handlePlayerSelection()"
         ></roster-by-years-table>
       </ng-container>
-      <ng-container *ngIf="viewLeaderboard">
+      <ng-container *ngIf="leaderboardsUiEnabled && viewLeaderboard">
         <leaderboard-panel></leaderboard-panel>
       </ng-container>
       <ng-container *ngIf="viewMenu">
@@ -50,6 +50,7 @@
             <span class="material-symbols-outlined menu-icon">info</span>
           </div>
           <div
+            *ngIf="leaderboardsUiEnabled"
             class="menu-icon-container"
             role="button"
             tabindex="0"

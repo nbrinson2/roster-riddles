@@ -27,6 +27,23 @@ export async function getLeaderboardPage(req, res) {
   const startMs = Date.now();
   const requestId = req.requestId ?? 'unknown';
 
+  if (process.env.LEADERBOARDS_DISABLED === 'true') {
+    logLeaderboardLine({
+      requestId,
+      httpStatus: 503,
+      outcome: 'service_disabled',
+      latencyMs: Date.now() - startMs,
+      rowCount: 0,
+      scope: null,
+    });
+    return res.status(503).json({
+      error: {
+        code: 'service_unavailable',
+        message: 'Leaderboards are temporarily unavailable.',
+      },
+    });
+  }
+
   const rl = await req.consumeLeaderboardRateLimit?.();
   if (rl && rl.allowed === false) {
     const retry = rl.retryAfterSec ?? null;

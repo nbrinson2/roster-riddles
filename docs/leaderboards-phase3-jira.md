@@ -410,11 +410,15 @@ On-call steps; link to Cloud Logging filters; feature flag to hide UI/API if nee
 
 **Acceptance criteria**
 
-- [ ] `docs/leaderboards-runbook.md` merged.
+- [x] `docs/leaderboards-runbook.md` merged.
 
 **Dependencies**
 
 - Stories B3, E2 (if batch).
+
+**Deliverable (merged)**
+
+- **[`docs/leaderboards-runbook.md`](leaderboards-runbook.md)** — index deploy, cache/freshness, E2 replay, Cloud Logging filters, **`LEADERBOARDS_DISABLED`** (API) + **`LEADERBOARDS_UI_ENABLED`** (build-time UI), escalation checklist.
 
 ---
 

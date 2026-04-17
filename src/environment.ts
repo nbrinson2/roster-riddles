@@ -33,6 +33,10 @@ export const environment = {
    * **Development:** false (use HTTP + proxy). **Staging:** false via `build:staging`. **Production:** true via `generate-env-prod.mjs` (listener on snapshot docs).
    */
   leaderboardUseFirestoreSnapshot: false,
+  /**
+   * Story G2 — hide left-nav leaderboard panel (staging/prod: set via `LEADERBOARDS_UI_ENABLED` at build).
+   */
+  leaderboardsUiEnabled: true,
   featureFlags,
   firebase: firebaseConfig,
 };

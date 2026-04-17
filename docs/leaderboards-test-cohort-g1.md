@@ -70,3 +70,4 @@ Copy this table into a PR comment or release ticket and complete before “leade
 - Fixture example: [`docs/fixtures/leaderboard-cohort.example.json`](fixtures/leaderboard-cohort.example.json)
 - Script: [`scripts/verify-leaderboard-cohort.mjs`](../scripts/verify-leaderboard-cohort.mjs)
 - Jira: [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story G1
+- Ops: [leaderboards-runbook.md](leaderboards-runbook.md) — Story G2 (indexes, rebuild, kill switch)

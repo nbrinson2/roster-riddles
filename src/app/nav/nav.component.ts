@@ -27,6 +27,7 @@ import { GamePlayer } from '../shared/models/common-models';
 import { GameplayTelemetryService } from '../shared/services/gameplay-telemetry/gameplay-telemetry.service';
 import { GAME_SERVICE, GameService } from '../shared/utils/game-service.token';
 import { Difficulty } from './difficulty-toggle/difficulty-toggle.component';
+import { environment } from 'src/environment';
 
 enum MatDrawerPosition {
   END = 'end',
@@ -41,6 +42,8 @@ enum MatDrawerPosition {
 })
 export class NavComponent implements OnInit, OnDestroy {
   protected readonly GameType = GameType;
+  /** Story G2 — false when staging/prod built with LEADERBOARDS_UI_ENABLED=false */
+  protected readonly leaderboardsUiEnabled = environment.leaderboardsUiEnabled;
 
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
 
