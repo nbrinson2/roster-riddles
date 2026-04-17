@@ -6,7 +6,10 @@ import { fileURLToPath } from 'url';
 import { postGameplayEvent } from './server/gameplay-events.js';
 import { getLeaderboardPage } from './server/leaderboards.http.js';
 import { postRebuildLeaderboardSnapshots } from './server/leaderboards-snapshot-rebuild.http.js';
-import { leaderboardRateLimitHookMiddleware } from './server/rate-limit-hooks.middleware.js';
+import {
+  gameplayEventRateLimitHookMiddleware,
+  leaderboardRateLimitHookMiddleware,
+} from './server/rate-limit-hooks.middleware.js';
 import { requireFirebaseAuth } from './server/require-auth.js';
 import { requestIdMiddleware } from './server/request-id.middleware.js';
 
@@ -57,6 +60,7 @@ app.get('/api/v1/me', requireFirebaseAuth, (req, res) => {
 app.post(
   '/api/v1/me/gameplay-events',
   requireFirebaseAuth,
+  gameplayEventRateLimitHookMiddleware,
   postGameplayEvent,
 );
 

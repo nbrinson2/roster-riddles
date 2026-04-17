@@ -29,6 +29,9 @@ export async function getLeaderboardPage(req, res) {
   const rl = await req.consumeLeaderboardRateLimit?.();
   if (rl && rl.allowed === false) {
     const retry = rl.retryAfterSec ?? null;
+    if (retry != null) {
+      res.setHeader('Retry-After', String(retry));
+    }
     logLeaderboardLine({
       requestId,
       httpStatus: 429,

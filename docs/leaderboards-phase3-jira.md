@@ -301,12 +301,17 @@ Express middleware or API Gateway; thresholds for `POST` score paths and aggress
 
 **Acceptance criteria**
 
-- [ ] Limits documented; staging test proves 429 path.
-- [ ] No secrets in error bodies/logs.
+- [x] Limits documented; staging test proves 429 path.
+- [x] No secrets in error bodies/logs.
 
 **Dependencies**
 
 - Story D1.
+
+**Deliverable (merged)**
+
+- **[`docs/leaderboards-rate-limits-f1.md`](leaderboards-rate-limits-f1.md)** — defaults, env vars, staging `curl` loop for 429, Firestore rules note.
+- **Code:** [`server/rate-limit-hooks.middleware.js`](../server/rate-limit-hooks.middleware.js), [`server/in-memory-rate-limit.js`](../server/in-memory-rate-limit.js), [`server/client-ip.js`](../server/client-ip.js); `GET /api/v1/leaderboards` + `POST /api/v1/me/gameplay-events` wired; [`firestore.rules`](../firestore.rules) comment (rules do not implement RPS).
 
 ---
 

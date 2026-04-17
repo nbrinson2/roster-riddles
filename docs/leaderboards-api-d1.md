@@ -9,7 +9,7 @@
 
 **Auth:** None required for v1 (public read). Rows include **`uid`**; **`displayName`** is filled from Firebase Auth when the Admin SDK can resolve users (best effort).
 
-**Rate limiting:** Middleware attaches **`req.consumeLeaderboardRateLimit()`** (stub allows all traffic; Epic F can enforce limits). The handler returns **429** when the hook reports `allowed: false`.
+**Rate limiting (Story F1):** Per **client IP** fixed-window cap on `GET` (defaults + env in [leaderboards-rate-limits-f1.md](leaderboards-rate-limits-f1.md)). Returns **429** with **`Retry-After`** and `error.retryAfterSec` when exceeded.
 
 **Logging:** JSON lines to stdout (`component: leaderboards`) with **`requestId`**, **`scope`**, **`latencyMs`**, **`rowCount`**, **`outcome`** — same pattern as gameplay events (Story 9).
 
@@ -68,7 +68,7 @@ See [leaderboards-batch-e2.md](leaderboards-batch-e2.md) for Scheduler setup and
 | 400 | `validation_error` | bad / missing `scope` |
 | 400 | `invalid_page_token` | bad `pageToken` |
 | 400 | `stale_page_token` | cursor doc missing (data changed) |
-| 429 | `rate_limited` | rate limit hook (future) |
+| 429 | `rate_limited` | leaderboard IP limit exceeded (Story F1) |
 | 503 | `server_misconfigured` | Admin SDK / Firestore not configured |
 
 ## OpenAPI 3.0 fragment
@@ -155,7 +155,9 @@ GET /api/v1/leaderboards?scope=bio-ball&pageSize=10
 | `server/leaderboard-log.js` | Structured logs |
 | `server/leaderboard-snapshot-job.js` | Batch rebuild of B2 snapshot docs (Story E2) |
 | `server/leaderboards-snapshot-rebuild.http.js` | `POST` rebuild endpoint |
-| `server/rate-limit-hooks.middleware.js` | `consumeLeaderboardRateLimit` stub |
+| `server/rate-limit-hooks.middleware.js` | Leaderboard + gameplay rate limit hooks |
+| `server/in-memory-rate-limit.js` | Fixed-window limiter |
+| `server/client-ip.js` | IP extraction for limits |
 | `index.js` | Route registration |
 
 ### Angular UI (Story D2)
@@ -171,4 +173,5 @@ Manual check: run Express + `ng serve` with `proxy.conf.json`; click **leaderboa
 
 - [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story D1
 - [leaderboards-batch-e2.md](leaderboards-batch-e2.md) — Story E2 (scheduled rebuild + `snapshotGeneratedAt`)
+- [leaderboards-rate-limits-f1.md](leaderboards-rate-limits-f1.md) — Story F1 (API rate limits)
 - [leaderboards-realtime-e1.md](leaderboards-realtime-e1.md) — Story E1 (optional HTTP short-poll vs B2 snapshot listener)
