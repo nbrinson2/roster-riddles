@@ -72,6 +72,27 @@ $lb-muted: rgba(255, 255, 255, 0.55);
   text-transform: none;
 }
 
+.lb-updated {
+  margin: -4px 0 12px;
+  font-size: 0.8rem;
+  color: $lb-muted;
+  letter-spacing: 0.02em;
+}
+
+.lb-empty-hint {
+  margin: 10px 0 0;
+  max-width: 36rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: $lb-muted;
+  text-align: left;
+}
+
+.lb-mono {
+  font-size: 0.85em;
+  word-break: break-all;
+}
+
 /* —— Board selector (native select) —— */
 .lb-toolbar {
   margin-bottom: 14px;

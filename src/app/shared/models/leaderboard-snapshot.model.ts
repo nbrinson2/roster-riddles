@@ -1,11 +1,11 @@
 /**
  * Precomputed leaderboard snapshot documents (Story B2 — batch path).
- * Path: leaderboards/snapshots/{boardId} — see docs/leaderboards-schema-precomputed.md
+ * Path: leaderboards/snapshots/boards/{boardId} — see docs/leaderboards-schema-precomputed.md
  */
 
 export const LEADERBOARD_SNAPSHOT_SCHEMA_VERSION = 1;
 
-/** Path segment under leaderboards/snapshots/{boardId} */
+/** Path segment under leaderboards/snapshots/boards/{boardId} */
 export const LEADERBOARD_BOARD_IDS = [
   'global',
   'bio-ball',
@@ -27,7 +27,7 @@ export interface LeaderboardSnapshotEntry {
 }
 
 /**
- * Stored at leaderboards/snapshots/{boardId}.
+ * Stored at leaderboards/snapshots/boards/{boardId}.
  * Timestamps are Firestore Timestamp in DB; `unknown` keeps Angular types loose until read.
  */
 export interface LeaderboardSnapshotDocument {

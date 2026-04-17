@@ -11,6 +11,9 @@ export const environment = {
   firestoreDatabaseId: "roster-riddles",
   baseUrl: "",
   stripePublishableKey: "",
+  sendGameplayEvents: true,
+  leaderboardPollIntervalMs: 0,
+  leaderboardUseFirestoreSnapshot: false,
   featureFlags,
   firebase: {
     apiKey: "x",

@@ -47,7 +47,7 @@ LOAD_PARALLEL=64 LOAD_USERS=4 npm run test:stats-concurrency
 | Topic | Note |
 |--------|------|
 | **Writes** | Hot spot is **per user** — `stats/summary` for a single `uid` under bursty concurrent sessions. There is **no** single global Firestore document for **writes** in the event pipeline. |
-| **Reads (B2)** | A **precomputed global** leaderboard is **one document per board** for **reads** only (`leaderboards/snapshots/global`). That path is **not** exercised by this write-load script; contention there is **read** traffic + **batch** writes from a job, not per-gameplay. |
+| **Reads (B2)** | A **precomputed global** leaderboard is **one document per board** for **reads** only (`leaderboards/snapshots/boards/global`). That path is **not** exercised by this write-load script; contention there is **read** traffic + **batch** writes from a job, not per-gameplay. |
 | **Sharding** | If one user could generate **very high** concurrent session completions, Firestore transaction **latency and retries** can grow. Mitigations: rate-limit per user at API, queue events, or accept higher tail latency — **not** required for typical mobile/web usage. |
 
 ## Known limits / follow-ups

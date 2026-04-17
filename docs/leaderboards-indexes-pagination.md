@@ -9,7 +9,7 @@
 |-------|-----|
 | **Weekly / `weekId` + score** | **Not indexed** — weekly boards are out of scope for Leaderboards v1 (ADR). No composite indexes for weekly dimensions until a future story adds fields and queries. |
 | **All-time global + per-mode** | **Four collection-group indexes** on `stats` (see below). |
-| **Precomputed path (B2)** | **No composite indexes** — reads are `get(leaderboards/snapshots/{boardId})` by path. |
+| **Precomputed path (B2)** | **No composite indexes** — reads are `get(leaderboards/snapshots/boards/{boardId})` by path. |
 
 ## Collection group vs path
 

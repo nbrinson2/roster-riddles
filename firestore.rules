@@ -36,9 +36,9 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Precomputed leaderboards (Story B2): one doc per board; Admin SDK writers only.
+    // Precomputed leaderboards (Story B2): one doc per board under snapshots/boards (even path segments).
     // Other paths under leaderboards/ have no rule → denied by default.
-    match /leaderboards/snapshots/{boardId} {
+    match /leaderboards/snapshots/boards/{boardId} {
       allow read: if boardId in [
         'global',
         'bio-ball',

@@ -67,6 +67,8 @@ export const environment = {
   baseUrl: ${JSON.stringify(apiBaseUrl)},
   stripePublishableKey: ${JSON.stringify(stripePublishableKey)},
   sendGameplayEvents: true,
+  leaderboardPollIntervalMs: 0,
+  leaderboardUseFirestoreSnapshot: false,
   featureFlags,
   firebase: {
     apiKey: ${JSON.stringify(process.env.FIREBASE_API_KEY)},

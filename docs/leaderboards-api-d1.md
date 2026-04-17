@@ -153,3 +153,4 @@ Manual check: run Express + `ng serve` with `proxy.conf.json`; click **leaderboa
 ## References
 
 - [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story D1
+- [leaderboards-realtime-e1.md](leaderboards-realtime-e1.md) — Story E1 (optional HTTP short-poll vs B2 snapshot listener)

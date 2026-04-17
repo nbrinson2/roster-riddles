@@ -26,6 +26,10 @@
     </div>
   </div>
 
+  <p *ngIf="lastUpdatedLabel" class="lb-updated" aria-live="polite">
+    Data as of {{ lastUpdatedLabel }}
+  </p>
+
   <div class="lb-body">
     <div *ngIf="loading" class="state state-loading">
       <mat-spinner diameter="40"></mat-spinner>
@@ -47,7 +51,21 @@
       <span class="material-symbols-outlined state-empty-icon"
         >sports_baseball</span
       >
-      <p>No scores yet. Finish a game to climb the board.</p>
+      <ng-container *ngIf="useSnapshotMode; else emptyFromStats">
+        <p>No rows in the precomputed snapshot for this board.</p>
+        <p class="lb-empty-hint">
+          Wins are stored on each user’s stats document. This mode only shows
+          documents under
+          <code class="lb-mono">leaderboards/snapshots/boards</code>. To list
+          rankings from live stats via the server API, set
+          <code class="lb-mono">leaderboardUseFirestoreSnapshot</code> to
+          <code class="lb-mono">false</code> in
+          <code class="lb-mono">src/environment.ts</code> and run the API.
+        </p>
+      </ng-container>
+      <ng-template #emptyFromStats>
+        <p>No scores yet. Finish a game to climb the board.</p>
+      </ng-template>
     </div>
 
     <div

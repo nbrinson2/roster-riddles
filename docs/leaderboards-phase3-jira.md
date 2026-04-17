@@ -87,7 +87,7 @@ Specify documents that support **composite queries** (e.g. `weekId + score DESC`
 
 **Description**
 
-If ADR chooses **scheduled recomputation**, define snapshot documents (v1: **`leaderboards/snapshots/{boardId}`**), fixed-size **`entries`** arrays, **`generatedAt`**, **`schemaVersion`**, **`tieBreakPolicy`**. **Hybrid with B1:** same scores from `users/{uid}/stats/summary`; B1 = query-time collection-group reads; B2 = scheduled **full `set()`** replace (no client partial merge in v1).
+If ADR chooses **scheduled recomputation**, define snapshot documents (v1: **`leaderboards/snapshots/boards/{boardId}`**), fixed-size **`entries`** arrays, **`generatedAt`**, **`schemaVersion`**, **`tieBreakPolicy`**. **Hybrid with B1:** same scores from `users/{uid}/stats/summary`; B1 = query-time collection-group reads; B2 = scheduled **full `set()`** replace (no client partial merge in v1).
 
 **Acceptance criteria**
 
@@ -98,7 +98,7 @@ If ADR chooses **scheduled recomputation**, define snapshot documents (v1: **`le
 
 - Story A0; mutually exclusive implementation with B1 for the same dimension or hybrid clearly described (see deliverable doc).
 
-**Deliverable:** [`docs/leaderboards-schema-precomputed.md`](leaderboards-schema-precomputed.md), [`src/app/shared/models/leaderboard-snapshot.model.ts`](../src/app/shared/models/leaderboard-snapshot.model.ts), [`firestore.rules`](../firestore.rules) (`leaderboards/snapshots/*` read/write matrix).
+**Deliverable:** [`docs/leaderboards-schema-precomputed.md`](leaderboards-schema-precomputed.md), [`src/app/shared/models/leaderboard-snapshot.model.ts`](../src/app/shared/models/leaderboard-snapshot.model.ts), [`firestore.rules`](../firestore.rules) (`leaderboards/snapshots/boards/*` read/write matrix).
 
 ---
 
@@ -244,12 +244,17 @@ Subscribe to query results or precomputed doc; throttle UI updates; handle index
 
 **Acceptance criteria**
 
-- [ ] Documented listener query + index dependencies.
-- [ ] Cost estimate for expected MAU.
+- [x] Documented listener query + index dependencies.
+- [x] Cost estimate for expected MAU.
 
 **Dependencies**
 
 - B3, D2.
+
+**Deliverable (merged)**
+
+- **[`docs/leaderboards-realtime-e1.md`](leaderboards-realtime-e1.md)** — B2 single-doc `onSnapshot` (no composite index), D1 short-poll, throttle / pagination notes, rough MAU cost formulas.
+- **Optional client wiring:** `leaderboardUseFirestoreSnapshot` and `leaderboardPollIntervalMs` in [`src/environment.ts`](../src/environment.ts); [`leaderboard-panel`](../src/app/nav/leaderboard-panel/) implements both paths.
 
 ---
 

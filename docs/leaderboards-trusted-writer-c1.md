@@ -55,7 +55,7 @@ Other fields use **min/max** where appropriate (e.g. **`bests.fastestWinMs`** us
 
 ## Future work (out of C1)
 
-- **Scheduled snapshot jobs** (Story B2) **read** `stats/summary` and **write** `leaderboards/snapshots/*` — separate writers; still Admin-only.
+- **Scheduled snapshot jobs** (Story B2) **read** `stats/summary` and **write** `leaderboards/snapshots/boards/*` — separate writers; still Admin-only.
 - **Cloud Function** duplicate of the HTTP path is optional if product moves ingestion off Express.
 
 ## References

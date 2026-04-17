@@ -14,10 +14,10 @@ You may run **both**: API falls back to query path in dev; production reads snap
 
 ## Collection layout
 
-Single top-level collection **`leaderboards`**, subcollection **`snapshots`**, one document per **board** (v1 all-time only):
+Top-level collection **`leaderboards`**, fixed document **`snapshots`**, subcollection **`boards`**, then **one document per board** (v1 all-time only). The extra `boards` segment keeps the path **even** (valid `DocumentReference` in the client SDK: `doc(db, 'leaderboards', 'snapshots', 'boards', boardId)`).
 
 ```
-leaderboards/snapshots/{boardId}
+leaderboards/snapshots/boards/{boardId}
 ```
 
 | `boardId` | Board |
@@ -27,7 +27,7 @@ leaderboards/snapshots/{boardId}
 | `career-path` | `totalsByMode.career-path.wins` |
 | `nickname-streak` | `totalsByMode.nickname-streak.wins` |
 
-**Weekly / period:** Not used in v1. Future boards can add e.g. `leaderboards/snapshots/weekly_2026-W03` in a Phase 3.1 amendment.
+**Weekly / period:** Not used in v1. Future boards can add e.g. `leaderboards/snapshots/boards/weekly_2026-W03` in a Phase 3.1 amendment.
 
 ```mermaid
 flowchart TB
@@ -37,8 +37,8 @@ flowchart TB
     W["set() full snapshot doc"]
   end
   subgraph fs [Firestore]
-    D1["leaderboards/snapshots/global"]
-    D2["leaderboards/snapshots/bio-ball"]
+    D1["leaderboards/snapshots/boards/global"]
+    D2["leaderboards/snapshots/boards/bio-ball"]
     D3["..."]
   end
   Q --> S --> W --> D1
@@ -48,7 +48,7 @@ flowchart TB
 
 ## Document shape (authoritative)
 
-Each `leaderboards/snapshots/{boardId}` document:
+Each `leaderboards/snapshots/boards/{boardId}` document:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -91,17 +91,18 @@ Each element of `entries`:
 
 ## Security rules
 
-- **`leaderboards/snapshots/{boardId}`:** **read** allowed for **public** leaderboard UX (or tighten to `signedIn()` if product requires). **Writes denied** to clients.
+- **`leaderboards/snapshots/boards/{boardId}`:** **read** allowed for **public** leaderboard UX (or tighten to `signedIn()` if product requires). **Writes denied** to clients.
 - **Allowlisted `boardId`:** Only the four v1 ids to avoid arbitrary path probing (see `firestore.rules`).
 
 Deploy rules after changing: `firebase deploy --only firestore:roster-riddles`.
 
 ## Indexes
 
-**No composite indexes** are required for v1: clients fetch **by direct path** `leaderboards/snapshots/global` etc.
+**No composite indexes** are required for v1: clients fetch **by direct path** `leaderboards/snapshots/boards/global` etc.
 
 ## References
 
 - TypeScript: `src/app/shared/models/leaderboard-snapshot.model.ts`
 - Rules: `firestore.rules`
 - Jira: [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) Story B2
+- Optional real-time: [leaderboards-realtime-e1.md](leaderboards-realtime-e1.md) (Story E1 — `onSnapshot` on one doc per board)
