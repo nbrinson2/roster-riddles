@@ -51,7 +51,7 @@
 | `schemaVersion` | `number` | Yes | e.g. **`1`**. |
 | `notRealMoney` | `boolean` | Yes | **`true`** in v1. |
 | `currency` | `string` | Yes | e.g. **`FAKE_USD`**. |
-| `lines` | `array` | Yes | `{ rank` or `place`, `uid`, `amountCents`, optional `label` }. |
+| `lines` | `array` | Yes | `{ rank` or `place`, `uid`, `amountCents` } — **numeric fields only** (Story F1); UI phrases such as “Winner gets $X” are derived client-side. |
 | `finalizedAt` | `Timestamp` | Yes | When committed. |
 | `payoutJobId` | `string` | No | Correlates with scoring job if separate. |
 
@@ -131,6 +131,22 @@ Populated by the scoring job (**Story E3**) so support can explain ordering when
 ```
 
 (ISO strings shown; Firestore stores **`Timestamp`**.)
+
+## Example `payouts/dryRun` payload (Story F1)
+
+```json
+{
+  "schemaVersion": 1,
+  "notRealMoney": true,
+  "currency": "FAKE_USD",
+  "finalizedAt": "2026-04-21T12:05:01.000Z",
+  "payoutJobId": "score_1713703501_a1b2c3",
+  "lines": [
+    { "rank": 1, "uid": "uidAlice", "amountCents": 10000 },
+    { "rank": 2, "uid": "uidBob", "amountCents": 0 }
+  ]
+}
+```
 
 ## Security rules
 

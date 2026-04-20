@@ -181,6 +181,9 @@ export class NavComponent implements OnInit, OnDestroy {
     } else {
       this.gameService.currentGame = GameType.BIO_BALL;
     }
+    if (this.gameService.currentGame() !== GameType.BIO_BALL) {
+      this.viewContests = false;
+    }
   }
 
   protected handleDifficultyChange(difficulty: Difficulty): void {

@@ -6,6 +6,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { randomBytes } from 'node:crypto';
 import {
   assignDenseRanks,
+  buildDryRunPayoutLines,
   EVENT_SOURCE,
   tallySlate,
   TIE_BREAK_POLICY,
@@ -275,12 +276,7 @@ export async function runContestScoringJob({ db, contestId, scoringJobId, reques
     tieResolution,
   };
 
-  const dryRunLines = standings.map((s) => ({
-    rank: s.rank,
-    uid: s.uid,
-    amountCents: s.rank === 1 ? 10_000 : 0,
-    label: s.rank === 1 ? 'Dry-run winner (not real money)' : undefined,
-  }));
+  const dryRunLines = buildDryRunPayoutLines(standings);
 
   const dryRunDoc = {
     schemaVersion: 1,

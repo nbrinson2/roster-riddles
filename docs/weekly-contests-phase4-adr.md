@@ -169,7 +169,7 @@ Full field list: [weekly-contests-schema-results.md](weekly-contests-schema-resu
 | `schemaVersion` | `number` | e.g. `1`. |
 | `notRealMoney` | `boolean` | **Must be `true`** in v1. |
 | `currency` | `string` | e.g. **`FAKE_USD`** (staging) or **`USD`** with `notRealMoney: true` — product chooses one convention and sticks to it. |
-| `lines` | `array` | `{ place` or `rank`, `uid`, `amountCents`, optional `label` } e.g. “Winner gets **10000** cents” as **numbers only**. |
+| `lines` | `array` | `{ place` or `rank`, `uid`, `amountCents` } — **numbers only** in Firestore; “Winner gets $X” is formatted in the client from `amountCents`. |
 | `finalizedAt` | `Timestamp` | When dry-run was committed. |
 
 **Zero-dollar / fake currency:** Staging may use **`amountCents: 0`** for all lines to emphasize test-only.

@@ -368,9 +368,9 @@ Data model e.g. `contests/{id}/payouts/dryRun` or embedded array with **`schemaV
 
 **Acceptance criteria**
 
-- [ ] **No** Stripe SDK usage; grep/CI guard optional.
-- [ ] Clear UI/copy: **not real money**.
-- [ ] **`paid`** status means “dry-run payout artifact committed,” documented in ADR.
+- [x] **No** Stripe SDK usage; grep/CI guard optional.
+- [x] Clear UI/copy: **not real money**.
+- [x] **`paid`** status means “dry-run payout artifact committed,” documented in ADR.
 
 **Dependencies**
 

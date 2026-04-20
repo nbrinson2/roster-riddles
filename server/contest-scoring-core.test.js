@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
   assignDenseRanks,
+  buildDryRunPayoutLines,
   compareStandingRows,
+  DRY_RUN_WINNER_AMOUNT_CENTS,
   tallySlate,
 } from './contest-scoring-core.js';
 
@@ -77,6 +79,29 @@ describe('compareStandingRows (ADR tiers)', () => {
       abandoned: 0,
     };
     assert.equal(compareStandingRows(a, b, N) < 0, true);
+  });
+});
+
+describe('buildDryRunPayoutLines (Story F1)', () => {
+  it('stores numbers only: rank, uid, amountCents', () => {
+    const lines = buildDryRunPayoutLines([
+      { rank: 1, uid: 'a' },
+      { rank: 2, uid: 'b' },
+    ]);
+    assert.deepEqual(lines, [
+      { rank: 1, uid: 'a', amountCents: DRY_RUN_WINNER_AMOUNT_CENTS },
+      { rank: 2, uid: 'b', amountCents: 0 },
+    ]);
+    for (const line of lines) {
+      assert.equal(Object.keys(line).sort().join(','), 'amountCents,rank,uid');
+    }
+  });
+
+  it('respects winnerAmountCents override', () => {
+    const lines = buildDryRunPayoutLines([{ rank: 1, uid: 'x' }], {
+      winnerAmountCents: 0,
+    });
+    assert.equal(lines[0].amountCents, 0);
   });
 });
 

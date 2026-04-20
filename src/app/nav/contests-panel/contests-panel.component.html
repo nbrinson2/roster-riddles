@@ -45,7 +45,7 @@
       <span class="material-symbols-outlined state-empty-icon"
         >event_busy</span
       >
-      <p>No open or upcoming Bio Ball contests right now.</p>
+      <p>No Bio Ball contests to show right now.</p>
     </div>
 
     <div *ngIf="!loading && !listError && !selected && rows.length > 0" class="cc-list">
@@ -56,9 +56,12 @@
         (click)="selectRow(row)"
       >
         <div class="cc-card-top">
-          <span class="cc-chip" [class.cc-chip--open]="row.status === 'open'">{{
-            statusLabel(row.status)
-          }}</span>
+          <span
+            class="cc-chip"
+            [class.cc-chip--open]="row.status === 'open'"
+            [class.cc-chip--complete]="row.status === 'paid'"
+            >{{ statusLabel(row.status) }}</span
+          >
           <span class="cc-card-title">{{ row.title }}</span>
         </div>
         <p class="cc-card-window">
@@ -100,6 +103,23 @@
         <h3 class="cc-rules-heading">Rules summary</h3>
         <p *ngFor="let para of ruleParagraphs(selected.rulesVersion)" class="cc-rules-para">
           {{ para }}
+        </p>
+      </div>
+
+      <div *ngIf="selected.status === 'paid'" class="cc-payout-block">
+        <h3 class="cc-rules-heading">Dry-run payout</h3>
+        <p *ngIf="payoutLoading" class="cc-payout-loading">Loading…</p>
+        <p *ngIf="!payoutLoading && payoutWinnerText" class="cc-payout-winner">
+          {{ payoutWinnerText }}
+        </p>
+        <ul *ngIf="!payoutLoading && payoutOtherLines.length" class="cc-payout-lines">
+          <li *ngFor="let line of payoutOtherLines">{{ line }}</li>
+        </ul>
+        <p
+          *ngIf="!payoutLoading && !payoutWinnerText"
+          class="cc-hint"
+        >
+          Payout lines are not available for this contest yet.
         </p>
       </div>
 

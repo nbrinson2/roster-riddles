@@ -90,3 +90,20 @@ export function assignDenseRanks(rows, leagueGamesN) {
   });
   return rows;
 }
+
+/** Default notional first-place amount for dry-run payouts (Story F1). */
+export const DRY_RUN_WINNER_AMOUNT_CENTS = 10_000;
+
+/**
+ * Dry-run payout lines: **numbers only** (`rank`, `uid`, `amountCents`) — no freeform labels (Story F1).
+ * @param {{ rank: number, uid: string }[]} standings — ordered standings with dense ranks
+ * @param {{ winnerAmountCents?: number }} [opts]
+ */
+export function buildDryRunPayoutLines(standings, opts = {}) {
+  const winnerCents = opts.winnerAmountCents ?? DRY_RUN_WINNER_AMOUNT_CENTS;
+  return standings.map((s) => ({
+    rank: s.rank,
+    uid: s.uid,
+    amountCents: s.rank === 1 ? winnerCents : 0,
+  }));
+}

@@ -25,7 +25,13 @@
       <ng-container *ngIf="leaderboardsUiEnabled && viewLeaderboard">
         <leaderboard-panel></leaderboard-panel>
       </ng-container>
-      <ng-container *ngIf="weeklyContestsUiEnabled && viewContests">
+      <ng-container
+        *ngIf="
+          weeklyContestsUiEnabled &&
+          viewContests &&
+          currentGameName === GameType.BIO_BALL
+        "
+      >
         <contests-panel
           (requestSignIn)="openLoginMenu()"
         ></contests-panel>
@@ -72,7 +78,10 @@
             <span class="material-symbols-outlined menu-icon">leaderboard</span>
           </div>
           <div
-            *ngIf="weeklyContestsUiEnabled"
+            *ngIf="
+              weeklyContestsUiEnabled &&
+              currentGameName === GameType.BIO_BALL
+            "
             class="menu-icon-container"
             role="button"
             tabindex="0"

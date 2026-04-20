@@ -75,6 +75,35 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   background: rgba(255, 193, 7, 0.06);
 }
 
+.cc-payout-block {
+  padding: 12px 14px;
+  border-radius: $cc-radius;
+  border: 1px solid rgba(144, 202, 249, 0.25);
+  background: rgba(33, 150, 243, 0.06);
+}
+
+.cc-payout-winner {
+  margin: 8px 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #e3f2fd;
+  letter-spacing: 0.02em;
+}
+
+.cc-payout-loading {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: $cc-muted;
+}
+
+.cc-payout-lines {
+  margin: 10px 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+  color: #cfd8dc;
+  line-height: 1.5;
+}
+
 .cc-body {
   flex: 1;
   min-height: 0;
@@ -177,6 +206,11 @@ $cc-muted: rgba(255, 255, 255, 0.55);
 .cc-chip--open {
   border-color: rgba(76, 175, 80, 0.55);
   color: #a5d6a7;
+}
+
+.cc-chip--complete {
+  border-color: rgba(100, 181, 246, 0.45);
+  color: #90caf9;
 }
 
 .cc-card-title {

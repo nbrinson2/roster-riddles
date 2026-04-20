@@ -27,7 +27,15 @@ import {
   type ContestDocument,
   type ContestStatus,
 } from 'src/app/shared/models/contest.model';
+import type {
+  ContestDryRunPayoutsDocument,
+  ContestPayoutLine,
+} from 'src/app/shared/models/contest-payouts-dry-run.model';
 import { environment } from 'src/environment';
+import {
+  getPlaceAmountLines,
+  getWinnerGetsPhrase,
+} from './contest-payout-display';
 import {
   CONTEST_DRY_RUN_PAYOUT_COPY,
   getContestRulesNarrative,
@@ -97,10 +105,18 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private listUnsubs: Unsubscribe[] = [];
   private entryUnsub: Unsubscribe | null = null;
+  private payoutUnsub: Unsubscribe | null = null;
   private loadedOpen = false;
   private loadedScheduled = false;
+  private loadedPaid = false;
   private openSnap: QuerySnapshot | null = null;
   private scheduledSnap: QuerySnapshot | null = null;
+  private paidSnap: QuerySnapshot | null = null;
+
+  /** When status is `paid`, snapshot of `payouts/dryRun` (Story F1). */
+  protected payoutLoading = false;
+  protected payoutWinnerText: string | null = null;
+  protected payoutOtherLines: string[] = [];
 
   constructor(
     private readonly auth: AuthService,
@@ -114,6 +130,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       if (!user) {
         this.detachListListeners();
         this.detachEntryListener();
+        this.detachPayoutListener();
         this.rows = [];
         this.loading = false;
         this.listError = null;
@@ -129,6 +146,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.detachListListeners();
     this.detachEntryListener();
+    this.detachPayoutListener();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -171,6 +189,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     this.joinError = null;
     this.joinSuccess = null;
     this.refreshEntryListener();
+    this.refreshPayoutListener();
   }
 
   protected clearSelection(): void {
@@ -179,6 +198,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     this.joinError = null;
     this.joinSuccess = null;
     this.detachEntryListener();
+    this.detachPayoutListener();
     this.entryRulesVersion = null;
   }
 
@@ -292,8 +312,10 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     this.listError = null;
     this.loadedOpen = false;
     this.loadedScheduled = false;
+    this.loadedPaid = false;
     this.openSnap = null;
     this.scheduledSnap = null;
+    this.paidSnap = null;
 
     const db = getConfiguredFirestore();
     const qOpen = query(
@@ -306,6 +328,11 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     const qScheduled = query(
       collection(db, 'contests'),
       where('status', '==', 'scheduled'),
+      limit(40),
+    );
+    const qPaid = query(
+      collection(db, 'contests'),
+      where('status', '==', 'paid'),
       limit(40),
     );
 
@@ -330,6 +357,16 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         },
         (e: Error) => this.onListError(e),
       ),
+      onSnapshot(
+        qPaid,
+        (snap) => {
+          this.paidSnap = snap;
+          this.loadedPaid = true;
+          this.mergeList();
+          this.updateLoadingFlag();
+        },
+        (e: Error) => this.onListError(e),
+      ),
     );
   }
 
@@ -342,7 +379,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   }
 
   private updateLoadingFlag(): void {
-    this.loading = !(this.loadedOpen && this.loadedScheduled);
+    this.loading = !(this.loadedOpen && this.loadedScheduled && this.loadedPaid);
   }
 
   private mergeList(): void {
@@ -362,14 +399,24 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
 
     ingest(this.openSnap);
     ingest(this.scheduledSnap);
+    ingest(this.paidSnap);
 
     this.rows = Array.from(byId.values())
       .filter((r) => r.gameMode === CONTEST_GAME_MODE_BIO_BALL)
       .sort((a, b) => this.sortRows(a, b));
 
+    const prevId = this.selected?.contestId ?? null;
+    const prevStatus = this.selected?.status ?? null;
     if (this.selected) {
       const updated = byId.get(this.selected.contestId);
       this.selected = updated ?? null;
+    }
+    const cur = this.selected;
+    const idChanged = (cur?.contestId ?? null) !== prevId;
+    const statusChanged = (cur?.status ?? null) !== prevStatus;
+    if (idChanged || statusChanged) {
+      this.refreshEntryListener();
+      this.refreshPayoutListener();
     }
   }
 
@@ -382,6 +429,9 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     }
     if (a.status === 'open' && b.status === 'open') {
       return a.windowEnd.getTime() - b.windowEnd.getTime();
+    }
+    if (a.status === 'paid' && b.status === 'paid') {
+      return b.windowEnd.getTime() - a.windowEnd.getTime();
     }
     return a.windowStart.getTime() - b.windowStart.getTime();
   }
@@ -481,5 +531,95 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       this.entryUnsub();
       this.entryUnsub = null;
     }
+  }
+
+  private refreshPayoutListener(): void {
+    this.detachPayoutListener();
+    const row = this.selected;
+    const id = row?.contestId;
+    if (!row || row.status !== 'paid' || !this.uid || !id) {
+      this.payoutLoading = false;
+      this.payoutWinnerText = null;
+      this.payoutOtherLines = [];
+      return;
+    }
+
+    this.payoutLoading = true;
+    this.payoutWinnerText = null;
+    this.payoutOtherLines = [];
+
+    const db = getConfiguredFirestore();
+    const ref = doc(db, 'contests', id, 'payouts', 'dryRun');
+    this.payoutUnsub = onSnapshot(
+      ref,
+      (snap) => {
+        this.payoutLoading = false;
+        if (!snap.exists()) {
+          this.payoutWinnerText = null;
+          this.payoutOtherLines = [];
+          return;
+        }
+        const parsed = this.parseDryRunPayout(snap.data());
+        this.payoutWinnerText = getWinnerGetsPhrase(parsed);
+        this.payoutOtherLines = getPlaceAmountLines(parsed);
+      },
+      () => {
+        this.payoutLoading = false;
+        this.payoutWinnerText = null;
+        this.payoutOtherLines = [];
+      },
+    );
+  }
+
+  private detachPayoutListener(): void {
+    if (this.payoutUnsub) {
+      this.payoutUnsub();
+      this.payoutUnsub = null;
+    }
+  }
+
+  private parseDryRunPayout(raw: unknown): ContestDryRunPayoutsDocument | null {
+    if (raw == null || typeof raw !== 'object' || Array.isArray(raw)) {
+      return null;
+    }
+    const o = raw as Record<string, unknown>;
+    const linesRaw = o['lines'];
+    if (!Array.isArray(linesRaw)) {
+      return null;
+    }
+    const lines: ContestPayoutLine[] = [];
+    for (const item of linesRaw) {
+      if (item == null || typeof item !== 'object' || Array.isArray(item)) {
+        continue;
+      }
+      const L = item as Record<string, unknown>;
+      const uid = typeof L['uid'] === 'string' ? L['uid'] : '';
+      const rank =
+        typeof L['rank'] === 'number' && Number.isFinite(L['rank'])
+          ? L['rank']
+          : typeof L['place'] === 'number' && Number.isFinite(L['place'])
+            ? L['place']
+            : NaN;
+      const amountCents =
+        typeof L['amountCents'] === 'number' &&
+        Number.isFinite(L['amountCents'])
+          ? L['amountCents']
+          : NaN;
+      if (!uid || !Number.isFinite(rank) || !Number.isFinite(amountCents)) {
+        continue;
+      }
+      lines.push({ uid, rank, amountCents });
+    }
+
+    return {
+      schemaVersion:
+        typeof o['schemaVersion'] === 'number' ? o['schemaVersion'] : 0,
+      notRealMoney: o['notRealMoney'] === true,
+      currency: typeof o['currency'] === 'string' ? o['currency'] : '',
+      lines,
+      finalizedAt: o['finalizedAt'],
+      payoutJobId:
+        typeof o['payoutJobId'] === 'string' ? o['payoutJobId'] : undefined,
+    };
   }
 }
