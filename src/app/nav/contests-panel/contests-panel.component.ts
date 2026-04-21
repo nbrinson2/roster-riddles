@@ -55,6 +55,14 @@ import {
   pipelineLabels,
   primaryCountdownLine,
 } from './contest-status-ui';
+import {
+  type ParsedFinalResultsView,
+  formatOrdinalRank,
+  formatYourPlaceCardLine,
+  humanizeTiePolicyRef,
+  initialLoadingResultsView,
+  parseFinalResultsForViewer,
+} from './contest-results-closure';
 
 /** Per-contest entry doc (signed-in user), for “You’re in” and join UI. */
 interface ContestEntryRowState {
@@ -71,6 +79,8 @@ interface ContestPayoutView {
   loading: boolean;
   winnerText: string | null;
   otherLines: string[];
+  lineCount: number;
+  currencyLabel: string;
 }
 
 /** Row for list + detail (Firestore + id). */
@@ -174,6 +184,10 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   /** Dry-run payout per listed `paid` contest (`payouts/dryRun`, Story F1). */
   protected paidPayoutByContestId: Record<string, ContestPayoutView> = {};
   private paidPayoutUnsubs = new Map<string, Unsubscribe>();
+
+  /** P1 — `results/final` per paid contest (placement + tie copy). */
+  protected finalResultsByContestId: Record<string, ParsedFinalResultsView> = {};
+  private finalResultsUnsubs = new Map<string, Unsubscribe>();
 
   constructor(
     private readonly auth: AuthService,
@@ -537,6 +551,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     this.rows = rowsFiltered.sort((a, b) => this.sortRows(a, b));
 
     this.syncPaidListExtras();
+    this.syncFinalResultsListeners();
     this.syncEntryRowListeners();
 
     if (prevExpandedId) {
@@ -648,6 +663,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     }
     this.listUnsubs = [];
     this.detachAllPaidPayoutListeners();
+    this.detachAllFinalResultsListeners();
   }
 
   private detachAllEntryRowListeners(): void {
@@ -783,6 +799,59 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     this.paidPayoutByContestId = {};
   }
 
+  private detachAllFinalResultsListeners(): void {
+    for (const unsub of this.finalResultsUnsubs.values()) {
+      unsub();
+    }
+    this.finalResultsUnsubs.clear();
+    this.finalResultsByContestId = {};
+  }
+
+  /** `results/final` for each listed `paid` contest (placement narrative, tie copy). */
+  private syncFinalResultsListeners(): void {
+    if (!this.uid) {
+      this.detachAllFinalResultsListeners();
+      return;
+    }
+    const paidIds = new Set(
+      this.rows.filter((r) => r.status === 'paid').map((r) => r.contestId),
+    );
+    for (const [id, unsub] of this.finalResultsUnsubs.entries()) {
+      if (!paidIds.has(id)) {
+        unsub();
+        this.finalResultsUnsubs.delete(id);
+        delete this.finalResultsByContestId[id];
+      }
+    }
+
+    const db = getConfiguredFirestore();
+    const myUid = this.uid;
+    for (const id of paidIds) {
+      if (this.finalResultsUnsubs.has(id)) {
+        continue;
+      }
+      this.finalResultsByContestId[id] = initialLoadingResultsView();
+      const ref = doc(db, 'contests', id, 'results', 'final');
+      const unsub = onSnapshot(
+        ref,
+        (snap) => {
+          const raw = snap.exists() ? snap.data() : null;
+          this.finalResultsByContestId[id] = parseFinalResultsForViewer(
+            raw,
+            myUid,
+          );
+        },
+        () => {
+          this.finalResultsByContestId[id] = parseFinalResultsForViewer(
+            null,
+            myUid,
+          );
+        },
+      );
+      this.finalResultsUnsubs.set(id, unsub);
+    }
+  }
+
   /** Subscribe to `payouts/dryRun` for each listed `paid` contest. */
   private syncPaidListExtras(): void {
     if (!this.uid) {
@@ -809,6 +878,8 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         loading: true,
         winnerText: null,
         otherLines: [],
+        lineCount: 0,
+        currencyLabel: '',
       };
 
       const payoutRef = doc(db, 'contests', id, 'payouts', 'dryRun');
@@ -823,11 +894,22 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
           if (!snap.exists()) {
             st.winnerText = null;
             st.otherLines = [];
+            st.lineCount = 0;
+            st.currencyLabel = '';
             return;
           }
           const parsed = this.parseDryRunPayout(snap.data());
+          if (!parsed) {
+            st.winnerText = null;
+            st.otherLines = [];
+            st.lineCount = 0;
+            st.currencyLabel = '';
+            return;
+          }
           st.winnerText = getWinnerGetsPhrase(parsed);
           st.otherLines = getPlaceAmountLines(parsed);
+          st.lineCount = parsed.lines.length;
+          st.currencyLabel = this.formatDryRunCurrencyCaption(parsed);
         },
         () => {
           const st = this.paidPayoutByContestId[id];
@@ -835,6 +917,8 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
             st.loading = false;
             st.winnerText = null;
             st.otherLines = [];
+            st.lineCount = 0;
+            st.currencyLabel = '';
           }
         },
       );
@@ -885,5 +969,124 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       payoutJobId:
         typeof o['payoutJobId'] === 'string' ? o['payoutJobId'] : undefined,
     };
+  }
+
+  private formatDryRunCurrencyCaption(
+    doc: ContestDryRunPayoutsDocument,
+  ): string {
+    const c = doc.currency.trim();
+    if (doc.notRealMoney) {
+      return c ? `${c} (notional, dry-run)` : 'notional dry-run amounts';
+    }
+    return c || 'USD';
+  }
+
+  protected formatOrdinalRank = formatOrdinalRank;
+
+  /** Collapsed card line — your place / entry state (paid contests). */
+  protected yourPlaceCardLine(row: ContestListRow): string | null {
+    if (row.status !== 'paid') {
+      return null;
+    }
+    const v = this.finalResultsByContestId[row.contestId];
+    if (!v) {
+      return null;
+    }
+    const ent = this.entryInfoByContestId[row.contestId];
+    const entered = !!ent?.loaded && ent.entered;
+    return formatYourPlaceCardLine(v, entered);
+  }
+
+  /** Slate blurb for expanded paid section. */
+  protected slateSummaryLine(row: ContestListRow): string {
+    const n = row.leagueGamesN;
+    return `This contest’s slate is ${n} league game${n === 1 ? '' : 's'} (your first ${n} Bio Ball results in the play window, in time order).`;
+  }
+
+  protected payoutTransparencyLine(
+    px: ContestPayoutView,
+  ): string | null {
+    if (px.loading) {
+      return null;
+    }
+    if (!px.winnerText && px.lineCount === 0) {
+      return null;
+    }
+    const n = px.lineCount;
+    const places =
+      n === 0
+        ? 'No payout lines were published for this dry-run yet.'
+        : `This dry-run lists ${n} paid place${n === 1 ? '' : 's'}.`;
+    const cur = px.currencyLabel.trim();
+    const curPart = cur
+      ? ` Amounts use ${cur}; figures are rounded to whole cents.`
+      : ' Amounts are rounded to whole cents.';
+    return `${places}${curPart}`;
+  }
+
+  protected closureWhyHeading(row: ContestListRow): string {
+    const v = this.finalResultsByContestId[row.contestId];
+    if (!v || v.loading) {
+      return 'Results & tie-breaks';
+    }
+    if (v.youMissingFromStandings) {
+      return 'Why you’re not listed';
+    }
+    if (v.yourRank === 1) {
+      return 'How placements were decided';
+    }
+    return 'Why didn’t I win?';
+  }
+
+  protected closureWhyLines(row: ContestListRow): string[] {
+    const v = this.finalResultsByContestId[row.contestId];
+    if (!v || v.loading) {
+      return [];
+    }
+    const lines: string[] = [];
+    if (v.yourRank != null && v.yourRank > 1) {
+      lines.push(
+        'Simulated payouts go to the top ranks only. Your finish reflects contest wins on this slate, then tie-breakers when wins tie.',
+      );
+    }
+    if (v.youMissingFromStandings) {
+      lines.push(
+        'If you entered, you may be missing because results are still processing, the slate was partial, or the published list excludes your row — see full rules.',
+      );
+    }
+    if (v.tieSummary) {
+      lines.push(v.tieSummary);
+    }
+    const pol = humanizeTiePolicyRef(v.tiePolicyRef);
+    if (pol) {
+      lines.push(pol);
+    }
+    return lines;
+  }
+
+  protected closureWhyBlockVisible(row: ContestListRow): boolean {
+    if (row.status !== 'paid') {
+      return false;
+    }
+    const e = this.entryInfoByContestId[row.contestId];
+    if (!e?.loaded || !e.entered) {
+      return false;
+    }
+    const v = this.finalResultsByContestId[row.contestId];
+    if (!v || v.loading) {
+      return false;
+    }
+    if (v.youMissingFromStandings) {
+      return true;
+    }
+    if (v.yourRank != null && v.yourRank > 1) {
+      return true;
+    }
+    return v.tieSummary != null || v.tiePolicyRef != null;
+  }
+
+  protected enteredContest(row: ContestListRow): boolean {
+    const e = this.entryInfoByContestId[row.contestId];
+    return !!e?.loaded && e.entered;
   }
 }

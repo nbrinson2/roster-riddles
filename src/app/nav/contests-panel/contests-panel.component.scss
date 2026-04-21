@@ -104,6 +104,88 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   line-height: 1.5;
 }
 
+.cc-card-your-place {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.cc-detail-slate {
+  margin: 0 0 12px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: $cc-muted;
+}
+
+.cc-results-closure {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: $cc-radius;
+  border: 1px solid rgba(129, 199, 132, 0.28);
+  background: rgba(76, 175, 80, 0.07);
+}
+
+.cc-results-loading {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: $cc-muted;
+}
+
+.cc-results-winner {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e8f5e9;
+  line-height: 1.45;
+}
+
+.cc-results-yours {
+  margin: 10px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #c8e6c9;
+}
+
+.cc-results-missing {
+  margin: 10px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: #ffcc80;
+}
+
+.cc-closure-why {
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border-radius: $cc-radius;
+  border: 1px solid rgba(255, 213, 79, 0.22);
+  background: rgba(255, 193, 7, 0.06);
+}
+
+.cc-closure-why-list {
+  margin: 8px 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #ffe082;
+}
+
+.cc-closure-rules-link {
+  margin: 10px 0 0;
+  font-size: 0.8rem;
+
+  a {
+    color: #90caf9;
+  }
+}
+
+.cc-payout-transparency {
+  margin: 0 0 12px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: $cc-muted;
+}
+
 .cc-body {
   flex: 1;
   min-height: 0;

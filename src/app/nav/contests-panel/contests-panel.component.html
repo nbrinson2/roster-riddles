@@ -132,6 +132,12 @@
             {{ formatPaidCardMeta(row, po) }}
           </ng-container>
         </p>
+        <p
+          *ngIf="row.status === 'paid' && yourPlaceCardLine(row) as ypl"
+          class="cc-card-your-place"
+        >
+          {{ ypl }}
+        </p>
 
         <div class="cc-card-actions">
           <button
@@ -224,6 +230,69 @@
               {{ para }}
             </p>
           </div>
+
+          <ng-container *ngIf="row.status === 'paid'">
+            <p class="cc-detail-slate">{{ slateSummaryLine(row) }}</p>
+
+            <div
+              *ngIf="finalResultsByContestId[row.contestId] as fr"
+              class="cc-results-closure"
+            >
+              <h3 class="cc-rules-heading">Final results</h3>
+              <p *ngIf="fr.loading" class="cc-results-loading" role="status">
+                Loading final results…
+              </p>
+              <p *ngIf="!fr.loading && fr.winnerLine" class="cc-results-winner">
+                {{ fr.winnerLine }}
+              </p>
+              <p
+                *ngIf="
+                  !fr.loading &&
+                    fr.yourRank != null &&
+                    !fr.youMissingFromStandings
+                "
+                class="cc-results-yours"
+              >
+                Your finish: {{ formatOrdinalRank(fr.yourRank) }} of
+                {{ fr.entrants }} · {{ fr.yourWins }} wins ·
+                {{ fr.yourGamesPlayed }} games played ({{ fr.yourLosses }}
+                losses, {{ fr.yourAbandoned }} abandoned)<span
+                  *ngIf="fr.yourTier === 'partial'"
+                  > · partial slate</span
+                >.
+              </p>
+              <p
+                *ngIf="!fr.loading && fr.youMissingFromStandings && enteredContest(row)"
+                class="cc-results-missing"
+              >
+                You’re not in the published standings for this contest.
+              </p>
+            </div>
+
+            <div *ngIf="closureWhyBlockVisible(row)" class="cc-closure-why">
+              <h3 class="cc-rules-heading">{{ closureWhyHeading(row) }}</h3>
+              <ul class="cc-closure-why-list">
+                <li *ngFor="let line of closureWhyLines(row)">{{ line }}</li>
+              </ul>
+              <p class="cc-closure-rules-link">
+                <a
+                  [href]="fullRulesHref"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  >Full rules &amp; tie-break policy</a
+                >
+              </p>
+            </div>
+
+            <ng-container *ngIf="paidPayoutByContestId[row.contestId] as px">
+              <p
+                *ngIf="payoutTransparencyLine(px)"
+                class="cc-payout-transparency"
+              >
+                {{ payoutTransparencyLine(px) }}
+              </p>
+            </ng-container>
+          </ng-container>
 
           <div *ngIf="row.status === 'paid'" class="cc-payout-block">
             <h3 class="cc-rules-heading">Dry-run payout</h3>
