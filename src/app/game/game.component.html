@@ -50,7 +50,11 @@
                   Count unavailable
                 </div>
               </div>
-              <p class="game-contest-banner__value" [title]="strip.slate.valuePropLine">
+              <p
+                class="game-contest-banner__value"
+                [title]="strip.slate.valuePropLine"
+                [attr.aria-label]="'Contest summary: ' + strip.slate.valuePropLine"
+              >
                 {{ strip.slate.valuePropLine }}
               </p>
             </div>

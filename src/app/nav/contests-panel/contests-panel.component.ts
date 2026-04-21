@@ -48,6 +48,20 @@ import {
   getContestRulesNarrative,
   getContestRulesShortBullets,
 } from './contest-rules-copy';
+import {
+  isPlayWindowLockSoon,
+  pipelineCaption,
+  pipelineCurrentIndex,
+  pipelineLabels,
+  primaryCountdownLine,
+} from './contest-status-ui';
+
+/** Per-contest entry doc (signed-in user), for “You’re in” and join UI. */
+interface ContestEntryRowState {
+  loaded: boolean;
+  entered: boolean;
+  rulesAcceptedVersion: number | string | null;
+}
 
 /** Max `paid` contests shown (most recent by window end), in addition to all open + scheduled. */
 const MAX_COMPLETED_CONTESTS = 5;
@@ -108,6 +122,8 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
 
   protected readonly dryRunCopy = CONTEST_DRY_RUN_PAYOUT_COPY;
   protected readonly fullRulesHref = CONTEST_FULL_RULES_HREF;
+  /** Placeholder count for loading skeleton cards. */
+  protected readonly skeletonPlaceholders = [1, 2, 3] as const;
 
   protected loggedIn = false;
   protected loading = true;
@@ -121,13 +137,33 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   protected joinError: string | null = null;
   protected joinSuccess: string | null = null;
 
-  /** Own entry rules version when doc exists (Firestore). */
-  protected entryRulesVersion: number | string | null = null;
+  /**
+   * Rules version for the expanded contest when the user is entered — backed by
+   * {@link entryInfoByContestId}.
+   */
+  protected get entryRulesVersion(): number | string | null {
+    const id = this.expandedContestId;
+    if (!id) {
+      return null;
+    }
+    const e = this.entryInfoByContestId[id];
+    if (!e?.loaded || !e.entered) {
+      return null;
+    }
+    return e.rulesAcceptedVersion ?? null;
+  }
+
+  /** For countdowns / lock-soon; updated every second while the panel is active. */
+  protected nowMs = Date.now();
+
+  /** `contests/{id}/entries/{uid}` listeners for each listed row. */
+  protected entryInfoByContestId: Record<string, ContestEntryRowState> = {};
+  private entryRowUnsubs = new Map<string, Unsubscribe>();
+  private clockId: ReturnType<typeof setInterval> | null = null;
 
   private uid: string | null = null;
   private destroy$ = new Subject<void>();
   private listUnsubs: Unsubscribe[] = [];
-  private entryUnsub: Unsubscribe | null = null;
   private loadedOpen = false;
   private loadedScheduled = false;
   private loadedPaid = false;
@@ -150,23 +186,25 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       this.loggedIn = !!user;
       this.uid = user?.uid ?? null;
       if (!user) {
+        this.stopContestClock();
         this.detachListListeners();
-        this.detachEntryListener();
+        this.detachAllEntryRowListeners();
         this.rows = [];
         this.loading = false;
         this.listError = null;
         this.expandedContestId = null;
-        this.entryRulesVersion = null;
+        this.entryInfoByContestId = {};
         return;
       }
       this.attachListListeners();
-      this.refreshEntryListener();
+      this.startContestClock();
     });
   }
 
   ngOnDestroy(): void {
+    this.stopContestClock();
     this.detachListListeners();
-    this.detachEntryListener();
+    this.detachAllEntryRowListeners();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -264,15 +302,12 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       this.rulesCheckbox = false;
       this.joinError = null;
       this.joinSuccess = null;
-      this.detachEntryListener();
-      this.entryRulesVersion = null;
       return;
     }
     this.expandedContestId = row.contestId;
     this.rulesCheckbox = false;
     this.joinError = null;
     this.joinSuccess = null;
-    this.refreshEntryListener();
   }
 
   protected canAttemptJoin(row: ContestListRow): boolean {
@@ -336,7 +371,11 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
           this.joinSuccess = res.idempotentReplay
             ? `You are already entered. Rules accepted version ${String(accepted)} (matches contest rules ${String(contestRules)}).`
             : `You are in. Rules accepted version ${String(accepted)} (stored on your entry; contest rules ${String(contestRules)}).`;
-          this.entryRulesVersion = accepted;
+          this.entryInfoByContestId[row.contestId] = {
+            loaded: true,
+            entered: true,
+            rulesAcceptedVersion: accepted,
+          };
           if (res.contest.gameMode === CONTEST_GAME_MODE_BIO_BALL) {
             this.weeklyContestSlate.refreshSlateAfterEntryChange();
           }
@@ -483,9 +522,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     ingest(this.paidSnap);
 
     const prevExpandedId = this.expandedContestId;
-    const prevExpandedStatus = prevExpandedId
-      ? this.rows.find((r) => r.contestId === prevExpandedId)?.status ?? null
-      : null;
 
     const bios = Array.from(byId.values()).filter(
       (r) => r.gameMode === CONTEST_GAME_MODE_BIO_BALL,
@@ -501,6 +537,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     this.rows = rowsFiltered.sort((a, b) => this.sortRows(a, b));
 
     this.syncPaidListExtras();
+    this.syncEntryRowListeners();
 
     if (prevExpandedId) {
       const updated = byId.get(prevExpandedId);
@@ -509,10 +546,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         this.rulesCheckbox = false;
         this.joinError = null;
         this.joinSuccess = null;
-        this.entryRulesVersion = null;
-        this.detachEntryListener();
-      } else if (updated.status !== prevExpandedStatus) {
-        this.refreshEntryListener();
       }
     }
   }
@@ -617,6 +650,131 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     this.detachAllPaidPayoutListeners();
   }
 
+  private detachAllEntryRowListeners(): void {
+    for (const unsub of this.entryRowUnsubs.values()) {
+      unsub();
+    }
+    this.entryRowUnsubs.clear();
+  }
+
+  private syncEntryRowListeners(): void {
+    if (!this.uid) {
+      return;
+    }
+    const ids = new Set(this.rows.map((r) => r.contestId));
+    for (const [id, unsub] of [...this.entryRowUnsubs.entries()]) {
+      if (!ids.has(id)) {
+        unsub();
+        this.entryRowUnsubs.delete(id);
+        delete this.entryInfoByContestId[id];
+      }
+    }
+
+    const db = getConfiguredFirestore();
+    const uid = this.uid;
+    for (const id of ids) {
+      if (this.entryRowUnsubs.has(id)) {
+        continue;
+      }
+      const ref = doc(db, 'contests', id, 'entries', uid);
+      const unsub = onSnapshot(
+        ref,
+        (snap) => {
+          if (!snap.exists()) {
+            this.entryInfoByContestId[id] = {
+              loaded: true,
+              entered: false,
+              rulesAcceptedVersion: null,
+            };
+            return;
+          }
+          const data = snap.data();
+          const v = data['rulesAcceptedVersion'] as number | string | undefined;
+          this.entryInfoByContestId[id] = {
+            loaded: true,
+            entered: true,
+            rulesAcceptedVersion:
+              v === undefined || v === null ? null : v,
+          };
+        },
+        () => {
+          this.entryInfoByContestId[id] = {
+            loaded: true,
+            entered: false,
+            rulesAcceptedVersion: null,
+          };
+        },
+      );
+      this.entryRowUnsubs.set(id, unsub);
+    }
+  }
+
+  private startContestClock(): void {
+    this.stopContestClock();
+    this.nowMs = Date.now();
+    this.clockId = setInterval(() => {
+      this.nowMs = Date.now();
+    }, 1000);
+  }
+
+  private stopContestClock(): void {
+    if (this.clockId != null) {
+      clearInterval(this.clockId);
+      this.clockId = null;
+    }
+  }
+
+  /** P0: retry after Firestore list error. */
+  protected retryLoadContests(): void {
+    if (!this.loggedIn) {
+      return;
+    }
+    this.listError = null;
+    this.attachListListeners();
+  }
+
+  protected readonly pipelineStepLabels = pipelineLabels;
+
+  protected pipelineStepActiveIndex(status: ContestStatus): number {
+    return pipelineCurrentIndex(status);
+  }
+
+  protected pipelineHelpText(row: ContestListRow): string {
+    return pipelineCaption(
+      row.status,
+      row.windowStart.getTime(),
+      row.windowEnd.getTime(),
+      this.nowMs,
+    );
+  }
+
+  protected countdownLine(row: ContestListRow): string | null {
+    return primaryCountdownLine(
+      row.status,
+      row.windowStart.getTime(),
+      row.windowEnd.getTime(),
+      this.nowMs,
+    );
+  }
+
+  protected lockSoon(row: ContestListRow): boolean {
+    return isPlayWindowLockSoon(
+      row.status,
+      row.windowStart.getTime(),
+      row.windowEnd.getTime(),
+      this.nowMs,
+    );
+  }
+
+  protected showYoureIn(row: ContestListRow): boolean {
+    const e = this.entryInfoByContestId[row.contestId];
+    return !!e?.loaded && e.entered;
+  }
+
+  protected statusChipAriaLabel(row: ContestListRow): string {
+    return `Contest status: ${this.statusLabel(row.status)}`;
+  }
+
   private detachAllPaidPayoutListeners(): void {
     for (const unsub of this.paidPayoutUnsubs.values()) {
       unsub();
@@ -681,41 +839,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         },
       );
       this.paidPayoutUnsubs.set(id, unsub);
-    }
-  }
-
-  private refreshEntryListener(): void {
-    this.detachEntryListener();
-    const id = this.expandedContestId;
-    const uid = this.uid;
-    if (!id || !uid) {
-      this.entryRulesVersion = null;
-      return;
-    }
-
-    const db = getConfiguredFirestore();
-    const ref = doc(db, 'contests', id, 'entries', uid);
-    this.entryUnsub = onSnapshot(
-      ref,
-      (snap) => {
-        if (!snap.exists()) {
-          this.entryRulesVersion = null;
-          return;
-        }
-        const v = snap.data()['rulesAcceptedVersion'] as number | string | undefined;
-        this.entryRulesVersion =
-          v === undefined || v === null ? null : v;
-      },
-      () => {
-        this.entryRulesVersion = null;
-      },
-    );
-  }
-
-  private detachEntryListener(): void {
-    if (this.entryUnsub) {
-      this.entryUnsub();
-      this.entryUnsub = null;
     }
   }
 

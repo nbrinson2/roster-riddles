@@ -5,7 +5,6 @@
     </div>
     <div class="cc-hero-text">
       <h1 class="cc-title">Weekly contests</h1>
-      <p class="cc-subtitle">Bio Ball mini-leagues</p>
     </div>
   </header>
 
@@ -25,27 +24,58 @@
   </div>
 
   <div *ngIf="loggedIn" class="cc-body">
-    <div *ngIf="loading" class="state state-loading">
-      <mat-spinner diameter="40"></mat-spinner>
-      <span>Loading contests…</span>
+    <div
+      *ngIf="loading"
+      class="cc-loading-wrap state state-loading"
+      role="status"
+      aria-busy="true"
+      aria-live="polite"
+    >
+      <p class="cc-loading-title">Loading your contests…</p>
+      <mat-spinner diameter="36" aria-hidden="true"></mat-spinner>
+      <p class="cc-loading-hint">
+        Fetching open, upcoming, and recent completed contests.
+      </p>
+      <div class="cc-skeleton-list" aria-hidden="true">
+        <div *ngFor="let _ of skeletonPlaceholders" class="cc-skeleton-card">
+          <span class="cc-skeleton cc-skeleton--title"></span>
+          <span class="cc-skeleton cc-skeleton--line"></span>
+          <span class="cc-skeleton cc-skeleton--line cc-skeleton--short"></span>
+        </div>
+      </div>
     </div>
 
     <div
       *ngIf="!loading && listError"
       class="state state-error"
       role="alert"
+      aria-live="assertive"
     >
-      {{ listError }}
+      <p class="cc-error-title">Couldn’t load contests</p>
+      <p class="cc-error-detail">{{ listError }}</p>
+      <button
+        mat-stroked-button
+        type="button"
+        class="cc-retry-btn"
+        (click)="retryLoadContests()"
+      >
+        Try again
+      </button>
     </div>
 
     <div
       *ngIf="!loading && !listError && rows.length === 0"
       class="state state-empty"
+      role="status"
     >
       <span class="material-symbols-outlined state-empty-icon"
         >event_busy</span
       >
-      <p>No Bio Ball contests to show right now.</p>
+      <p class="cc-empty-title">No contests here yet</p>
+      <p class="cc-empty-desc">
+        There are no Bio Ball weekly contests to list right now. When your host
+        adds open or upcoming contests, they will appear here.
+      </p>
     </div>
 
     <ul
@@ -58,14 +88,31 @@
           <div class="cc-card-titles">
             <span class="cc-card-title">{{ row.title }}</span>
             <span class="cc-card-id" title="Contest id">{{ row.contestId }}</span>
+            <span *ngIf="showYoureIn(row)" class="cc-badge-in" role="status">
+              <span class="material-symbols-outlined" aria-hidden="true"
+                >verified</span
+              >
+              You’re in
+            </span>
           </div>
           <span
             class="cc-chip"
             [class.cc-chip--open]="row.status === 'open'"
+            [class.cc-chip--scoring]="row.status === 'scoring'"
             [class.cc-chip--complete]="row.status === 'paid'"
+            [attr.aria-label]="statusChipAriaLabel(row)"
             >{{ statusLabel(row.status) }}</span
           >
         </div>
+        <p *ngIf="lockSoon(row)" class="cc-lock-soon" role="status">
+          <span class="material-symbols-outlined" aria-hidden="true"
+            >schedule</span
+          >
+          Play window ends soon — finish your slate games before it closes.
+        </p>
+        <p *ngIf="countdownLine(row) as cd" class="cc-countdown" aria-live="polite">
+          {{ cd }}
+        </p>
         <p class="cc-card-window">
           {{ formatWindowLocal(row.windowStart, row.windowEnd) }}
         </p>
@@ -92,6 +139,7 @@
             class="cc-expand-btn"
             (click)="toggleExpand(row)"
             [attr.aria-expanded]="expandedContestId === row.contestId"
+            [attr.aria-controls]="'cc-detail-' + row.contestId"
           >
             {{
               expandedContestId === row.contestId ? "Close" : "View details"
@@ -102,6 +150,9 @@
         <div
           *ngIf="expandedContestId === row.contestId"
           class="cc-card-expand"
+          [id]="'cc-detail-' + row.contestId"
+          role="region"
+          [attr.aria-label]="'Details for ' + row.title"
         >
           <h2 class="cc-detail-title">{{ row.title }}</h2>
           <p class="cc-detail-window">
@@ -111,6 +162,33 @@
           <p class="cc-detail-meta">
             Status: {{ statusLabel(row.status) }} · Rules version
             {{ row.rulesVersion }} · Slate size {{ row.leagueGamesN }}
+          </p>
+
+          <div
+            *ngIf="row.status !== 'cancelled'"
+            class="cc-pipeline"
+            role="group"
+            [attr.aria-label]="'Contest progress for ' + row.title"
+          >
+            <p class="cc-pipeline-help">{{ pipelineHelpText(row) }}</p>
+            <ol class="cc-pipeline-steps" role="list">
+              <li
+                *ngFor="let label of pipelineStepLabels(); let i = index"
+                class="cc-pipeline-step"
+                [class.cc-pipeline-step--current]="
+                  i === pipelineStepActiveIndex(row.status)
+                "
+                [class.cc-pipeline-step--past]="
+                  i < pipelineStepActiveIndex(row.status)
+                "
+                role="listitem"
+              >
+                {{ label }}
+              </li>
+            </ol>
+          </div>
+          <p *ngIf="row.status === 'cancelled'" class="cc-pipeline-cancelled">
+            This contest was cancelled — there is no final payout for entrants.
           </p>
 
           <p *ngIf="joinDisabledReason(row)" class="cc-hint">
