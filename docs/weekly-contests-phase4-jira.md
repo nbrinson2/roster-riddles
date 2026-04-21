@@ -420,12 +420,18 @@ Repeatable checklist similar to leaderboard G1: known UIDs, expected ranks after
 
 **Acceptance criteria**
 
-- [ ] `docs/` checklist + optional `npm run` script stub referenced.
-- [ ] **Fake currency** or **$0** called out in seed data.
+- [x] `docs/` checklist + optional `npm run` script stub referenced.
+- [x] **Fake currency** or **$0** called out in seed data.
 
 **Dependencies**
 
 - Stories C1, E2, F1.
+
+**Deliverable (merged)**
+
+- **[`docs/weekly-contests-staging-seed-g1.md`](weekly-contests-staging-seed-g1.md)** — checklist, env, post-seed lifecycle pointers.
+- **[`docs/fixtures/weekly-contest-staging.example.json`](fixtures/weekly-contest-staging.example.json)** — example contest + entrants + **`slate`** + **`expectedAfterScoring`** (**FAKE_USD** / **`dryRunWinnerAmountCents`**).
+- **[`scripts/seed-weekly-contest-staging.mjs`](../scripts/seed-weekly-contest-staging.mjs)** — `npm run seed:weekly-contest-staging` (optional **`--dry-run`**).
 
 ---
 

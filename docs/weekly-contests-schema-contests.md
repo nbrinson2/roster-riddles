@@ -75,5 +75,6 @@ See **`src/app/shared/models/contest.model.ts`** — `ContestDocument`, `Contest
 
 ## References
 
+- [weekly-contests-staging-seed-g1.md](weekly-contests-staging-seed-g1.md) — Story G1 staging seed script + checklist  
 - [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md) — lifecycle and scoring semantics  
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Story B1  

@@ -37,6 +37,9 @@ coverage/
 # Story G1 — local leaderboard cohort fixture (copy from docs/fixtures example)
 leaderboard-test-cohort.json
 
+# Story G1 — weekly contest staging seed (copy from docs/fixtures example)
+weekly-contest-staging.json
+
 # OS
 .DS_Store
 Thumbs.db

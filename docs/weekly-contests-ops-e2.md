@@ -5,6 +5,7 @@
 
 ## Preconditions
 
+- Staging test data: [weekly-contests-staging-seed-g1.md](weekly-contests-staging-seed-g1.md) — **`npm run seed:weekly-contest-staging`** seeds a contest, entries, and Bio Ball **`gameplayEvents`** for predictable ranks.
 - Contest **`status`** must be **`scoring`** (normally set by [Story E1](weekly-contests-ops-e1.md) close-window hook).
 - **`gameMode`** must be **`bio-ball`**.
 - Entrants are **`contests/{contestId}/entries/{uid}`**; for each, qualifying **`users/{uid}/gameplayEvents`** docs are those with:
