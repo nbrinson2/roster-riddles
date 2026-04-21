@@ -1,5 +1,7 @@
 # Stripe (test vs live) — Phase 1 placeholders
 
+**Broader roadmap:** entry fees, webhooks, and payouts sit in [product-roadmap-contests-and-payments.md](product-roadmap-contests-and-payments.md) (Phases 5–6).
+
 Payment integration is not wired yet. Use this doc so **non-production** never uses **live** Stripe keys by mistake.
 
 ## Rules
