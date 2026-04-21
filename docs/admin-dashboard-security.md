@@ -46,7 +46,7 @@ Custom claims are embedded in the **ID token** at issue time. After an operator 
   - **Sign-out / sign-in**, or
   - Natural expiry and refresh (timing-dependent).
 
-**Product expectation:** After grant/revoke, admins should **refresh the session** (or wait for refresh) before **`GET /api/v1/me`** reflects the new value. See [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md).
+**Product expectation:** After grant/revoke, admins should **refresh the session** (or wait for refresh) before **`GET /api/v1/me`** reflects the new value. For stricter lockout, operators can use **`--revoke-sessions`** and **`--disable-user`** on the claim script — see [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md).
 
 ---
 

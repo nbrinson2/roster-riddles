@@ -7,7 +7,7 @@
 
 Operators with a **Firebase service account** for the right project can grant or revoke the **`admin: true`** custom claim used by the API ([`server/auth-claims.js`](../server/auth-claims.js)) and exposed as **`isAdmin`** on **`GET /api/v1/me`**.
 
-**This script only changes Auth custom claims.** It does not deploy code or rotate API secrets.
+**This script changes Auth custom claims** and can optionally **revoke refresh tokens** or **disable the user** for stricter lockout. It does not deploy code or rotate API secrets.
 
 ---
 
@@ -34,6 +34,15 @@ node scripts/set-admin-claim.mjs YOUR_FIREBASE_UID --grant
 # Revoke (sets admin: false; see server isAdmin check)
 node scripts/set-admin-claim.mjs YOUR_FIREBASE_UID --revoke
 
+# Stricter revoke: invalidate refresh tokens (forces re-auth; ID tokens may last up to ~1h)
+node scripts/set-admin-claim.mjs YOUR_FIREBASE_UID --revoke --revoke-sessions
+
+# Strongest revoke: also disable the account in Firebase Auth (blocks sign-in)
+node scripts/set-admin-claim.mjs YOUR_FIREBASE_UID --revoke --revoke-sessions --disable-user
+
+# Re-grant admin and re-enable an account that was disabled
+node scripts/set-admin-claim.mjs YOUR_FIREBASE_UID --grant --enable-user
+
 # Print what would happen (no Firebase calls)
 node scripts/set-admin-claim.mjs YOUR_FIREBASE_UID --grant --dry-run
 ```
@@ -46,7 +55,7 @@ npm run admin:set-claim -- YOUR_FIREBASE_UID --grant
 
 Exit codes: **0** success or dry-run; **1** usage/validation; **2** Firebase init or Auth API error.
 
-Structured success line includes **`customClaims`** from **`getUser`** for verification.
+Structured success line includes **`customClaims`**, **`disabled`**, and **`actions`** (what ran: e.g. `revoke_refresh_tokens`, `disable_user`) for verification.
 
 ---
 
@@ -77,8 +86,17 @@ Always confirm **`project_id`** inside the service account JSON matches the envi
 
 ## Revocation and sessions
 
-- Setting **`admin: false`** stops **new** ID tokens from carrying admin (after refresh).  
-- If your threat model requires **immediate** revocation, also **disable** the user in Firebase Auth or force password reset / session revoke per [Firebase Auth docs](https://firebase.google.com/docs/auth/admin/manage-sessions) — out of scope for this script, but called out per Story AD-3.
+- Setting **`admin: false`** alone stops **new** ID tokens from carrying admin after the user refreshes the token ([token latency](admin-dashboard-security.md)).
+- **`--revoke-sessions`** calls Firebase **`revokeRefreshTokens`**: existing refresh tokens are invalidated so the client must obtain new credentials; existing ID tokens can still be valid for a short window ([manage sessions](https://firebase.google.com/docs/auth/admin/manage-sessions)).
+- **`--disable-user`** sets **`disabled: true`** on the Auth user — **blocks sign-in** for that account until you **`--grant --enable-user`** (or re-enable in Firebase console). Use for break-glass removal of access when appropriate.
+
+Recommended combinations:
+
+| Situation | Example |
+|-----------|---------|
+| Remove admin UI only | `--revoke` |
+| Remove admin + force new sign-in soon | `--revoke --revoke-sessions` |
+| Remove admin + block account | `--revoke --revoke-sessions --disable-user` |
 
 ---
 
