@@ -19,6 +19,7 @@ import {
 } from './server/rate-limit-hooks.middleware.js';
 import {
   getAdminContestList,
+  postAdminContestCreate,
   postAdminContestTransition,
 } from './server/admin-contests.http.js';
 import { requireFirebaseAuth } from './server/require-auth.js';
@@ -82,6 +83,13 @@ app.get(
   requireAdmin,
   contestReadRateLimitHookMiddleware,
   getAdminContestList,
+);
+app.post(
+  '/api/v1/admin/contests',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestCreate,
 );
 app.post(
   '/api/v1/admin/contests/:contestId/transition',

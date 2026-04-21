@@ -19,6 +19,8 @@ mat-sidenav {
   width: 90vw;
   max-width: 500px;
   background-color: black;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .game-container {

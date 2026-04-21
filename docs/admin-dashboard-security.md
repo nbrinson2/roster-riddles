@@ -98,6 +98,7 @@ These routes use the same **`Authorization: Bearer <Firebase ID token>`** as **`
 | Method | Path | Purpose |
 |--------|------|---------|
 | `GET` | `/api/v1/admin/contests` | List Bio Ball contests across **all** statuses (`scheduled` … `cancelled`), merged and sorted. Query: `limit` (default **50**, max **100**). Same public field projection as D2 ([`mapContestDocumentToPublic`](../server/contest-public.js)). |
+| `POST` | `/api/v1/admin/contests` | Create **`contests/{contestId}`** with Admin SDK. Body: `{ "contestId"?: string, "status": "scheduled"\|"open", "windowStart", "windowEnd" (ISO 8601), "leagueGamesN", "rulesVersion"?: number\|string, "title"?: string }`. Omit **`contestId`** (or send `""`) to receive a server-generated id (`bb-<ms>-<hex>`). **`409`** if an explicit id already exists. **`metadata`** includes **`createdByAdminUid`**. |
 | `POST` | `/api/v1/admin/contests/:contestId/transition` | Body: `{ "to": "open"\|"scoring"\|"paid"\|"cancelled", "force"?: boolean, "reason"?: string }`. Audit **`adminUid`** is the authenticated **`uid`** (not taken from the client). |
 
 Rate limits: same contest-read hook as public contest reads ([`contestReadRateLimitHookMiddleware`](../server/rate-limit-hooks.middleware.js)).

@@ -39,6 +39,22 @@ export interface AdminContestTransitionResponse {
   dryRunArtifactsCleared: boolean;
 }
 
+export interface AdminContestCreateBody {
+  /** Omit to let the server assign a unique id (`bb-<timestamp>-<hex>`). */
+  contestId?: string;
+  status: 'scheduled' | 'open';
+  windowStart: string;
+  windowEnd: string;
+  leagueGamesN: number;
+  rulesVersion?: number | string;
+  title?: string;
+}
+
+export interface AdminContestCreateResponse {
+  schemaVersion: number;
+  contest: AdminContestPublicRow;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminWeeklyContestsApiService {
   private readonly http = inject(HttpClient);
@@ -61,6 +77,15 @@ export class AdminWeeklyContestsApiService {
     const id = encodeURIComponent(contestId);
     return this.http.post<AdminContestTransitionResponse>(
       this.apiUrl(`/api/v1/admin/contests/${id}/transition`),
+      body,
+    );
+  }
+
+  createContest(
+    body: AdminContestCreateBody,
+  ): Observable<AdminContestCreateResponse> {
+    return this.http.post<AdminContestCreateResponse>(
+      this.apiUrl('/api/v1/admin/contests'),
       body,
     );
   }

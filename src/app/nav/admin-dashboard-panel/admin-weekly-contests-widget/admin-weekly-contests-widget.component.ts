@@ -6,7 +6,10 @@ import {
   AdminContestPublicRow,
   AdminWeeklyContestsApiService,
 } from 'src/app/shared/services/admin-weekly-contests-api.service';
-import type { ContestStatus } from 'src/app/shared/models/contest.model';
+import {
+  CONTEST_DEFAULT_LEAGUE_GAMES_N,
+  type ContestStatus,
+} from 'src/app/shared/models/contest.model';
 
 const TRANSITION_TARGETS: Array<'open' | 'scoring' | 'paid' | 'cancelled'> = [
   'open',
@@ -34,6 +37,18 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
   protected transitionSubmitting = false;
   protected transitionError: string | null = null;
 
+  /** Shown after a successful create (server-assigned id). */
+  protected lastCreatedContestId: string | null = null;
+
+  protected createTitle = '';
+  protected createStatus: 'scheduled' | 'open' = 'scheduled';
+  protected createWindowStart = '';
+  protected createWindowEnd = '';
+  protected createLeagueGamesN = CONTEST_DEFAULT_LEAGUE_GAMES_N;
+  protected createRulesVersion = 1;
+  protected createSubmitting = false;
+  protected createError: string | null = null;
+
   protected readonly transitionTargets = TRANSITION_TARGETS;
 
   private destroy$ = new Subject<void>();
@@ -41,7 +56,7 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
   constructor(private readonly api: AdminWeeklyContestsApiService) {}
 
   ngOnInit(): void {
-    this.loadList();
+    this.loadList(true);
   }
 
   ngOnDestroy(): void {
@@ -128,7 +143,7 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
         next: () => {
           this.transitionSubmitting = false;
           this.managingId = null;
-          this.loadList();
+          this.loadList(false);
         },
         error: (err: HttpErrorResponse) => {
           this.transitionSubmitting = false;
@@ -137,8 +152,78 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
       });
   }
 
-  private loadList(): void {
-    this.loading = true;
+  protected submitCreate(): void {
+    this.createError = null;
+    this.lastCreatedContestId = null;
+    const ws = this.localDateTimeToIso(this.createWindowStart);
+    const we = this.localDateTimeToIso(this.createWindowEnd);
+    if (!ws || !we) {
+      this.createError = 'Window start and end are required (valid dates).';
+      return;
+    }
+    if (ws >= we) {
+      this.createError = 'Window start must be before window end.';
+      return;
+    }
+    const n = Number(this.createLeagueGamesN);
+    if (!Number.isFinite(n) || n < 1 || n > 100) {
+      this.createError = 'League games (N) must be between 1 and 100.';
+      return;
+    }
+
+    this.createSubmitting = true;
+    const titleTrim = this.createTitle.trim();
+    const rulesN = Number(this.createRulesVersion);
+    const body = {
+      status: this.createStatus,
+      windowStart: ws,
+      windowEnd: we,
+      leagueGamesN: Math.floor(n),
+      rulesVersion: Number.isFinite(rulesN) && rulesN > 0 ? rulesN : 1,
+      ...(titleTrim ? { title: titleTrim.slice(0, 200) } : {}),
+    };
+
+    this.api
+      .createContest(body)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.createSubmitting = false;
+          this.lastCreatedContestId = res.contest?.contestId ?? null;
+          this.resetCreateForm();
+          this.loadList(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.createSubmitting = false;
+          this.createError = this.mapCreateError(err);
+        },
+      });
+  }
+
+  private localDateTimeToIso(value: string): string | null {
+    if (!value?.trim()) {
+      return null;
+    }
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) {
+      return null;
+    }
+    return d.toISOString();
+  }
+
+  private resetCreateForm(): void {
+    this.createTitle = '';
+    this.createStatus = 'scheduled';
+    this.createWindowStart = '';
+    this.createWindowEnd = '';
+    this.createLeagueGamesN = CONTEST_DEFAULT_LEAGUE_GAMES_N;
+    this.createRulesVersion = 1;
+  }
+
+  private loadList(showSpinner: boolean): void {
+    if (showSpinner) {
+      this.loading = true;
+    }
     this.listError = null;
     this.api
       .listContests(80)
@@ -174,5 +259,17 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
     const body = err.error as { error?: { message?: string; code?: string } } | null;
     const msg = body?.error?.message;
     return typeof msg === 'string' ? msg : 'Transition failed.';
+  }
+
+  private mapCreateError(err: HttpErrorResponse): string {
+    if (err.status === 403) {
+      return 'Admin access required.';
+    }
+    if (err.status === 409) {
+      return 'That contest id already exists. Try creating again.';
+    }
+    const body = err.error as { error?: { message?: string } } | null;
+    const msg = body?.error?.message;
+    return typeof msg === 'string' ? msg : 'Could not create contest.';
   }
 }
