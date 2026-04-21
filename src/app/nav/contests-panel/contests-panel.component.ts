@@ -32,14 +32,63 @@ import type {
   ContestPayoutLine,
 } from 'src/app/shared/models/contest-payouts-dry-run.model';
 import { environment } from 'src/environment';
+import { WeeklyContestSlateService } from 'src/app/shared/services/weekly-contest-slate.service';
 import {
   getPlaceAmountLines,
   getWinnerGetsPhrase,
 } from './contest-payout-display';
 import {
+  buildContestScheduleLine,
+  formatPayoutUsdLabel,
+} from 'src/app/shared/contest/contest-value-prop';
+import {
   CONTEST_DRY_RUN_PAYOUT_COPY,
+  CONTEST_FULL_RULES_HREF,
+  getContestEligibilityBullets,
   getContestRulesNarrative,
+  getContestRulesShortBullets,
 } from './contest-rules-copy';
+import {
+  isPlayWindowLockSoon,
+  pipelineCaption,
+  pipelineCurrentIndex,
+  pipelineLabels,
+  primaryCountdownLine,
+} from './contest-status-ui';
+import {
+  CONTEST_HERO_TAGLINE,
+  type PaidDelightView,
+  openEnteredEngagementLine,
+  paidResultDelight,
+  scheduledWarmupLine,
+} from './contest-engagement-copy';
+import {
+  type ParsedFinalResultsView,
+  formatOrdinalRank,
+  formatYourPlaceCardLine,
+  humanizeTiePolicyRef,
+  initialLoadingResultsView,
+  parseFinalResultsForViewer,
+} from './contest-results-closure';
+
+/** Per-contest entry doc (signed-in user), for “You’re in” and join UI. */
+interface ContestEntryRowState {
+  loaded: boolean;
+  entered: boolean;
+  rulesAcceptedVersion: number | string | null;
+}
+
+/** Max `paid` contests shown (most recent by window end), in addition to all open + scheduled. */
+const MAX_COMPLETED_CONTESTS = 5;
+
+/** Dry-run payout snapshot for one contest card. */
+interface ContestPayoutView {
+  loading: boolean;
+  winnerText: string | null;
+  otherLines: string[];
+  lineCount: number;
+  currencyLabel: string;
+}
 
 /** Row for list + detail (Firestore + id). */
 export interface ContestListRow {
@@ -51,6 +100,9 @@ export interface ContestListRow {
   leagueGamesN: number;
   windowStart: Date;
   windowEnd: Date;
+  prizePoolCents?: number;
+  entryFeeCents?: number;
+  maxEntries?: number;
 }
 
 interface ContestJoinResponse {
@@ -86,6 +138,11 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   @Output() readonly requestSignIn = new EventEmitter<void>();
 
   protected readonly dryRunCopy = CONTEST_DRY_RUN_PAYOUT_COPY;
+  protected readonly fullRulesHref = CONTEST_FULL_RULES_HREF;
+  /** P2 — hero subtitle. */
+  protected readonly heroTagline = CONTEST_HERO_TAGLINE;
+  /** Placeholder count for loading skeleton cards. */
+  protected readonly skeletonPlaceholders = [1, 2, 3] as const;
 
   protected loggedIn = false;
   protected loading = true;
@@ -99,14 +156,33 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   protected joinError: string | null = null;
   protected joinSuccess: string | null = null;
 
-  /** Own entry rules version when doc exists (Firestore). */
-  protected entryRulesVersion: number | string | null = null;
+  /**
+   * Rules version for the expanded contest when the user is entered — backed by
+   * {@link entryInfoByContestId}.
+   */
+  protected get entryRulesVersion(): number | string | null {
+    const id = this.expandedContestId;
+    if (!id) {
+      return null;
+    }
+    const e = this.entryInfoByContestId[id];
+    if (!e?.loaded || !e.entered) {
+      return null;
+    }
+    return e.rulesAcceptedVersion ?? null;
+  }
+
+  /** For countdowns / lock-soon; updated every second while the panel is active. */
+  protected nowMs = Date.now();
+
+  /** `contests/{id}/entries/{uid}` listeners for each listed row. */
+  protected entryInfoByContestId: Record<string, ContestEntryRowState> = {};
+  private entryRowUnsubs = new Map<string, Unsubscribe>();
+  private clockId: ReturnType<typeof setInterval> | null = null;
 
   private uid: string | null = null;
   private destroy$ = new Subject<void>();
   private listUnsubs: Unsubscribe[] = [];
-  private entryUnsub: Unsubscribe | null = null;
-  private payoutUnsub: Unsubscribe | null = null;
   private loadedOpen = false;
   private loadedScheduled = false;
   private loadedPaid = false;
@@ -114,14 +190,18 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   private scheduledSnap: QuerySnapshot | null = null;
   private paidSnap: QuerySnapshot | null = null;
 
-  /** When status is `paid`, snapshot of `payouts/dryRun` (Story F1). */
-  protected payoutLoading = false;
-  protected payoutWinnerText: string | null = null;
-  protected payoutOtherLines: string[] = [];
+  /** Dry-run payout per listed `paid` contest (`payouts/dryRun`, Story F1). */
+  protected paidPayoutByContestId: Record<string, ContestPayoutView> = {};
+  private paidPayoutUnsubs = new Map<string, Unsubscribe>();
+
+  /** P1 — `results/final` per paid contest (placement + tie copy). */
+  protected finalResultsByContestId: Record<string, ParsedFinalResultsView> = {};
+  private finalResultsUnsubs = new Map<string, Unsubscribe>();
 
   constructor(
     private readonly auth: AuthService,
     private readonly http: HttpClient,
+    private readonly weeklyContestSlate: WeeklyContestSlateService,
   ) {}
 
   ngOnInit(): void {
@@ -129,25 +209,25 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       this.loggedIn = !!user;
       this.uid = user?.uid ?? null;
       if (!user) {
+        this.stopContestClock();
         this.detachListListeners();
-        this.detachEntryListener();
-        this.detachPayoutListener();
+        this.detachAllEntryRowListeners();
         this.rows = [];
         this.loading = false;
         this.listError = null;
         this.expandedContestId = null;
-        this.entryRulesVersion = null;
+        this.entryInfoByContestId = {};
         return;
       }
       this.attachListListeners();
-      this.refreshEntryListener();
+      this.startContestClock();
     });
   }
 
   ngOnDestroy(): void {
+    this.stopContestClock();
     this.detachListListeners();
-    this.detachEntryListener();
-    this.detachPayoutListener();
+    this.detachAllEntryRowListeners();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -184,6 +264,51 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       .filter(Boolean);
   }
 
+  protected rulesShortBullets(version: number | string): string[] {
+    return getContestRulesShortBullets(version);
+  }
+
+  protected eligibilityBullets(row: ContestListRow): string[] {
+    return getContestEligibilityBullets(row.leagueGamesN, row.maxEntries);
+  }
+
+  /**
+   * First card line: entry / lock / cap only (pool is on the meta line as `PAYOUT:`).
+   */
+  protected contestScheduleLine(row: ContestListRow): string {
+    return buildContestScheduleLine({
+      windowEnd: row.windowEnd,
+      prizePoolCents: row.prizePoolCents,
+      entryFeeCents: row.entryFeeCents,
+      maxEntries: row.maxEntries,
+    });
+  }
+
+  /** Payout row: `PAYOUT:` (when set on doc) · slate size only — no rules or other copy. */
+  protected formatNonPaidCardMeta(row: ContestListRow): string {
+    const slate = `${row.leagueGamesN} games in slate`;
+    if (
+      row.prizePoolCents != null &&
+      Number.isFinite(row.prizePoolCents) &&
+      row.prizePoolCents >= 0
+    ) {
+      return `${formatPayoutUsdLabel(row.prizePoolCents)} · ${slate}`;
+    }
+    return slate;
+  }
+
+  /** Paid: same — primary payout line + slate only. */
+  protected formatPaidCardMeta(
+    row: ContestListRow,
+    payout: ContestPayoutView,
+  ): string {
+    const slate = `${row.leagueGamesN} games in slate`;
+    if (payout.loading || !payout.winnerText) {
+      return slate;
+    }
+    return `${payout.winnerText} · ${slate}`;
+  }
+
   /** Row for join / snapshot listeners (expanded card). */
   protected get selected(): ContestListRow | null {
     if (!this.expandedContestId) {
@@ -200,17 +325,12 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       this.rulesCheckbox = false;
       this.joinError = null;
       this.joinSuccess = null;
-      this.detachEntryListener();
-      this.detachPayoutListener();
-      this.entryRulesVersion = null;
       return;
     }
     this.expandedContestId = row.contestId;
     this.rulesCheckbox = false;
     this.joinError = null;
     this.joinSuccess = null;
-    this.refreshEntryListener();
-    this.refreshPayoutListener();
   }
 
   protected canAttemptJoin(row: ContestListRow): boolean {
@@ -274,7 +394,14 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
           this.joinSuccess = res.idempotentReplay
             ? `You are already entered. Rules accepted version ${String(accepted)} (matches contest rules ${String(contestRules)}).`
             : `You are in. Rules accepted version ${String(accepted)} (stored on your entry; contest rules ${String(contestRules)}).`;
-          this.entryRulesVersion = accepted;
+          this.entryInfoByContestId[row.contestId] = {
+            loaded: true,
+            entered: true,
+            rulesAcceptedVersion: accepted,
+          };
+          if (res.contest.gameMode === CONTEST_GAME_MODE_BIO_BALL) {
+            this.weeklyContestSlate.refreshSlateAfterEntryChange();
+          }
         },
         error: (err: HttpErrorResponse) => {
           this.joinSubmitting = false;
@@ -295,6 +422,11 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     }
     if (err.status === 503) {
       return 'Contest join is unavailable (server not configured).';
+    }
+    if (err.status === 409 && code === 'already_in_open_contest') {
+      return typeof msg === 'string'
+        ? msg
+        : 'You are already in another open contest for this game type. Finish or wait until it closes before joining a different one.';
     }
     if (err.status === 0) {
       return 'Could not reach the server. Is the API running?';
@@ -413,13 +545,23 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     ingest(this.paidSnap);
 
     const prevExpandedId = this.expandedContestId;
-    const prevExpandedStatus = prevExpandedId
-      ? this.rows.find((r) => r.contestId === prevExpandedId)?.status ?? null
-      : null;
 
-    this.rows = Array.from(byId.values())
-      .filter((r) => r.gameMode === CONTEST_GAME_MODE_BIO_BALL)
-      .sort((a, b) => this.sortRows(a, b));
+    const bios = Array.from(byId.values()).filter(
+      (r) => r.gameMode === CONTEST_GAME_MODE_BIO_BALL,
+    );
+    const paidTop = bios
+      .filter((r) => r.status === 'paid')
+      .sort((a, b) => b.windowEnd.getTime() - a.windowEnd.getTime())
+      .slice(0, MAX_COMPLETED_CONTESTS);
+    const paidKeep = new Set(paidTop.map((r) => r.contestId));
+    const rowsFiltered = bios.filter(
+      (r) => r.status !== 'paid' || paidKeep.has(r.contestId),
+    );
+    this.rows = rowsFiltered.sort((a, b) => this.sortRows(a, b));
+
+    this.syncPaidListExtras();
+    this.syncFinalResultsListeners();
+    this.syncEntryRowListeners();
 
     if (prevExpandedId) {
       const updated = byId.get(prevExpandedId);
@@ -428,12 +570,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         this.rulesCheckbox = false;
         this.joinError = null;
         this.joinSuccess = null;
-        this.entryRulesVersion = null;
-        this.detachEntryListener();
-        this.detachPayoutListener();
-      } else if (updated.status !== prevExpandedStatus) {
-        this.refreshEntryListener();
-        this.refreshPayoutListener();
       }
     }
   }
@@ -480,6 +616,10 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       return null;
     }
 
+    const prizePoolCents = this.parseOptionalNonNegInt(d.prizePoolCents);
+    const entryFeeCents = this.parseOptionalNonNegInt(d.entryFeeCents);
+    const maxEntries = this.parseOptionalPositiveInt(d.maxEntries);
+
     return {
       contestId,
       status,
@@ -489,7 +629,24 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       leagueGamesN,
       windowStart: ws,
       windowEnd: we,
+      ...(prizePoolCents !== undefined ? { prizePoolCents } : {}),
+      ...(entryFeeCents !== undefined ? { entryFeeCents } : {}),
+      ...(maxEntries !== undefined ? { maxEntries } : {}),
     };
+  }
+
+  private parseOptionalNonNegInt(raw: unknown): number | undefined {
+    if (typeof raw !== 'number' || !Number.isFinite(raw) || raw < 0) {
+      return undefined;
+    }
+    return Math.floor(raw);
+  }
+
+  private parseOptionalPositiveInt(raw: unknown): number | undefined {
+    if (typeof raw !== 'number' || !Number.isFinite(raw) || raw < 1) {
+      return undefined;
+    }
+    return Math.floor(raw);
   }
 
   private toDate(value: unknown): Date | null {
@@ -514,85 +671,267 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       u();
     }
     this.listUnsubs = [];
+    this.detachAllPaidPayoutListeners();
+    this.detachAllFinalResultsListeners();
   }
 
-  private refreshEntryListener(): void {
-    this.detachEntryListener();
-    const id = this.expandedContestId;
+  private detachAllEntryRowListeners(): void {
+    for (const unsub of this.entryRowUnsubs.values()) {
+      unsub();
+    }
+    this.entryRowUnsubs.clear();
+  }
+
+  private syncEntryRowListeners(): void {
+    if (!this.uid) {
+      return;
+    }
+    const ids = new Set(this.rows.map((r) => r.contestId));
+    for (const [id, unsub] of [...this.entryRowUnsubs.entries()]) {
+      if (!ids.has(id)) {
+        unsub();
+        this.entryRowUnsubs.delete(id);
+        delete this.entryInfoByContestId[id];
+      }
+    }
+
+    const db = getConfiguredFirestore();
     const uid = this.uid;
-    if (!id || !uid) {
-      this.entryRulesVersion = null;
+    for (const id of ids) {
+      if (this.entryRowUnsubs.has(id)) {
+        continue;
+      }
+      const ref = doc(db, 'contests', id, 'entries', uid);
+      const unsub = onSnapshot(
+        ref,
+        (snap) => {
+          if (!snap.exists()) {
+            this.entryInfoByContestId[id] = {
+              loaded: true,
+              entered: false,
+              rulesAcceptedVersion: null,
+            };
+            return;
+          }
+          const data = snap.data();
+          const v = data['rulesAcceptedVersion'] as number | string | undefined;
+          this.entryInfoByContestId[id] = {
+            loaded: true,
+            entered: true,
+            rulesAcceptedVersion:
+              v === undefined || v === null ? null : v,
+          };
+        },
+        () => {
+          this.entryInfoByContestId[id] = {
+            loaded: true,
+            entered: false,
+            rulesAcceptedVersion: null,
+          };
+        },
+      );
+      this.entryRowUnsubs.set(id, unsub);
+    }
+  }
+
+  private startContestClock(): void {
+    this.stopContestClock();
+    this.nowMs = Date.now();
+    this.clockId = setInterval(() => {
+      this.nowMs = Date.now();
+    }, 1000);
+  }
+
+  private stopContestClock(): void {
+    if (this.clockId != null) {
+      clearInterval(this.clockId);
+      this.clockId = null;
+    }
+  }
+
+  /** P0: retry after Firestore list error. */
+  protected retryLoadContests(): void {
+    if (!this.loggedIn) {
       return;
     }
+    this.listError = null;
+    this.attachListListeners();
+  }
 
-    const db = getConfiguredFirestore();
-    const ref = doc(db, 'contests', id, 'entries', uid);
-    this.entryUnsub = onSnapshot(
-      ref,
-      (snap) => {
-        if (!snap.exists()) {
-          this.entryRulesVersion = null;
-          return;
-        }
-        const v = snap.data()['rulesAcceptedVersion'] as number | string | undefined;
-        this.entryRulesVersion =
-          v === undefined || v === null ? null : v;
-      },
-      () => {
-        this.entryRulesVersion = null;
-      },
+  protected readonly pipelineStepLabels = pipelineLabels;
+
+  protected pipelineStepActiveIndex(status: ContestStatus): number {
+    return pipelineCurrentIndex(status);
+  }
+
+  protected pipelineHelpText(row: ContestListRow): string {
+    return pipelineCaption(
+      row.status,
+      row.windowStart.getTime(),
+      row.windowEnd.getTime(),
+      this.nowMs,
     );
   }
 
-  private detachEntryListener(): void {
-    if (this.entryUnsub) {
-      this.entryUnsub();
-      this.entryUnsub = null;
-    }
-  }
-
-  private refreshPayoutListener(): void {
-    this.detachPayoutListener();
-    const row = this.selected;
-    const id = this.expandedContestId;
-    if (!row || row.status !== 'paid' || !this.uid || !id) {
-      this.payoutLoading = false;
-      this.payoutWinnerText = null;
-      this.payoutOtherLines = [];
-      return;
-    }
-
-    this.payoutLoading = true;
-    this.payoutWinnerText = null;
-    this.payoutOtherLines = [];
-
-    const db = getConfiguredFirestore();
-    const ref = doc(db, 'contests', id, 'payouts', 'dryRun');
-    this.payoutUnsub = onSnapshot(
-      ref,
-      (snap) => {
-        this.payoutLoading = false;
-        if (!snap.exists()) {
-          this.payoutWinnerText = null;
-          this.payoutOtherLines = [];
-          return;
-        }
-        const parsed = this.parseDryRunPayout(snap.data());
-        this.payoutWinnerText = getWinnerGetsPhrase(parsed);
-        this.payoutOtherLines = getPlaceAmountLines(parsed);
-      },
-      () => {
-        this.payoutLoading = false;
-        this.payoutWinnerText = null;
-        this.payoutOtherLines = [];
-      },
+  protected countdownLine(row: ContestListRow): string | null {
+    return primaryCountdownLine(
+      row.status,
+      row.windowStart.getTime(),
+      row.windowEnd.getTime(),
+      this.nowMs,
     );
   }
 
-  private detachPayoutListener(): void {
-    if (this.payoutUnsub) {
-      this.payoutUnsub();
-      this.payoutUnsub = null;
+  protected lockSoon(row: ContestListRow): boolean {
+    return isPlayWindowLockSoon(
+      row.status,
+      row.windowStart.getTime(),
+      row.windowEnd.getTime(),
+      this.nowMs,
+    );
+  }
+
+  protected showYoureIn(row: ContestListRow): boolean {
+    const e = this.entryInfoByContestId[row.contestId];
+    return !!e?.loaded && e.entered;
+  }
+
+  protected statusChipAriaLabel(row: ContestListRow): string {
+    return `Contest status: ${this.statusLabel(row.status)}`;
+  }
+
+  private detachAllPaidPayoutListeners(): void {
+    for (const unsub of this.paidPayoutUnsubs.values()) {
+      unsub();
+    }
+    this.paidPayoutUnsubs.clear();
+    this.paidPayoutByContestId = {};
+  }
+
+  private detachAllFinalResultsListeners(): void {
+    for (const unsub of this.finalResultsUnsubs.values()) {
+      unsub();
+    }
+    this.finalResultsUnsubs.clear();
+    this.finalResultsByContestId = {};
+  }
+
+  /** `results/final` for each listed `paid` contest (placement narrative, tie copy). */
+  private syncFinalResultsListeners(): void {
+    if (!this.uid) {
+      this.detachAllFinalResultsListeners();
+      return;
+    }
+    const paidIds = new Set(
+      this.rows.filter((r) => r.status === 'paid').map((r) => r.contestId),
+    );
+    for (const [id, unsub] of this.finalResultsUnsubs.entries()) {
+      if (!paidIds.has(id)) {
+        unsub();
+        this.finalResultsUnsubs.delete(id);
+        delete this.finalResultsByContestId[id];
+      }
+    }
+
+    const db = getConfiguredFirestore();
+    const myUid = this.uid;
+    for (const id of paidIds) {
+      if (this.finalResultsUnsubs.has(id)) {
+        continue;
+      }
+      this.finalResultsByContestId[id] = initialLoadingResultsView();
+      const ref = doc(db, 'contests', id, 'results', 'final');
+      const unsub = onSnapshot(
+        ref,
+        (snap) => {
+          const raw = snap.exists() ? snap.data() : null;
+          this.finalResultsByContestId[id] = parseFinalResultsForViewer(
+            raw,
+            myUid,
+          );
+        },
+        () => {
+          this.finalResultsByContestId[id] = parseFinalResultsForViewer(
+            null,
+            myUid,
+          );
+        },
+      );
+      this.finalResultsUnsubs.set(id, unsub);
+    }
+  }
+
+  /** Subscribe to `payouts/dryRun` for each listed `paid` contest. */
+  private syncPaidListExtras(): void {
+    if (!this.uid) {
+      this.detachAllPaidPayoutListeners();
+      return;
+    }
+    const paidIds = new Set(
+      this.rows.filter((r) => r.status === 'paid').map((r) => r.contestId),
+    );
+    for (const [id, unsub] of this.paidPayoutUnsubs.entries()) {
+      if (!paidIds.has(id)) {
+        unsub();
+        this.paidPayoutUnsubs.delete(id);
+        delete this.paidPayoutByContestId[id];
+      }
+    }
+
+    const db = getConfiguredFirestore();
+    for (const id of paidIds) {
+      if (this.paidPayoutUnsubs.has(id)) {
+        continue;
+      }
+      this.paidPayoutByContestId[id] = {
+        loading: true,
+        winnerText: null,
+        otherLines: [],
+        lineCount: 0,
+        currencyLabel: '',
+      };
+
+      const payoutRef = doc(db, 'contests', id, 'payouts', 'dryRun');
+      const unsub = onSnapshot(
+        payoutRef,
+        (snap) => {
+          const st = this.paidPayoutByContestId[id];
+          if (!st) {
+            return;
+          }
+          st.loading = false;
+          if (!snap.exists()) {
+            st.winnerText = null;
+            st.otherLines = [];
+            st.lineCount = 0;
+            st.currencyLabel = '';
+            return;
+          }
+          const parsed = this.parseDryRunPayout(snap.data());
+          if (!parsed) {
+            st.winnerText = null;
+            st.otherLines = [];
+            st.lineCount = 0;
+            st.currencyLabel = '';
+            return;
+          }
+          st.winnerText = getWinnerGetsPhrase(parsed);
+          st.otherLines = getPlaceAmountLines(parsed);
+          st.lineCount = parsed.lines.length;
+          st.currencyLabel = this.formatDryRunCurrencyCaption(parsed);
+        },
+        () => {
+          const st = this.paidPayoutByContestId[id];
+          if (st) {
+            st.loading = false;
+            st.winnerText = null;
+            st.otherLines = [];
+            st.lineCount = 0;
+            st.currencyLabel = '';
+          }
+        },
+      );
+      this.paidPayoutUnsubs.set(id, unsub);
     }
   }
 
@@ -639,5 +978,171 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       payoutJobId:
         typeof o['payoutJobId'] === 'string' ? o['payoutJobId'] : undefined,
     };
+  }
+
+  private formatDryRunCurrencyCaption(
+    doc: ContestDryRunPayoutsDocument,
+  ): string {
+    const c = doc.currency.trim();
+    if (doc.notRealMoney) {
+      return c ? `${c} (notional, dry-run)` : 'notional dry-run amounts';
+    }
+    return c || 'USD';
+  }
+
+  protected formatOrdinalRank = formatOrdinalRank;
+
+  /** Collapsed card line — your place / entry state (paid contests). */
+  protected yourPlaceCardLine(row: ContestListRow): string | null {
+    if (row.status !== 'paid') {
+      return null;
+    }
+    const v = this.finalResultsByContestId[row.contestId];
+    if (!v) {
+      return null;
+    }
+    const ent = this.entryInfoByContestId[row.contestId];
+    const entered = !!ent?.loaded && ent.entered;
+    return formatYourPlaceCardLine(v, entered);
+  }
+
+  /** Slate blurb for expanded paid section. */
+  protected slateSummaryLine(row: ContestListRow): string {
+    const n = row.leagueGamesN;
+    return `This contest’s slate is ${n} league game${n === 1 ? '' : 's'} (your first ${n} Bio Ball results in the play window, in time order).`;
+  }
+
+  protected payoutTransparencyLine(
+    px: ContestPayoutView,
+  ): string | null {
+    if (px.loading) {
+      return null;
+    }
+    if (!px.winnerText && px.lineCount === 0) {
+      return null;
+    }
+    const n = px.lineCount;
+    const places =
+      n === 0
+        ? 'No payout lines were published for this dry-run yet.'
+        : `This dry-run lists ${n} paid place${n === 1 ? '' : 's'}.`;
+    const cur = px.currencyLabel.trim();
+    const curPart = cur
+      ? ` Amounts use ${cur}; figures are rounded to whole cents.`
+      : ' Amounts are rounded to whole cents.';
+    return `${places}${curPart}`;
+  }
+
+  protected closureWhyHeading(row: ContestListRow): string {
+    const v = this.finalResultsByContestId[row.contestId];
+    if (!v || v.loading) {
+      return 'Results & tie-breaks';
+    }
+    if (v.youMissingFromStandings) {
+      return 'Why you’re not listed';
+    }
+    if (v.yourRank === 1) {
+      return 'How placements were decided';
+    }
+    return 'Why didn’t I win?';
+  }
+
+  protected closureWhyLines(row: ContestListRow): string[] {
+    const v = this.finalResultsByContestId[row.contestId];
+    if (!v || v.loading) {
+      return [];
+    }
+    const lines: string[] = [];
+    if (v.yourRank != null && v.yourRank > 1) {
+      lines.push(
+        'Simulated payouts go to the top ranks only. Your finish reflects contest wins on this slate, then tie-breakers when wins tie.',
+      );
+    }
+    if (v.youMissingFromStandings) {
+      lines.push(
+        'If you entered, you may be missing because results are still processing, the slate was partial, or the published list excludes your row — see full rules.',
+      );
+    }
+    if (v.tieSummary) {
+      lines.push(v.tieSummary);
+    }
+    const pol = humanizeTiePolicyRef(v.tiePolicyRef);
+    if (pol) {
+      lines.push(pol);
+    }
+    return lines;
+  }
+
+  protected closureWhyBlockVisible(row: ContestListRow): boolean {
+    if (row.status !== 'paid') {
+      return false;
+    }
+    const e = this.entryInfoByContestId[row.contestId];
+    if (!e?.loaded || !e.entered) {
+      return false;
+    }
+    const v = this.finalResultsByContestId[row.contestId];
+    if (!v || v.loading) {
+      return false;
+    }
+    if (v.youMissingFromStandings) {
+      return true;
+    }
+    if (v.yourRank != null && v.yourRank > 1) {
+      return true;
+    }
+    return v.tieSummary != null || v.tiePolicyRef != null;
+  }
+
+  protected enteredContest(row: ContestListRow): boolean {
+    const e = this.entryInfoByContestId[row.contestId];
+    return !!e?.loaded && e.entered;
+  }
+
+  /** P2 — contextual cheer / urgency on the card (open, scheduled, scoring). */
+  protected engagementCardLine(row: ContestListRow): string | null {
+    const ent = this.entryInfoByContestId[row.contestId];
+    const entered = !!ent?.loaded && ent.entered;
+    const openLine = openEnteredEngagementLine(
+      row.status,
+      entered,
+      row.windowEnd.getTime(),
+      this.nowMs,
+    );
+    if (openLine) {
+      return openLine;
+    }
+    const sched = scheduledWarmupLine(
+      row.status,
+      row.windowStart.getTime(),
+      this.nowMs,
+    );
+    if (sched) {
+      return sched;
+    }
+    return null;
+  }
+
+  /** P2 — celebration strip for paid contests (dry-run honest). */
+  protected paidDelight(row: ContestListRow): PaidDelightView | null {
+    if (row.status !== 'paid') {
+      return null;
+    }
+    return paidResultDelight(
+      this.finalResultsByContestId[row.contestId],
+      this.enteredContest(row),
+    );
+  }
+
+  /** Icon for {@link engagementCardLine} (Material Symbols name). */
+  protected engagementCardIcon(row: ContestListRow): string {
+    switch (row.status) {
+      case 'open':
+        return 'sports_esports';
+      case 'scheduled':
+        return 'event';
+      default:
+        return 'rocket_launch';
+    }
   }
 }

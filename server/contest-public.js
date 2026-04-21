@@ -40,6 +40,10 @@ export function mapContestDocumentToPublic(contestId, data) {
   const schemaVersion =
     typeof data.schemaVersion === 'number' ? data.schemaVersion : 1;
 
+  const prizePoolCents = data.prizePoolCents;
+  const entryFeeCents = data.entryFeeCents;
+  const maxEntries = data.maxEntries;
+
   return {
     contestId,
     schemaVersion,
@@ -52,5 +56,20 @@ export function mapContestDocumentToPublic(contestId, data) {
     title: typeof data.title === 'string' ? data.title : undefined,
     createdAt: firestoreTimestampToIso(data.createdAt),
     updatedAt: firestoreTimestampToIso(data.updatedAt),
+    ...(typeof prizePoolCents === 'number' &&
+    Number.isFinite(prizePoolCents) &&
+    prizePoolCents >= 0
+      ? { prizePoolCents }
+      : {}),
+    ...(typeof entryFeeCents === 'number' &&
+    Number.isFinite(entryFeeCents) &&
+    entryFeeCents >= 0
+      ? { entryFeeCents }
+      : {}),
+    ...(typeof maxEntries === 'number' &&
+    Number.isFinite(maxEntries) &&
+    maxEntries >= 1
+      ? { maxEntries: Math.floor(maxEntries) }
+      : {}),
   };
 }

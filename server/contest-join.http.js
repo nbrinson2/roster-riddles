@@ -50,6 +50,61 @@ function isRecord(c) {
 }
 
 /**
+ * @param {unknown} raw
+ * @returns {string}
+ */
+function normGameMode(raw) {
+  return typeof raw === 'string' ? raw.trim().toLowerCase() : '';
+}
+
+/**
+ * If the user has an entry under another **open** contest with the same `gameMode`, return that
+ * contest id (they cannot join a second open contest for that game type).
+ *
+ * Uses `contests` where `status == open` plus `entries/{uid}` lookups — no collectionGroup on
+ * `entries` (avoids index/emulator quirks that can 500 the join handler).
+ *
+ * @param {FirebaseFirestore.Firestore} db
+ * @param {string} uid
+ * @param {string} excludeContestId — contest they are trying to join
+ * @param {string} gameMode — target contest game mode (e.g. `bio-ball`)
+ * @returns {Promise<string | null>}
+ */
+async function findBlockingOpenContestSameGameMode(db, uid, excludeContestId, gameMode) {
+  const target = normGameMode(gameMode);
+  const openSnap = await db
+    .collection('contests')
+    .where('status', '==', 'open')
+    .orderBy('windowStart', 'desc')
+    .limit(100)
+    .get();
+
+  for (const cDoc of openSnap.docs) {
+    const cid = cDoc.id;
+    if (cid === excludeContestId) {
+      continue;
+    }
+    const c = cDoc.data();
+    if (!isRecord(c)) {
+      continue;
+    }
+    if (normGameMode(c.gameMode) !== target) {
+      continue;
+    }
+    let entrySnap;
+    try {
+      entrySnap = await db.doc(`contests/${cid}/entries/${uid}`).get();
+    } catch {
+      continue;
+    }
+    if (entrySnap.exists) {
+      return cid;
+    }
+  }
+  return null;
+}
+
+/**
  * @type {import('express').RequestHandler}
  */
 export async function postContestJoin(req, res) {
@@ -320,6 +375,50 @@ export async function postContestJoin(req, res) {
       idempotentReplay: true,
       entry: formatEntryResponse(existing, contestId),
       contest: formatContestSummary(contest, contestId),
+    });
+  }
+
+  let blockingContestId;
+  try {
+    blockingContestId = await findBlockingOpenContestSameGameMode(
+      db,
+      uid,
+      contestId,
+      typeof gameMode === 'string' ? gameMode : '',
+    );
+  } catch (e) {
+    logContestJoinLine({
+      requestId,
+      httpStatus: 500,
+      outcome: 'blocking_query_failed',
+      latencyMs: Date.now() - startMs,
+      contestId,
+      message: e instanceof Error ? e.message : String(e),
+    });
+    return res.status(500).json({
+      error: {
+        code: 'internal_error',
+        message: 'Could not verify existing contest entries.',
+      },
+    });
+  }
+
+  if (blockingContestId) {
+    logContestJoinLine({
+      requestId,
+      httpStatus: 409,
+      outcome: 'already_in_open_contest',
+      latencyMs: Date.now() - startMs,
+      contestId,
+      existingContestId: blockingContestId,
+    });
+    return res.status(409).json({
+      error: {
+        code: 'already_in_open_contest',
+        message:
+          'You are already entered in another open contest for this game type. You can only be in one open contest at a time per game type.',
+        existingContestId: blockingContestId,
+      },
     });
   }
 

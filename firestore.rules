@@ -33,9 +33,10 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Weekly contests (Phase 4 B1): `contests/{contestId}` — signed-in read; writes via Admin SDK only.
+    // Weekly contests (Phase 4 B1): `contests/{contestId}` — signed-in read; unauthenticated may read
+    // `status == 'open'` only (so clients can tell if weekly contests exist without signing in).
     match /contests/{contestId} {
-      allow read: if signedIn();
+      allow read: if signedIn() || resource.data.status == 'open';
       allow create, update, delete: if false;
     }
 

@@ -11,6 +11,110 @@
     <div class="search-container">
       <search></search>
     </div>
+    <ng-container
+      *ngIf="
+        currentGameType() === GameType.BIO_BALL && (hasOpenBioBallContests$ | async)
+      "
+    >
+      <ng-container *ngIf="bioBallContestStrip$ | async as strip">
+        <div class="attr-header-container">
+          <div
+            *ngIf="strip.variant === 'active'"
+            class="game-contest-banner"
+            role="region"
+            aria-label="Weekly contest mini-league progress"
+          >
+            <div class="game-contest-banner__stack">
+              <div class="game-contest-banner__inner">
+                <div class="game-contest-banner__badge">
+                  <span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>
+                  <span>Contest</span>
+                </div>
+                <p class="game-contest-banner__title">{{ strip.slate.contestTitle }}</p>
+                <div
+                  *ngIf="!strip.slate.progressUnavailable && !strip.slate.windowEnded"
+                  class="game-contest-banner__stats"
+                >
+                  <span class="game-contest-banner__emph"
+                    >{{ strip.slate.gamesUsed }}/{{ strip.slate.leagueGamesN }}</span
+                  >
+                  <span class="game-contest-banner__dot" aria-hidden="true">·</span>
+                  <span class="game-contest-banner__emph">{{ strip.slate.gamesRemaining }}</span>
+                  left<span *ngIf="strip.slate.gamesRemaining === 0"> · slate full</span>
+                </div>
+                <div *ngIf="strip.slate.windowEnded" class="game-contest-banner__pill">Window ended</div>
+                <div
+                  *ngIf="strip.slate.progressUnavailable && !strip.slate.windowEnded"
+                  class="game-contest-banner__pill game-contest-banner__pill--warn"
+                >
+                  Count unavailable
+                </div>
+              </div>
+              <p
+                class="game-contest-banner__value"
+                [title]="strip.slate.valuePropLine"
+                [attr.aria-label]="'Contest summary: ' + strip.slate.valuePropLine"
+              >
+                {{ strip.slate.valuePropLine }}
+              </p>
+            </div>
+            <p *ngIf="strip.slate.windowEnded" class="game-contest-banner__sr-only">
+              This contest’s play window has ended. You’re still entered — final rank will use only
+              games played during that window (see scoring run).
+            </p>
+            <p
+              *ngIf="strip.slate.progressUnavailable && !strip.slate.windowEnded"
+              class="game-contest-banner__sr-only"
+            >
+              Couldn’t load your game count from the server (often a missing Firestore index in dev).
+              You’re still entered — check the browser console, or deploy indexes from
+              firestore.indexes.json.
+            </p>
+            <p *ngIf="!strip.slate.windowEnded" class="game-contest-banner__sr-only">
+              Each finished round (win, loss, or abandon after a guess) uses one slate slot, in
+              order, while this contest is open.
+            </p>
+          </div>
+          <div
+            *ngIf="strip.variant === 'no_entry'"
+            class="game-contest-banner game-contest-banner--muted"
+            role="region"
+            aria-label="Weekly contests"
+          >
+            <div class="game-contest-banner__stack">
+              <div class="game-contest-banner__inner">
+                <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                <p class="game-contest-banner__muted-line">
+                  Not in an open contest — join from the calendar.
+                </p>
+              </div>
+              <p class="game-contest-banner__value game-contest-banner__value--muted">
+                Simulated prizes · No entry fee · See prize and lock times on each contest card
+              </p>
+            </div>
+            <p class="game-contest-banner__sr-only">
+              You are not entered in an open weekly contest right now. Open the calendar tab in the
+              nav, pick a contest, accept the rules, and tap Join contest.
+            </p>
+          </div>
+          <div
+            *ngIf="strip.variant === 'sign_in'"
+            class="game-contest-banner game-contest-banner--muted"
+            role="region"
+            aria-label="Sign in for weekly contests"
+          >
+            <div class="game-contest-banner__inner">
+              <span class="material-symbols-outlined" aria-hidden="true">login</span>
+              <p class="game-contest-banner__muted-line">Sign in to join weekly contests.</p>
+            </div>
+            <p class="game-contest-banner__sr-only">
+              Sign in to join weekly Bio Ball contests and track your mini-league games from the
+              calendar tab.
+            </p>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
     <div *ngIf="showAttributeHeader()" class="attr-header-container">
       <attribute-header></attribute-header>
     </div>

@@ -71,6 +71,45 @@
           min="1"
         />
       </label>
+      <label class="awc-field">
+        <span class="awc-label">Simulated prize pool (USD, optional)</span>
+        <input
+          class="awc-input"
+          type="number"
+          [(ngModel)]="createPrizePoolUsd"
+          name="createPrizePoolUsd"
+          min="0"
+          step="0.01"
+          placeholder="e.g. 500"
+          autocomplete="off"
+        />
+      </label>
+      <label class="awc-field">
+        <span class="awc-label">Entry fee (USD, optional)</span>
+        <input
+          class="awc-input"
+          type="number"
+          [(ngModel)]="createEntryFeeUsd"
+          name="createEntryFeeUsd"
+          min="0"
+          step="0.01"
+          placeholder="0 for free"
+          autocomplete="off"
+        />
+      </label>
+      <label class="awc-field">
+        <span class="awc-label">Max entrants (optional)</span>
+        <input
+          class="awc-input"
+          type="number"
+          [(ngModel)]="createMaxEntries"
+          name="createMaxEntries"
+          min="1"
+          step="1"
+          placeholder="UI display; enforcement TBD"
+          autocomplete="off"
+        />
+      </label>
     </div>
     <div class="awc-create-footer">
       <p *ngIf="createError" class="awc-error">{{ createError }}</p>
@@ -97,13 +136,24 @@
       <li *ngFor="let row of rows" class="awc-card" role="listitem">
         <div class="awc-card-head">
           <div class="awc-card-titles">
-            <span class="awc-title">{{ row.title || row.contestId }}</span>
+            <span class="awc-title">{{ contestDisplayTitle(row) }}</span>
             <span class="awc-id" title="Contest id">{{ row.contestId }}</span>
           </div>
           <span class="awc-badge">{{ statusLabel(row.status) }}</span>
         </div>
         <p class="awc-window">{{ formatWindow(row) }}</p>
         <div class="awc-actions">
+          <button
+            *ngIf="row.status === 'scoring'"
+            type="button"
+            class="awc-btn awc-btn-primary"
+            [disabled]="runScoringBusyId !== null"
+            (click)="submitRunScoring(row.contestId)"
+          >
+            {{
+              runScoringBusyId === row.contestId ? 'Running scoring…' : 'Run scoring job'
+            }}
+          </button>
           <button
             type="button"
             class="awc-btn"
@@ -113,6 +163,18 @@
             {{ managingId === row.contestId ? 'Close' : 'Change status' }}
           </button>
         </div>
+        <p
+          *ngIf="runScoringOk?.contestId === row.contestId"
+          class="awc-muted awc-card-footnote"
+        >
+          {{ runScoringOk?.text }}
+        </p>
+        <p
+          *ngIf="runScoringError && runScoringErrorContestId === row.contestId"
+          class="awc-error awc-card-footnote"
+        >
+          {{ runScoringError }}
+        </p>
 
         <div *ngIf="managingId === row.contestId" class="awc-form">
           <label class="awc-field">

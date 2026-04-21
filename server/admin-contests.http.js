@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { getAdminFirestore } from './admin-firestore.js';
 import { mapContestDocumentToPublic } from './contest-public.js';
 import { logContestReadLine } from './contest-read-log.js';
+import { runContestScoringJob } from './contest-scoring-job.js';
 import { runContestStatusTransition } from './contest-transition-run.js';
 import {
   sendContestTransitionHttpResult,
@@ -40,6 +41,10 @@ const adminCreateBodySchema = z
     leagueGamesN: z.number().int().min(1).max(100),
     rulesVersion: z.union([z.number(), z.string().min(1).max(32)]).optional(),
     title: z.string().max(200).optional(),
+    /** Optional UI / dry-run display (cents). */
+    prizePoolCents: z.number().int().min(0).max(100_000_000).optional(),
+    entryFeeCents: z.number().int().min(0).max(10_000_000).optional(),
+    maxEntries: z.number().int().min(1).max(10_000_000).optional(),
   })
   .strict();
 
@@ -235,6 +240,9 @@ export async function postAdminContestCreate(req, res) {
     leagueGamesN,
     rulesVersion: rulesVersionIn,
     title: titleIn,
+    prizePoolCents: prizePoolCentsIn,
+    entryFeeCents: entryFeeCentsIn,
+    maxEntries: maxEntriesIn,
   } = bodyParse.data;
 
   let contestId =
@@ -348,6 +356,9 @@ export async function postAdminContestCreate(req, res) {
         createdByAdminUid: uid,
         source: 'admin_api_create_v1',
       },
+      ...(typeof prizePoolCentsIn === 'number' ? { prizePoolCents: prizePoolCentsIn } : {}),
+      ...(typeof entryFeeCentsIn === 'number' ? { entryFeeCents: entryFeeCentsIn } : {}),
+      ...(typeof maxEntriesIn === 'number' ? { maxEntries: maxEntriesIn } : {}),
     });
 
     const snap = await ref.get();
@@ -478,4 +489,115 @@ export async function postAdminContestTransition(req, res) {
       err: e,
     });
   }
+}
+
+/**
+ * POST /api/v1/admin/contests/:contestId/run-scoring — Story E2 job; Firebase `admin: true` only.
+ * Same work as internal `POST /api/internal/v1/contests/run-scoring` without operator secret.
+ */
+export async function postAdminContestRunScoring(req, res) {
+  const requestId = req.requestId ?? 'unknown';
+  const startMs = Date.now();
+  const uid = req.user?.uid ?? null;
+
+  const rl = await req.consumeContestReadRateLimit?.();
+  if (rl && rl.allowed === false) {
+    const retry = rl.retryAfterSec ?? null;
+    if (retry != null) {
+      res.setHeader('Retry-After', String(retry));
+    }
+    logContestReadLine({
+      requestId,
+      outcome: 'rate_limited',
+      httpStatus: 429,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_run_scoring',
+      uid,
+    });
+    return res.status(429).json({
+      error: {
+        code: 'rate_limited',
+        message: 'Too many requests.',
+        ...(retry != null ? { retryAfterSec: retry } : {}),
+      },
+    });
+  }
+
+  let contestIdRaw = req.params.contestId;
+  if (typeof contestIdRaw !== 'string') {
+    contestIdRaw = String(contestIdRaw ?? '');
+  }
+  contestIdRaw = decodeURIComponent(contestIdRaw.trim());
+  const parsedId = contestIdParamSchema.safeParse(contestIdRaw);
+  if (!parsedId.success) {
+    return res.status(400).json({
+      error: { code: 'validation_error', message: 'Invalid contest id.' },
+    });
+  }
+  const contestId = parsedId.data;
+
+  let db;
+  try {
+    db = getAdminFirestore();
+  } catch (e) {
+    logContestReadLine({
+      requestId,
+      outcome: 'firestore_init_failed',
+      httpStatus: 503,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_run_scoring',
+      message: e instanceof Error ? e.message : String(e),
+      contestId,
+      uid,
+    });
+    return res.status(503).json({
+      error: {
+        code: 'server_misconfigured',
+        message: 'Server is not configured for Firestore.',
+      },
+    });
+  }
+
+  const result = await runContestScoringJob({
+    db,
+    contestId,
+    requestId,
+  });
+
+  if (!result.ok) {
+    logContestReadLine({
+      requestId,
+      outcome: 'scoring_failed',
+      httpStatus: result.httpStatus,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_run_scoring',
+      contestId,
+      uid,
+      code: result.code,
+    });
+    return res.status(result.httpStatus).json({
+      error: { code: result.code, message: result.message },
+    });
+  }
+
+  logContestReadLine({
+    requestId,
+    outcome: 'ok',
+    httpStatus: 200,
+    latencyMs: Date.now() - startMs,
+    route: 'admin_run_scoring',
+    contestId,
+    uid,
+    scoringJobId: result.scoringJobId,
+    transitioned: result.transitioned,
+    standingsCount: result.standingsCount,
+  });
+
+  return res.status(200).json({
+    ok: true,
+    contestId,
+    scoringJobId: result.scoringJobId,
+    transitioned: result.transitioned,
+    standingsCount: result.standingsCount,
+  });
 }
