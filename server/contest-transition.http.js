@@ -21,10 +21,14 @@ const contestIdParamSchema = z
 const bodySchema = z
   .object({
     to: z.enum(['open', 'scoring', 'paid', 'cancelled']),
-    /** When true, allows `open` → `scoring` before `windowEnd` (trusted ops only). */
+    /**
+     * When true: skips `windowEnd` for `open`→`scoring`, and allows `paid`→`cancelled`|`scoring` (Story F2).
+     */
     force: z.boolean().optional(),
     /** Optional audit hint when a human invokes the hook (still requires secret). */
     adminUid: z.string().min(1).max(128).optional(),
+    /** Optional note for logs (e.g. why dry-run was voided or re-scored). Story F2. */
+    reason: z.string().max(500).optional(),
   })
   .strict();
 
@@ -131,7 +135,7 @@ export async function postContestTransition(req, res) {
     });
   }
 
-  const { to: targetTo, force = false, adminUid } = bodyParse.data;
+  const { to: targetTo, force = false, adminUid, reason } = bodyParse.data;
   const actorType = adminUid ? 'admin' : 'system';
 
   let db;
@@ -194,12 +198,30 @@ export async function postContestTransition(req, res) {
         };
       }
 
+      /** Story F2 — remove immutable artifacts so clients do not see stale dry-run rows. */
+      const clearDryRunArtifacts =
+        cur === 'paid' &&
+        (targetTo === 'cancelled' || targetTo === 'scoring') &&
+        force === true;
+
+      if (clearDryRunArtifacts) {
+        const resultsRef = db.doc(`contests/${contestId}/results/final`);
+        const payoutsRef = db.doc(`contests/${contestId}/payouts/dryRun`);
+        t.delete(resultsRef);
+        t.delete(payoutsRef);
+      }
+
       t.update(ref, {
         status: targetTo,
         updatedAt: FieldValue.serverTimestamp(),
       });
 
-      return { type: 'updated', from: cur, to: targetTo };
+      return {
+        type: 'updated',
+        from: cur,
+        to: targetTo,
+        dryRunArtifactsCleared: clearDryRunArtifacts,
+      };
     });
 
     if (outcome.type === 'missing') {
@@ -286,6 +308,8 @@ export async function postContestTransition(req, res) {
       from: outcome.from,
       to: outcome.to,
       force: force || undefined,
+      overrideReason: reason?.slice(0, 500) || undefined,
+      dryRunArtifactsCleared: outcome.dryRunArtifactsCleared || undefined,
     });
 
     return res.status(200).json({
@@ -294,6 +318,7 @@ export async function postContestTransition(req, res) {
       to: outcome.to,
       actorType,
       adminUid: adminUid ?? null,
+      dryRunArtifactsCleared: outcome.dryRunArtifactsCleared ?? false,
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message.slice(0, 500) : String(e);

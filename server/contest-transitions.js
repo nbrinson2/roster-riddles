@@ -6,8 +6,12 @@
 
 /** @typedef {'scheduled'|'open'|'scoring'|'paid'|'cancelled'} ContestStatus */
 
-/** @type {ReadonlySet<ContestStatus>} */
-const TERMINAL = new Set(['paid', 'cancelled']);
+/**
+ * Hard terminal: no outgoing transitions. (`paid` is only terminal for normal flows;
+ * Story F2 allows `paid` → `cancelled`|`scoring` with `force: true`.)
+ * @type {ReadonlySet<ContestStatus>}
+ */
+const TERMINAL = new Set(['cancelled']);
 
 /**
  * Adjacency: `from` → allowed `to` values.
@@ -17,7 +21,8 @@ const ALLOWED = Object.freeze({
   scheduled: new Set(['open', 'cancelled']),
   open: new Set(['scoring', 'cancelled']),
   scoring: new Set(['paid', 'cancelled']),
-  paid: new Set(),
+  /** Story F2 — dry-run override (requires `force: true` in guards). */
+  paid: new Set(['cancelled', 'scoring']),
   cancelled: new Set(),
 });
 
@@ -101,6 +106,19 @@ export function evaluateTransitionGuards(opts) {
       code: 'invalid_status_transition',
       message: `Transition from "${from}" to "${to}" is not allowed.`,
     };
+  }
+
+  /** Story F2 — void or re-score after dry-run `paid`; internal operator only (`force`). */
+  if (from === 'paid') {
+    if (!force) {
+      return {
+        ok: false,
+        code: 'override_requires_force',
+        message:
+          'Transitions from paid (dry-run final) require force:true — see Story F2 / weekly-contests-ops-f2.md.',
+      };
+    }
+    return { ok: true };
   }
 
   if (from === 'open' && to === 'scoring') {

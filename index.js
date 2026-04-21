@@ -116,8 +116,9 @@ app.post(
 );
 
 /**
- * Contest lifecycle — Story D1. Bearer `CONTESTS_OPERATOR_SECRET` (or `x-contests-operator-secret`).
- * @see docs/weekly-contests-ops-d1.md
+ * Contest lifecycle — Story D1; Story F2 `paid`→`scoring`|`cancelled` with `force` + artifact deletes.
+ * Bearer `CONTESTS_OPERATOR_SECRET` (or `x-contests-operator-secret`).
+ * @see docs/weekly-contests-ops-d1.md, docs/weekly-contests-ops-f2.md
  */
 app.post(
   '/api/internal/v1/contests/:contestId/transition',

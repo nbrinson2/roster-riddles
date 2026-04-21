@@ -26,9 +26,11 @@ describe('contest-transitions matrix', () => {
     assert.equal(isAllowedTransition('scoring', 'open'), false);
   });
 
-  it('denies transitions from terminal states', () => {
-    assert.equal(isAllowedTransition('paid', 'cancelled'), false);
+  it('denies transitions from cancelled; paid override edges exist (Story F2)', () => {
     assert.equal(isAllowedTransition('cancelled', 'open'), false);
+    assert.equal(isAllowedTransition('paid', 'cancelled'), true);
+    assert.equal(isAllowedTransition('paid', 'scoring'), true);
+    assert.equal(isAllowedTransition('paid', 'open'), false);
   });
 
   it('isContestStatus narrows known literals', () => {
@@ -73,5 +75,53 @@ describe('open → scoring time guard', () => {
       force: true,
     });
     assert.equal(r.ok, true);
+  });
+});
+
+describe('paid dry-run override (Story F2)', () => {
+  it('requires force for paid → cancelled', () => {
+    const r = evaluateTransitionGuards({
+      from: 'paid',
+      to: 'cancelled',
+      contestData: {},
+      nowMs: Date.now(),
+      force: false,
+    });
+    assert.equal(r.ok, false);
+    if (!r.ok) assert.equal(r.code, 'override_requires_force');
+  });
+
+  it('allows paid → cancelled with force', () => {
+    const r = evaluateTransitionGuards({
+      from: 'paid',
+      to: 'cancelled',
+      contestData: {},
+      nowMs: Date.now(),
+      force: true,
+    });
+    assert.equal(r.ok, true);
+  });
+
+  it('allows paid → scoring with force', () => {
+    const r = evaluateTransitionGuards({
+      from: 'paid',
+      to: 'scoring',
+      contestData: {},
+      nowMs: Date.now(),
+      force: true,
+    });
+    assert.equal(r.ok, true);
+  });
+
+  it('still rejects cancelled → anything', () => {
+    const r = evaluateTransitionGuards({
+      from: 'cancelled',
+      to: 'scoring',
+      contestData: {},
+      nowMs: Date.now(),
+      force: true,
+    });
+    assert.equal(r.ok, false);
+    if (!r.ok) assert.equal(r.code, 'contest_terminal');
   });
 });

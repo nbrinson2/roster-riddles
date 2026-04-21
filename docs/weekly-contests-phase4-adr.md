@@ -87,7 +87,7 @@ This ADR narrows **product and technical** choices for the **first** weekly-cont
 | `open` → `cancelled` | Product/admin cancels before results | Admin path; entries may remain for audit or be marked void per implementation. |
 | `scheduled` → `cancelled` | Contest never opened | Admin or system. |
 
-**`paid` semantics in v1:** “Dry-run payout rows are **final** and **not real money**.”
+**`paid` semantics in v1:** “Dry-run payout rows are **final** and **not real money**.” For staging or operator recovery, **Story F2** allows **`paid` → `cancelled`** (void) or **`paid` → `scoring`** (re-run) via the internal transition API with **`force: true`**, which also clears **`results/final`** and **`payouts/dryRun`**. See [weekly-contests-ops-f2.md](weekly-contests-ops-f2.md).
 
 **Server enforcement (Story D1):** The matrix above is implemented in application code; illegal edges return **400**. The `open` → `scoring` transition additionally requires **`now >= windowEnd`** unless a trusted operator uses an explicit **force** flag on the internal API. See [weekly-contests-ops-d1.md](weekly-contests-ops-d1.md).
 

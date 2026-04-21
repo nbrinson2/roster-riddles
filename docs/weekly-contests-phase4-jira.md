@@ -391,11 +391,17 @@ Optional for staging chaos; can be **curl + secret** internal endpoint. If out o
 
 **Acceptance criteria**
 
-- [ ] Either implemented with auth **or** explicitly deferred with **runbook** steps.
+- [x] Either implemented with auth **or** explicitly deferred with **runbook** steps.
 
 **Dependencies**
 
 - Story D1.
+
+**Deliverable (merged)**
+
+- **[`docs/weekly-contests-ops-f2.md`](weekly-contests-ops-f2.md)** — `paid` → `cancelled` \| `scoring` with **`force: true`**, secret auth, optional `reason`, artifact deletes; curl examples + manual Firestore fallback.
+- **[`server/contest-transitions.js`](../server/contest-transitions.js)** — `paid` edges; **`override_requires_force`** without `force`.
+- **[`server/contest-transition.http.js`](../server/contest-transition.http.js)** — transactional delete of **`results/final`** and **`payouts/dryRun`** on F2 transitions.
 
 ---
 
