@@ -101,3 +101,4 @@ See **`src/app/shared/models/contest-entry.model.ts`** — `ContestEntryDocument
 - [weekly-contests-schema-results.md](weekly-contests-schema-results.md) — Story B3 (immutable `results/final`, `payouts/dryRun`)
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Story B2  
 - [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md) — Phase 5 paid entry (`paymentStatus`, Checkout + webhooks)  
+- [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) — append-only **`ledgerEntries`** audit trail (P5-B2)  

@@ -115,6 +115,12 @@ try {
   // ledgers: deny
   await assertFails(setDoc(doc(alice, 'ledgers', 'l1'), { a: 1 }));
 
+  // ledgerEntries (Phase 5 P5-B2): no client read or write
+  await assertFails(getDoc(doc(alice, 'ledgerEntries', 'evt_test_1')));
+  await assertFails(
+    setDoc(doc(alice, 'ledgerEntries', 'evt_test_1'), { schemaVersion: 1 }),
+  );
+
   console.log('Firestore rules verification passed.');
 } catch (err) {
   console.error(err);

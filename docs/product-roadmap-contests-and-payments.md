@@ -70,6 +70,8 @@
 
 **Jira-style backlog (detailed stories):** [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md).
 
+**Ledger (audit trail):** [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md).
+
 ---
 
 ## Phase 6 — Payouts (prize money)

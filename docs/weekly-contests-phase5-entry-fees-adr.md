@@ -30,7 +30,7 @@ Phase 5 adds **real entry fees** (test mode in staging, live only after **Phase 
 | **Free contests** | If **`entryFeeCents`** is **`0` or absent**, **no** Checkout Session; use existing **`POST .../join`** only. **No** `paymentStatus` required, or set to `free` (implementation choice — see [Entry `paymentStatus`](#entry-paymentstatus)). |
 | **Authoritative payment state** | **Stripe webhooks** processed server-side with **signature verification** and **idempotent** handling (`event.id` deduplication). Client redirect is **UX only**. |
 | **PAN / card storage** | **Forbidden** on our systems. Store only Stripe object ids (**PaymentIntent**, **Checkout Session**, **Customer** id if used). |
-| **Ledger** | Append-only **ledger** lines (separate schema story P5-B2) for audit; webhook writes entry + ledger in a **consistent** order (documented in P5-E). |
+| **Ledger** | Append-only **`ledgerEntries`** collection — [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) (Story P5-B2); webhook writes entry + ledger in a **consistent** order (implementation P5-E). |
 
 ---
 
@@ -165,5 +165,6 @@ Related posture: [leaderboards-prize-verification-f3.md](leaderboards-prize-veri
 
 - [product-roadmap-contests-and-payments.md](product-roadmap-contests-and-payments.md) — Phases 5–7  
 - [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — implementation stories  
+- [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) — append-only **`ledgerEntries`** (P5-B2)  
 - [weekly-contests-api-c1.md](weekly-contests-api-c1.md) — join API (to be updated for `payment_required`)  
 - [stripe.md](stripe.md) — environment variables and key safety  

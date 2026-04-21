@@ -104,13 +104,17 @@ Choose layout: e.g. `ledgerEntries/{autoId}` with `userId`, `contestId`, `entryI
 
 **Acceptance criteria**
 
-- [ ] `docs/weekly-contests-phase5-ledger-schema.md` (or section in ADR) with field list and idempotency rule (**one ledger line per `stripeEventId`** for webhook-driven lines).
-- [ ] Firestore rules: **no client create/update/delete** on ledger paths.
-- [ ] Composite indexes if listing “by user” or “by contest” for support queries.
+- [x] `docs/weekly-contests-phase5-ledger-schema.md` (or section in ADR) with field list and idempotency rule (**one ledger line per `stripeEventId`** for webhook-driven lines).
+- [x] Firestore rules: **no client create/update/delete** on ledger paths (no client **read** either).
+- [x] Composite indexes if listing “by user” or “by contest” for support queries.
 
 **Dependencies**
 
 - Story P5-A1.
+
+**Deliverable**
+
+- [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md), [`contest-ledger-entry.model.ts`](../src/app/shared/models/contest-ledger-entry.model.ts), [`firestore.rules`](../firestore.rules), [`firestore.indexes.json`](../firestore.indexes.json), rules test update ✅
 
 ---
 
