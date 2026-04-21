@@ -11,6 +11,8 @@ Single place for **release owners** and **QA** to run and sign off the **weekly 
 
 General hosting and Firebase layout: [environment-matrix.md](environment-matrix.md).
 
+**Quick UI-only smoke check (anytime):** first-time strip → card → join, and returning user → last paid contest → payout + details — see [weekly-contests-ui-walkthrough-check.md](weekly-contests-ui-walkthrough-check.md).
+
 ---
 
 ## Prerequisites
