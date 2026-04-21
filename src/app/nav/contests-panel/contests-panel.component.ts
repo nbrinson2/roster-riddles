@@ -42,6 +42,16 @@ import {
   getContestRulesNarrative,
 } from './contest-rules-copy';
 
+/** Max `paid` contests shown (most recent by window end), in addition to all open + scheduled. */
+const MAX_COMPLETED_CONTESTS = 5;
+
+/** Dry-run payout snapshot for one contest card. */
+interface ContestPayoutView {
+  loading: boolean;
+  winnerText: string | null;
+  otherLines: string[];
+}
+
 /** Row for list + detail (Firestore + id). */
 export interface ContestListRow {
   contestId: string;
@@ -107,7 +117,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private listUnsubs: Unsubscribe[] = [];
   private entryUnsub: Unsubscribe | null = null;
-  private payoutUnsub: Unsubscribe | null = null;
   private loadedOpen = false;
   private loadedScheduled = false;
   private loadedPaid = false;
@@ -115,10 +124,9 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   private scheduledSnap: QuerySnapshot | null = null;
   private paidSnap: QuerySnapshot | null = null;
 
-  /** When status is `paid`, snapshot of `payouts/dryRun` (Story F1). */
-  protected payoutLoading = false;
-  protected payoutWinnerText: string | null = null;
-  protected payoutOtherLines: string[] = [];
+  /** Dry-run payout per listed `paid` contest (`payouts/dryRun`, Story F1). */
+  protected paidPayoutByContestId: Record<string, ContestPayoutView> = {};
+  private paidPayoutUnsubs = new Map<string, Unsubscribe>();
 
   constructor(
     private readonly auth: AuthService,
@@ -133,7 +141,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       if (!user) {
         this.detachListListeners();
         this.detachEntryListener();
-        this.detachPayoutListener();
         this.rows = [];
         this.loading = false;
         this.listError = null;
@@ -149,7 +156,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.detachListListeners();
     this.detachEntryListener();
-    this.detachPayoutListener();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -186,6 +192,25 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       .filter(Boolean);
   }
 
+  /** One-line summary for completed contests: payout text · slate size. */
+  protected formatPaidCardMeta(
+    row: ContestListRow,
+    payout: ContestPayoutView,
+  ): string {
+    const parts: string[] = [];
+    if (payout.loading) {
+      parts.push('Loading payout…');
+    } else if (payout.winnerText) {
+      parts.push(
+        [payout.winnerText, ...payout.otherLines].filter(Boolean).join(' · '),
+      );
+    } else {
+      parts.push('Payout unavailable');
+    }
+    parts.push(`${row.leagueGamesN} games in slate`);
+    return parts.join(' · ');
+  }
+
   /** Row for join / snapshot listeners (expanded card). */
   protected get selected(): ContestListRow | null {
     if (!this.expandedContestId) {
@@ -203,7 +228,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       this.joinError = null;
       this.joinSuccess = null;
       this.detachEntryListener();
-      this.detachPayoutListener();
       this.entryRulesVersion = null;
       return;
     }
@@ -212,7 +236,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     this.joinError = null;
     this.joinSuccess = null;
     this.refreshEntryListener();
-    this.refreshPayoutListener();
   }
 
   protected canAttemptJoin(row: ContestListRow): boolean {
@@ -427,9 +450,20 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       ? this.rows.find((r) => r.contestId === prevExpandedId)?.status ?? null
       : null;
 
-    this.rows = Array.from(byId.values())
-      .filter((r) => r.gameMode === CONTEST_GAME_MODE_BIO_BALL)
-      .sort((a, b) => this.sortRows(a, b));
+    const bios = Array.from(byId.values()).filter(
+      (r) => r.gameMode === CONTEST_GAME_MODE_BIO_BALL,
+    );
+    const paidTop = bios
+      .filter((r) => r.status === 'paid')
+      .sort((a, b) => b.windowEnd.getTime() - a.windowEnd.getTime())
+      .slice(0, MAX_COMPLETED_CONTESTS);
+    const paidKeep = new Set(paidTop.map((r) => r.contestId));
+    const rowsFiltered = bios.filter(
+      (r) => r.status !== 'paid' || paidKeep.has(r.contestId),
+    );
+    this.rows = rowsFiltered.sort((a, b) => this.sortRows(a, b));
+
+    this.syncPaidListExtras();
 
     if (prevExpandedId) {
       const updated = byId.get(prevExpandedId);
@@ -440,10 +474,8 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         this.joinSuccess = null;
         this.entryRulesVersion = null;
         this.detachEntryListener();
-        this.detachPayoutListener();
       } else if (updated.status !== prevExpandedStatus) {
         this.refreshEntryListener();
-        this.refreshPayoutListener();
       }
     }
   }
@@ -524,6 +556,74 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       u();
     }
     this.listUnsubs = [];
+    this.detachAllPaidPayoutListeners();
+  }
+
+  private detachAllPaidPayoutListeners(): void {
+    for (const unsub of this.paidPayoutUnsubs.values()) {
+      unsub();
+    }
+    this.paidPayoutUnsubs.clear();
+    this.paidPayoutByContestId = {};
+  }
+
+  /** Subscribe to `payouts/dryRun` for each listed `paid` contest. */
+  private syncPaidListExtras(): void {
+    if (!this.uid) {
+      this.detachAllPaidPayoutListeners();
+      return;
+    }
+    const paidIds = new Set(
+      this.rows.filter((r) => r.status === 'paid').map((r) => r.contestId),
+    );
+    for (const [id, unsub] of this.paidPayoutUnsubs.entries()) {
+      if (!paidIds.has(id)) {
+        unsub();
+        this.paidPayoutUnsubs.delete(id);
+        delete this.paidPayoutByContestId[id];
+      }
+    }
+
+    const db = getConfiguredFirestore();
+    for (const id of paidIds) {
+      if (this.paidPayoutUnsubs.has(id)) {
+        continue;
+      }
+      this.paidPayoutByContestId[id] = {
+        loading: true,
+        winnerText: null,
+        otherLines: [],
+      };
+
+      const payoutRef = doc(db, 'contests', id, 'payouts', 'dryRun');
+      const unsub = onSnapshot(
+        payoutRef,
+        (snap) => {
+          const st = this.paidPayoutByContestId[id];
+          if (!st) {
+            return;
+          }
+          st.loading = false;
+          if (!snap.exists()) {
+            st.winnerText = null;
+            st.otherLines = [];
+            return;
+          }
+          const parsed = this.parseDryRunPayout(snap.data());
+          st.winnerText = getWinnerGetsPhrase(parsed);
+          st.otherLines = getPlaceAmountLines(parsed);
+        },
+        () => {
+          const st = this.paidPayoutByContestId[id];
+          if (st) {
+            st.loading = false;
+            st.winnerText = null;
+            st.otherLines = [];
+          }
+        },
+      );
+      this.paidPayoutUnsubs.set(id, unsub);
+    }
   }
 
   private refreshEntryListener(): void {
@@ -558,51 +658,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     if (this.entryUnsub) {
       this.entryUnsub();
       this.entryUnsub = null;
-    }
-  }
-
-  private refreshPayoutListener(): void {
-    this.detachPayoutListener();
-    const row = this.selected;
-    const id = this.expandedContestId;
-    if (!row || row.status !== 'paid' || !this.uid || !id) {
-      this.payoutLoading = false;
-      this.payoutWinnerText = null;
-      this.payoutOtherLines = [];
-      return;
-    }
-
-    this.payoutLoading = true;
-    this.payoutWinnerText = null;
-    this.payoutOtherLines = [];
-
-    const db = getConfiguredFirestore();
-    const ref = doc(db, 'contests', id, 'payouts', 'dryRun');
-    this.payoutUnsub = onSnapshot(
-      ref,
-      (snap) => {
-        this.payoutLoading = false;
-        if (!snap.exists()) {
-          this.payoutWinnerText = null;
-          this.payoutOtherLines = [];
-          return;
-        }
-        const parsed = this.parseDryRunPayout(snap.data());
-        this.payoutWinnerText = getWinnerGetsPhrase(parsed);
-        this.payoutOtherLines = getPlaceAmountLines(parsed);
-      },
-      () => {
-        this.payoutLoading = false;
-        this.payoutWinnerText = null;
-        this.payoutOtherLines = [];
-      },
-    );
-  }
-
-  private detachPayoutListener(): void {
-    if (this.payoutUnsub) {
-      this.payoutUnsub();
-      this.payoutUnsub = null;
     }
   }
 

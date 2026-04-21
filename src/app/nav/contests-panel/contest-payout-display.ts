@@ -37,7 +37,7 @@ export function getWinnerGetsPhrase(
   if (!first || lineRank(first) !== 1) {
     return null;
   }
-  return `Winner gets ${formatNotionalUsdFromCents(first.amountCents)}`;
+  return `Payout: ${formatNotionalUsdFromCents(first.amountCents)}`;
 }
 
 /** Secondary list: other places, same numeric formatting. */

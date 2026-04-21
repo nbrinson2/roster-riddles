@@ -70,8 +70,19 @@
           {{ formatWindowLocal(row.windowStart, row.windowEnd) }}
         </p>
         <p class="cc-card-meta">
-          Rules v{{ row.rulesVersion }} · {{ row.leagueGamesN }} games in slate
+          <ng-container *ngIf="row.status !== 'paid'">
+            Rules v{{ row.rulesVersion }} · {{ row.leagueGamesN }} games in slate
+          </ng-container>
+          <ng-container
+            *ngIf="
+              row.status === 'paid' &&
+                paidPayoutByContestId[row.contestId] as po
+            "
+          >
+            {{ formatPaidCardMeta(row, po) }}
+          </ng-container>
         </p>
+
         <div class="cc-card-actions">
           <button
             type="button"
@@ -114,22 +125,24 @@
 
           <div *ngIf="row.status === 'paid'" class="cc-payout-block">
             <h3 class="cc-rules-heading">Dry-run payout</h3>
-            <p *ngIf="payoutLoading" class="cc-payout-loading">Loading…</p>
-            <p
-              *ngIf="!payoutLoading && payoutWinnerText"
-              class="cc-payout-winner"
-            >
-              {{ payoutWinnerText }}
-            </p>
-            <ul
-              *ngIf="!payoutLoading && payoutOtherLines.length"
-              class="cc-payout-lines"
-            >
-              <li *ngFor="let line of payoutOtherLines">{{ line }}</li>
-            </ul>
-            <p *ngIf="!payoutLoading && !payoutWinnerText" class="cc-hint">
-              Payout lines are not available for this contest yet.
-            </p>
+            <ng-container *ngIf="paidPayoutByContestId[row.contestId] as px">
+              <p *ngIf="px.loading" class="cc-payout-loading">Loading…</p>
+              <p
+                *ngIf="!px.loading && px.winnerText"
+                class="cc-payout-winner"
+              >
+                {{ px.winnerText }}
+              </p>
+              <ul
+                *ngIf="!px.loading && px.otherLines.length"
+                class="cc-payout-lines"
+              >
+                <li *ngFor="let line of px.otherLines">{{ line }}</li>
+              </ul>
+              <p *ngIf="!px.loading && !px.winnerText" class="cc-hint">
+                Payout lines are not available for this contest yet.
+              </p>
+            </ng-container>
           </div>
 
           <div
