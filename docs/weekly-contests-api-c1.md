@@ -78,9 +78,9 @@ Structured lines: `component: contest_join`, `outcome`, `requestId`, `httpStatus
 
 | File | Role |
 |------|------|
-| `server/contest-join.http.js` | Handler |
-| `server/contest-join-log.js` | JSON logs |
-| `server/rate-limit-hooks.middleware.js` | `contestJoinRateLimitHookMiddleware` |
+| `server/contests/contest-join.http.js` | Handler |
+| `server/contests/contest-join-log.js` | JSON logs |
+| `server/middleware/rate-limit-hooks.middleware.js` | `contestJoinRateLimitHookMiddleware` |
 | `index.js` | Route registration |
 
 ## References

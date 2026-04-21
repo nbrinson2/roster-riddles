@@ -3,8 +3,8 @@
  * @see docs/weekly-contests-ops-d1.md
  */
 import { z } from 'zod';
-import { getAdminFirestore } from './admin-firestore.js';
-import { resolveSecretFromEnv } from './contest-internal-auth.js';
+import { getAdminFirestore } from '../lib/admin-firestore.js';
+import { resolveSecretFromEnv } from '../lib/contest-internal-auth.js';
 import { runContestStatusTransition } from './contest-transition-run.js';
 import {
   sendContestTransitionHttpResult,

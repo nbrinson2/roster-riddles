@@ -1,6 +1,6 @@
 /**
  * Shared guard: user may only be in one **open** contest per `gameMode` (Story C1).
- * @see server/contest-join.http.js
+ * @see server/contests/contest-join.http.js
  */
 
 /**

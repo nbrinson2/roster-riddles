@@ -4,12 +4,12 @@
  * @see docs/weekly-contests-ops-e1.md
  */
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
-import { getAdminFirestore } from './admin-firestore.js';
+import { getAdminFirestore } from '../lib/admin-firestore.js';
 import {
   extractBearerOrHeaderSecret,
   getContestsOperatorOrCronSecret,
   resolveSecretFromEnv,
-} from './contest-internal-auth.js';
+} from '../lib/contest-internal-auth.js';
 import { evaluateTransitionGuards, isContestStatus } from './contest-transitions.js';
 import { logContestScoringLine } from './contest-scoring-log.js';
 

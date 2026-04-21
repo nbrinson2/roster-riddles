@@ -4,10 +4,10 @@
 import admin from 'firebase-admin';
 import { FieldPath } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
-import { fetchAuthFieldsForUids } from './auth-display-names.js';
+import { fetchAuthFieldsForUids } from '../lib/auth-display-names.js';
 import { isLeaderboardEmailVerifiedEnforced } from './leaderboard-email-verified.js';
-import { getAdminFirestore } from './admin-firestore.js';
-import { firestoreTimestampToIso } from './firestore-timestamp-iso.js';
+import { getAdminFirestore } from '../lib/admin-firestore.js';
+import { firestoreTimestampToIso } from '../lib/firestore-timestamp-iso.js';
 import { logLeaderboardLine } from './leaderboard-log.js';
 import {
   decodeLeaderboardPageToken,

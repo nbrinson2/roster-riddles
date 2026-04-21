@@ -1,5 +1,5 @@
 /**
- * @see server/stripe-webhook.http.js — full signature tests use Stripe CLI + listen.
+ * @see server/payments/stripe-webhook.http.js — full signature tests use Stripe CLI + listen.
  */
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';

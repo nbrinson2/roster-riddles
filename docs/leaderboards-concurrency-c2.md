@@ -103,5 +103,5 @@ Redirect to a log file if needed: `npm run test:stats-concurrency 2>&1 | tee /tm
 ## References
 
 - `scripts/stats-concurrency-load-test.mjs`
-- `server/stats-aggregate.js` — `transactionalAppendEventAndUpdateStats`
+- `server/lib/stats-aggregate.js` — `transactionalAppendEventAndUpdateStats`
 - [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story C2

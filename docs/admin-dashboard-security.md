@@ -87,7 +87,7 @@ No PII or secrets belong in this document; **UIDs** in runbooks should be **reda
 
 **Errors:** Same as other bearer-protected routes (`401` invalid/missing token, `503` if Admin SDK not configured).
 
-Implementation: [`server/require-auth.js`](../server/require-auth.js), [`server/auth-claims.js`](../server/auth-claims.js), route in [`index.js`](../index.js).
+Implementation: [`server/middleware/require-auth.js`](../server/middleware/require-auth.js), [`server/lib/auth-claims.js`](../server/lib/auth-claims.js), route in [`index.js`](../index.js).
 
 ---
 
@@ -97,16 +97,16 @@ These routes use the same **`Authorization: Bearer <Firebase ID token>`** as **`
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/api/v1/admin/contests` | List Bio Ball contests across **all** statuses (`scheduled` … `cancelled`), merged and sorted. Query: `limit` (default **50**, max **100**). Same public field projection as D2 ([`mapContestDocumentToPublic`](../server/contest-public.js)). |
+| `GET` | `/api/v1/admin/contests` | List Bio Ball contests across **all** statuses (`scheduled` … `cancelled`), merged and sorted. Query: `limit` (default **50**, max **100**). Same public field projection as D2 ([`mapContestDocumentToPublic`](../server/contests/contest-public.js)). |
 | `POST` | `/api/v1/admin/contests` | Create **`contests/{contestId}`** with Admin SDK. Body: `{ "contestId"?: string, "status": "scheduled"\|"open", "windowStart", "windowEnd" (ISO 8601), "leagueGamesN", "rulesVersion"?: number\|string, "title"?: string }`. Omit **`contestId`** (or send `""`) to receive a server-generated id (`bb-<ms>-<hex>`). **`409`** if an explicit id already exists. **`metadata`** includes **`createdByAdminUid`**. |
 | `POST` | `/api/v1/admin/contests/:contestId/transition` | Body: `{ "to": "open"\|"scoring"\|"paid"\|"cancelled", "force"?: boolean, "reason"?: string }`. Audit **`adminUid`** is the authenticated **`uid`** (not taken from the client). |
 | `GET` | `/api/v1/admin/users/admins` | Lists users whose custom claim **`admin`** is true (paginates **`listUsers`** server-side; sorted by email then uid). Admin only. Register **before** `/:targetUid`. |
 | `GET` | `/api/v1/admin/users/:targetUid` | Read **Auth** user (`email`, **`admin`** claim, `disabled`). Admin only. |
 | `PATCH` | `/api/v1/admin/users/:targetUid/admin-claim` | Body: `{ "grant": true \| false }`. Sets custom claim **`admin`** via Admin SDK. **Cannot** change your **own** uid (use CLI script to avoid self-lockout). |
 
-Rate limits: same contest-read hook as public contest reads ([`contestReadRateLimitHookMiddleware`](../server/rate-limit-hooks.middleware.js)).
+Rate limits: same contest-read hook as public contest reads ([`contestReadRateLimitHookMiddleware`](../server/middleware/rate-limit-hooks.middleware.js)).
 
-Implementation: [`server/admin-contests.http.js`](../server/admin-contests.http.js), [`server/admin-users.http.js`](../server/admin-users.http.js), [`server/require-admin.js`](../server/require-admin.js), shared transition runner [`server/contest-transition-run.js`](../server/contest-transition-run.js).
+Implementation: [`server/admin/admin-contests.http.js`](../server/admin/admin-contests.http.js), [`server/admin/admin-users.http.js`](../server/admin/admin-users.http.js), [`server/middleware/require-admin.js`](../server/middleware/require-admin.js), shared transition runner [`server/contests/contest-transition-run.js`](../server/contests/contest-transition-run.js).
 
 ---
 

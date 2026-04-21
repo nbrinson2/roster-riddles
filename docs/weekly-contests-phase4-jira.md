@@ -174,7 +174,7 @@ Express (or Cloud Function) endpoint: verify Firebase **ID token**, load contest
 **Deliverable (merged)**
 
 - **[`docs/weekly-contests-api-c1.md`](weekly-contests-api-c1.md)** — contract, errors, env.
-- **`POST /api/v1/contests/:contestId/join`** in [`index.js`](../index.js); [`server/contest-join.http.js`](../server/contest-join.http.js), [`server/contest-join-log.js`](../server/contest-join-log.js); [`contestJoinRateLimitHookMiddleware`](../server/rate-limit-hooks.middleware.js).
+- **`POST /api/v1/contests/:contestId/join`** in [`index.js`](../index.js); [`server/contests/contest-join.http.js`](../server/contests/contest-join.http.js), [`server/contests/contest-join-log.js`](../server/contests/contest-join-log.js); [`contestJoinRateLimitHookMiddleware`](../server/middleware/rate-limit-hooks.middleware.js).
 
 ---
 
@@ -231,10 +231,10 @@ Define **who** moves `scheduled`→`open` (clock vs manual), `open`→`scoring` 
 **Deliverable (merged)**
 
 - **[`docs/weekly-contests-ops-d1.md`](weekly-contests-ops-d1.md)** — transition matrix, endpoint, env, examples.
-- **[`server/contest-transitions.js`](../server/contest-transitions.js)** — adjacency + guards (`open`→`scoring` / `windowEnd` + optional `force`).
-- **[`server/contest-transition.http.js`](../server/contest-transition.http.js)**, **[`server/contest-transition-log.js`](../server/contest-transition-log.js)** — transactional update, structured logs.
+- **[`server/contests/contest-transitions.js`](../server/contests/contest-transitions.js)** — adjacency + guards (`open`→`scoring` / `windowEnd` + optional `force`).
+- **[`server/contests/contest-transition.http.js`](../server/contests/contest-transition.http.js)**, **[`server/contests/contest-transition-log.js`](../server/contests/contest-transition-log.js)** — transactional update, structured logs.
 - **[`index.js`](../index.js)** — `POST /api/internal/v1/contests/:contestId/transition`.
-- **[`server/contest-transitions.test.js`](../server/contest-transitions.test.js)** — matrix + time guard unit tests.
+- **[`server/contests/contest-transitions.test.js`](../server/contests/contest-transitions.test.js)** — matrix + time guard unit tests.
 
 ---
 
@@ -261,8 +261,8 @@ Expose minimal fields for UI; hide internal admin notes. Pagination if list grow
 **Deliverable (merged)**
 
 - **[`docs/weekly-contests-api-d2.md`](weekly-contests-api-d2.md)** — contract, query params, errors, rate limits.
-- **`GET /api/v1/contests`**, **`GET /api/v1/contests/:contestId`** — [`index.js`](../index.js); [`server/contest-read.http.js`](../server/contest-read.http.js); [`server/contest-public.js`](../server/contest-public.js); [`server/contest-read-log.js`](../server/contest-read-log.js); [`contestReadRateLimitHookMiddleware`](../server/rate-limit-hooks.middleware.js).
-- **[`server/contest-public.test.js`](../server/contest-public.test.js)** — projection tests.
+- **`GET /api/v1/contests`**, **`GET /api/v1/contests/:contestId`** — [`index.js`](../index.js); [`server/contests/contest-read.http.js`](../server/contests/contest-read.http.js); [`server/contests/contest-public.js`](../server/contests/contest-public.js); [`server/contests/contest-read-log.js`](../server/contests/contest-read-log.js); [`contestReadRateLimitHookMiddleware`](../server/middleware/rate-limit-hooks.middleware.js).
+- **[`server/contests/contest-public.test.js`](../server/contests/contest-public.test.js)** — projection tests.
 
 ---
 
@@ -291,7 +291,7 @@ Reliable **at-least-once** trigger; dedupe so multiple schedulers don’t corrup
 **Deliverable (merged)**
 
 - **[`docs/weekly-contests-ops-e1.md`](weekly-contests-ops-e1.md)** — hook contract, env, recovery, Scheduler example.
-- **`POST /api/internal/v1/contests/close-due-windows`** — [`index.js`](../index.js); [`server/contest-close-due-windows.http.js`](../server/contest-close-due-windows.http.js); [`server/contest-scoring-log.js`](../server/contest-scoring-log.js).
+- **`POST /api/internal/v1/contests/close-due-windows`** — [`index.js`](../index.js); [`server/contests/contest-close-due-windows.http.js`](../server/contests/contest-close-due-windows.http.js); [`server/contests/contest-scoring-log.js`](../server/contests/contest-scoring-log.js).
 
 ---
 
@@ -319,8 +319,8 @@ Trusted code path using Admin SDK: query events in `[windowStart, windowEnd)` (o
 **Deliverable (merged)**
 
 - **[`docs/weekly-contests-ops-e2.md`](weekly-contests-ops-e2.md)** — contract, E1 webhook wiring, index note.
-- **`POST /api/internal/v1/contests/run-scoring`** — [`index.js`](../index.js); [`server/contest-scoring.http.js`](../server/contest-scoring.http.js); [`server/contest-scoring-job.js`](../server/contest-scoring-job.js); [`server/contest-scoring-core.js`](../server/contest-scoring-core.js); [`server/contest-internal-auth.js`](../server/contest-internal-auth.js).
-- **[`server/contest-scoring-core.test.js`](../server/contest-scoring-core.test.js)** — tie/slate unit tests.
+- **`POST /api/internal/v1/contests/run-scoring`** — [`index.js`](../index.js); [`server/contests/contest-scoring.http.js`](../server/contests/contest-scoring.http.js); [`server/contests/contest-scoring-job.js`](../server/contests/contest-scoring-job.js); [`server/contests/contest-scoring-core.js`](../server/contests/contest-scoring-core.js); [`server/lib/contest-internal-auth.js`](../server/lib/contest-internal-auth.js).
+- **[`server/contests/contest-scoring-core.test.js`](../server/contests/contest-scoring-core.test.js)** — tie/slate unit tests.
 - **[`firestore.indexes.json`](../firestore.indexes.json)** — `gameplayEvents` composite for `gameMode` + `createdAt`.
 
 ---
@@ -347,9 +347,9 @@ Human- and machine-readable structure so support can answer “why #2 and #3 tie
 
 **Deliverable (merged)**
 
-- [`server/contest-scoring-tie-audit.js`](../server/contest-scoring-tie-audit.js) — build `tieResolution` for `results/final`.
-- [`server/contest-scoring-tie-audit.test.js`](../server/contest-scoring-tie-audit.test.js) — unit tests.
-- [`server/contest-scoring-job.js`](../server/contest-scoring-job.js) — writes structured `tieResolution`.
+- [`server/contests/contest-scoring-tie-audit.js`](../server/contests/contest-scoring-tie-audit.js) — build `tieResolution` for `results/final`.
+- [`server/contests/contest-scoring-tie-audit.test.js`](../server/contests/contest-scoring-tie-audit.test.js) — unit tests.
+- [`server/contests/contest-scoring-job.js`](../server/contests/contest-scoring-job.js) — writes structured `tieResolution`.
 - [`docs/weekly-contests-schema-results.md`](weekly-contests-schema-results.md), [`docs/weekly-contests-phase4-adr.md`](weekly-contests-phase4-adr.md) — schema + ADR cross-links.
 - [`src/app/shared/models/contest-results-final.model.ts`](../src/app/shared/models/contest-results-final.model.ts) — TypeScript types.
 
@@ -402,8 +402,8 @@ Optional for staging chaos; can be **curl + secret** internal endpoint. If out o
 **Deliverable (merged)**
 
 - **[`docs/weekly-contests-ops-f2.md`](weekly-contests-ops-f2.md)** — `paid` → `cancelled` \| `scoring` with **`force: true`**, secret auth, optional `reason`, artifact deletes; curl examples + manual Firestore fallback.
-- **[`server/contest-transitions.js`](../server/contest-transitions.js)** — `paid` edges; **`override_requires_force`** without `force`.
-- **[`server/contest-transition.http.js`](../server/contest-transition.http.js)** — transactional delete of **`results/final`** and **`payouts/dryRun`** on F2 transitions.
+- **[`server/contests/contest-transitions.js`](../server/contests/contest-transitions.js)** — `paid` edges; **`override_requires_force`** without `force`.
+- **[`server/contests/contest-transition.http.js`](../server/contests/contest-transition.http.js)** — transactional delete of **`results/final`** and **`payouts/dryRun`** on F2 transitions.
 
 ---
 

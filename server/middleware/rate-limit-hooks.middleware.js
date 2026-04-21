@@ -2,8 +2,8 @@
  * Story F1 — rate limits (Express). In-memory fixed window per IP (leaderboards) / per uid (gameplay).
  * @see docs/leaderboards-rate-limits-f1.md
  */
-import { getClientIpForRateLimit } from './client-ip.js';
-import { createFixedWindowLimiter } from './in-memory-rate-limit.js';
+import { getClientIpForRateLimit } from '../lib/client-ip.js';
+import { createFixedWindowLimiter } from '../lib/in-memory-rate-limit.js';
 
 /**
  * @typedef {{ allowed: boolean, retryAfterSec?: number | null }} RateLimitResult

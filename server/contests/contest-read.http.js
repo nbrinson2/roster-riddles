@@ -3,7 +3,7 @@
  * @see docs/weekly-contests-api-d2.md
  */
 import { z } from 'zod';
-import { getAdminFirestore } from './admin-firestore.js';
+import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { mapContestDocumentToPublic } from './contest-public.js';
 import { logContestReadLine } from './contest-read-log.js';
 

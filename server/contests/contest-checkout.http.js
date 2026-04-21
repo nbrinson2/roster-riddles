@@ -8,12 +8,12 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { z } from 'zod';
 import { findBlockingOpenContestSameGameMode } from './contest-blocking-entry.js';
 import { logContestCheckoutLine } from './contest-checkout-log.js';
-import { getAdminFirestore } from './admin-firestore.js';
+import { getAdminFirestore } from '../lib/admin-firestore.js';
 import {
   getStripeClient,
   isContestsPaymentsEnabled,
   sendStripeServiceUnavailable,
-} from './stripe-server.js';
+} from '../payments/stripe-server.js';
 
 /** Phase 4 v1 — must match contest join / ADR. */
 const BIO_BALL = 'bio-ball';

@@ -4,10 +4,10 @@
 import { FieldPath, FieldValue } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import admin from 'firebase-admin';
-import { fetchAuthFieldsForUids } from './auth-display-names.js';
+import { fetchAuthFieldsForUids } from '../lib/auth-display-names.js';
 import { filterSortedForVerifiedLeaderboard } from './leaderboard-email-verified.js';
-import { getAdminFirestore } from './admin-firestore.js';
-import { ensureFirebaseAdminInitialized } from './firebase-admin-init.js';
+import { getAdminFirestore } from '../lib/admin-firestore.js';
+import { ensureFirebaseAdminInitialized } from '../lib/firebase-admin-init.js';
 import {
   LEADERBOARD_SCOPES,
   sortLeaderboardPageRows,
@@ -15,7 +15,7 @@ import {
   winsOrderFieldForScope,
   winsScoreFromStatsDoc,
 } from './leaderboard-query.js';
-import { STATS_SCHEMA_VERSION } from './stats-aggregate.js';
+import { STATS_SCHEMA_VERSION } from '../lib/stats-aggregate.js';
 
 /** Max rows per snapshot document (B2); keep ≤ ~500 per ADR. */
 export const LEADERBOARD_SNAPSHOT_TOP_K = 500;

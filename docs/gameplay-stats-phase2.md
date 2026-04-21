@@ -90,7 +90,7 @@
 |---|---|
 | **Endpoint** | `POST /api/v1/me/gameplay-events` |
 | **Auth** | `Authorization: Bearer <Firebase ID token>` (same pattern as `GET /api/v1/me`) |
-| **Implementation** | `server/gameplay-events.js` — validates with **Zod**, writes with **Admin SDK** to `users/{uid}/gameplayEvents/{eventId}` |
+| **Implementation** | `server/gameplay/gameplay-events.js` — validates with **Zod**, writes with **Admin SDK** to `users/{uid}/gameplayEvents/{eventId}` |
 | **Firestore DB** | Server uses **`FIRESTORE_DATABASE_ID`** (omit or `(default)` for staging; production often `roster-riddles`) so it matches the Angular `firestoreDatabaseId`. **Cloud Run / Docker:** bake or set this env var at runtime — if unset, Admin SDK uses **`(default)`** while the client may use **`roster-riddles`**, causing failed writes or data in the wrong database. See [Troubleshooting: POST /gameplay-events 500](#troubleshooting-post-gameplay-events-500). |
 | **Angular client (Story 5)** | `GameplayTelemetryService` — `POST` on win/loss from `CommonGameService`, `abandoned` when navigating away while `PLAYING`; gated by `featureFlags.gameplayTelemetry` and `environment.sendGameplayEvents`. |
 | **Profile UI (Story 6)** | `ProfileComponent` reads `users/{uid}/stats/summary` via Firestore client (`docData`) for spot-checks vs console. |
@@ -110,7 +110,7 @@ Use **`modeMetrics`** only when a future metric cannot be expressed as a single 
 
 ## 4. Aggregate document: `users/{uid}/stats/summary`
 
-Single document id **`summary`** (subcollection `stats`), updated **only by trusted code** in the **same Firestore transaction** as a new gameplay event insert (see `server/stats-aggregate.js`).
+Single document id **`summary`** (subcollection `stats`), updated **only by trusted code** in the **same Firestore transaction** as a new gameplay event insert (see `server/lib/stats-aggregate.js`).
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -154,7 +154,7 @@ Single document id **`summary`** (subcollection `stats`), updated **only by trus
 
 If **`POST /api/v1/me/gameplay-events`** returns **500** in production while Auth works:
 
-1. **Database mismatch (most common)** — The Angular bundle targets **`environment.firestoreDatabaseId`** (often **`roster-riddles`** from `generate-env-prod.mjs`). Express uses **`process.env.FIRESTORE_DATABASE_ID`** in `server/admin-firestore.js`. If that env var is **missing** on Cloud Run, the server uses Firestore **`(default)`** instead of the named database, which can cause transaction failures or writes that never show up in the client’s DB.
+1. **Database mismatch (most common)** — The Angular bundle targets **`environment.firestoreDatabaseId`** (often **`roster-riddles`** from `generate-env-prod.mjs`). Express uses **`process.env.FIRESTORE_DATABASE_ID`** in `server/lib/admin-firestore.js`. If that env var is **missing** on Cloud Run, the server uses Firestore **`(default)`** instead of the named database, which can cause transaction failures or writes that never show up in the client’s DB.
    - **Fix (deploy):** Ensure the container sets **`FIRESTORE_DATABASE_ID=roster-riddles`** (see `Dockerfile` runtime `ENV` and `cloudbuild.yaml` `_FIRESTORE_DATABASE_ID`).
    - **Fix (immediate):** `gcloud run services update SERVICE_NAME --region=REGION --set-env-vars FIRESTORE_DATABASE_ID=roster-riddles` (use your service name/region).
 2. **IAM** — Cloud Run’s service account needs Firestore access in the Firebase/GCP project (e.g. **Datastore User** / **Cloud Datastore User**).

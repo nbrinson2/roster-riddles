@@ -3,7 +3,7 @@
  * @see docs/admin-dashboard-security.md
  */
 import { z } from 'zod';
-import { ensureFirebaseAdminInitialized } from './firebase-admin-init.js';
+import { ensureFirebaseAdminInitialized } from '../lib/firebase-admin-init.js';
 
 const uidParamSchema = z
   .string()

@@ -37,7 +37,7 @@ export interface LeaderboardSnapshotDocument {
   topK: number;
   entries: LeaderboardSnapshotEntry[];
   generatedAt: unknown;
-  /** Optional: STATS_SCHEMA_VERSION from server/stats-aggregate.js when job ran. */
+  /** Optional: STATS_SCHEMA_VERSION from server/lib/stats-aggregate.js when job ran. */
   aggregateSchemaVersion?: number;
   /** Optional: number of user stats docs scanned. */
   sourceRowCount?: number;

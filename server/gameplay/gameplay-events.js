@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto';
 import { Timestamp } from 'firebase-admin/firestore';
 import { z } from 'zod';
-import { getAdminFirestore } from './admin-firestore.js';
+import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { logGameplayEventLine } from './gameplay-event-log.js';
-import { transactionalAppendEventAndUpdateStats } from './stats-aggregate.js';
+import { transactionalAppendEventAndUpdateStats } from '../lib/stats-aggregate.js';
 
 /** Max single-session duration we accept (48h). */
 export const MAX_DURATION_MS = 48 * 60 * 60 * 1000;

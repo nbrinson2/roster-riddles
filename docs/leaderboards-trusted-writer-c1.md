@@ -11,9 +11,9 @@ Leaderboard **scores** in v1 are **`wins`** derived from the **same** authoritat
 
 | Step | What happens |
 |------|----------------|
-| 1 | Authenticated client **`POST /api/v1/me/gameplay-events`** with a validated body (`server/gameplay-events.js`). |
+| 1 | Authenticated client **`POST /api/v1/me/gameplay-events`** with a validated body (`server/gameplay/gameplay-events.js`). |
 | 2 | Server computes **`eventId = SHA-256(uid ‖ clientSessionId)`** — deterministic per user + session. |
-| 3 | **`transactionalAppendEventAndUpdateStats`** (`server/stats-aggregate.js`) runs a **Firestore transaction**: |
+| 3 | **`transactionalAppendEventAndUpdateStats`** (`server/lib/stats-aggregate.js`) runs a **Firestore transaction**: |
 |  | • If **`gameplayEvents/{eventId}`** already exists → **no stats change**; response **`idempotentReplay: true`**. |
 |  | • Else → **`set`** the event with server **`createdAt`**, and **`set`** **`stats/summary`** from **`applyEventToStatsTree`**. |
 
@@ -48,10 +48,10 @@ Other fields use **min/max** where appropriate (e.g. **`bests.fastestWinMs`** us
 
 | Artifact | Role |
 |----------|------|
-| `server/gameplay-events.js` | HTTP validation, **`computeGameplayEventId`**, calls transaction |
-| `server/stats-aggregate.js` | **`transactionalAppendEventAndUpdateStats`**, **`applyEventToStatsTree`**, **`buildStatsFirestoreDocument`** |
-| `server/admin-firestore.js` | Admin Firestore with **`FIRESTORE_DATABASE_ID`** |
-| `server/stats-aggregate.test.js` | Unit tests for merge rules, including leaderboard **`wins`** |
+| `server/gameplay/gameplay-events.js` | HTTP validation, **`computeGameplayEventId`**, calls transaction |
+| `server/lib/stats-aggregate.js` | **`transactionalAppendEventAndUpdateStats`**, **`applyEventToStatsTree`**, **`buildStatsFirestoreDocument`** |
+| `server/lib/admin-firestore.js` | Admin Firestore with **`FIRESTORE_DATABASE_ID`** |
+| `server/lib/stats-aggregate.test.js` | Unit tests for merge rules, including leaderboard **`wins`** |
 
 ## Future work (out of C1)
 

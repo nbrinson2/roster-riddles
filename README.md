@@ -171,7 +171,7 @@ Karma + Jasmine.
 
 ### QA: stats vs events (gameplay telemetry)
 
-To verify that **`users/{uid}/stats/summary`** matches a full replay of **`gameplayEvents`** (same logic as `server/stats-aggregate.js`), use Firebase Admin credentials and run:
+To verify that **`users/{uid}/stats/summary`** matches a full replay of **`gameplayEvents`** (same logic as `server/lib/stats-aggregate.js`), use Firebase Admin credentials and run:
 
 ```bash
 export FIRESTORE_DATABASE_ID=roster-riddles   # or your DB id; see .env.example

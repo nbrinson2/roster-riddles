@@ -45,5 +45,5 @@ The Angular leaderboard panel may show a short line when **`listingPolicy.emailV
 
 ## References
 
-- `server/leaderboard-email-verified.js`, `server/auth-display-names.js` (`fetchAuthFieldsForUids`)
+- `server/leaderboards/leaderboard-email-verified.js`, `server/lib/auth-display-names.js` (`fetchAuthFieldsForUids`)
 - [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story F2

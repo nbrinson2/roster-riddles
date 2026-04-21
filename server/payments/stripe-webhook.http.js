@@ -4,7 +4,7 @@
  * Business logic (entries, ledger) lands in Story P5-E — this handler only verifies and ACKs.
  * @see docs/weekly-contests-phase5-webhooks.md
  */
-import { resolveSecretFromEnv } from './contest-internal-auth.js';
+import { resolveSecretFromEnv } from '../lib/contest-internal-auth.js';
 import {
   getStripeClient,
   sendStripeServiceUnavailable,

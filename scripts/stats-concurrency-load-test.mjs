@@ -12,7 +12,7 @@
  */
 import admin from 'firebase-admin';
 import { getFirestore } from 'firebase-admin/firestore';
-import { computeGameplayEventId } from '../server/gameplay-events.js';
+import { computeGameplayEventId } from '../server/gameplay/gameplay-events.js';
 import {
   deleteFirebaseAdminApp,
   exitEmulatorExecChild,
@@ -20,7 +20,7 @@ import {
 import {
   STATS_DOC_ID,
   transactionalAppendEventAndUpdateStats,
-} from '../server/stats-aggregate.js';
+} from '../server/lib/stats-aggregate.js';
 
 const host = process.env.FIRESTORE_EMULATOR_HOST;
 if (!host) {

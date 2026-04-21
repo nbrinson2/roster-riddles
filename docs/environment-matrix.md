@@ -15,7 +15,7 @@ Separate **Firebase projects** (or at minimum separate web apps + Admin credenti
 
 ## Express
 
-- Loads Admin credentials only from **`FIREBASE_SERVICE_ACCOUNT_JSON`** or **default credentials** / **`GOOGLE_APPLICATION_CREDENTIALS`** (`server/firebase-admin-init.js`). No keys in source control.
+- Loads Admin credentials only from **`FIREBASE_SERVICE_ACCOUNT_JSON`** or **default credentials** / **`GOOGLE_APPLICATION_CREDENTIALS`** (`server/lib/firebase-admin-init.js`). No keys in source control.
 - **Local dev:** copy `.env.example` → `.env` and set `GOOGLE_APPLICATION_CREDENTIALS` to a **staging** service account JSON path under `secrets/` (see `.env.example`). `index.js` loads `.env` via **`dotenv`**.
 - **Copy prod cache → staging:** see [firestore-mirror.md](./firestore-mirror.md) and `npm run mirror:firestore-cache`.
 

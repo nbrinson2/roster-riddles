@@ -116,7 +116,7 @@ Weekly boards require one of:
 
 - Phase 2: [gameplay-stats-phase2.md](gameplay-stats-phase2.md)
 - Query-path schema (Story B1): [leaderboards-schema-query-path.md](leaderboards-schema-query-path.md)
-- Aggregate logic: `server/stats-aggregate.js`
+- Aggregate logic: `server/lib/stats-aggregate.js`
 - Jira-style backlog: [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md)
 - Prize / verification (deferred): [leaderboards-prize-verification-f3.md](leaderboards-prize-verification-f3.md) (Story F3)
 

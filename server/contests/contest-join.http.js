@@ -5,8 +5,8 @@
 import admin from 'firebase-admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { z } from 'zod';
-import { fetchAuthFieldsForUids } from './auth-display-names.js';
-import { getAdminFirestore } from './admin-firestore.js';
+import { fetchAuthFieldsForUids } from '../lib/auth-display-names.js';
+import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { findBlockingOpenContestSameGameMode } from './contest-blocking-entry.js';
 import { logContestJoinLine } from './contest-join-log.js';
 

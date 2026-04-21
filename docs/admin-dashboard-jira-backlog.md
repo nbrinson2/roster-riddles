@@ -3,7 +3,7 @@
 **Suggested labels:** `admin`, `nav`, `phase-next`  
 **Suggested epic name:** Admin dashboard shell (production-ready gating)
 
-**Context (current codebase):** Top nav uses `mat-sidenav` with mutually exclusive “views” (`viewMenu`, `viewProfile`, `viewRoster`, `viewLeaderboard`, `viewContests`, …) in [`src/app/nav/nav.component.html`](../src/app/nav/nav.component.html). Profile and logout live in **`icons-right-container`** (right side of the bar). The profile drawer uses **`MatDrawerPosition.END`** (`position="end"`) — **right-side** overlay. `GET /api/v1/me` returns **`isAdmin`** from ID token custom claim **`admin: true`** ([`index.js`](../index.js), [`server/require-auth.js`](../server/require-auth.js), AD-2). Operators grant/revoke via [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md) (AD-3).
+**Context (current codebase):** Top nav uses `mat-sidenav` with mutually exclusive “views” (`viewMenu`, `viewProfile`, `viewRoster`, `viewLeaderboard`, `viewContests`, …) in [`src/app/nav/nav.component.html`](../src/app/nav/nav.component.html). Profile and logout live in **`icons-right-container`** (right side of the bar). The profile drawer uses **`MatDrawerPosition.END`** (`position="end"`) — **right-side** overlay. `GET /api/v1/me` returns **`isAdmin`** from ID token custom claim **`admin: true`** ([`index.js`](../index.js), [`server/middleware/require-auth.js`](../server/middleware/require-auth.js), AD-2). Operators grant/revoke via [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md) (AD-3).
 
 ---
 
@@ -57,7 +57,7 @@
 **Description**
 
 - Follow claim shape and threat model in **[`admin-dashboard-security.md`](admin-dashboard-security.md)**.
-- In [`server/require-auth.js`](../server/require-auth.js) (or solely inside the `/api/v1/me` handler), after `verifyIdToken`, read **custom claims** from the decoded token (e.g. `decoded.admin === true`).
+- In [`server/middleware/require-auth.js`](../server/middleware/require-auth.js) (or solely inside the `/api/v1/me` handler), after `verifyIdToken`, read **custom claims** from the decoded token (e.g. `decoded.admin === true`).
 - Extend JSON response of `GET /api/v1/me` with **`isAdmin: boolean`** (default **`false`** if claim absent).
 - Do **not** log emails/uid on success for this field beyond existing patterns; optional structured log line with **`outcome`** for debugging misconfiguration only.
 - Add **`server/*.test.js`** coverage if feasible (mock decoded token with/without claim), or document manual verification.
@@ -75,8 +75,8 @@
 
 **Deliverable (merged)**
 
-- **[`server/auth-claims.js`](../server/auth-claims.js)** — `isAdminFromDecodedToken` (unit-tested).
-- **[`server/require-auth.js`](../server/require-auth.js)** — sets **`req.user.isAdmin`** for all bearer-authenticated routes.
+- **[`server/lib/auth-claims.js`](../server/lib/auth-claims.js)** — `isAdminFromDecodedToken` (unit-tested).
+- **[`server/middleware/require-auth.js`](../server/middleware/require-auth.js)** — sets **`req.user.isAdmin`** for all bearer-authenticated routes.
 - **[`index.js`](../index.js)** — **`GET /api/v1/me`** returns **`isAdmin`**.
 - **[`docs/admin-dashboard-security.md`](admin-dashboard-security.md)** — response field table.
 
@@ -93,7 +93,7 @@
 
 - Align with **[`admin-dashboard-security.md`](admin-dashboard-security.md)** (staging vs prod, token refresh after claim change).
 - Provide a **one-off Node script** *or* **`firebase auth:export` / Admin SDK** cookbook that operators run with a **service account** (never commit keys).
-- Steps: install nothing new if possible; reuse repo’s `firebase-admin` pattern from [`server/firebase-admin-init.js`](../server/firebase-admin-init.js).
+- Steps: install nothing new if possible; reuse repo’s `firebase-admin` pattern from [`server/lib/firebase-admin-init.js`](../server/lib/firebase-admin-init.js).
 - Call out **latency**: user may need to refresh token or sign out/in before **`GET /api/v1/me`** reflects the claim.
 
 **Acceptance criteria**

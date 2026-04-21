@@ -2,7 +2,7 @@
  * Public-safe contest projection for read APIs (Story D2).
  * Omits operator `metadata` and other internal-only fields.
  */
-import { firestoreTimestampToIso } from './firestore-timestamp-iso.js';
+import { firestoreTimestampToIso } from '../lib/firestore-timestamp-iso.js';
 
 /** Phase 4 v1 — must match contest join / ADR. */
 export const CONTEST_PUBLIC_GAME_MODE_BIO_BALL = 'bio-ball';

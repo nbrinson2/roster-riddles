@@ -19,7 +19,7 @@
 
 **Terminal:** only **`cancelled`** has no outgoing transitions. **`paid`** is terminal for normal flows; F2 overrides use the internal transition API with **`force: true`**.
 
-Implementation: [`server/contest-transitions.js`](../server/contest-transitions.js), handler [`server/contest-transition.http.js`](../server/contest-transition.http.js).
+Implementation: [`server/contests/contest-transitions.js`](../server/contests/contest-transitions.js), handler [`server/contests/contest-transition.http.js`](../server/contests/contest-transition.http.js).
 
 ## Endpoint
 

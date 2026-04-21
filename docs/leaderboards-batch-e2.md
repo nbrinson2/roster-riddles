@@ -11,7 +11,7 @@ A **trusted batch job** rebuilds all four v1 boards under **`leaderboards/snapsh
 2. Resolving **display names** and **`emailVerified`** via Firebase Auth (Admin SDK), then applying the same **Story F2** filter as `GET /api/v1/leaderboards` (omit unverified users unless **`LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`**).
 3. **`set()`**-replacing each snapshot document with **`generatedAt`** = server timestamp, **`schemaVersion`**, **`tieBreakPolicy`**, optional **`aggregateSchemaVersion`** / **`sourceRowCount`**.
 
-Implementation: [`server/leaderboard-snapshot-job.js`](../server/leaderboard-snapshot-job.js).
+Implementation: [`server/leaderboards/leaderboard-snapshot-job.js`](../server/leaderboards/leaderboard-snapshot-job.js).
 
 ## HTTP hook (Cloud Scheduler / cron)
 

@@ -21,7 +21,7 @@ import 'dotenv/config';
 import admin from 'firebase-admin';
 import process from 'process';
 
-import { ensureFirebaseAdminInitialized } from '../server/firebase-admin-init.js';
+import { ensureFirebaseAdminInitialized } from '../server/lib/firebase-admin-init.js';
 
 function usage() {
   console.error(

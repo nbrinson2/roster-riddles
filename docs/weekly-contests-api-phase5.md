@@ -77,5 +77,5 @@ Base origin from **`CONTESTS_CHECKOUT_APP_ORIGIN`** (no trailing slash), e.g. `h
 
 ## References
 
-- `server/contest-checkout.http.js` — handler  
+- `server/contests/contest-checkout.http.js` — handler  
 - [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md) — `paymentStatus`, Stripe ids on entry (webhook writes)

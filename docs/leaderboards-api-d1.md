@@ -157,16 +157,16 @@ GET /api/v1/leaderboards?scope=bio-ball&pageSize=10
 
 | File | Role |
 |------|------|
-| `server/leaderboards.http.js` | Express handler, **`snapshotGeneratedAt`** |
-| `server/auth-display-names.js` | Auth display name lookup (shared with snapshot job) |
-| `server/leaderboard-email-verified.js` | Story F2 — omit unverified Auth users from listings |
-| `server/leaderboard-query.js` | Scope → Firestore field, token encode/decode, tie-break sort |
-| `server/leaderboard-log.js` | Structured logs |
-| `server/leaderboard-snapshot-job.js` | Batch rebuild of B2 snapshot docs (Story E2) |
-| `server/leaderboards-snapshot-rebuild.http.js` | `POST` rebuild endpoint |
-| `server/rate-limit-hooks.middleware.js` | Leaderboard + gameplay rate limit hooks |
-| `server/in-memory-rate-limit.js` | Fixed-window limiter |
-| `server/client-ip.js` | IP extraction for limits |
+| `server/leaderboards/leaderboards.http.js` | Express handler, **`snapshotGeneratedAt`** |
+| `server/lib/auth-display-names.js` | Auth display name lookup (shared with snapshot job) |
+| `server/leaderboards/leaderboard-email-verified.js` | Story F2 — omit unverified Auth users from listings |
+| `server/leaderboards/leaderboard-query.js` | Scope → Firestore field, token encode/decode, tie-break sort |
+| `server/leaderboards/leaderboard-log.js` | Structured logs |
+| `server/leaderboards/leaderboard-snapshot-job.js` | Batch rebuild of B2 snapshot docs (Story E2) |
+| `server/leaderboards/leaderboards-snapshot-rebuild.http.js` | `POST` rebuild endpoint |
+| `server/middleware/rate-limit-hooks.middleware.js` | Leaderboard + gameplay rate limit hooks |
+| `server/lib/in-memory-rate-limit.js` | Fixed-window limiter |
+| `server/lib/client-ip.js` | IP extraction for limits |
 | `index.js` | Route registration |
 
 ### Angular UI (Story D2)

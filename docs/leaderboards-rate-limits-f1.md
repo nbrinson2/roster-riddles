@@ -14,7 +14,7 @@
 
 ## Behavior
 
-- **Implementation:** In-process **fixed window** counters (`server/in-memory-rate-limit.js`). Resets per window; returns **429** with JSON `error.code: rate_limited`, optional `retryAfterSec`, and HTTP **`Retry-After`** header when set.
+- **Implementation:** In-process **fixed window** counters (`server/lib/in-memory-rate-limit.js`). Resets per window; returns **429** with JSON `error.code: rate_limited`, optional `retryAfterSec`, and HTTP **`Retry-After`** header when set.
 - **Disable (stress tests / local):** `RATE_LIMITS_DISABLED=true` — allows all traffic through both hooks.
 - **IP behind proxies:** Set **`TRUST_PROXY_FOR_RATE_LIMIT=true`** on Cloud Run (or one trusted hop) so **`X-Forwarded-For`** first address is used for leaderboard limits. If unset, the socket remote address is used (fine for direct `ng serve` → Express).
 
@@ -42,5 +42,5 @@ In-memory limits are **per Node process**. Behind multiple replicas, effective b
 
 ## References
 
-- `server/rate-limit-hooks.middleware.js`, `server/client-ip.js`
+- `server/middleware/rate-limit-hooks.middleware.js`, `server/lib/client-ip.js`
 - [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story F1

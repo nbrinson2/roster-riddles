@@ -78,11 +78,11 @@ JSON lines: **`component: contest_scoring`**, **`contestId`**, `phase: score`, `
 
 | File | Role |
 |------|------|
-| `server/contest-scoring-core.js` | Slate tally + ADR sort + dense ranks |
-| `server/contest-scoring-tie-audit.js` | Story E3 — `tieResolution` blob |
-| `server/contest-scoring-job.js` | Firestore reads/writes |
-| `server/contest-scoring.http.js` | HTTP handler |
-| `server/contest-internal-auth.js` | Shared internal secret helpers |
+| `server/contests/contest-scoring-core.js` | Slate tally + ADR sort + dense ranks |
+| `server/contests/contest-scoring-tie-audit.js` | Story E3 — `tieResolution` blob |
+| `server/contests/contest-scoring-job.js` | Firestore reads/writes |
+| `server/contests/contest-scoring.http.js` | HTTP handler |
+| `server/lib/contest-internal-auth.js` | Shared internal secret helpers |
 
 ## References
 

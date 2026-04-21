@@ -1,5 +1,5 @@
-import { isAdminFromDecodedToken } from './auth-claims.js';
-import { ensureFirebaseAdminInitialized } from './firebase-admin-init.js';
+import { isAdminFromDecodedToken } from '../lib/auth-claims.js';
+import { ensureFirebaseAdminInitialized } from '../lib/firebase-admin-init.js';
 
 /**
  * @typedef {Object} AuthedUser

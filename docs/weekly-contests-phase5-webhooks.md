@@ -2,7 +2,7 @@
 
 **Status:** Signature verification implemented (Story P5-C2); **event handling** (entries, ledger) in P5-E.  
 **Endpoint:** `POST /api/v1/webhooks/stripe`  
-**Implementation:** [`server/stripe-webhook.http.js`](../server/stripe-webhook.http.js), registered in [`index.js`](../index.js) **before** `express.json()` so the raw body is available for `stripe.webhooks.constructEvent`.
+**Implementation:** [`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js), registered in [`index.js`](../index.js) **before** `express.json()` so the raw body is available for `stripe.webhooks.constructEvent`.
 
 ---
 

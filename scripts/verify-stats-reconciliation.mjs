@@ -25,8 +25,8 @@ import {
   defaultStatsTree,
   normalizeStatsFromFirestore,
   STATS_DOC_ID,
-} from '../server/stats-aggregate.js';
-import { getAdminFirestore } from '../server/admin-firestore.js';
+} from '../server/lib/stats-aggregate.js';
+import { getAdminFirestore } from '../server/lib/admin-firestore.js';
 
 const VALID_RESULTS = new Set(['won', 'lost', 'abandoned']);
 const VALID_MODES = new Set(['bio-ball', 'career-path', 'nickname-streak']);
@@ -103,7 +103,7 @@ function toStatsInput(raw) {
 
 /**
  * Core aggregate fields only (no Firestore metadata).
- * @param {import('../server/stats-aggregate.js').StatsTree | ReturnType<typeof normalizeStatsFromFirestore>} tree
+ * @param {import('../server/lib/stats-aggregate.js').StatsTree | ReturnType<typeof normalizeStatsFromFirestore>} tree
  */
 function coreAggregate(tree) {
   return {
@@ -161,7 +161,7 @@ async function loadAndRecompute(db, uid, limit, verbose) {
     });
   }
 
-  /** @type {import('../server/stats-aggregate.js').StatsTree | null} */
+  /** @type {import('../server/lib/stats-aggregate.js').StatsTree | null} */
   let tree = null;
   const bad = [];
   for (const r of slice) {

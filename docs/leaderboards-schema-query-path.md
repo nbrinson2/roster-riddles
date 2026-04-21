@@ -32,7 +32,7 @@ flowchart LR
 
 ## Authoritative document shape (existing)
 
-The full shape is defined in Phase 2 and `server/stats-aggregate.js`. Fields used for leaderboard **score**:
+The full shape is defined in Phase 2 and `server/lib/stats-aggregate.js`. Fields used for leaderboard **score**:
 
 | Board scope | Firestore field used as `score` |
 |-------------|-----------------------------------|
@@ -108,7 +108,7 @@ No rule change is required for Story B1 as long as leaderboard data is served on
 
 ## References
 
-- `server/stats-aggregate.js` — aggregate shape
+- `server/lib/stats-aggregate.js` — aggregate shape
 - `src/app/shared/models/user-stats.model.ts` — client types for `stats/summary`
 - `src/app/shared/models/leaderboard-query.model.ts` — virtual row for API responses + page size caps
 - [leaderboards-indexes-pagination.md](leaderboards-indexes-pagination.md) — indexes + pagination (Story B3)

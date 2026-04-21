@@ -64,5 +64,5 @@ If the API is unavailable, operators with **Firebase console / Admin SDK** can s
 ## References
 
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Story F2  
-- [`server/contest-transitions.js`](../server/contest-transitions.js) — `paid` edges + `override_requires_force`  
-- [`server/contest-transition.http.js`](../server/contest-transition.http.js) — transactional deletes  
+- [`server/contests/contest-transitions.js`](../server/contests/contest-transitions.js) — `paid` edges + `override_requires_force`  
+- [`server/contests/contest-transition.http.js`](../server/contests/contest-transition.http.js) — transactional deletes  

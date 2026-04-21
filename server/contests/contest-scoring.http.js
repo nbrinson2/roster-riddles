@@ -3,11 +3,11 @@
  * @see docs/weekly-contests-ops-e2.md
  */
 import { z } from 'zod';
-import { getAdminFirestore } from './admin-firestore.js';
+import { getAdminFirestore } from '../lib/admin-firestore.js';
 import {
   extractBearerOrHeaderSecret,
   getContestsOperatorOrCronSecret,
-} from './contest-internal-auth.js';
+} from '../lib/contest-internal-auth.js';
 import { runContestScoringJob } from './contest-scoring-job.js';
 import { logContestScoringLine } from './contest-scoring-log.js';
 

@@ -3,37 +3,37 @@ import express from 'express';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-import { postContestCheckoutSession } from './server/contest-checkout.http.js';
-import { postContestJoin } from './server/contest-join.http.js';
-import { getContestDetail, getContestList } from './server/contest-read.http.js';
-import { postContestCloseDueWindows } from './server/contest-close-due-windows.http.js';
-import { postContestRunScoring } from './server/contest-scoring.http.js';
-import { postContestTransition } from './server/contest-transition.http.js';
-import { postGameplayEvent } from './server/gameplay-events.js';
-import { getLeaderboardPage } from './server/leaderboards.http.js';
-import { postRebuildLeaderboardSnapshots } from './server/leaderboards-snapshot-rebuild.http.js';
+import { postContestCheckoutSession } from './server/contests/contest-checkout.http.js';
+import { postContestJoin } from './server/contests/contest-join.http.js';
+import { getContestDetail, getContestList } from './server/contests/contest-read.http.js';
+import { postContestCloseDueWindows } from './server/contests/contest-close-due-windows.http.js';
+import { postContestRunScoring } from './server/contests/contest-scoring.http.js';
+import { postContestTransition } from './server/contests/contest-transition.http.js';
+import { postGameplayEvent } from './server/gameplay/gameplay-events.js';
+import { getLeaderboardPage } from './server/leaderboards/leaderboards.http.js';
+import { postRebuildLeaderboardSnapshots } from './server/leaderboards/leaderboards-snapshot-rebuild.http.js';
 import {
   contestJoinRateLimitHookMiddleware,
   contestReadRateLimitHookMiddleware,
   gameplayEventRateLimitHookMiddleware,
   leaderboardRateLimitHookMiddleware,
-} from './server/rate-limit-hooks.middleware.js';
+} from './server/middleware/rate-limit-hooks.middleware.js';
 import {
   getAdminContestList,
   postAdminContestCreate,
   postAdminContestRunScoring,
   postAdminContestTransition,
-} from './server/admin-contests.http.js';
+} from './server/admin/admin-contests.http.js';
 import {
   getAdminUser,
   listAdminUsers,
   patchAdminUserClaim,
-} from './server/admin-users.http.js';
-import { requireFirebaseAuth } from './server/require-auth.js';
-import { requireAdmin } from './server/require-admin.js';
-import { requestIdMiddleware } from './server/request-id.middleware.js';
-import { validateStripeConfigAtStartup } from './server/stripe-server.js';
-import { postStripeWebhook } from './server/stripe-webhook.http.js';
+} from './server/admin/admin-users.http.js';
+import { requireFirebaseAuth } from './server/middleware/require-auth.js';
+import { requireAdmin } from './server/middleware/require-admin.js';
+import { requestIdMiddleware } from './server/middleware/request-id.middleware.js';
+import { validateStripeConfigAtStartup } from './server/payments/stripe-server.js';
+import { postStripeWebhook } from './server/payments/stripe-webhook.http.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

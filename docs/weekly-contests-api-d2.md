@@ -101,10 +101,10 @@ Structured lines: `component: contest_read`, `route` (`list` \| `detail`), `outc
 
 | File | Role |
 |------|------|
-| `server/contest-read.http.js` | Handlers |
-| `server/contest-public.js` | Public projection (no `metadata`) |
-| `server/contest-read-log.js` | JSON logs |
-| `server/rate-limit-hooks.middleware.js` | `contestReadRateLimitHookMiddleware` |
+| `server/contests/contest-read.http.js` | Handlers |
+| `server/contests/contest-public.js` | Public projection (no `metadata`) |
+| `server/contests/contest-read-log.js` | JSON logs |
+| `server/middleware/rate-limit-hooks.middleware.js` | `contestReadRateLimitHookMiddleware` |
 | `index.js` | Route registration |
 
 ## References

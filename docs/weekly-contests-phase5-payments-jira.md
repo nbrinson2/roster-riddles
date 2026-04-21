@@ -142,7 +142,7 @@ Add `stripe` package to **server** dependencies. Read secret from env ([stripe.m
 
 **Deliverable**
 
-- [`server/stripe-server.js`](../server/stripe-server.js), [`server/stripe-server.test.js`](../server/stripe-server.test.js), [`stripe`](../package.json) dependency, [`docs/stripe.md`](stripe.md), [`.env.example`](../.env.example) ✅
+- [`server/payments/stripe-server.js`](../server/payments/stripe-server.js), [`server/payments/stripe-server.test.js`](../server/payments/stripe-server.test.js), [`stripe`](../package.json) dependency, [`docs/stripe.md`](stripe.md), [`.env.example`](../.env.example) ✅
 
 ---
 
@@ -168,7 +168,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Deliverable**
 
-- [`index.js`](../index.js) (middleware order: `requestIdMiddleware` → raw `POST /api/v1/webhooks/stripe` → `express.json()`), [`server/stripe-webhook.http.js`](../server/stripe-webhook.http.js), [`server/stripe-webhook.http.test.js`](../server/stripe-webhook.http.test.js), [`docs/weekly-contests-phase5-webhooks.md`](weekly-contests-phase5-webhooks.md) ✅
+- [`index.js`](../index.js) (middleware order: `requestIdMiddleware` → raw `POST /api/v1/webhooks/stripe` → `express.json()`), [`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js), [`server/payments/stripe-webhook.http.test.js`](../server/payments/stripe-webhook.http.test.js), [`docs/weekly-contests-phase5-webhooks.md`](weekly-contests-phase5-webhooks.md) ✅
 
 ---
 
@@ -192,7 +192,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 **Acceptance criteria**
 
 - [x] OpenAPI-style table in [`docs/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md) with errors: `401`, `404`, `409` (already entered), `400` (no fee / wrong status).
-- [x] Rate limit per uid (reuse contest join limits — [`contestJoinRateLimitHookMiddleware`](../server/rate-limit-hooks.middleware.js)).
+- [x] Rate limit per uid (reuse contest join limits — [`contestJoinRateLimitHookMiddleware`](../server/middleware/rate-limit-hooks.middleware.js)).
 
 **Dependencies**
 
@@ -200,7 +200,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Deliverable**
 
-- [`server/contest-checkout.http.js`](../server/contest-checkout.http.js), [`server/contest-checkout-log.js`](../server/contest-checkout-log.js), [`server/contest-blocking-entry.js`](../server/contest-blocking-entry.js) (shared guard with join), [`server/contest-checkout.http.test.js`](../server/contest-checkout.http.test.js), [`index.js`](../index.js), [`docs/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md), [`.env.example`](../.env.example) (`CONTESTS_CHECKOUT_APP_ORIGIN`) ✅
+- [`server/contests/contest-checkout.http.js`](../server/contests/contest-checkout.http.js), [`server/contests/contest-checkout-log.js`](../server/contests/contest-checkout-log.js), [`server/contests/contest-blocking-entry.js`](../server/contests/contest-blocking-entry.js) (shared guard with join), [`server/contests/contest-checkout.http.test.js`](../server/contests/contest-checkout.http.test.js), [`index.js`](../index.js), [`docs/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md), [`.env.example`](../.env.example) (`CONTESTS_CHECKOUT_APP_ORIGIN`) ✅
 
 ---
 

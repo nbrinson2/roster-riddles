@@ -74,9 +74,9 @@ curl -sS -X POST "$API_BASE/api/internal/v1/contests/close-due-windows" \
 
 | File | Role |
 |------|------|
-| `server/contest-close-due-windows.http.js` | HTTP handler |
-| `server/contest-scoring-log.js` | `component: contest_scoring` logs |
-| `server/contest-transitions.js` | Shared `open`→`scoring` guard |
+| `server/contests/contest-close-due-windows.http.js` | HTTP handler |
+| `server/contests/contest-scoring-log.js` | `component: contest_scoring` logs |
+| `server/contests/contest-transitions.js` | Shared `open`→`scoring` guard |
 | `index.js` | Route registration |
 
 ## References

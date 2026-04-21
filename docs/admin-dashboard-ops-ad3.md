@@ -5,7 +5,7 @@
 
 ## Purpose
 
-Operators with a **Firebase service account** for the right project can grant or revoke the **`admin: true`** custom claim used by the API ([`server/auth-claims.js`](../server/auth-claims.js)) and exposed as **`isAdmin`** on **`GET /api/v1/me`**.
+Operators with a **Firebase service account** for the right project can grant or revoke the **`admin: true`** custom claim used by the API ([`server/lib/auth-claims.js`](../server/lib/auth-claims.js)) and exposed as **`isAdmin`** on **`GET /api/v1/me`**.
 
 **This script changes Auth custom claims** and can optionally **revoke refresh tokens** or **disable the user** for stricter lockout. It does not deploy code or rotate API secrets.
 

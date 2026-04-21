@@ -5,7 +5,7 @@
  * @see docs/stripe.md
  */
 import Stripe from 'stripe';
-import { resolveSecretFromEnv } from './contest-internal-auth.js';
+import { resolveSecretFromEnv } from '../lib/contest-internal-auth.js';
 
 /** Lazy singleton — resettable in tests via {@link resetStripeClientForTests}. */
 let stripeSingleton = null;

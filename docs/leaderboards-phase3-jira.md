@@ -150,7 +150,7 @@ Single pipeline: on relevant gameplay outcome, update per-user leaderboard input
 
 - Phase 2 event ingestion; Story A0 scoring rules.
 
-**Deliverable:** [`docs/leaderboards-trusted-writer-c1.md`](leaderboards-trusted-writer-c1.md) (trusted path + idempotency + merge semantics), [`server/stats-aggregate.js`](../server/stats-aggregate.js) (JSDoc cross-links), [`server/stats-aggregate.test.js`](../server/stats-aggregate.test.js) (`leaderboard score fields` tests).
+**Deliverable:** [`docs/leaderboards-trusted-writer-c1.md`](leaderboards-trusted-writer-c1.md) (trusted path + idempotency + merge semantics), [`server/lib/stats-aggregate.js`](../server/lib/stats-aggregate.js) (JSDoc cross-links), [`server/lib/stats-aggregate.test.js`](../server/lib/stats-aggregate.test.js) (`leaderboard score fields` tests).
 
 ---
 
@@ -199,7 +199,7 @@ Express (or BFF) routes return JSON: rows with rank, score, uid/displayName per 
 
 - Stories B1–B3, C1.
 
-**Deliverable:** [`docs/leaderboards-api-d1.md`](leaderboards-api-d1.md), [`server/leaderboards.http.js`](../server/leaderboards.http.js), [`server/leaderboard-query.js`](../server/leaderboard-query.js), [`server/leaderboard-log.js`](../server/leaderboard-log.js), [`server/rate-limit-hooks.middleware.js`](../server/rate-limit-hooks.middleware.js), route in [`index.js`](../index.js).
+**Deliverable:** [`docs/leaderboards-api-d1.md`](leaderboards-api-d1.md), [`server/leaderboards/leaderboards.http.js`](../server/leaderboards/leaderboards.http.js), [`server/leaderboards/leaderboard-query.js`](../server/leaderboards/leaderboard-query.js), [`server/leaderboards/leaderboard-log.js`](../server/leaderboards/leaderboard-log.js), [`server/middleware/rate-limit-hooks.middleware.js`](../server/middleware/rate-limit-hooks.middleware.js), route in [`index.js`](../index.js).
 
 **Notes (v1):** Per-mode boards use **`scope`** (`bio-ball`, etc.); there is no separate **`gameMode`** query param. **`week`** returns 400 (weekly out of scope). Leaderboard **`GET`** is **public** (no Bearer required); **`displayName`** from Auth when resolvable.
 
@@ -282,7 +282,7 @@ Job reads source of truth (aggregates or events sample), writes precomputed docs
 **Deliverable (merged)**
 
 - **[`docs/leaderboards-batch-e2.md`](leaderboards-batch-e2.md)** — batch job, `POST /api/internal/v1/leaderboard-snapshots/rebuild`, Cloud Scheduler `gcloud` example + console steps, env `LEADERBOARD_SNAPSHOT_CRON_SECRET`, `npm run rebuild:leaderboard-snapshots`.
-- **Code:** [`server/leaderboard-snapshot-job.js`](../server/leaderboard-snapshot-job.js), [`server/leaderboards-snapshot-rebuild.http.js`](../server/leaderboards-snapshot-rebuild.http.js), [`server/leaderboard-snapshot-log.js`](../server/leaderboard-snapshot-log.js); **`GET /api/v1/leaderboards`** returns **`snapshotGeneratedAt`**; leaderboard panel shows “Data as of” from API or snapshot doc.
+- **Code:** [`server/leaderboards/leaderboard-snapshot-job.js`](../server/leaderboards/leaderboard-snapshot-job.js), [`server/leaderboards/leaderboards-snapshot-rebuild.http.js`](../server/leaderboards/leaderboards-snapshot-rebuild.http.js), [`server/leaderboards/leaderboard-snapshot-log.js`](../server/leaderboards/leaderboard-snapshot-log.js); **`GET /api/v1/leaderboards`** returns **`snapshotGeneratedAt`**; leaderboard panel shows “Data as of” from API or snapshot doc.
 
 ---
 
@@ -311,7 +311,7 @@ Express middleware or API Gateway; thresholds for `POST` score paths and aggress
 **Deliverable (merged)**
 
 - **[`docs/leaderboards-rate-limits-f1.md`](leaderboards-rate-limits-f1.md)** — defaults, env vars, staging `curl` loop for 429, Firestore rules note.
-- **Code:** [`server/rate-limit-hooks.middleware.js`](../server/rate-limit-hooks.middleware.js), [`server/in-memory-rate-limit.js`](../server/in-memory-rate-limit.js), [`server/client-ip.js`](../server/client-ip.js); `GET /api/v1/leaderboards` + `POST /api/v1/me/gameplay-events` wired; [`firestore.rules`](../firestore.rules) comment (rules do not implement RPS).
+- **Code:** [`server/middleware/rate-limit-hooks.middleware.js`](../server/middleware/rate-limit-hooks.middleware.js), [`server/lib/in-memory-rate-limit.js`](../server/lib/in-memory-rate-limit.js), [`server/lib/client-ip.js`](../server/lib/client-ip.js); `GET /api/v1/leaderboards` + `POST /api/v1/me/gameplay-events` wired; [`firestore.rules`](../firestore.rules) comment (rules do not implement RPS).
 
 ---
 
@@ -338,7 +338,7 @@ Product picks minimum bar: verified email, captcha on signup, or “shadow” pe
 **Deliverable (merged)**
 
 - **[`docs/leaderboards-duplicate-accounts-f2.md`](leaderboards-duplicate-accounts-f2.md)** — design, FAQ line, QA env `LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`.
-- **Code:** [`server/leaderboard-email-verified.js`](../server/leaderboard-email-verified.js); [`server/auth-display-names.js`](../server/auth-display-names.js) (`fetchAuthFieldsForUids`); [`GET /api/v1/leaderboards`](../server/leaderboards.http.js) + snapshot job filter; response **`listingPolicy`**; leaderboard panel hint.
+- **Code:** [`server/leaderboards/leaderboard-email-verified.js`](../server/leaderboards/leaderboard-email-verified.js); [`server/lib/auth-display-names.js`](../server/lib/auth-display-names.js) (`fetchAuthFieldsForUids`); [`GET /api/v1/leaderboards`](../server/leaderboards/leaderboards.http.js) + snapshot job filter; response **`listingPolicy`**; leaderboard panel hint.
 
 ---
 

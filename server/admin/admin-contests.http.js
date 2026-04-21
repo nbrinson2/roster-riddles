@@ -5,15 +5,15 @@
 import { randomBytes } from 'node:crypto';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { z } from 'zod';
-import { getAdminFirestore } from './admin-firestore.js';
-import { mapContestDocumentToPublic } from './contest-public.js';
-import { logContestReadLine } from './contest-read-log.js';
-import { runContestScoringJob } from './contest-scoring-job.js';
-import { runContestStatusTransition } from './contest-transition-run.js';
+import { getAdminFirestore } from '../lib/admin-firestore.js';
+import { mapContestDocumentToPublic } from '../contests/contest-public.js';
+import { logContestReadLine } from '../contests/contest-read-log.js';
+import { runContestScoringJob } from '../contests/contest-scoring-job.js';
+import { runContestStatusTransition } from '../contests/contest-transition-run.js';
 import {
   sendContestTransitionHttpResult,
   sendContestTransitionTransactionError,
-} from './contest-transition-http-shared.js';
+} from '../contests/contest-transition-http-shared.js';
 
 const contestIdParamSchema = z
   .string()

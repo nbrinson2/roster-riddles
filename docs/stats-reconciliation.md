@@ -2,7 +2,7 @@
 
 Reconcile **`users/{uid}/stats/summary`** against a full replay of **`users/{uid}/gameplayEvents/*`**.
 
-The server updates the aggregate in the same transaction as each new event (`server/stats-aggregate.js`). This script loads all events, sorts them by **`createdAt`** (then `eventId` for ties), applies **`applyEventToStatsTree`** in that order, and compares the result to the stored aggregate (normalized with **`normalizeStatsFromFirestore`**).
+The server updates the aggregate in the same transaction as each new event (`server/lib/stats-aggregate.js`). This script loads all events, sorts them by **`createdAt`** (then `eventId` for ties), applies **`applyEventToStatsTree`** in that order, and compares the result to the stored aggregate (normalized with **`normalizeStatsFromFirestore`**).
 
 The script loads **`.env`** via `dotenv` (same as `index.js`), so you can set **`FIRESTORE_DATABASE_ID`** and credential paths locally without exporting them every time.
 
@@ -11,7 +11,7 @@ The script loads **`.env`** via `dotenv` (same as `index.js`), so you can set **
 - **Firebase Admin** credentials (same as the Express API):
   - **`FIREBASE_SERVICE_ACCOUNT_JSON`** — JSON string of a service account, or
   - **`GOOGLE_APPLICATION_CREDENTIALS`** — path to a service account key file
-- **`FIRESTORE_DATABASE_ID`** — must match the app (e.g. **`roster-riddles`** for production; omit or `(default)` for the default database). See `.env.example` and `server/admin-firestore.js`.
+- **`FIRESTORE_DATABASE_ID`** — must match the app (e.g. **`roster-riddles`** for production; omit or `(default)` for the default database). See `.env.example` and `server/lib/admin-firestore.js`.
 
 ## Staging verification uid
 

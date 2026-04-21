@@ -14,7 +14,7 @@ This does **not** replace full production monitoring; it is an **exit gate** for
 1. Copy **[`docs/fixtures/leaderboard-cohort.example.json`](fixtures/leaderboard-cohort.example.json)** to **`leaderboard-test-cohort.json`** in the repo root (gitignored).
 2. Replace placeholder UIDs with **real staging** Firebase Auth `uid`s whose `users/{uid}/stats/summary` you control (seed gameplay events or manual writes per Phase 2).
 3. Set **`expected`** wins per scope (`global` required per row; per-mode keys optional).
-4. Set **`expectedGlobalOrder`** to the cohort UIDs sorted by **global** wins descending, then **`uid` ascending** for ties — same as [`sortLeaderboardPageRows`](../server/leaderboard-query.js).
+4. Set **`expectedGlobalOrder`** to the cohort UIDs sorted by **global** wins descending, then **`uid` ascending** for ties — same as [`sortLeaderboardPageRows`](../server/leaderboards/leaderboard-query.js).
 
 ## Automated check
 
