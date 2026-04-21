@@ -171,29 +171,12 @@
       to   { height: calc(100% - 16px); }
     }
   
-    // ─────────── SCROLLABLE CONTENT + SCROLLBAR ───────────
+    // ─────────── SCROLLABLE CONTENT (scrollbar: global `styles.scss`) ───────────
     .timeline-container {
       display: flex;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
       scroll-snap-type: x mandatory;
-  
-      &::-webkit-scrollbar {
-        height: 8px;
-      }
-      &::-webkit-scrollbar-track {
-        background: #111;
-        border-radius: 8px;
-        margin: 0.5rem;
-      }
-      &::-webkit-scrollbar-thumb {
-        background-color: #cc1f41;
-        border-radius: 10px;
-        border: 2px solid #111;
-      }
-      &::-webkit-scrollbar-thumb:hover {
-        background-color: #ff4c6a;
-      }
     }
   }
     

@@ -11,23 +11,33 @@ body {
   background-color: black;
 }
 
-// ::-webkit-scrollbar {
-//   height: 10px;
-//   width: 10px;
-// }
-// ::-webkit-scrollbar-track {
-//   background: #111;
-//   border-radius: 8px;
-//   margin: 0.5rem;
-// }
-// ::-webkit-scrollbar-thumb {
-//   background-color: #cc1f41;
-//   border-radius: 10px;
-//   border: 2px solid #111;
-// }
-// ::-webkit-scrollbar-thumb:hover {
-//   background-color: #ff4c6a;
-// }
+// Scrollbars — same look as career-path player-timeline `.timeline-container`
+// (WebKit/Blink + Firefox where supported).
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cc1f41 #111;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #111;
+  border-radius: 8px;
+  margin: 0.5rem;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #cc1f41;
+  border-radius: 10px;
+  border: 2px solid #111;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #ff4c6a;
+}
 
 // Mobile browser support
 @media only screen and (max-device-height: 1000px) {

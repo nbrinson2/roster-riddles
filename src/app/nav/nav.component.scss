@@ -211,22 +211,4 @@ mat-sidenav {
   }
 }
 
-// scrollbar
-.game-container::-webkit-scrollbar {
-  width: 10px;
-}
-
-.game-container::-webkit-scrollbar-track {
-  background: #111;
-  border-radius: 10px;
-}
-
-.game-container::-webkit-scrollbar-thumb {
-  background-color: #cc1f41;
-  border-radius: 10px;
-  border: 2px solid #111;
-}
-
-.game-container::-webkit-scrollbar-thumb:hover {
-  background-color: #ff4c6a;
-}
+// Scrollbar chrome: global rules in `styles.scss` (player-timeline style).
