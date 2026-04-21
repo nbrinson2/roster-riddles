@@ -40,7 +40,8 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Weekly contests (Phase 4 B2): `contests/{contestId}/entries/{uid}` — read own entry only; writes via Admin SDK (Story C1).
+    // Weekly contests (Phase 4 B2 + Phase 5 P5-B1): `contests/{contestId}/entries/{uid}` — read own entry only;
+    // all writes denied to clients (join API + payment webhooks use Admin SDK). Payment fields are never client-writable.
     match /contests/{contestId}/entries/{entryUid} {
       allow read: if signedIn() && request.auth.uid == entryUid;
       allow create, update, delete: if false;

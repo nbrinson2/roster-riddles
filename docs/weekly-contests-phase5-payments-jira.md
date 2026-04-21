@@ -77,9 +77,9 @@ Add fields such as (exact names in schema doc): `paymentStatus`, `stripeCheckout
 
 **Acceptance criteria**
 
-- [ ] `docs/weekly-contests-schema-entries.md` updated (or new subsection) with field table and example JSON.
-- [ ] TypeScript model updated (`contest-entry.model.ts` or equivalent).
-- [ ] No client writes to these fields in `firestore.rules`.
+- [x] `docs/weekly-contests-schema-entries.md` updated (or new subsection) with field table and example JSON.
+- [x] TypeScript model updated (`contest-entry.model.ts` or equivalent).
+- [x] No client writes to these fields in `firestore.rules` (all entry writes already denied to clients; comment updated).
 
 **Dependencies**
 
@@ -87,7 +87,7 @@ Add fields such as (exact names in schema doc): `paymentStatus`, `stripeCheckout
 
 **Deliverable**
 
-- Doc + `src/app/shared/models/...` updates.
+- Doc + `src/app/shared/models/...` updates ✅
 
 ---
 
