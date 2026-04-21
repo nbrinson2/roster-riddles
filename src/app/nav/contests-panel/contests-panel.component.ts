@@ -92,7 +92,8 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   protected listError: string | null = null;
   protected rows: ContestListRow[] = [];
 
-  protected selected: ContestListRow | null = null;
+  /** Contest id with expanded details (rules, join, payout). */
+  protected expandedContestId: string | null = null;
   protected rulesCheckbox = false;
   protected joinSubmitting = false;
   protected joinError: string | null = null;
@@ -134,7 +135,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         this.rows = [];
         this.loading = false;
         this.listError = null;
-        this.selected = null;
+        this.expandedContestId = null;
         this.entryRulesVersion = null;
         return;
       }
@@ -183,23 +184,33 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       .filter(Boolean);
   }
 
-  protected selectRow(row: ContestListRow): void {
-    this.selected = row;
+  /** Row for join / snapshot listeners (expanded card). */
+  protected get selected(): ContestListRow | null {
+    if (!this.expandedContestId) {
+      return null;
+    }
+    return (
+      this.rows.find((r) => r.contestId === this.expandedContestId) ?? null
+    );
+  }
+
+  protected toggleExpand(row: ContestListRow): void {
+    if (this.expandedContestId === row.contestId) {
+      this.expandedContestId = null;
+      this.rulesCheckbox = false;
+      this.joinError = null;
+      this.joinSuccess = null;
+      this.detachEntryListener();
+      this.detachPayoutListener();
+      this.entryRulesVersion = null;
+      return;
+    }
+    this.expandedContestId = row.contestId;
     this.rulesCheckbox = false;
     this.joinError = null;
     this.joinSuccess = null;
     this.refreshEntryListener();
     this.refreshPayoutListener();
-  }
-
-  protected clearSelection(): void {
-    this.selected = null;
-    this.rulesCheckbox = false;
-    this.joinError = null;
-    this.joinSuccess = null;
-    this.detachEntryListener();
-    this.detachPayoutListener();
-    this.entryRulesVersion = null;
   }
 
   protected canAttemptJoin(row: ContestListRow): boolean {
@@ -401,22 +412,29 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     ingest(this.scheduledSnap);
     ingest(this.paidSnap);
 
+    const prevExpandedId = this.expandedContestId;
+    const prevExpandedStatus = prevExpandedId
+      ? this.rows.find((r) => r.contestId === prevExpandedId)?.status ?? null
+      : null;
+
     this.rows = Array.from(byId.values())
       .filter((r) => r.gameMode === CONTEST_GAME_MODE_BIO_BALL)
       .sort((a, b) => this.sortRows(a, b));
 
-    const prevId = this.selected?.contestId ?? null;
-    const prevStatus = this.selected?.status ?? null;
-    if (this.selected) {
-      const updated = byId.get(this.selected.contestId);
-      this.selected = updated ?? null;
-    }
-    const cur = this.selected;
-    const idChanged = (cur?.contestId ?? null) !== prevId;
-    const statusChanged = (cur?.status ?? null) !== prevStatus;
-    if (idChanged || statusChanged) {
-      this.refreshEntryListener();
-      this.refreshPayoutListener();
+    if (prevExpandedId) {
+      const updated = byId.get(prevExpandedId);
+      if (!updated) {
+        this.expandedContestId = null;
+        this.rulesCheckbox = false;
+        this.joinError = null;
+        this.joinSuccess = null;
+        this.entryRulesVersion = null;
+        this.detachEntryListener();
+        this.detachPayoutListener();
+      } else if (updated.status !== prevExpandedStatus) {
+        this.refreshEntryListener();
+        this.refreshPayoutListener();
+      }
     }
   }
 
@@ -451,10 +469,10 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       typeof d.leagueGamesN === 'number' && Number.isFinite(d.leagueGamesN)
         ? d.leagueGamesN
         : NaN;
+    const rawTitle =
+      typeof d.title === 'string' ? d.title.trim() : '';
     const title =
-      typeof d.title === 'string' && d.title.trim()
-        ? d.title.trim()
-        : contestId;
+      rawTitle && rawTitle !== contestId ? rawTitle : 'Bio Ball';
 
     const ws = this.toDate(d.windowStart);
     const we = this.toDate(d.windowEnd);
@@ -500,7 +518,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
 
   private refreshEntryListener(): void {
     this.detachEntryListener();
-    const id = this.selected?.contestId;
+    const id = this.expandedContestId;
     const uid = this.uid;
     if (!id || !uid) {
       this.entryRulesVersion = null;
@@ -536,7 +554,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   private refreshPayoutListener(): void {
     this.detachPayoutListener();
     const row = this.selected;
-    const id = row?.contestId;
+    const id = this.expandedContestId;
     if (!row || row.status !== 'paid' || !this.uid || !id) {
       this.payoutLoading = false;
       this.payoutWinnerText = null;
