@@ -7,6 +7,8 @@
 
 Single place for **release owners** and **QA** to run and sign off the **weekly contest dry-run lifecycle in staging**: who invokes which hook, how to confirm **immutable** results + **FAKE_USD** payouts, how to verify **logs**, and how to **reset** for another cycle (**new `contestId`**).
 
+**Production:** To **create** a contest in prod (not just exercise staging), see [Production: creating a contest](#production-creating-a-contest).
+
 General hosting and Firebase layout: [environment-matrix.md](environment-matrix.md).
 
 ---
@@ -28,6 +30,28 @@ export API_BASE="https://<your-staging-api>"
 export CONTESTS_OPERATOR_SECRET="…"   # never commit
 export AUTH_BEARER_USER="…"           # Firebase ID token for curl join tests
 ```
+
+---
+
+## Production: creating a contest
+
+Clients **cannot** write `contests/{contestId}` ([weekly-contests-schema-contests.md](weekly-contests-schema-contests.md); [firestore.rules](../firestore.rules)). Starting a weekly contest in **production** is an **operator** action.
+
+1. **Firestore (production project + database)** — Add **`contests/{contestId}`** with required fields: **`schemaVersion`**, **`status`** (often **`scheduled`** first, or **`open`** when you are ready for entries), **`gameMode: bio-ball`**, **`rulesVersion`**, **`windowStart`**, **`windowEnd`**, **`leagueGamesN`**, **`createdAt`**, **`updatedAt`**, optional **`title`** / **`metadata`**. Use the **same** Firestore **database id** as the live app (**`FIRESTORE_DATABASE_ID`** — production may use the named DB `roster-riddles`; staging often uses `(default)` — see [environment-matrix.md](environment-matrix.md)).
+
+   - **How to write:** Firebase **Console** (manual), or a one-off **Admin SDK** script / job using **production** credentials only — never commit keys.
+
+2. **Open for entries** — If the doc was **`scheduled`**, call the internal transition API on your **production API host** ([weekly-contests-ops-d1.md](weekly-contests-ops-d1.md)):
+
+   `POST https://<prod-api>/api/internal/v1/contests/<contestId>/transition`  
+   `Authorization: Bearer <CONTESTS_OPERATOR_SECRET>`  
+   Body: `{"to":"open"}`
+
+3. **Automation** — Ensure **E1** (`close-due-windows`) and **E2** (`run-scoring`) run against **prod** (e.g. Cloud Scheduler) with prod secrets, same as staging flow ([weekly-contests-ops-e1.md](weekly-contests-ops-e1.md), [weekly-contests-ops-e2.md](weekly-contests-ops-e2.md)).
+
+4. **Web app** — The contests UI is included in the Angular bundle only when **`WEEKLY_CONTESTS_UI_ENABLED`** is set for that build (see `.env.example` / CI).
+
+**Avoid** pointing the [G1 seed script](weekly-contests-staging-seed-g1.md) at production unless you deliberately want that script’s behavior and metadata; it is intended for **staging** QA.
 
 ---
 
@@ -96,5 +120,6 @@ Evidence: link to PR / Cloud Logging filter / Firestore screenshot (optional)
 
 ## References
 
+- Contest document fields: [weekly-contests-schema-contests.md](weekly-contests-schema-contests.md)  
 - Phase exit criteria: [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — top table + Story G2  
 - Jira backlog: same file — Epic G  
