@@ -18,6 +18,20 @@ const TRANSITION_TARGETS: Array<'open' | 'scoring' | 'paid' | 'cancelled'> = [
   'cancelled',
 ];
 
+/** `bio-ball` → `Bio Ball`; unknown slugs become Title Case segments. */
+function formatGameModeAsTitle(raw: string | undefined): string {
+  if (!raw?.trim()) {
+    return '';
+  }
+  return raw
+    .trim()
+    .toLowerCase()
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
 @Component({
   selector: 'app-admin-weekly-contests-widget',
   templateUrl: './admin-weekly-contests-widget.component.html',
@@ -92,6 +106,20 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
       timeStyle: 'short',
     };
     return `${a.toLocaleString(undefined, opts)} — ${b.toLocaleString(undefined, opts)}`;
+  }
+
+  /**
+   * Card heading: custom title if set; else human-readable game type (e.g. `bio-ball` → Bio Ball).
+   * Admin create stores `title` as the contest id when omitted (`titleTrim || contestId`), so we
+   * treat `title === contestId` as “no custom title.”
+   */
+  protected contestDisplayTitle(row: AdminContestPublicRow): string {
+    const t = row.title?.trim();
+    if (t && t !== row.contestId) {
+      return t;
+    }
+    const fromMode = formatGameModeAsTitle(row.gameMode);
+    return fromMode || row.contestId;
   }
 
   protected toggleManage(row: AdminContestPublicRow): void {

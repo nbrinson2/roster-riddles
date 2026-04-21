@@ -56,6 +56,7 @@ If the user already has an entry document, **`idempotentReplay`** is **`true`** 
 | 400 | `wrong_game_mode` | Contest is not Bio Ball (Phase 4 v1) |
 | 401 | `unauthenticated` | Missing/invalid Bearer token |
 | 404 | `contest_not_found` | No `contests/{contestId}` document |
+| 409 | `already_in_open_contest` | User already has an entry in another **`open`** contest with the same `gameMode` (one open contest per game type at a time). Response may include `existingContestId`. |
 | 429 | `rate_limited` | Per-uid join rate cap (see below) |
 | 500 | `internal_error` | Firestore/Auth failure |
 | 503 | `server_misconfigured` | Admin SDK / Firestore not configured |

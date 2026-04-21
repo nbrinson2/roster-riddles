@@ -97,7 +97,7 @@
       <li *ngFor="let row of rows" class="awc-card" role="listitem">
         <div class="awc-card-head">
           <div class="awc-card-titles">
-            <span class="awc-title">{{ row.title || row.contestId }}</span>
+            <span class="awc-title">{{ contestDisplayTitle(row) }}</span>
             <span class="awc-id" title="Contest id">{{ row.contestId }}</span>
           </div>
           <span class="awc-badge">{{ statusLabel(row.status) }}</span>

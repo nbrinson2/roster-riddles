@@ -32,6 +32,7 @@ import type {
   ContestPayoutLine,
 } from 'src/app/shared/models/contest-payouts-dry-run.model';
 import { environment } from 'src/environment';
+import { WeeklyContestSlateService } from 'src/app/shared/services/weekly-contest-slate.service';
 import {
   getPlaceAmountLines,
   getWinnerGetsPhrase,
@@ -122,6 +123,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   constructor(
     private readonly auth: AuthService,
     private readonly http: HttpClient,
+    private readonly weeklyContestSlate: WeeklyContestSlateService,
   ) {}
 
   ngOnInit(): void {
@@ -275,6 +277,9 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
             ? `You are already entered. Rules accepted version ${String(accepted)} (matches contest rules ${String(contestRules)}).`
             : `You are in. Rules accepted version ${String(accepted)} (stored on your entry; contest rules ${String(contestRules)}).`;
           this.entryRulesVersion = accepted;
+          if (res.contest.gameMode === CONTEST_GAME_MODE_BIO_BALL) {
+            this.weeklyContestSlate.refreshSlateAfterEntryChange();
+          }
         },
         error: (err: HttpErrorResponse) => {
           this.joinSubmitting = false;
@@ -295,6 +300,11 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     }
     if (err.status === 503) {
       return 'Contest join is unavailable (server not configured).';
+    }
+    if (err.status === 409 && code === 'already_in_open_contest') {
+      return typeof msg === 'string'
+        ? msg
+        : 'You are already in another open contest for this game type. Finish or wait until it closes before joining a different one.';
     }
     if (err.status === 0) {
       return 'Could not reach the server. Is the API running?';
