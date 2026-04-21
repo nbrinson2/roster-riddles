@@ -191,12 +191,16 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Acceptance criteria**
 
-- [ ] OpenAPI-style table in `docs/weekly-contests-api-phase5.md` (new) with errors: `401`, `404`, `409` (already entered), `400` (no fee / wrong status).
-- [ ] Rate limit per uid (reuse or extend contest join limits — see [weekly-contests-rate-limits](weekly-contests-api-c1.md) patterns).
+- [x] OpenAPI-style table in [`docs/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md) with errors: `401`, `404`, `409` (already entered), `400` (no fee / wrong status).
+- [x] Rate limit per uid (reuse contest join limits — [`contestJoinRateLimitHookMiddleware`](../server/rate-limit-hooks.middleware.js)).
 
 **Dependencies**
 
 - Stories P5-A1, P5-B1, P5-C1.
+
+**Deliverable**
+
+- [`server/contest-checkout.http.js`](../server/contest-checkout.http.js), [`server/contest-checkout-log.js`](../server/contest-checkout-log.js), [`server/contest-blocking-entry.js`](../server/contest-blocking-entry.js) (shared guard with join), [`server/contest-checkout.http.test.js`](../server/contest-checkout.http.test.js), [`index.js`](../index.js), [`docs/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md), [`.env.example`](../.env.example) (`CONTESTS_CHECKOUT_APP_ORIGIN`) ✅
 
 ---
 

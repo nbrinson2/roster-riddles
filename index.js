@@ -3,6 +3,7 @@ import express from 'express';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
+import { postContestCheckoutSession } from './server/contest-checkout.http.js';
 import { postContestJoin } from './server/contest-join.http.js';
 import { getContestDetail, getContestList } from './server/contest-read.http.js';
 import { postContestCloseDueWindows } from './server/contest-close-due-windows.http.js';
@@ -147,6 +148,14 @@ app.post(
   requireFirebaseAuth,
   gameplayEventRateLimitHookMiddleware,
   postGameplayEvent,
+);
+
+/** Paid entry — Stripe Checkout Session (Phase 5 Story P5-D1). */
+app.post(
+  '/api/v1/contests/:contestId/checkout-session',
+  requireFirebaseAuth,
+  contestJoinRateLimitHookMiddleware,
+  postContestCheckoutSession,
 );
 
 /** Join weekly contest — authenticated; idempotent entry under `contests/{id}/entries/{uid}` (Story C1). */

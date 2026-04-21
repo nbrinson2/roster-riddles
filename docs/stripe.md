@@ -19,6 +19,7 @@ Never commit keys. Never put **secret** keys in the Angular app — only **publi
 |----------|---------|----------------|
 | `STRIPE_SECRET_KEY` | Express — [`server/stripe-server.js`](../server/stripe-server.js) (`getStripeClient`) | **Local:** `.env` (test key). **Cloud Run (prod):** Secret Manager → env var. **Staging:** separate secret with **test** key. |
 | `CONTESTS_PAYMENTS_ENABLED` | Express — if **`true`**, **`STRIPE_SECRET_KEY` is required** or the process **exits on startup** (Phase 5 Story P5-C1). Omit or `false` until payment routes are deployed. | Cloud Run / `.env` |
+| `CONTESTS_CHECKOUT_APP_ORIGIN` | Express — public **browser** origin for Stripe Checkout **success/cancel** URLs (Phase 5 Story P5-D1). Example: `http://localhost:4300` when using `ng serve`; production: `https://your-domain.com`. **No trailing slash.** | `.env` / Cloud Run |
 | `STRIPE_PUBLISHABLE_KEY` | Angular build (`environment.*` via `generate-env-prod.mjs`) | **Cloud Build:** substitution `_STRIPE_PUBLISHABLE_KEY` → Docker `--build-arg STRIPE_PUBLISHABLE_KEY` → `generate-env-prod.mjs`. Use **test** publishable key for staging triggers; **live** only on the production trigger. |
 | `STRIPE_WEBHOOK_SECRET` | Express — `POST /api/v1/webhooks/stripe` ([`server/stripe-webhook.http.js`](../server/stripe-webhook.http.js); see [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md)) | Secret Manager / `.env` local with **test** webhook secret from Stripe CLI or Dashboard (test mode). |
 
