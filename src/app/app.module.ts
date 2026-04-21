@@ -53,6 +53,12 @@ import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directi
 import { authHttpInterceptor } from './auth/auth-http.interceptor';
 import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
 import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-panel.component';
+import { ContestCardComponent } from './nav/contests-panel/components/contest-card/contest-card.component';
+import { ContestsPanelEmptyStateComponent } from './nav/contests-panel/components/empty-state/contests-panel-empty-state.component';
+import { ContestsPanelFetchErrorComponent } from './nav/contests-panel/components/fetch-error/contests-panel-fetch-error.component';
+import { ContestsPanelHeroComponent } from './nav/contests-panel/components/hero/contests-panel-hero.component';
+import { ContestsPanelLoadingComponent } from './nav/contests-panel/components/loading/contests-panel-loading.component';
+import { ContestsPanelSignInPromptComponent } from './nav/contests-panel/components/sign-in-prompt/contests-panel-sign-in-prompt.component';
 import { ContestsPanelComponent } from './nav/contests-panel/contests-panel.component';
 import { AdminDashboardPanelComponent } from './nav/admin-dashboard-panel/admin-dashboard-panel.component';
 import { AdminWeeklyContestsWidgetComponent } from './nav/admin-dashboard-panel/admin-weekly-contests-widget/admin-weekly-contests-widget.component';
@@ -89,6 +95,12 @@ import { AdminUserClaimsWidgetComponent } from './nav/admin-dashboard-panel/admi
     LoginPanelComponent,
     LeaderboardPanelComponent,
     ContestsPanelComponent,
+    ContestsPanelHeroComponent,
+    ContestsPanelSignInPromptComponent,
+    ContestsPanelLoadingComponent,
+    ContestsPanelFetchErrorComponent,
+    ContestsPanelEmptyStateComponent,
+    ContestCardComponent,
     AdminDashboardPanelComponent,
     AdminWeeklyContestsWidgetComponent,
     AdminUserClaimsWidgetComponent,

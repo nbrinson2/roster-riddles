@@ -1,0 +1,12 @@
+<div class="state state-error" role="alert" aria-live="assertive">
+  <p class="cc-error-title">Couldn’t load contests</p>
+  <p class="cc-error-detail">{{ message }}</p>
+  <button
+    mat-stroked-button
+    type="button"
+    class="cc-retry-btn"
+    (click)="onRetry()"
+  >
+    Try again
+  </button>
+</div>

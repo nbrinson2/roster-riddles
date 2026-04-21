@@ -3,7 +3,7 @@ import type { ContestStatus } from 'src/app/shared/models/contest.model';
 import {
   humanizeTiePolicyRef,
   type ParsedFinalResultsView,
-} from './contest-results-closure';
+} from '../shared/contest-results-closure';
 import type { ContestListRow, ContestPayoutView } from './contests-panel.types';
 
 export function formatContestWindowLocal(start: Date, end: Date): string {
