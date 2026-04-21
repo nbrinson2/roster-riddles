@@ -1,0 +1,73 @@
+<div class="awc-widget">
+  <p *ngIf="loading" class="awc-muted">Loading contests…</p>
+  <p *ngIf="!loading && listError" class="awc-error">{{ listError }}</p>
+
+  <ng-container *ngIf="!loading && !listError">
+    <p *ngIf="rows.length === 0" class="awc-muted">No Bio Ball weekly contests found.</p>
+
+    <ul *ngIf="rows.length > 0" class="awc-list" role="list">
+      <li *ngFor="let row of rows" class="awc-card" role="listitem">
+        <div class="awc-card-head">
+          <div class="awc-card-titles">
+            <span class="awc-title">{{ row.title || row.contestId }}</span>
+            <span class="awc-id" title="Contest id">{{ row.contestId }}</span>
+          </div>
+          <span class="awc-badge">{{ statusLabel(row.status) }}</span>
+        </div>
+        <p class="awc-window">{{ formatWindow(row) }}</p>
+        <div class="awc-actions">
+          <button
+            type="button"
+            class="awc-btn"
+            (click)="toggleManage(row)"
+            [attr.aria-expanded]="managingId === row.contestId"
+          >
+            {{ managingId === row.contestId ? 'Close' : 'Change status' }}
+          </button>
+        </div>
+
+        <div *ngIf="managingId === row.contestId" class="awc-form">
+          <label class="awc-field">
+            <span class="awc-label">Target status</span>
+            <select
+              class="awc-select"
+              [(ngModel)]="targetStatus"
+              name="target-{{ row.contestId }}"
+            >
+              <option *ngFor="let t of transitionTargets" [value]="t">
+                {{ statusLabel(t) }}
+              </option>
+            </select>
+          </label>
+          <label class="awc-check">
+            <input type="checkbox" [(ngModel)]="forceTransition" name="force-{{ row.contestId }}" />
+            <span>Force</span>
+            <span class="awc-hint"
+              >(e.g. open→scoring before window end, or paid→scoring/cancelled — see runbook)</span
+            >
+          </label>
+          <label class="awc-field">
+            <span class="awc-label">Note (optional, logs)</span>
+            <input
+              class="awc-input"
+              type="text"
+              [(ngModel)]="reason"
+              maxlength="500"
+              name="reason-{{ row.contestId }}"
+              autocomplete="off"
+            />
+          </label>
+          <p *ngIf="transitionError" class="awc-error">{{ transitionError }}</p>
+          <button
+            type="button"
+            class="awc-btn awc-btn-primary"
+            [disabled]="transitionSubmitting"
+            (click)="submitTransition(row.contestId)"
+          >
+            {{ transitionSubmitting ? 'Applying…' : 'Apply transition' }}
+          </button>
+        </div>
+      </li>
+    </ul>
+  </ng-container>
+</div>

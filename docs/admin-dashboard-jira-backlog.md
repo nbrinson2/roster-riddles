@@ -196,13 +196,17 @@
 
 **Acceptance criteria**
 
-- [ ] Empty / loading states: N/A for static shell; no flash of content for non-admin (guarded by parent `ngIf`).
-- [ ] Styling consistent with app nav panels (fonts, dark theme if applicable).
-- [ ] Unit test optional (smoke render); at minimum **no** console errors when opening drawer.
+- [x] Empty / loading states: N/A for static shell; no flash of content for non-admin (guarded by parent `ngIf`).
+- [x] Styling consistent with app nav panels (fonts, dark theme if applicable).
+- [x] Unit test optional (smoke render); at minimum **no** console errors when opening drawer.
 
 **Dependencies**
 
 - AD-5.
+
+**Deliverable (merged)**
+
+- [`admin-dashboard-panel`](../src/app/nav/admin-dashboard-panel/) — shell component; registered in [`app.module.ts`](../src/app/app.module.ts); rendered from [`nav.component.html`](../src/app/nav/nav.component.html) when **`viewAdmin && adminDashboardUiEnabled`** (and signed-in).
 
 ---
 

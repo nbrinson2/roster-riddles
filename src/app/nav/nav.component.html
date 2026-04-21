@@ -48,15 +48,7 @@
       <ng-container
         *ngIf="loggedIn && viewAdmin && adminDashboardUiEnabled && user"
       >
-        <div
-          class="admin-dashboard-shell"
-          role="region"
-          aria-labelledby="admin-dashboard-heading"
-        >
-          <h2 id="admin-dashboard-heading" class="admin-dashboard-shell-title">
-            Admin
-          </h2>
-        </div>
+        <admin-dashboard-panel></admin-dashboard-panel>
       </ng-container>
       <div
         *ngIf="

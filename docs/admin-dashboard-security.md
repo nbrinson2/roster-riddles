@@ -91,6 +91,21 @@ Implementation: [`server/require-auth.js`](../server/require-auth.js), [`server/
 
 ---
 
+## Admin API — weekly contests (browser)
+
+These routes use the same **`Authorization: Bearer <Firebase ID token>`** as **`GET /api/v1/me`**, plus **`requireAdmin`** (**`admin: true`** custom claim). They are **not** the operator-secret internal hooks; transitions are enforced with the same rules as [`POST /api/internal/v1/contests/:contestId/transition`](../index.js) (see [weekly-contests-ops-d1.md](weekly-contests-ops-d1.md)).
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/api/v1/admin/contests` | List Bio Ball contests across **all** statuses (`scheduled` … `cancelled`), merged and sorted. Query: `limit` (default **50**, max **100**). Same public field projection as D2 ([`mapContestDocumentToPublic`](../server/contest-public.js)). |
+| `POST` | `/api/v1/admin/contests/:contestId/transition` | Body: `{ "to": "open"\|"scoring"\|"paid"\|"cancelled", "force"?: boolean, "reason"?: string }`. Audit **`adminUid`** is the authenticated **`uid`** (not taken from the client). |
+
+Rate limits: same contest-read hook as public contest reads ([`contestReadRateLimitHookMiddleware`](../server/rate-limit-hooks.middleware.js)).
+
+Implementation: [`server/admin-contests.http.js`](../server/admin-contests.http.js), [`server/require-admin.js`](../server/require-admin.js), shared transition runner [`server/contest-transition-run.js`](../server/contest-transition-run.js).
+
+---
+
 ## Implementation pointers (forward references)
 
 | Story | Topic |
@@ -99,6 +114,7 @@ Implementation: [`server/require-auth.js`](../server/require-auth.js), [`server/
 | AD-3 | **Done** — [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md) (`scripts/set-admin-claim.mjs`, verify with **`GET /api/v1/me`**). |
 | AD-4 | **Done** — **`environment.adminDashboardUiEnabled`** (build: **`ADMIN_DASHBOARD_UI_ENABLED`**, not-`false` like other UI flags) plus **`UserMeCapabilitiesService.isAdmin$`** from **`GET /api/v1/me`**. |
 | AD-5 | **Done** — Admin icon in **`icons-right-container`** (flag + **`isAdmin$`** + logged-in); **`openAdminDashboard()`** uses **`matDrawerPosition`** **`end`**; **`viewAdmin`** mutually exclusive with other drawer views. |
+| AD-6 | **Done** — **`admin-dashboard-panel`** in right drawer; weekly contests list + status transitions via **`GET/POST /api/v1/admin/contests*`** (Firebase admin claim). Operator secret not used in the browser. |
 
 ---
 

@@ -17,7 +17,12 @@ import {
   gameplayEventRateLimitHookMiddleware,
   leaderboardRateLimitHookMiddleware,
 } from './server/rate-limit-hooks.middleware.js';
+import {
+  getAdminContestList,
+  postAdminContestTransition,
+} from './server/admin-contests.http.js';
 import { requireFirebaseAuth } from './server/require-auth.js';
+import { requireAdmin } from './server/require-admin.js';
 import { requestIdMiddleware } from './server/request-id.middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -66,6 +71,25 @@ app.get('/api/v1/me', requireFirebaseAuth, (req, res) => {
     isAdmin: req.user.isAdmin,
   });
 });
+
+/**
+ * Admin — weekly contests (Firebase `admin: true` claim). List all statuses; transition without operator secret.
+ * @see docs/admin-dashboard-security.md
+ */
+app.get(
+  '/api/v1/admin/contests',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  getAdminContestList,
+);
+app.post(
+  '/api/v1/admin/contests/:contestId/transition',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestTransition,
+);
 
 /** Append-only gameplay event (Admin SDK). Idempotent on `clientSessionId`. */
 app.post(

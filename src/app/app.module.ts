@@ -54,6 +54,8 @@ import { authHttpInterceptor } from './auth/auth-http.interceptor';
 import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
 import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-panel.component';
 import { ContestsPanelComponent } from './nav/contests-panel/contests-panel.component';
+import { AdminDashboardPanelComponent } from './nav/admin-dashboard-panel/admin-dashboard-panel.component';
+import { AdminWeeklyContestsWidgetComponent } from './nav/admin-dashboard-panel/admin-weekly-contests-widget/admin-weekly-contests-widget.component';
 
 @NgModule({
   declarations: [
@@ -86,6 +88,8 @@ import { ContestsPanelComponent } from './nav/contests-panel/contests-panel.comp
     LoginPanelComponent,
     LeaderboardPanelComponent,
     ContestsPanelComponent,
+    AdminDashboardPanelComponent,
+    AdminWeeklyContestsWidgetComponent,
   ],
   imports: [
     BrowserModule,

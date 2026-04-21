@@ -1,0 +1,153 @@
+@use '../../../../constants';
+
+.awc-widget {
+  font-family: constants.$font-family-secondary;
+}
+
+.awc-muted {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.awc-error {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #ff8a8a;
+}
+
+.awc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.awc-card {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.awc-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.awc-card-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.awc-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #eee;
+  word-break: break-word;
+}
+
+.awc-id {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+  word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.awc-badge {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(204, 31, 65, 0.25);
+  color: constants.$color-header;
+  font-weight: 600;
+}
+
+.awc-window {
+  margin: 8px 0 10px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.awc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.awc-btn {
+  cursor: pointer;
+  font-family: constants.$font-family;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(204, 31, 65, 0.45);
+  background: transparent;
+  color: constants.$color-header;
+}
+
+.awc-btn:hover {
+  background: rgba(204, 31, 65, 0.12);
+}
+
+.awc-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.awc-btn-primary {
+  background: rgba(204, 31, 65, 0.25);
+}
+
+.awc-form {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.awc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.awc-label {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.awc-select,
+.awc-input {
+  font-size: 0.88rem;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #111;
+  color: #eee;
+}
+
+.awc-check {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.awc-hint {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+  flex-basis: 100%;
+}
