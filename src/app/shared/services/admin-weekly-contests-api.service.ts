@@ -17,6 +17,9 @@ export interface AdminContestPublicRow {
   title?: string;
   createdAt?: string;
   updatedAt?: string;
+  prizePoolCents?: number;
+  entryFeeCents?: number;
+  maxEntries?: number;
 }
 
 export interface AdminContestListResponse {
@@ -48,6 +51,9 @@ export interface AdminContestCreateBody {
   leagueGamesN: number;
   rulesVersion?: number | string;
   title?: string;
+  prizePoolCents?: number;
+  entryFeeCents?: number;
+  maxEntries?: number;
 }
 
 export interface AdminContestCreateResponse {

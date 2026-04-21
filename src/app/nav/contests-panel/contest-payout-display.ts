@@ -2,6 +2,7 @@ import type {
   ContestDryRunPayoutsDocument,
   ContestPayoutLine,
 } from 'src/app/shared/models/contest-payouts-dry-run.model';
+import { formatPayoutUsdLabel } from 'src/app/shared/contest/contest-value-prop';
 
 /** Display notional dollars from integer cents (FAKE_USD / USD). */
 export function formatNotionalUsdFromCents(amountCents: number): string {
@@ -37,7 +38,7 @@ export function getWinnerGetsPhrase(
   if (!first || lineRank(first) !== 1) {
     return null;
   }
-  return `Payout: ${formatNotionalUsdFromCents(first.amountCents)}`;
+  return formatPayoutUsdLabel(first.amountCents);
 }
 
 /** Secondary list: other places, same numeric formatting. */

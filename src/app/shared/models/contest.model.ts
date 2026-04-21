@@ -36,4 +36,11 @@ export interface ContestDocument {
   updatedAt: unknown;
   /** Admin notes only — no PII */
   metadata?: Record<string, unknown>;
+  /**
+   * Optional display fields (operator / admin API). Omitted on older documents.
+   * Amounts are informational; Phase 4 remains dry-run — see UI copy.
+   */
+  prizePoolCents?: number;
+  entryFeeCents?: number;
+  maxEntries?: number;
 }

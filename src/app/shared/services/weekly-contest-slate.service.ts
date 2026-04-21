@@ -22,6 +22,7 @@ import {
   type ContestDocument,
 } from 'src/app/shared/models/contest.model';
 import type { ContestEntryDocument } from 'src/app/shared/models/contest-entry.model';
+import { buildContestValuePropLine } from 'src/app/shared/contest/contest-value-prop';
 
 /** Live mini-league progress for the active open contest the user joined (Bio Ball). */
 export interface WeeklyContestSlateUi {
@@ -30,10 +31,21 @@ export interface WeeklyContestSlateUi {
   leagueGamesN: number;
   gamesUsed: number;
   gamesRemaining: number;
+  /** Prize / entry / lock line for the strip (from contest doc + window end). */
+  valuePropLine: string;
   /** True when gameplayEvents query failed (e.g. missing index); user may still be entered. */
   progressUnavailable?: boolean;
   /** Play window [windowStart, windowEnd) has ended; contest may still be `open` until scoring. */
   windowEnded?: boolean;
+}
+
+function slateValuePropLine(contest: ContestDocument, we: Timestamp): string {
+  return buildContestValuePropLine({
+    windowEnd: we.toDate(),
+    prizePoolCents: contest.prizePoolCents,
+    entryFeeCents: contest.entryFeeCents,
+    maxEntries: contest.maxEntries,
+  });
 }
 
 function toTimestamp(value: unknown): Timestamp | null {
@@ -346,12 +358,18 @@ export class WeeklyContestSlateService {
         now,
       );
       if (ended) {
+        const weEnded = toTimestamp(ended.contest.windowEnd);
+        if (!weEnded) {
+          this.slateSubject.next(null);
+          return;
+        }
         this.slateSubject.next({
           contestId: ended.contestId,
           contestTitle: ended.contestTitle,
           leagueGamesN: ended.leagueGamesN,
           gamesUsed: 0,
           gamesRemaining: 0,
+          valuePropLine: slateValuePropLine(ended.contest, weEnded),
           progressUnavailable: true,
           windowEnded: true,
         });
@@ -406,6 +424,7 @@ export class WeeklyContestSlateService {
           leagueGamesN: n,
           gamesUsed: used,
           gamesRemaining: n - used,
+          valuePropLine: slateValuePropLine(picked.contest, we),
           progressUnavailable: false,
         });
       },
@@ -420,6 +439,7 @@ export class WeeklyContestSlateService {
           leagueGamesN: n,
           gamesUsed: 0,
           gamesRemaining: n,
+          valuePropLine: slateValuePropLine(picked.contest, we),
           progressUnavailable: true,
         });
       },

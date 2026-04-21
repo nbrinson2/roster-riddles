@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
+  AdminContestCreateBody,
   AdminContestPublicRow,
   AdminWeeklyContestsApiService,
 } from 'src/app/shared/services/admin-weekly-contests-api.service';
@@ -66,6 +67,13 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
   protected createWindowEnd = '';
   protected createLeagueGamesN = CONTEST_DEFAULT_LEAGUE_GAMES_N;
   protected createRulesVersion = 1;
+  /**
+   * Optional display fields (USD → server `*Cents`; empty = omit).
+   * Typed loosely: `type="number"` inputs may bind `number` to ngModel.
+   */
+  protected createPrizePoolUsd: string | number = '';
+  protected createEntryFeeUsd: string | number = '';
+  protected createMaxEntries: string | number = '';
   protected createSubmitting = false;
   protected createError: string | null = null;
 
@@ -234,14 +242,30 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
     this.createSubmitting = true;
     const titleTrim = this.createTitle.trim();
     const rulesN = Number(this.createRulesVersion);
-    const body = {
-      status: this.createStatus,
-      windowStart: ws,
-      windowEnd: we,
-      leagueGamesN: Math.floor(n),
-      rulesVersion: Number.isFinite(rulesN) && rulesN > 0 ? rulesN : 1,
-      ...(titleTrim ? { title: titleTrim.slice(0, 200) } : {}),
-    };
+    const body: AdminContestCreateBody = {
+        status: this.createStatus,
+        windowStart: ws,
+        windowEnd: we,
+        leagueGamesN: Math.floor(n),
+        rulesVersion: Number.isFinite(rulesN) && rulesN > 0 ? rulesN : 1,
+        ...(titleTrim ? { title: titleTrim.slice(0, 200) } : {}),
+      };
+
+    const prizeStr = this.normalizeOptionalNumberInput(this.createPrizePoolUsd);
+    const prizeUsd = Number.parseFloat(prizeStr);
+    if (prizeStr && Number.isFinite(prizeUsd) && prizeUsd >= 0) {
+      body.prizePoolCents = Math.round(prizeUsd * 100);
+    }
+    const entryStr = this.normalizeOptionalNumberInput(this.createEntryFeeUsd);
+    const entryUsd = Number.parseFloat(entryStr);
+    if (entryStr && Number.isFinite(entryUsd) && entryUsd >= 0) {
+      body.entryFeeCents = Math.round(entryUsd * 100);
+    }
+    const capStr = this.normalizeOptionalNumberInput(this.createMaxEntries);
+    const cap = Number.parseInt(capStr, 10);
+    if (capStr && Number.isFinite(cap) && cap >= 1) {
+      body.maxEntries = cap;
+    }
 
     this.api
       .createContest(body)
@@ -258,6 +282,16 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
           this.createError = this.mapCreateError(err);
         },
       });
+  }
+
+  /**
+   * Number inputs often bind `number`; empty can be `''` or `null` depending on browser.
+   */
+  private normalizeOptionalNumberInput(raw: unknown): string {
+    if (raw == null || raw === '') {
+      return '';
+    }
+    return String(raw).trim();
   }
 
   private localDateTimeToIso(value: string): string | null {
@@ -278,6 +312,9 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
     this.createWindowEnd = '';
     this.createLeagueGamesN = CONTEST_DEFAULT_LEAGUE_GAMES_N;
     this.createRulesVersion = 1;
+    this.createPrizePoolUsd = '';
+    this.createEntryFeeUsd = '';
+    this.createMaxEntries = '';
   }
 
   private loadList(showSpinner: boolean): void {

@@ -38,8 +38,15 @@ import {
   getWinnerGetsPhrase,
 } from './contest-payout-display';
 import {
+  buildContestScheduleLine,
+  formatPayoutUsdLabel,
+} from 'src/app/shared/contest/contest-value-prop';
+import {
   CONTEST_DRY_RUN_PAYOUT_COPY,
+  CONTEST_FULL_RULES_HREF,
+  getContestEligibilityBullets,
   getContestRulesNarrative,
+  getContestRulesShortBullets,
 } from './contest-rules-copy';
 
 /** Max `paid` contests shown (most recent by window end), in addition to all open + scheduled. */
@@ -62,6 +69,9 @@ export interface ContestListRow {
   leagueGamesN: number;
   windowStart: Date;
   windowEnd: Date;
+  prizePoolCents?: number;
+  entryFeeCents?: number;
+  maxEntries?: number;
 }
 
 interface ContestJoinResponse {
@@ -97,6 +107,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   @Output() readonly requestSignIn = new EventEmitter<void>();
 
   protected readonly dryRunCopy = CONTEST_DRY_RUN_PAYOUT_COPY;
+  protected readonly fullRulesHref = CONTEST_FULL_RULES_HREF;
 
   protected loggedIn = false;
   protected loading = true;
@@ -192,23 +203,49 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       .filter(Boolean);
   }
 
-  /** One-line summary for completed contests: payout text · slate size. */
+  protected rulesShortBullets(version: number | string): string[] {
+    return getContestRulesShortBullets(version);
+  }
+
+  protected eligibilityBullets(row: ContestListRow): string[] {
+    return getContestEligibilityBullets(row.leagueGamesN, row.maxEntries);
+  }
+
+  /**
+   * First card line: entry / lock / cap only (pool is on the meta line as `PAYOUT:`).
+   */
+  protected contestScheduleLine(row: ContestListRow): string {
+    return buildContestScheduleLine({
+      windowEnd: row.windowEnd,
+      prizePoolCents: row.prizePoolCents,
+      entryFeeCents: row.entryFeeCents,
+      maxEntries: row.maxEntries,
+    });
+  }
+
+  /** Payout row: `PAYOUT:` (when set on doc) · slate size only — no rules or other copy. */
+  protected formatNonPaidCardMeta(row: ContestListRow): string {
+    const slate = `${row.leagueGamesN} games in slate`;
+    if (
+      row.prizePoolCents != null &&
+      Number.isFinite(row.prizePoolCents) &&
+      row.prizePoolCents >= 0
+    ) {
+      return `${formatPayoutUsdLabel(row.prizePoolCents)} · ${slate}`;
+    }
+    return slate;
+  }
+
+  /** Paid: same — primary payout line + slate only. */
   protected formatPaidCardMeta(
     row: ContestListRow,
     payout: ContestPayoutView,
   ): string {
-    const parts: string[] = [];
-    if (payout.loading) {
-      parts.push('Loading payout…');
-    } else if (payout.winnerText) {
-      parts.push(
-        [payout.winnerText, ...payout.otherLines].filter(Boolean).join(' · '),
-      );
-    } else {
-      parts.push('Payout unavailable');
+    const slate = `${row.leagueGamesN} games in slate`;
+    if (payout.loading || !payout.winnerText) {
+      return slate;
     }
-    parts.push(`${row.leagueGamesN} games in slate`);
-    return parts.join(' · ');
+    return `${payout.winnerText} · ${slate}`;
   }
 
   /** Row for join / snapshot listeners (expanded card). */
@@ -522,6 +559,10 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       return null;
     }
 
+    const prizePoolCents = this.parseOptionalNonNegInt(d.prizePoolCents);
+    const entryFeeCents = this.parseOptionalNonNegInt(d.entryFeeCents);
+    const maxEntries = this.parseOptionalPositiveInt(d.maxEntries);
+
     return {
       contestId,
       status,
@@ -531,7 +572,24 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       leagueGamesN,
       windowStart: ws,
       windowEnd: we,
+      ...(prizePoolCents !== undefined ? { prizePoolCents } : {}),
+      ...(entryFeeCents !== undefined ? { entryFeeCents } : {}),
+      ...(maxEntries !== undefined ? { maxEntries } : {}),
     };
+  }
+
+  private parseOptionalNonNegInt(raw: unknown): number | undefined {
+    if (typeof raw !== 'number' || !Number.isFinite(raw) || raw < 0) {
+      return undefined;
+    }
+    return Math.floor(raw);
+  }
+
+  private parseOptionalPositiveInt(raw: unknown): number | undefined {
+    if (typeof raw !== 'number' || !Number.isFinite(raw) || raw < 1) {
+      return undefined;
+    }
+    return Math.floor(raw);
   }
 
   private toDate(value: unknown): Date | null {

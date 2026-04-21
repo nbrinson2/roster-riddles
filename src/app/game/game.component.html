@@ -24,30 +24,35 @@
             role="region"
             aria-label="Weekly contest mini-league progress"
           >
-            <div class="game-contest-banner__inner">
-              <div class="game-contest-banner__badge">
-                <span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>
-                <span>Contest</span>
-              </div>
-              <p class="game-contest-banner__title">{{ strip.slate.contestTitle }}</p>
-              <div
-                *ngIf="!strip.slate.progressUnavailable && !strip.slate.windowEnded"
-                class="game-contest-banner__stats"
-              >
-                <span class="game-contest-banner__emph"
-                  >{{ strip.slate.gamesUsed }}/{{ strip.slate.leagueGamesN }}</span
+            <div class="game-contest-banner__stack">
+              <div class="game-contest-banner__inner">
+                <div class="game-contest-banner__badge">
+                  <span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>
+                  <span>Contest</span>
+                </div>
+                <p class="game-contest-banner__title">{{ strip.slate.contestTitle }}</p>
+                <div
+                  *ngIf="!strip.slate.progressUnavailable && !strip.slate.windowEnded"
+                  class="game-contest-banner__stats"
                 >
-                <span class="game-contest-banner__dot" aria-hidden="true">·</span>
-                <span class="game-contest-banner__emph">{{ strip.slate.gamesRemaining }}</span>
-                left<span *ngIf="strip.slate.gamesRemaining === 0"> · slate full</span>
+                  <span class="game-contest-banner__emph"
+                    >{{ strip.slate.gamesUsed }}/{{ strip.slate.leagueGamesN }}</span
+                  >
+                  <span class="game-contest-banner__dot" aria-hidden="true">·</span>
+                  <span class="game-contest-banner__emph">{{ strip.slate.gamesRemaining }}</span>
+                  left<span *ngIf="strip.slate.gamesRemaining === 0"> · slate full</span>
+                </div>
+                <div *ngIf="strip.slate.windowEnded" class="game-contest-banner__pill">Window ended</div>
+                <div
+                  *ngIf="strip.slate.progressUnavailable && !strip.slate.windowEnded"
+                  class="game-contest-banner__pill game-contest-banner__pill--warn"
+                >
+                  Count unavailable
+                </div>
               </div>
-              <div *ngIf="strip.slate.windowEnded" class="game-contest-banner__pill">Window ended</div>
-              <div
-                *ngIf="strip.slate.progressUnavailable && !strip.slate.windowEnded"
-                class="game-contest-banner__pill game-contest-banner__pill--warn"
-              >
-                Count unavailable
-              </div>
+              <p class="game-contest-banner__value" [title]="strip.slate.valuePropLine">
+                {{ strip.slate.valuePropLine }}
+              </p>
             </div>
             <p *ngIf="strip.slate.windowEnded" class="game-contest-banner__sr-only">
               This contest’s play window has ended. You’re still entered — final rank will use only
@@ -72,10 +77,15 @@
             role="region"
             aria-label="Weekly contests"
           >
-            <div class="game-contest-banner__inner">
-              <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-              <p class="game-contest-banner__muted-line">
-                Not in an open contest — join from the calendar.
+            <div class="game-contest-banner__stack">
+              <div class="game-contest-banner__inner">
+                <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                <p class="game-contest-banner__muted-line">
+                  Not in an open contest — join from the calendar.
+                </p>
+              </div>
+              <p class="game-contest-banner__value game-contest-banner__value--muted">
+                Simulated prizes · No entry fee · See prize and lock times on each contest card
               </p>
             </div>
             <p class="game-contest-banner__sr-only">

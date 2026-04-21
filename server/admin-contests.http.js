@@ -41,6 +41,10 @@ const adminCreateBodySchema = z
     leagueGamesN: z.number().int().min(1).max(100),
     rulesVersion: z.union([z.number(), z.string().min(1).max(32)]).optional(),
     title: z.string().max(200).optional(),
+    /** Optional UI / dry-run display (cents). */
+    prizePoolCents: z.number().int().min(0).max(100_000_000).optional(),
+    entryFeeCents: z.number().int().min(0).max(10_000_000).optional(),
+    maxEntries: z.number().int().min(1).max(10_000_000).optional(),
   })
   .strict();
 
@@ -236,6 +240,9 @@ export async function postAdminContestCreate(req, res) {
     leagueGamesN,
     rulesVersion: rulesVersionIn,
     title: titleIn,
+    prizePoolCents: prizePoolCentsIn,
+    entryFeeCents: entryFeeCentsIn,
+    maxEntries: maxEntriesIn,
   } = bodyParse.data;
 
   let contestId =
@@ -349,6 +356,9 @@ export async function postAdminContestCreate(req, res) {
         createdByAdminUid: uid,
         source: 'admin_api_create_v1',
       },
+      ...(typeof prizePoolCentsIn === 'number' ? { prizePoolCents: prizePoolCentsIn } : {}),
+      ...(typeof entryFeeCentsIn === 'number' ? { entryFeeCents: entryFeeCentsIn } : {}),
+      ...(typeof maxEntriesIn === 'number' ? { maxEntries: maxEntriesIn } : {}),
     });
 
     const snap = await ref.get();

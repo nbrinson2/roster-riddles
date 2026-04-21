@@ -239,10 +239,20 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   color: #ccc;
 }
 
+.cc-card-value-prop {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: rgba(200, 230, 255, 0.85);
+  word-break: break-word;
+}
+
 .cc-card-meta {
   margin: 6px 0 0;
   font-size: 0.75rem;
   color: $cc-muted;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .cc-card-actions {
@@ -297,6 +307,13 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   color: #ccc;
 }
 
+.cc-detail-value-prop {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: rgba(200, 230, 255, 0.88);
+}
+
 .cc-detail-meta {
   margin: 0;
   font-size: 0.8rem;
@@ -316,12 +333,46 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   background: rgba(0, 0, 0, 0.25);
 }
 
+.cc-eligibility-block {
+  padding: 12px 14px;
+  border-radius: $cc-radius;
+  border: 1px solid rgba(76, 175, 80, 0.22);
+  background: rgba(76, 175, 80, 0.06);
+}
+
 .cc-rules-heading {
   margin: 0 0 10px;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: $cc-muted;
+}
+
+.cc-rules-short-list {
+  margin: 0 0 12px;
+  padding-left: 1.15rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: #e8e8e8;
+
+  li + li {
+    margin-top: 6px;
+  }
+}
+
+.cc-full-rules-link {
+  margin: 0 0 12px;
+  font-size: 0.82rem;
+
+  a {
+    color: #90caf9;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: #bbdefb;
+    }
+  }
 }
 
 .cc-rules-para {

@@ -69,9 +69,12 @@
         <p class="cc-card-window">
           {{ formatWindowLocal(row.windowStart, row.windowEnd) }}
         </p>
+        <p class="cc-card-value-prop" [title]="contestScheduleLine(row)">
+          {{ contestScheduleLine(row) }}
+        </p>
         <p class="cc-card-meta">
           <ng-container *ngIf="row.status !== 'paid'">
-            Rules v{{ row.rulesVersion }} · {{ row.leagueGamesN }} games in slate
+            {{ formatNonPaidCardMeta(row) }}
           </ng-container>
           <ng-container
             *ngIf="
@@ -104,6 +107,7 @@
           <p class="cc-detail-window">
             {{ formatWindowLocal(row.windowStart, row.windowEnd) }}
           </p>
+          <p class="cc-detail-value-prop">{{ contestScheduleLine(row) }}</p>
           <p class="cc-detail-meta">
             Status: {{ statusLabel(row.status) }} · Rules version
             {{ row.rulesVersion }} · Slate size {{ row.leagueGamesN }}
@@ -113,8 +117,28 @@
             {{ joinDisabledReason(row) }}
           </p>
 
+          <div class="cc-eligibility-block">
+            <h3 class="cc-rules-heading">Eligibility &amp; limits</h3>
+            <ul class="cc-rules-short-list">
+              <li *ngFor="let line of eligibilityBullets(row)">{{ line }}</li>
+            </ul>
+          </div>
+
           <div class="cc-rules-block">
-            <h3 class="cc-rules-heading">Rules summary</h3>
+            <h3 class="cc-rules-heading">Rules &amp; scoring</h3>
+            <ul class="cc-rules-short-list">
+              <li *ngFor="let line of rulesShortBullets(row.rulesVersion)">
+                {{ line }}
+              </li>
+            </ul>
+            <p class="cc-full-rules-link">
+              <a
+                [href]="fullRulesHref"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Open full rules (printable)</a
+              >
+            </p>
             <p
               *ngFor="let para of ruleParagraphs(row.rulesVersion)"
               class="cc-rules-para"
