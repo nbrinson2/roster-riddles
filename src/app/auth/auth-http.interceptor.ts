@@ -22,11 +22,25 @@ function isRosterRiddlesApiUrl(requestUrl: string): boolean {
   }
 }
 
+/** `GET /api/v1/me` must use a **fresh** ID token so custom claims (e.g. `admin`) match Admin SDK updates. */
+function isApiV1MeUrl(requestUrl: string): boolean {
+  try {
+    const path = requestUrl.startsWith('http')
+      ? new URL(requestUrl).pathname
+      : requestUrl.split(/[?#]/)[0];
+    return path === '/api/v1/me';
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Attaches `Authorization: Bearer <idToken>` for our API only.
  *
  * **Token refresh:** Firebase `User#getIdToken()` returns a valid JWT and refreshes it
  * automatically when expired (no separate refresh step needed for typical calls).
+ * For **`GET /api/v1/me`**, **`getIdToken(true)`** is used so claim changes from Admin SDK
+ * appear without waiting for natural expiry (see `docs/admin-dashboard-security.md`).
  * Logged-out users (`currentUser` null) send the request unchanged — no stale header.
  */
 export const authHttpInterceptor: HttpInterceptorFn = (req, next) => {
@@ -40,7 +54,8 @@ export const authHttpInterceptor: HttpInterceptorFn = (req, next) => {
     return next(req);
   }
 
-  return from(user.getIdToken()).pipe(
+  const forceRefresh = isApiV1MeUrl(req.url);
+  return from(user.getIdToken(forceRefresh)).pipe(
     switchMap((token) =>
       next(
         req.clone({
