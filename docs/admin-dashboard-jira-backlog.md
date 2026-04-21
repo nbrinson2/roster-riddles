@@ -163,14 +163,20 @@
 
 **Acceptance criteria**
 
-- [ ] Admin icon **only** when feature flag on **and** user is admin **and** logged in.
-- [ ] Clicking admin opens the **right** drawer (`end`) with admin content region (Story AD-6).
-- [ ] Opening profile / info / other panels **clears** `viewAdmin` (mutual exclusion consistent with existing `openMenu` / `openProfileMenu` patterns — update each method as needed).
-- [ ] SCSS: align with [`nav.component.scss`](../src/app/nav/nav.component.scss) (spacing, hit target, contrast).
+- [x] Admin icon **only** when feature flag on **and** user is admin **and** logged in.
+- [x] Clicking admin opens the **right** drawer (`end`) with admin content region (Story AD-6 replaces the minimal shell).
+- [x] Opening profile / info / other panels **clears** `viewAdmin` (mutual exclusion consistent with existing `openMenu` / `openProfileMenu` patterns — update each method as needed).
+- [x] SCSS: align with [`nav.component.scss`](../src/app/nav/nav.component.scss) (spacing, hit target, contrast).
 
 **Dependencies**
 
 - AD-4.
+
+**Deliverable (merged)**
+
+- [`nav.component.ts`](../src/app/nav/nav.component.ts) — **`viewAdmin`**, **`openAdminDashboard()`**, **`viewAdmin`** cleared in other **`open*`** paths and on sign-out.
+- [`nav.component.html`](../src/app/nav/nav.component.html) — **`admin_panel_settings`** control (keyboard + **`aria-label`**) and right-drawer admin region.
+- [`nav.component.scss`](../src/app/nav/nav.component.scss) — icon + shell styling.
 
 ---
 

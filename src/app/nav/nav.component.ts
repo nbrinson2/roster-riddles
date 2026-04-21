@@ -90,6 +90,8 @@ export class NavComponent implements OnInit, OnDestroy {
   protected viewRoster = false;
   protected viewLeaderboard = false;
   protected viewContests = false;
+  /** Story AD-5 — right (`end`) drawer: admin dashboard shell (content → AD-6). */
+  protected viewAdmin = false;
   protected matDrawerPosition = MatDrawerPosition.START;
   protected selectedRoster?: UiPlayer<AttributesType>[];
   protected selectedRosterByYears?: CareerPathPlayer[];
@@ -143,6 +145,9 @@ export class NavComponent implements OnInit, OnDestroy {
       .subscribe((user) => {
         this.user = user;
         this.loggedIn = !!user;
+        if (!user) {
+          this.viewAdmin = false;
+        }
       });
 
     this.rosterSelectionService.activeRoster$
@@ -210,6 +215,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.matDrawerPosition = MatDrawerPosition.START;
     this.viewMenu = true;
     this.viewProfile = false;
+    this.viewAdmin = false;
     this.viewRoster = false;
     this.viewLeaderboard = false;
     this.viewContests = false;
@@ -220,6 +226,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.matDrawerPosition = MatDrawerPosition.START;
     this.viewMenu = false;
     this.viewProfile = false;
+    this.viewAdmin = false;
     this.viewRoster = false;
     this.viewLeaderboard = true;
     this.viewContests = false;
@@ -230,6 +237,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.matDrawerPosition = MatDrawerPosition.START;
     this.viewMenu = false;
     this.viewProfile = false;
+    this.viewAdmin = false;
     this.viewRoster = false;
     this.viewLeaderboard = false;
     this.viewContests = true;
@@ -242,7 +250,20 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewRoster = false;
     this.viewLeaderboard = false;
     this.viewContests = false;
+    this.viewAdmin = false;
     this.viewProfile = true;
+    this.drawer.open();
+  }
+
+  /** Story AD-5 — right drawer (`end`), same side as profile / login. */
+  protected openAdminDashboard(): void {
+    this.matDrawerPosition = MatDrawerPosition.END;
+    this.viewMenu = false;
+    this.viewProfile = false;
+    this.viewRoster = false;
+    this.viewLeaderboard = false;
+    this.viewContests = false;
+    this.viewAdmin = true;
     this.drawer.open();
   }
 
@@ -258,6 +279,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.matDrawerPosition = MatDrawerPosition.END;
     this.viewMenu = false;
     this.viewProfile = false;
+    this.viewAdmin = false;
     this.viewRoster = false;
     this.viewLeaderboard = false;
     this.viewContests = false;
@@ -291,6 +313,7 @@ export class NavComponent implements OnInit, OnDestroy {
   private openRosterMenu(): void {
     this.viewMenu = false;
     this.viewProfile = false;
+    this.viewAdmin = false;
     this.viewLeaderboard = false;
     this.viewContests = false;
     this.viewRoster = true;

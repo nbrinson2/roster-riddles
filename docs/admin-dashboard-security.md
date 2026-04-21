@@ -98,6 +98,7 @@ Implementation: [`server/require-auth.js`](../server/require-auth.js), [`server/
 | AD-2 | **Done** — **`isAdmin`** on **`GET /api/v1/me`** (see above). |
 | AD-3 | **Done** — [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md) (`scripts/set-admin-claim.mjs`, verify with **`GET /api/v1/me`**). |
 | AD-4 | **Done** — **`environment.adminDashboardUiEnabled`** (build: **`ADMIN_DASHBOARD_UI_ENABLED`**, not-`false` like other UI flags) plus **`UserMeCapabilitiesService.isAdmin$`** from **`GET /api/v1/me`**. |
+| AD-5 | **Done** — Admin icon in **`icons-right-container`** (flag + **`isAdmin$`** + logged-in); **`openAdminDashboard()`** uses **`matDrawerPosition`** **`end`**; **`viewAdmin`** mutually exclusive with other drawer views. |
 
 ---
 

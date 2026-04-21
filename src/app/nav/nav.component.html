@@ -45,10 +45,24 @@
       <ng-container *ngIf="loggedIn && viewProfile && user">
         <profile [user]="user"></profile>
       </ng-container>
+      <ng-container
+        *ngIf="loggedIn && viewAdmin && adminDashboardUiEnabled && user"
+      >
+        <div
+          class="admin-dashboard-shell"
+          role="region"
+          aria-labelledby="admin-dashboard-heading"
+        >
+          <h2 id="admin-dashboard-heading" class="admin-dashboard-shell-title">
+            Admin
+          </h2>
+        </div>
+      </ng-container>
       <div
         *ngIf="
           !loggedIn &&
             !viewProfile &&
+            !viewAdmin &&
             !viewMenu &&
             !viewRoster &&
             !viewLeaderboard &&
@@ -110,14 +124,25 @@
             >
               logout
             </span>
-            <ng-container
+            <div
               *ngIf="
                 adminDashboardUiEnabled &&
                   (userMeCapabilities.isAdmin$ | async)
               "
+              class="admin-dashboard-icon-wrap"
+              role="button"
+              tabindex="0"
+              aria-label="Open admin dashboard"
+              (click)="openAdminDashboard()"
+              (keydown.enter)="openAdminDashboard()"
+              (keydown.space)="
+                $event.preventDefault(); openAdminDashboard()
+              "
             >
-              <!-- Story AD-5 — admin icon (immediately left of profile) -->
-            </ng-container>
+              <span class="material-symbols-outlined admin-dashboard-icon"
+                >admin_panel_settings</span
+              >
+            </div>
             <span
               class="material-symbols-outlined profile-icon"
               (click)="openProfileMenu()"
