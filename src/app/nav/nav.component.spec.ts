@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
+import { UserMeCapabilitiesService } from '../auth/user-me-capabilities.service';
 import { NavComponent } from './nav.component';
 
 describe('NavComponent', () => {
@@ -8,9 +10,14 @@ describe('NavComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ NavComponent ]
-    })
-    .compileComponents();
+      declarations: [NavComponent],
+      providers: [
+        {
+          provide: UserMeCapabilitiesService,
+          useValue: { isAdmin$: of(false) },
+        },
+      ],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(NavComponent);
     component = fixture.componentInstance;

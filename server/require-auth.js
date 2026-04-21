@@ -1,3 +1,4 @@
+import { isAdminFromDecodedToken } from './auth-claims.js';
 import { ensureFirebaseAdminInitialized } from './firebase-admin-init.js';
 
 /**
@@ -5,6 +6,7 @@ import { ensureFirebaseAdminInitialized } from './firebase-admin-init.js';
  * @property {string} uid
  * @property {string | null} email
  * @property {boolean} emailVerified
+ * @property {boolean} isAdmin — from ID token custom claim `admin: true` (Story AD-2); not authorization for server mutations.
  */
 
 /**
@@ -51,6 +53,7 @@ export async function requireFirebaseAuth(req, res, next) {
       uid: decoded.uid,
       email: decoded.email ?? null,
       emailVerified: Boolean(decoded.email_verified),
+      isAdmin: isAdminFromDecodedToken(decoded),
     };
     req.user = user;
     next();

@@ -1,0 +1,117 @@
+<div class="auc-widget">
+  <p class="auc-lead">
+    Look up a user by <strong>Firebase Auth uid</strong>, then grant or revoke the
+    <code>admin</code> custom claim. You cannot change your own account here — use
+    <code>scripts/set-admin-claim.mjs</code> (see docs) if needed.
+  </p>
+
+  <section class="auc-list-section" aria-labelledby="auc-admins-heading">
+    <div class="auc-list-head">
+      <h4 id="auc-admins-heading" class="auc-list-title">Users with admin claim</h4>
+      <button
+        type="button"
+        class="auc-btn auc-btn-small"
+        [disabled]="listLoading"
+        (click)="loadAdminList()"
+      >
+        {{ listLoading ? 'Refreshing…' : 'Refresh' }}
+      </button>
+    </div>
+    <p *ngIf="listLoading && adminRows.length === 0" class="auc-muted">Loading…</p>
+    <p *ngIf="listError" class="auc-error">{{ listError }}</p>
+    <p *ngIf="!listLoading && !listError && adminRows.length === 0" class="auc-muted">
+      No users currently have the admin claim.
+    </p>
+    <ul *ngIf="adminRows.length > 0" class="auc-admin-list" role="list">
+      <li *ngFor="let row of adminRows" class="auc-admin-row" role="listitem">
+        <div class="auc-admin-row-main">
+          <span class="auc-admin-email">{{
+            row.email || '(no email)'
+          }}</span>
+          <code class="auc-admin-uid" title="uid">{{ row.uid }}</code>
+          <span *ngIf="row.disabled" class="auc-admin-flag">Disabled</span>
+          <span *ngIf="isRowYou(row.uid)" class="auc-admin-flag auc-admin-flag--you"
+            >You</span
+          >
+        </div>
+        <button
+          type="button"
+          class="auc-btn auc-btn-small"
+          (click)="useAdminRow(row)"
+        >
+          Open
+        </button>
+      </li>
+    </ul>
+    <p class="auc-note">
+      Listing scans Firebase Auth users (paginated server-side). Large projects may take a moment.
+    </p>
+  </section>
+
+  <div class="auc-row">
+    <label class="auc-field">
+      <span class="auc-label">User uid</span>
+      <input
+        class="auc-input"
+        type="text"
+        [(ngModel)]="targetUidInput"
+        name="aucTargetUid"
+        autocomplete="off"
+        spellcheck="false"
+        (keyup.enter)="loadUser()"
+      />
+    </label>
+    <button
+      type="button"
+      class="auc-btn auc-btn-primary"
+      [disabled]="loading"
+      (click)="loadUser()"
+    >
+      {{ loading ? 'Loading…' : 'Load user' }}
+    </button>
+  </div>
+
+  <p *ngIf="lookupError" class="auc-error">{{ lookupError }}</p>
+
+  <div *ngIf="loaded" class="auc-loaded">
+    <div class="auc-loaded-head">
+      <span class="auc-email">{{
+        loaded.email || '(no email on record)'
+      }}</span>
+      <span class="auc-badge" [class.auc-badge--on]="loaded.admin">{{
+        loaded.admin ? 'Admin' : 'Not admin'
+      }}</span>
+    </div>
+    <p class="auc-meta">
+      <span *ngIf="loaded.disabled" class="auc-warn">Account disabled in Auth.</span>
+      <span *ngIf="!loaded.disabled && loaded.emailVerified" class="auc-ok"
+        >Email verified</span
+      >
+    </p>
+
+    <div class="auc-actions">
+      <button
+        type="button"
+        class="auc-btn auc-btn-primary"
+        [disabled]="patchSubmitting || loaded.admin || isSelfTarget()"
+        (click)="grantAdmin()"
+      >
+        Grant admin
+      </button>
+      <button
+        type="button"
+        class="auc-btn"
+        [disabled]="patchSubmitting || !loaded.admin || isSelfTarget()"
+        (click)="revokeAdmin()"
+      >
+        Revoke admin
+      </button>
+    </div>
+    <p *ngIf="isSelfTarget()" class="auc-hint">
+      This uid is your session — use the CLI script to change your own claim.
+    </p>
+  </div>
+
+  <p *ngIf="patchError" class="auc-error">{{ patchError }}</p>
+  <p *ngIf="patchSuccess" class="auc-success">{{ patchSuccess }}</p>
+</div>

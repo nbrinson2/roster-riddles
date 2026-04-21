@@ -3,7 +3,7 @@
 **Suggested labels:** `admin`, `nav`, `phase-next`  
 **Suggested epic name:** Admin dashboard shell (production-ready gating)
 
-**Context (current codebase):** Top nav uses `mat-sidenav` with mutually exclusive “views” (`viewMenu`, `viewProfile`, `viewRoster`, `viewLeaderboard`, `viewContests`, …) in [`src/app/nav/nav.component.html`](../src/app/nav/nav.component.html). Profile and logout live in **`icons-right-container`** (right side of the bar). The profile drawer uses **`MatDrawerPosition.END`** (`position="end"`) — **right-side** overlay. `GET /api/v1/me` returns `{ uid, email, emailVerified }` only ([`index.js`](../index.js)); [`server/require-auth.js`](../server/require-auth.js) does not yet surface Firebase **custom claims**.
+**Context (current codebase):** Top nav uses `mat-sidenav` with mutually exclusive “views” (`viewMenu`, `viewProfile`, `viewRoster`, `viewLeaderboard`, `viewContests`, …) in [`src/app/nav/nav.component.html`](../src/app/nav/nav.component.html). Profile and logout live in **`icons-right-container`** (right side of the bar). The profile drawer uses **`MatDrawerPosition.END`** (`position="end"`) — **right-side** overlay. `GET /api/v1/me` returns **`isAdmin`** from ID token custom claim **`admin: true`** ([`index.js`](../index.js), [`server/require-auth.js`](../server/require-auth.js), AD-2). Operators grant/revoke via [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md) (AD-3).
 
 ---
 
@@ -14,6 +14,8 @@
 **Non-goals (v1):** Implementing full operator workflows (contest CRUD UI, user impersonation, etc.). Those ship as follow-up stories once the shell and **authorization contract** exist.
 
 **Security principle:** **UI gating is UX only.** Every privileged action continues to require **server-side** checks (existing internal secrets, Admin SDK, Firestore rules). The dashboard must not expose secrets or bypass APIs.
+
+**Design (Story AD-1):** [admin-dashboard-security.md](admin-dashboard-security.md) — custom claim shape, token refresh, threat model.
 
 ---
 
@@ -32,12 +34,16 @@
 
 **Acceptance criteria**
 
-- [ ] Short design note added under **`docs/`** (e.g. `docs/admin-dashboard-security.md`) covering: claim shape, refresh behavior, threat model (“client `isAdmin` is not authorization for mutations”).
-- [ ] Linked from this backlog and from the implementation stories below.
+- [x] Short design note added under **`docs/`** — **[`admin-dashboard-security.md`](admin-dashboard-security.md)** — covering: claim shape, refresh behavior, threat model (“client `isAdmin` is not authorization for mutations”).
+- [x] Linked from this backlog; implementation stories AD-2–AD-4 reference it from **`admin-dashboard-security.md`** (forward references table).
 
 **Dependencies**
 
 - None (blocks AD-2).
+
+**Deliverable (merged)**
+
+- **[`docs/admin-dashboard-security.md`](admin-dashboard-security.md)**
 
 ---
 
@@ -50,6 +56,7 @@
 
 **Description**
 
+- Follow claim shape and threat model in **[`admin-dashboard-security.md`](admin-dashboard-security.md)**.
 - In [`server/require-auth.js`](../server/require-auth.js) (or solely inside the `/api/v1/me` handler), after `verifyIdToken`, read **custom claims** from the decoded token (e.g. `decoded.admin === true`).
 - Extend JSON response of `GET /api/v1/me` with **`isAdmin: boolean`** (default **`false`** if claim absent).
 - Do **not** log emails/uid on success for this field beyond existing patterns; optional structured log line with **`outcome`** for debugging misconfiguration only.
@@ -57,18 +64,21 @@
 
 **Acceptance criteria**
 
-- [ ] Response shape documented (OpenAPI-style table in `docs/` or comment in `index.js` pointing to doc).
-- [ ] User **without** claim receives **`isAdmin: false`**.
-- [ ] User **with** `admin: true` claim receives **`isAdmin: true`**.
-- [ ] No breaking change for existing clients that ignore unknown fields.
+- [x] Response shape documented (OpenAPI-style table in `docs/` or comment in `index.js` pointing to doc).
+- [x] User **without** claim receives **`isAdmin: false`**.
+- [x] User **with** `admin: true` claim receives **`isAdmin: true`**.
+- [x] No breaking change for existing clients that ignore unknown fields.
 
 **Dependencies**
 
 - AD-1.
 
-**Deliverable notes**
+**Deliverable (merged)**
 
-- Files likely touched: [`index.js`](../index.js), [`server/require-auth.js`](../server/require-auth.js), new or updated **`docs/`** API snippet.
+- **[`server/auth-claims.js`](../server/auth-claims.js)** — `isAdminFromDecodedToken` (unit-tested).
+- **[`server/require-auth.js`](../server/require-auth.js)** — sets **`req.user.isAdmin`** for all bearer-authenticated routes.
+- **[`index.js`](../index.js)** — **`GET /api/v1/me`** returns **`isAdmin`**.
+- **[`docs/admin-dashboard-security.md`](admin-dashboard-security.md)** — response field table.
 
 ---
 
@@ -81,19 +91,25 @@
 
 **Description**
 
+- Align with **[`admin-dashboard-security.md`](admin-dashboard-security.md)** (staging vs prod, token refresh after claim change).
 - Provide a **one-off Node script** *or* **`firebase auth:export` / Admin SDK** cookbook that operators run with a **service account** (never commit keys).
 - Steps: install nothing new if possible; reuse repo’s `firebase-admin` pattern from [`server/firebase-admin-init.js`](../server/firebase-admin-init.js).
 - Call out **latency**: user may need to refresh token or sign out/in before **`GET /api/v1/me`** reflects the claim.
 
 **Acceptance criteria**
 
-- [ ] Runbook section in **`docs/`** with copy-paste commands.
-- [ ] Staging verification steps: grant claim → call **`GET /api/v1/me`** with Bearer token → **`isAdmin: true`**.
-- [ ] Explicit warning: revoking access requires removing claim **and** invalidating sessions if your threat model requires it.
+- [x] Runbook section in **`docs/`** with copy-paste commands.
+- [x] Staging verification steps: grant claim → call **`GET /api/v1/me`** with Bearer token → **`isAdmin: true`**.
+- [x] Explicit warning: revoking access requires removing claim **and** invalidating sessions if your threat model requires it.
 
 **Dependencies**
 
 - AD-2 (to verify end-to-end).
+
+**Deliverable (merged)**
+
+- **[`docs/admin-dashboard-ops-ad3.md`](admin-dashboard-ops-ad3.md)** — staging vs prod, verification curl, session revocation note.
+- **[`scripts/set-admin-claim.mjs`](../scripts/set-admin-claim.mjs)** — `npm run admin:set-claim -- <uid> --grant|--revoke [--dry-run]`.
 
 ---
 
@@ -106,20 +122,27 @@
 
 **Description**
 
+- Follow **client trust boundaries** in **[`admin-dashboard-security.md`](admin-dashboard-security.md)** (no localStorage as source of truth; optional token decode for UX only).
 - Add **`adminDashboardUiEnabled`** (boolean) to generated environments via [`scripts/generate-env-prod.mjs`](../scripts/generate-env-prod.mjs) and [`Dockerfile`](../Dockerfile) build-arg pattern — mirror **`WEEKLY_CONTESTS_UI_ENABLED`** / **`LEADERBOARDS_UI_ENABLED`** ([`.env.example`](../.env.example)).
 - On session start / after login, ensure **`GET /api/v1/me`** (or existing auth bootstrap) is used to populate **`isAdmin`** (e.g. extend [`AuthService`](../src/app/auth/auth.service.ts) or a small **`AdminCapabilityService`**).
 - Re-fetch or re-call when ID token is refreshed if the app already has a refresh pipeline; otherwise document limitation + “refresh page after claim grant.”
 
 **Acceptance criteria**
 
-- [ ] When **`adminDashboardUiEnabled`** is **false**, **no** admin UI appears regardless of claim.
-- [ ] When **true** and **`isAdmin`** is **false**, **no** admin icon.
-- [ ] When **true** and **`isAdmin`** is **true**, admin affordance is available (icon — Story AD-5).
-- [ ] Default for local dev documented (e.g. off unless `.env` enables).
+- [x] When **`adminDashboardUiEnabled`** is **false**, **no** admin UI appears regardless of claim.
+- [x] When **true** and **`isAdmin`** is **false**, **no** admin icon.
+- [x] When **true** and **`isAdmin`** is **true**, admin affordance is available (icon — Story AD-5).
+- [x] Default for local dev documented — **`src/environment.ts`** defaults **`adminDashboardUiEnabled: true`** (set **`false`** to simulate prod flag off); staging/prod via **`ADMIN_DASHBOARD_UI_ENABLED`** in **`scripts/generate-env-prod.mjs`** (see **`.env.example`**).
 
 **Dependencies**
 
 - AD-2.
+
+**Deliverable (merged)**
+
+- **`src/environment.ts`**, **`scripts/generate-env-prod.mjs`** — **`adminDashboardUiEnabled`** / **`ADMIN_DASHBOARD_UI_ENABLED`** (not-`false` pattern).
+- **`src/app/auth/user-me-capabilities.service.ts`** — **`GET /api/v1/me`** → **`isAdmin$`** (refreshes on **`onIdTokenChanged`**).
+- **`src/app/nav/nav.component.*`** — template slot gated by **`adminDashboardUiEnabled && isAdmin$`** (Story AD-5 adds the icon inside the slot).
 
 ---
 
@@ -140,14 +163,20 @@
 
 **Acceptance criteria**
 
-- [ ] Admin icon **only** when feature flag on **and** user is admin **and** logged in.
-- [ ] Clicking admin opens the **right** drawer (`end`) with admin content region (Story AD-6).
-- [ ] Opening profile / info / other panels **clears** `viewAdmin` (mutual exclusion consistent with existing `openMenu` / `openProfileMenu` patterns — update each method as needed).
-- [ ] SCSS: align with [`nav.component.scss`](../src/app/nav/nav.component.scss) (spacing, hit target, contrast).
+- [x] Admin icon **only** when feature flag on **and** user is admin **and** logged in.
+- [x] Clicking admin opens the **right** drawer (`end`) with admin content region (Story AD-6 replaces the minimal shell).
+- [x] Opening profile / info / other panels **clears** `viewAdmin` (mutual exclusion consistent with existing `openMenu` / `openProfileMenu` patterns — update each method as needed).
+- [x] SCSS: align with [`nav.component.scss`](../src/app/nav/nav.component.scss) (spacing, hit target, contrast).
 
 **Dependencies**
 
 - AD-4.
+
+**Deliverable (merged)**
+
+- [`nav.component.ts`](../src/app/nav/nav.component.ts) — **`viewAdmin`**, **`openAdminDashboard()`**, **`viewAdmin`** cleared in other **`open*`** paths and on sign-out.
+- [`nav.component.html`](../src/app/nav/nav.component.html) — **`admin_panel_settings`** control (keyboard + **`aria-label`**) and right-drawer admin region.
+- [`nav.component.scss`](../src/app/nav/nav.component.scss) — icon + shell styling.
 
 ---
 
@@ -167,13 +196,17 @@
 
 **Acceptance criteria**
 
-- [ ] Empty / loading states: N/A for static shell; no flash of content for non-admin (guarded by parent `ngIf`).
-- [ ] Styling consistent with app nav panels (fonts, dark theme if applicable).
-- [ ] Unit test optional (smoke render); at minimum **no** console errors when opening drawer.
+- [x] Empty / loading states: N/A for static shell; no flash of content for non-admin (guarded by parent `ngIf`).
+- [x] Styling consistent with app nav panels (fonts, dark theme if applicable).
+- [x] Unit test optional (smoke render); at minimum **no** console errors when opening drawer.
 
 **Dependencies**
 
 - AD-5.
+
+**Deliverable (merged)**
+
+- [`admin-dashboard-panel`](../src/app/nav/admin-dashboard-panel/) — shell component; registered in [`app.module.ts`](../src/app/app.module.ts); rendered from [`nav.component.html`](../src/app/nav/nav.component.html) when **`viewAdmin && adminDashboardUiEnabled`** (and signed-in).
 
 ---
 

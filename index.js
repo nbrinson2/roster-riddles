@@ -17,7 +17,18 @@ import {
   gameplayEventRateLimitHookMiddleware,
   leaderboardRateLimitHookMiddleware,
 } from './server/rate-limit-hooks.middleware.js';
+import {
+  getAdminContestList,
+  postAdminContestCreate,
+  postAdminContestTransition,
+} from './server/admin-contests.http.js';
+import {
+  getAdminUser,
+  listAdminUsers,
+  patchAdminUserClaim,
+} from './server/admin-users.http.js';
 import { requireFirebaseAuth } from './server/require-auth.js';
+import { requireAdmin } from './server/require-admin.js';
 import { requestIdMiddleware } from './server/request-id.middleware.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -54,14 +65,66 @@ app.get('/api/v1/mlb/people/:id', async (req, res, next) => {
 /**
  * Protected — verifies Firebase ID token (Bearer). Example for Story 5; attach `requireFirebaseAuth`
  * to future contest/score routes the same way.
+ *
+ * Response includes `isAdmin` from custom claim `admin: true` (Story AD-2).
+ * @see docs/admin-dashboard-security.md
  */
 app.get('/api/v1/me', requireFirebaseAuth, (req, res) => {
   res.status(200).json({
     uid: req.user.uid,
     email: req.user.email,
     emailVerified: req.user.emailVerified,
+    isAdmin: req.user.isAdmin,
   });
 });
+
+/**
+ * Admin — weekly contests (Firebase `admin: true` claim). List all statuses; transition without operator secret.
+ * @see docs/admin-dashboard-security.md
+ */
+app.get(
+  '/api/v1/admin/contests',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  getAdminContestList,
+);
+app.post(
+  '/api/v1/admin/contests',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestCreate,
+);
+app.post(
+  '/api/v1/admin/contests/:contestId/transition',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestTransition,
+);
+
+app.get(
+  '/api/v1/admin/users/admins',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  listAdminUsers,
+);
+app.get(
+  '/api/v1/admin/users/:targetUid',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  getAdminUser,
+);
+app.patch(
+  '/api/v1/admin/users/:targetUid/admin-claim',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  patchAdminUserClaim,
+);
 
 /** Append-only gameplay event (Admin SDK). Idempotent on `clientSessionId`. */
 app.post(

@@ -1,0 +1,40 @@
+<div
+  class="admin-dashboard-panel"
+  role="region"
+  aria-labelledby="admin-panel-heading"
+>
+  <header class="adp-hero">
+    <div class="adp-hero-icon" aria-hidden="true">
+      <span class="material-symbols-outlined">admin_panel_settings</span>
+    </div>
+    <div class="adp-hero-text">
+      <h2 id="admin-panel-heading" class="adp-title">Admin</h2>
+      <p class="adp-subtitle">Operator reference</p>
+    </div>
+  </header>
+
+  <p class="adp-disclaimer">{{ disclaimer }}</p>
+
+  <section class="adp-section" aria-labelledby="adp-contests-heading">
+    <h3 id="adp-contests-heading" class="adp-section-title">Weekly contests</h3>
+    <app-admin-weekly-contests-widget></app-admin-weekly-contests-widget>
+  </section>
+
+  <section class="adp-section" aria-labelledby="adp-users-heading">
+    <h3 id="adp-users-heading" class="adp-section-title">Admin users</h3>
+    <app-admin-user-claims-widget></app-admin-user-claims-widget>
+  </section>
+
+  <section class="adp-section" aria-labelledby="adp-runbooks-heading">
+    <h3 id="adp-runbooks-heading" class="adp-section-title">Docs in repo</h3>
+    <p class="adp-hint">
+      Open these paths from your local clone or source host (not served by this app).
+    </p>
+    <ul class="adp-doc-list">
+      <li *ngFor="let link of docLinks" class="adp-doc-item">
+        <span class="adp-doc-title">{{ link.title }}</span>
+        <code class="adp-doc-path">{{ link.path }}</code>
+      </li>
+    </ul>
+  </section>
+</div>

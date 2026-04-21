@@ -19,6 +19,8 @@ mat-sidenav {
   width: 90vw;
   max-width: 500px;
   background-color: black;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .game-container {
@@ -100,12 +102,35 @@ mat-sidenav {
     }
 
     .profile-logout-container {
+      display: flex;
+      align-items: center;
       color: #cc1f41;
 
       .logout-icon {
         font-size: 30px;
         margin-right: 10px;
         cursor: pointer;
+      }
+
+      .admin-dashboard-icon-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        cursor: pointer;
+
+        &:focus-visible {
+          outline: 2px solid #cc1f41;
+          outline-offset: 2px;
+          border-radius: 4px;
+        }
+      }
+
+      .admin-dashboard-icon {
+        font-size: 30px;
+        color: #cc1f41;
+        line-height: 1;
+        user-select: none;
       }
 
       .profile-icon {

@@ -41,6 +41,11 @@ export const environment = {
    * Story C2 — hide weekly contests drawer (staging/prod: `WEEKLY_CONTESTS_UI_ENABLED` via `generate-env-prod.mjs`).
    */
   weeklyContestsUiEnabled: true,
+  /**
+   * Story AD-4 — hide admin dashboard entry (staging/prod: `ADMIN_DASHBOARD_UI_ENABLED` via `generate-env-prod.mjs`).
+   * Local dev: set `false` here to simulate a build with the flag off.
+   */
+  adminDashboardUiEnabled: true,
   featureFlags,
   firebase: firebaseConfig,
 };

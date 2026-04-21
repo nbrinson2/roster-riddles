@@ -160,12 +160,14 @@ $cc-muted: rgba(255, 255, 255, 0.55);
 }
 
 .cc-list {
+  margin: 0;
+  padding: 0 0 8px;
+  list-style: none;
   display: flex;
   flex-direction: column;
   gap: 10px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: 8px;
 }
 
 .cc-card {
@@ -175,21 +177,30 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(0, 0, 0, 0.35);
   color: inherit;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
-
-  &:hover {
-    border-color: rgba(204, 31, 65, 0.45);
-    background: rgba(204, 31, 65, 0.08);
-  }
+  box-sizing: border-box;
+  min-width: 0;
 }
 
-.cc-card-top {
+.cc-card-head {
   display: flex;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 10px;
+}
+
+.cc-card-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cc-card-id {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+  word-break: break-all;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .cc-chip {
@@ -213,11 +224,13 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   color: #90caf9;
 }
 
-.cc-card-title {
+.cc-card-titles .cc-card-title {
+  display: block;
   font-family: constants.$font-family-tertiary;
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+  word-break: break-word;
 }
 
 .cc-card-window {
@@ -232,23 +245,49 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   color: $cc-muted;
 }
 
-.cc-detail {
+.cc-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.cc-expand-btn {
+  cursor: pointer;
+  font-family: constants.$font-family;
+  font-size: 0.88rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(204, 31, 65, 0.45);
+  background: transparent;
+  color: $cc-red;
+
+  &:hover {
+    background: rgba(204, 31, 65, 0.12);
+  }
+
+  &:focus-visible {
+    outline: 2px solid rgba(204, 31, 65, 0.55);
+    outline-offset: 2px;
+  }
+}
+
+.cc-card-expand {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 16px;
-}
-
-.cc-back {
-  align-self: flex-start;
-  color: $cc-red !important;
 }
 
 .cc-detail-title {
   margin: 0;
-  font-size: 1.35rem;
+  font-family: constants.$font-family;
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
   color: constants.$color-header;
 }
 
