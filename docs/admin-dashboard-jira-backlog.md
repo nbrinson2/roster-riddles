@@ -15,6 +15,8 @@
 
 **Security principle:** **UI gating is UX only.** Every privileged action continues to require **server-side** checks (existing internal secrets, Admin SDK, Firestore rules). The dashboard must not expose secrets or bypass APIs.
 
+**Design (Story AD-1):** [admin-dashboard-security.md](admin-dashboard-security.md) — custom claim shape, token refresh, threat model.
+
 ---
 
 ### Story AD-1 — Design: admin identity & token contract
@@ -32,12 +34,16 @@
 
 **Acceptance criteria**
 
-- [ ] Short design note added under **`docs/`** (e.g. `docs/admin-dashboard-security.md`) covering: claim shape, refresh behavior, threat model (“client `isAdmin` is not authorization for mutations”).
-- [ ] Linked from this backlog and from the implementation stories below.
+- [x] Short design note added under **`docs/`** — **[`admin-dashboard-security.md`](admin-dashboard-security.md)** — covering: claim shape, refresh behavior, threat model (“client `isAdmin` is not authorization for mutations”).
+- [x] Linked from this backlog; implementation stories AD-2–AD-4 reference it from **`admin-dashboard-security.md`** (forward references table).
 
 **Dependencies**
 
 - None (blocks AD-2).
+
+**Deliverable (merged)**
+
+- **[`docs/admin-dashboard-security.md`](admin-dashboard-security.md)**
 
 ---
 
@@ -50,6 +56,7 @@
 
 **Description**
 
+- Follow claim shape and threat model in **[`admin-dashboard-security.md`](admin-dashboard-security.md)**.
 - In [`server/require-auth.js`](../server/require-auth.js) (or solely inside the `/api/v1/me` handler), after `verifyIdToken`, read **custom claims** from the decoded token (e.g. `decoded.admin === true`).
 - Extend JSON response of `GET /api/v1/me` with **`isAdmin: boolean`** (default **`false`** if claim absent).
 - Do **not** log emails/uid on success for this field beyond existing patterns; optional structured log line with **`outcome`** for debugging misconfiguration only.
@@ -57,18 +64,21 @@
 
 **Acceptance criteria**
 
-- [ ] Response shape documented (OpenAPI-style table in `docs/` or comment in `index.js` pointing to doc).
-- [ ] User **without** claim receives **`isAdmin: false`**.
-- [ ] User **with** `admin: true` claim receives **`isAdmin: true`**.
-- [ ] No breaking change for existing clients that ignore unknown fields.
+- [x] Response shape documented (OpenAPI-style table in `docs/` or comment in `index.js` pointing to doc).
+- [x] User **without** claim receives **`isAdmin: false`**.
+- [x] User **with** `admin: true` claim receives **`isAdmin: true`**.
+- [x] No breaking change for existing clients that ignore unknown fields.
 
 **Dependencies**
 
 - AD-1.
 
-**Deliverable notes**
+**Deliverable (merged)**
 
-- Files likely touched: [`index.js`](../index.js), [`server/require-auth.js`](../server/require-auth.js), new or updated **`docs/`** API snippet.
+- **[`server/auth-claims.js`](../server/auth-claims.js)** — `isAdminFromDecodedToken` (unit-tested).
+- **[`server/require-auth.js`](../server/require-auth.js)** — sets **`req.user.isAdmin`** for all bearer-authenticated routes.
+- **[`index.js`](../index.js)** — **`GET /api/v1/me`** returns **`isAdmin`**.
+- **[`docs/admin-dashboard-security.md`](admin-dashboard-security.md)** — response field table.
 
 ---
 
@@ -81,6 +91,7 @@
 
 **Description**
 
+- Align with **[`admin-dashboard-security.md`](admin-dashboard-security.md)** (staging vs prod, token refresh after claim change).
 - Provide a **one-off Node script** *or* **`firebase auth:export` / Admin SDK** cookbook that operators run with a **service account** (never commit keys).
 - Steps: install nothing new if possible; reuse repo’s `firebase-admin` pattern from [`server/firebase-admin-init.js`](../server/firebase-admin-init.js).
 - Call out **latency**: user may need to refresh token or sign out/in before **`GET /api/v1/me`** reflects the claim.
@@ -106,6 +117,7 @@
 
 **Description**
 
+- Follow **client trust boundaries** in **[`admin-dashboard-security.md`](admin-dashboard-security.md)** (no localStorage as source of truth; optional token decode for UX only).
 - Add **`adminDashboardUiEnabled`** (boolean) to generated environments via [`scripts/generate-env-prod.mjs`](../scripts/generate-env-prod.mjs) and [`Dockerfile`](../Dockerfile) build-arg pattern — mirror **`WEEKLY_CONTESTS_UI_ENABLED`** / **`LEADERBOARDS_UI_ENABLED`** ([`.env.example`](../.env.example)).
 - On session start / after login, ensure **`GET /api/v1/me`** (or existing auth bootstrap) is used to populate **`isAdmin`** (e.g. extend [`AuthService`](../src/app/auth/auth.service.ts) or a small **`AdminCapabilityService`**).
 - Re-fetch or re-call when ID token is refreshed if the app already has a refresh pipeline; otherwise document limitation + “refresh page after claim grant.”

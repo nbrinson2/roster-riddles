@@ -54,12 +54,16 @@ app.get('/api/v1/mlb/people/:id', async (req, res, next) => {
 /**
  * Protected — verifies Firebase ID token (Bearer). Example for Story 5; attach `requireFirebaseAuth`
  * to future contest/score routes the same way.
+ *
+ * Response includes `isAdmin` from custom claim `admin: true` (Story AD-2).
+ * @see docs/admin-dashboard-security.md
  */
 app.get('/api/v1/me', requireFirebaseAuth, (req, res) => {
   res.status(200).json({
     uid: req.user.uid,
     email: req.user.email,
     emailVerified: req.user.emailVerified,
+    isAdmin: req.user.isAdmin,
   });
 });
 
