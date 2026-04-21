@@ -100,10 +100,13 @@ These routes use the same **`Authorization: Bearer <Firebase ID token>`** as **`
 | `GET` | `/api/v1/admin/contests` | List Bio Ball contests across **all** statuses (`scheduled` … `cancelled`), merged and sorted. Query: `limit` (default **50**, max **100**). Same public field projection as D2 ([`mapContestDocumentToPublic`](../server/contest-public.js)). |
 | `POST` | `/api/v1/admin/contests` | Create **`contests/{contestId}`** with Admin SDK. Body: `{ "contestId"?: string, "status": "scheduled"\|"open", "windowStart", "windowEnd" (ISO 8601), "leagueGamesN", "rulesVersion"?: number\|string, "title"?: string }`. Omit **`contestId`** (or send `""`) to receive a server-generated id (`bb-<ms>-<hex>`). **`409`** if an explicit id already exists. **`metadata`** includes **`createdByAdminUid`**. |
 | `POST` | `/api/v1/admin/contests/:contestId/transition` | Body: `{ "to": "open"\|"scoring"\|"paid"\|"cancelled", "force"?: boolean, "reason"?: string }`. Audit **`adminUid`** is the authenticated **`uid`** (not taken from the client). |
+| `GET` | `/api/v1/admin/users/admins` | Lists users whose custom claim **`admin`** is true (paginates **`listUsers`** server-side; sorted by email then uid). Admin only. Register **before** `/:targetUid`. |
+| `GET` | `/api/v1/admin/users/:targetUid` | Read **Auth** user (`email`, **`admin`** claim, `disabled`). Admin only. |
+| `PATCH` | `/api/v1/admin/users/:targetUid/admin-claim` | Body: `{ "grant": true \| false }`. Sets custom claim **`admin`** via Admin SDK. **Cannot** change your **own** uid (use CLI script to avoid self-lockout). |
 
 Rate limits: same contest-read hook as public contest reads ([`contestReadRateLimitHookMiddleware`](../server/rate-limit-hooks.middleware.js)).
 
-Implementation: [`server/admin-contests.http.js`](../server/admin-contests.http.js), [`server/require-admin.js`](../server/require-admin.js), shared transition runner [`server/contest-transition-run.js`](../server/contest-transition-run.js).
+Implementation: [`server/admin-contests.http.js`](../server/admin-contests.http.js), [`server/admin-users.http.js`](../server/admin-users.http.js), [`server/require-admin.js`](../server/require-admin.js), shared transition runner [`server/contest-transition-run.js`](../server/contest-transition-run.js).
 
 ---
 
@@ -115,7 +118,7 @@ Implementation: [`server/admin-contests.http.js`](../server/admin-contests.http.
 | AD-3 | **Done** — [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md) (`scripts/set-admin-claim.mjs`, verify with **`GET /api/v1/me`**). |
 | AD-4 | **Done** — **`environment.adminDashboardUiEnabled`** (build: **`ADMIN_DASHBOARD_UI_ENABLED`**, not-`false` like other UI flags) plus **`UserMeCapabilitiesService.isAdmin$`** from **`GET /api/v1/me`**. |
 | AD-5 | **Done** — Admin icon in **`icons-right-container`** (flag + **`isAdmin$`** + logged-in); **`openAdminDashboard()`** uses **`matDrawerPosition`** **`end`**; **`viewAdmin`** mutually exclusive with other drawer views. |
-| AD-6 | **Done** — **`admin-dashboard-panel`** in right drawer; weekly contests list + status transitions via **`GET/POST /api/v1/admin/contests*`** (Firebase admin claim). Operator secret not used in the browser. |
+| AD-6 | **Done** — **`admin-dashboard-panel`** in right drawer; weekly contests + **admin user claims** via **`/api/v1/admin/contests*`** and **`/api/v1/admin/users/*`** (Firebase admin claim). Operator secret not used in the browser. |
 
 ---
 

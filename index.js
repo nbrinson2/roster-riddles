@@ -22,6 +22,11 @@ import {
   postAdminContestCreate,
   postAdminContestTransition,
 } from './server/admin-contests.http.js';
+import {
+  getAdminUser,
+  listAdminUsers,
+  patchAdminUserClaim,
+} from './server/admin-users.http.js';
 import { requireFirebaseAuth } from './server/require-auth.js';
 import { requireAdmin } from './server/require-admin.js';
 import { requestIdMiddleware } from './server/request-id.middleware.js';
@@ -97,6 +102,28 @@ app.post(
   requireAdmin,
   contestReadRateLimitHookMiddleware,
   postAdminContestTransition,
+);
+
+app.get(
+  '/api/v1/admin/users/admins',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  listAdminUsers,
+);
+app.get(
+  '/api/v1/admin/users/:targetUid',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  getAdminUser,
+);
+app.patch(
+  '/api/v1/admin/users/:targetUid/admin-claim',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  patchAdminUserClaim,
 );
 
 /** Append-only gameplay event (Admin SDK). Idempotent on `clientSessionId`. */

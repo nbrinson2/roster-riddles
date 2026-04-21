@@ -8,8 +8,9 @@ export interface AdminDocLink {
 }
 
 /**
- * Right-drawer shell for operators (Story AD-6). Weekly contest actions use
- * **`AdminWeeklyContestsApiService`** → **`/api/v1/admin/*`** (Bearer + admin claim); no operator secret in the client.
+ * Right-drawer shell for operators (Story AD-6). Admin APIs use Bearer + **`admin`** claim
+ * ([`AdminWeeklyContestsApiService`](../../shared/services/admin-weekly-contests-api.service.ts),
+ * [`AdminUserClaimsApiService`](../../shared/services/admin-user-claims-api.service.ts)); no operator secret in the client.
  */
 @Component({
   selector: 'admin-dashboard-panel',
@@ -19,7 +20,7 @@ export interface AdminDocLink {
 })
 export class AdminDashboardPanelComponent {
   protected readonly disclaimer =
-    'Weekly contest status changes call authenticated admin APIs; invalid transitions are rejected server-side (see weekly-contests-ops-d1.md).';
+    'Weekly contest and admin-user actions call authenticated admin APIs; invalid transitions are rejected server-side (see weekly-contests-ops-d1.md).';
 
   protected readonly docLinks: AdminDocLink[] = [
     {
