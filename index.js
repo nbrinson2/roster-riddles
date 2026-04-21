@@ -32,6 +32,7 @@ import { requireFirebaseAuth } from './server/require-auth.js';
 import { requireAdmin } from './server/require-admin.js';
 import { requestIdMiddleware } from './server/request-id.middleware.js';
 import { validateStripeConfigAtStartup } from './server/stripe-server.js';
+import { postStripeWebhook } from './server/stripe-webhook.http.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -39,9 +40,14 @@ const __dirname = dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware
-app.use(express.json());
+// Middleware — request id first; Stripe webhook must use raw body before express.json() (P5-C2).
 app.use(requestIdMiddleware);
+app.post(
+  '/api/v1/webhooks/stripe',
+  express.raw({ type: 'application/json' }),
+  postStripeWebhook,
+);
+app.use(express.json());
 
 const MLB_API = 'https://statsapi.mlb.com/api/v1';
 

@@ -159,8 +159,8 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Acceptance criteria**
 
-- [ ] Documented in `docs/weekly-contests-phase5-webhooks.md` (or ADR appendix): path, header, replay attack considerations (Stripe timestamp tolerance).
-- [ ] Invalid signature returns 400; valid empty test event returns 200 in test mode.
+- [x] Documented in `docs/weekly-contests-phase5-webhooks.md` (or ADR appendix): path, header, replay attack considerations (Stripe timestamp tolerance).
+- [x] Invalid signature returns 400; valid signed events return 200 (verify end-to-end with `stripe listen --forward-to …/api/v1/webhooks/stripe` and test-mode signing secret).
 
 **Dependencies**
 
@@ -168,7 +168,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Deliverable**
 
-- `index.js` / middleware ordering + small unit test with mocked raw body + signature.
+- [`index.js`](../index.js) (middleware order: `requestIdMiddleware` → raw `POST /api/v1/webhooks/stripe` → `express.json()`), [`server/stripe-webhook.http.js`](../server/stripe-webhook.http.js), [`server/stripe-webhook.http.test.js`](../server/stripe-webhook.http.test.js), [`docs/weekly-contests-phase5-webhooks.md`](weekly-contests-phase5-webhooks.md) ✅
 
 ---
 
