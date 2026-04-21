@@ -47,10 +47,10 @@ Lock engineering decisions before large implementation:
 
 **Acceptance criteria**
 
-- [ ] New ADR merged under `docs/` with status machine for **`paymentStatus`** (or equivalent) on `contests/{id}/entries/{uid}`.
-- [ ] Explicit **free path**: when `entryFeeCents` is 0 or absent, no Stripe calls; aligns with Phase 4 join.
-- [ ] Links to Phase 0 legal docs / ToS placeholders as “must ship before prod live keys”.
-- [ ] Review sign-off table (product + engineering) in ADR.
+- [x] New ADR merged under `docs/` with status machine for **`paymentStatus`** (or equivalent) on `contests/{id}/entries/{uid}`.
+- [x] Explicit **free path**: when `entryFeeCents` is 0 or absent, no Stripe calls; aligns with Phase 4 join.
+- [x] Links to Phase 0 legal docs / ToS placeholders as “must ship before prod live keys”.
+- [ ] Review sign-off table (product + engineering + legal) completed in ADR *(fill names/dates when reviewed)*.
 
 **Dependencies**
 
@@ -58,7 +58,7 @@ Lock engineering decisions before large implementation:
 
 **Deliverable**
 
-- **`docs/weekly-contests-phase5-entry-fees-adr.md`** (new).
+- **[`docs/weekly-contests-phase5-entry-fees-adr.md`](weekly-contests-phase5-entry-fees-adr.md)** ✅
 
 ---
 

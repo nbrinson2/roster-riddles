@@ -269,3 +269,4 @@ Align with [firestore.rules](../firestore.rules) updates in implementation stori
 - [leaderboards-phase3-adr.md](leaderboards-phase3-adr.md) — tie-break; weekly deferred in Phase 3  
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — backlog and Story A0  
 - [product-roadmap-contests-and-payments.md](product-roadmap-contests-and-payments.md) — Phases 0–7 (scope → entry fees → payouts → hardening), repo snapshot  
+- [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md) — Phase 5 **paid entry** (Stripe Checkout, entry `paymentStatus`, webhook-first join) — **amends** entry lifecycle for fee-bearing contests  

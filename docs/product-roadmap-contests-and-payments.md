@@ -66,6 +66,8 @@
 
 **Repository:** Not implemented end-to-end. See [stripe.md](stripe.md) for env var names and safety rules; Angular build can embed **publishable** keys only.
 
+**ADR (entry fees + join lifecycle):** [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md).
+
 **Jira-style backlog (detailed stories):** [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md).
 
 ---
