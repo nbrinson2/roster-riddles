@@ -44,6 +44,8 @@ The script writes:
 
 ## After seed — lifecycle (manual QA)
 
+For a full **staging sign-off** (paid + cancelled paths, logs, evidence), follow [weekly-contests-runbook-g2.md](weekly-contests-runbook-g2.md) (Story G2).
+
 When **`status`** is **`open`**, close the window and score using internal hooks (see [weekly-contests-ops-e1.md](weekly-contests-ops-e1.md), [weekly-contests-ops-e2.md](weekly-contests-ops-e2.md), [weekly-contests-ops-d1.md](weekly-contests-ops-d1.md)):
 
 1. Move **`open` → `scoring`** when **`now >= windowEnd`** (or **`force: true`** for staging).
@@ -66,4 +68,5 @@ To void or re-score after **`paid`**, see [weekly-contests-ops-f2.md](weekly-con
 
 - Example fixture: [`docs/fixtures/weekly-contest-staging.example.json`](fixtures/weekly-contest-staging.example.json)
 - Script: [`scripts/seed-weekly-contest-staging.mjs`](../scripts/seed-weekly-contest-staging.mjs)
+- E2E staging sign-off: [weekly-contests-runbook-g2.md](weekly-contests-runbook-g2.md) — Story G2
 - Jira: [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Story G1

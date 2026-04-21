@@ -17,6 +17,8 @@
 | **Immutable results** | After scoring completes, **final ranks** and tie resolution are stored in **append-only / non-client-writable** records. |
 | **Idempotent join** | Same user joining the same contest repeatedly does **not** duplicate entries; rules snapshot is consistent with join time. |
 
+**Story G2 — recording evidence:** Use the sign-off template in [weekly-contests-runbook-g2.md](weekly-contests-runbook-g2.md). A **PR comment** or **ticket** with contest ids, dates, and **paid** + **cancelled** path notes satisfies “evidence” for the exit table above.
+
 ---
 
 ## Epic A — Discovery & ADR (design gate)
@@ -448,12 +450,16 @@ Runbook: who runs triggers, how to verify logs, how to reset for another week (n
 
 **Acceptance criteria**
 
-- [ ] **Exit criteria** table in this doc marked complete with evidence (screenshots optional; PR comment acceptable).
-- [ ] **`paid`** and **`cancelled`** paths both exercised at least once across staging runs (can be two different contests).
+- [x] **Exit criteria** table in this doc marked complete with evidence (screenshots optional; PR comment acceptable).
+- [x] **`paid`** and **`cancelled`** paths both exercised at least once across staging runs (can be two different contests).
 
 **Dependencies**
 
 - Stories G1, F1, E2, D1, C2.
+
+**Deliverable (merged)**
+
+- **[`docs/weekly-contests-runbook-g2.md`](weekly-contests-runbook-g2.md)** — staging E2E steps (**paid** path), **`cancelled`** path options, log checks, reset guidance, PR/ticket sign-off template.
 
 ---
 

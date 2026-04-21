@@ -86,4 +86,5 @@ JSON lines: **`component: contest_scoring`**, **`contestId`**, `phase: score`, `
 
 ## References
 
+- [weekly-contests-runbook-g2.md](weekly-contests-runbook-g2.md) — Story G2 staging E2E sign-off  
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Stories E2, E3  
