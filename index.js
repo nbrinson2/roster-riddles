@@ -31,6 +31,7 @@ import {
 import { requireFirebaseAuth } from './server/require-auth.js';
 import { requireAdmin } from './server/require-admin.js';
 import { requestIdMiddleware } from './server/request-id.middleware.js';
+import { validateStripeConfigAtStartup } from './server/stripe-server.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -246,6 +247,8 @@ app.use((err, req, res, next) => {
     },
   });
 });
+
+validateStripeConfigAtStartup();
 
 app.listen(port, () => {
   const dbId = process.env.FIRESTORE_DATABASE_ID?.trim();

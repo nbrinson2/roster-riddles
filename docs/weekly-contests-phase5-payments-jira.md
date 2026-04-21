@@ -133,12 +133,16 @@ Add `stripe` package to **server** dependencies. Read secret from env ([stripe.m
 
 **Acceptance criteria**
 
-- [ ] `STRIPE_SECRET_KEY` documented; server fails fast or returns 503 on payment routes if missing when feature flag enabled.
-- [ ] No secret keys in client bundle (verify `generate-env-prod.mjs` / Angular unchanged for secrets).
+- [x] `STRIPE_SECRET_KEY` documented; server **fails fast on startup** if `CONTESTS_PAYMENTS_ENABLED=true` and key missing (`validateStripeConfigAtStartup` in `index.js`). Payment routes can use `sendStripeServiceUnavailable` when client unavailable (future).
+- [x] No secret keys in client bundle (`generate-env-prod.mjs` / Angular unchanged for secrets — verified).
 
 **Dependencies**
 
 - None (can parallel ADR with stub).
+
+**Deliverable**
+
+- [`server/stripe-server.js`](../server/stripe-server.js), [`server/stripe-server.test.js`](../server/stripe-server.test.js), [`stripe`](../package.json) dependency, [`docs/stripe.md`](stripe.md), [`.env.example`](../.env.example) ✅
 
 ---
 
