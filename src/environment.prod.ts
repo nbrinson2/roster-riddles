@@ -17,6 +17,7 @@ export const environment = {
   leaderboardUseFirestoreSnapshot: false,
   leaderboardsUiEnabled: true,
   weeklyContestsUiEnabled: true,
+  adminDashboardUiEnabled: true,
   featureFlags,
   firebase: {
     apiKey: "x",

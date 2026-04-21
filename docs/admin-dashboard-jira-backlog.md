@@ -129,14 +129,20 @@
 
 **Acceptance criteria**
 
-- [ ] When **`adminDashboardUiEnabled`** is **false**, **no** admin UI appears regardless of claim.
-- [ ] When **true** and **`isAdmin`** is **false**, **no** admin icon.
-- [ ] When **true** and **`isAdmin`** is **true**, admin affordance is available (icon — Story AD-5).
-- [ ] Default for local dev documented (e.g. off unless `.env` enables).
+- [x] When **`adminDashboardUiEnabled`** is **false**, **no** admin UI appears regardless of claim.
+- [x] When **true** and **`isAdmin`** is **false**, **no** admin icon.
+- [x] When **true** and **`isAdmin`** is **true**, admin affordance is available (icon — Story AD-5).
+- [x] Default for local dev documented — **`src/environment.ts`** defaults **`adminDashboardUiEnabled: true`** (set **`false`** to simulate prod flag off); staging/prod via **`ADMIN_DASHBOARD_UI_ENABLED`** in **`scripts/generate-env-prod.mjs`** (see **`.env.example`**).
 
 **Dependencies**
 
 - AD-2.
+
+**Deliverable (merged)**
+
+- **`src/environment.ts`**, **`scripts/generate-env-prod.mjs`** — **`adminDashboardUiEnabled`** / **`ADMIN_DASHBOARD_UI_ENABLED`** (not-`false` pattern).
+- **`src/app/auth/user-me-capabilities.service.ts`** — **`GET /api/v1/me`** → **`isAdmin$`** (refreshes on **`onIdTokenChanged`**).
+- **`src/app/nav/nav.component.*`** — template slot gated by **`adminDashboardUiEnabled && isAdmin$`** (Story AD-5 adds the icon inside the slot).
 
 ---
 

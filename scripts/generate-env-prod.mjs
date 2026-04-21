@@ -61,6 +61,9 @@ const leaderboardsUiEnabled = process.env.LEADERBOARDS_UI_ENABLED !== 'false';
 /** Story C2 — omit weekly contests drawer when WEEKLY_CONTESTS_UI_ENABLED=false */
 const weeklyContestsUiEnabled = process.env.WEEKLY_CONTESTS_UI_ENABLED !== 'false';
 
+/** Story AD-4 — omit admin dashboard affordance when ADMIN_DASHBOARD_UI_ENABLED=false */
+const adminDashboardUiEnabled = process.env.ADMIN_DASHBOARD_UI_ENABLED !== 'false';
+
 const content = `import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
 import type { DeploymentEnvironment } from './environment.types';
 
@@ -80,6 +83,7 @@ export const environment = {
   leaderboardUseFirestoreSnapshot: ${leaderboardUseFirestoreSnapshot},
   leaderboardsUiEnabled: ${leaderboardsUiEnabled},
   weeklyContestsUiEnabled: ${weeklyContestsUiEnabled},
+  adminDashboardUiEnabled: ${adminDashboardUiEnabled},
   featureFlags,
   firebase: {
     apiKey: ${JSON.stringify(process.env.FIREBASE_API_KEY)},

@@ -49,6 +49,8 @@ steps:
       - 'STRIPE_PUBLISHABLE_KEY=$_STRIPE_PUBLISHABLE_KEY'
       - '--build-arg'
       - 'FIRESTORE_DATABASE_ID=$_FIRESTORE_DATABASE_ID'
+      - '--build-arg'
+      - 'ADMIN_DASHBOARD_UI_ENABLED=$_ADMIN_DASHBOARD_UI_ENABLED'
 
   # Push before deploy: the `images:` shortcut pushes only after *all* steps, which would run deploy too early.
   - name: gcr.io/cloud-builders/docker
@@ -91,6 +93,8 @@ substitutions:
   _FIREBASE_MESSAGING_SENDER_ID: ''
   _FIREBASE_APP_ID: ''
   _FIREBASE_MEASUREMENT_ID: ''
+  # Story AD-4 — optional; omit or empty = admin UI enabled (same as LEADERBOARDS_UI_ENABLED pattern)
+  _ADMIN_DASHBOARD_UI_ENABLED: ''
 
 options:
   logging: CLOUD_LOGGING_ONLY

@@ -110,6 +110,14 @@
             >
               logout
             </span>
+            <ng-container
+              *ngIf="
+                adminDashboardUiEnabled &&
+                  (userMeCapabilities.isAdmin$ | async)
+              "
+            >
+              <!-- Story AD-5 — admin icon (immediately left of profile) -->
+            </ng-container>
             <span
               class="material-symbols-outlined profile-icon"
               (click)="openProfileMenu()"

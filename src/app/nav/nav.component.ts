@@ -12,6 +12,7 @@ import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import type { User } from 'firebase/auth';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { UserMeCapabilitiesService } from '../auth/user-me-capabilities.service';
 import {
   AttributesType,
   TeamFullName,
@@ -46,6 +47,8 @@ export class NavComponent implements OnInit, OnDestroy {
   protected readonly leaderboardsUiEnabled = environment.leaderboardsUiEnabled;
   /** Story C2 — false when staging/prod built with WEEKLY_CONTESTS_UI_ENABLED=false */
   protected readonly weeklyContestsUiEnabled = environment.weeklyContestsUiEnabled;
+  /** Story AD-4 — false when staging/prod built with ADMIN_DASHBOARD_UI_ENABLED=false */
+  protected readonly adminDashboardUiEnabled = environment.adminDashboardUiEnabled;
 
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
 
@@ -101,6 +104,7 @@ export class NavComponent implements OnInit, OnDestroy {
     private router: Router,
     private slideUpService: SlideUpService,
     private authService: AuthService,
+    protected readonly userMeCapabilities: UserMeCapabilitiesService,
     @Inject(GAME_SERVICE)
     private gameService: GameService<GamePlayer>,
     private nicknameStreakEngineService: NicknameStreakEngineService,
