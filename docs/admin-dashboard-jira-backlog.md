@@ -3,7 +3,7 @@
 **Suggested labels:** `admin`, `nav`, `phase-next`  
 **Suggested epic name:** Admin dashboard shell (production-ready gating)
 
-**Context (current codebase):** Top nav uses `mat-sidenav` with mutually exclusive “views” (`viewMenu`, `viewProfile`, `viewRoster`, `viewLeaderboard`, `viewContests`, …) in [`src/app/nav/nav.component.html`](../src/app/nav/nav.component.html). Profile and logout live in **`icons-right-container`** (right side of the bar). The profile drawer uses **`MatDrawerPosition.END`** (`position="end"`) — **right-side** overlay. `GET /api/v1/me` returns `{ uid, email, emailVerified }` only ([`index.js`](../index.js)); [`server/require-auth.js`](../server/require-auth.js) does not yet surface Firebase **custom claims**.
+**Context (current codebase):** Top nav uses `mat-sidenav` with mutually exclusive “views” (`viewMenu`, `viewProfile`, `viewRoster`, `viewLeaderboard`, `viewContests`, …) in [`src/app/nav/nav.component.html`](../src/app/nav/nav.component.html). Profile and logout live in **`icons-right-container`** (right side of the bar). The profile drawer uses **`MatDrawerPosition.END`** (`position="end"`) — **right-side** overlay. `GET /api/v1/me` returns **`isAdmin`** from ID token custom claim **`admin: true`** ([`index.js`](../index.js), [`server/require-auth.js`](../server/require-auth.js), AD-2). Operators grant/revoke via [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md) (AD-3).
 
 ---
 
@@ -98,13 +98,18 @@
 
 **Acceptance criteria**
 
-- [ ] Runbook section in **`docs/`** with copy-paste commands.
-- [ ] Staging verification steps: grant claim → call **`GET /api/v1/me`** with Bearer token → **`isAdmin: true`**.
-- [ ] Explicit warning: revoking access requires removing claim **and** invalidating sessions if your threat model requires it.
+- [x] Runbook section in **`docs/`** with copy-paste commands.
+- [x] Staging verification steps: grant claim → call **`GET /api/v1/me`** with Bearer token → **`isAdmin: true`**.
+- [x] Explicit warning: revoking access requires removing claim **and** invalidating sessions if your threat model requires it.
 
 **Dependencies**
 
 - AD-2 (to verify end-to-end).
+
+**Deliverable (merged)**
+
+- **[`docs/admin-dashboard-ops-ad3.md`](admin-dashboard-ops-ad3.md)** — staging vs prod, verification curl, session revocation note.
+- **[`scripts/set-admin-claim.mjs`](../scripts/set-admin-claim.mjs)** — `npm run admin:set-claim -- <uid> --grant|--revoke [--dry-run]`.
 
 ---
 

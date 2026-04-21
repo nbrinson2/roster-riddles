@@ -21,6 +21,7 @@
     "verify:stats-reconciliation": "node ./scripts/verify-stats-reconciliation.mjs",
     "verify:leaderboard-cohort": "node ./scripts/verify-leaderboard-cohort.mjs",
     "seed:weekly-contest-staging": "node ./scripts/seed-weekly-contest-staging.mjs",
+    "admin:set-claim": "node ./scripts/set-admin-claim.mjs",
     "mirror:firestore-cache": "node ./scripts/mirror-firestore-cache.mjs",
     "deploy:firestore:staging": "firebase deploy --only \"firestore:(default)\" --project roster-riddles-staging",
     "deploy:firestore:staging:rules": "firebase deploy --only \"firestore:rules,firestore:(default)\" --project roster-riddles-staging",

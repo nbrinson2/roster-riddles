@@ -46,7 +46,7 @@ Custom claims are embedded in the **ID token** at issue time. After an operator 
   - **Sign-out / sign-in**, or
   - Natural expiry and refresh (timing-dependent).
 
-**Product expectation:** After grant/revoke, admins should **refresh the session** (or wait for refresh) before **`GET /api/v1/me`** reflects the new value. Document this in operator runbooks (Story AD-3).
+**Product expectation:** After grant/revoke, admins should **refresh the session** (or wait for refresh) before **`GET /api/v1/me`** reflects the new value. See [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md).
 
 ---
 
@@ -96,12 +96,13 @@ Implementation: [`server/require-auth.js`](../server/require-auth.js), [`server/
 | Story | Topic |
 |-------|--------|
 | AD-2 | **Done** — **`isAdmin`** on **`GET /api/v1/me`** (see above). |
-| AD-3 | Operator steps: **Admin SDK** `setCustomUserClaims` / revoke; verify with **`GET /api/v1/me`**. |
+| AD-3 | **Done** — [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md) (`scripts/set-admin-claim.mjs`, verify with **`GET /api/v1/me`**). |
 | AD-4 | Feature flag **`adminDashboardUiEnabled`** AND server **`isAdmin`** before showing UI. |
 
 ---
 
 ## References
 
+- Operations (grant/revoke): [admin-dashboard-ops-ad3.md](admin-dashboard-ops-ad3.md)
 - Firebase: [Custom claims](https://firebase.google.com/docs/auth/admin/custom-claims) (official)
 - Backlog: [admin-dashboard-jira-backlog.md](admin-dashboard-jira-backlog.md)
