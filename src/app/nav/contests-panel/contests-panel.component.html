@@ -5,6 +5,7 @@
     </div>
     <div class="cc-hero-text">
       <h1 class="cc-title">Weekly contests</h1>
+      <p class="cc-hero-tagline">{{ heroTagline }}</p>
     </div>
   </header>
 
@@ -74,7 +75,8 @@
       <p class="cc-empty-title">No contests here yet</p>
       <p class="cc-empty-desc">
         There are no Bio Ball weekly contests to list right now. When your host
-        adds open or upcoming contests, they will appear here.
+        adds open or upcoming contests, they will appear here — check back after
+        the next schedule drops.
       </p>
     </div>
 
@@ -112,6 +114,16 @@
         </p>
         <p *ngIf="countdownLine(row) as cd" class="cc-countdown" aria-live="polite">
           {{ cd }}
+        </p>
+        <p
+          *ngIf="engagementCardLine(row) as engage"
+          class="cc-engage-line"
+          role="note"
+        >
+          <span class="material-symbols-outlined" aria-hidden="true">{{
+            engagementCardIcon(row)
+          }}</span>
+          {{ engage }}
         </p>
         <p class="cc-card-window">
           {{ formatWindowLocal(row.windowStart, row.windowEnd) }}
@@ -235,6 +247,29 @@
             <p class="cc-detail-slate">{{ slateSummaryLine(row) }}</p>
 
             <div
+              *ngIf="paidDelight(row) as d"
+              class="cc-paid-delight"
+              [ngClass]="{
+                'cc-paid-delight--winner': d.tier === 'winner',
+                'cc-paid-delight--podium': d.tier === 'podium',
+                'cc-paid-delight--played': d.tier === 'played',
+              }"
+              role="status"
+            >
+              <span class="material-symbols-outlined cc-paid-delight-icon" aria-hidden="true">{{
+                d.tier === "winner"
+                  ? "emoji_events"
+                  : d.tier === "podium"
+                    ? "military_tech"
+                    : "favorite"
+              }}</span>
+              <div class="cc-paid-delight-text">
+                <p class="cc-paid-delight-head">{{ d.headline }}</p>
+                <p *ngIf="d.sub" class="cc-paid-delight-sub">{{ d.sub }}</p>
+              </div>
+            </div>
+
+            <div
               *ngIf="finalResultsByContestId[row.contestId] as fr"
               class="cc-results-closure"
             >
@@ -331,8 +366,11 @@
             </div>
           </div>
 
-          <div *ngIf="joinSuccess" class="cc-success" role="status">
-            {{ joinSuccess }}
+          <div *ngIf="joinSuccess" class="cc-success cc-success--delight" role="status">
+            <span class="material-symbols-outlined" aria-hidden="true"
+              >celebration</span
+            >
+            <span class="cc-success-text">{{ joinSuccess }}</span>
           </div>
           <div *ngIf="joinError" class="cc-join-error" role="alert">
             {{ joinError }}

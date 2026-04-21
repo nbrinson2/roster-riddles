@@ -56,6 +56,13 @@ import {
   primaryCountdownLine,
 } from './contest-status-ui';
 import {
+  CONTEST_HERO_TAGLINE,
+  type PaidDelightView,
+  openEnteredEngagementLine,
+  paidResultDelight,
+  scheduledWarmupLine,
+} from './contest-engagement-copy';
+import {
   type ParsedFinalResultsView,
   formatOrdinalRank,
   formatYourPlaceCardLine,
@@ -132,6 +139,8 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
 
   protected readonly dryRunCopy = CONTEST_DRY_RUN_PAYOUT_COPY;
   protected readonly fullRulesHref = CONTEST_FULL_RULES_HREF;
+  /** P2 — hero subtitle. */
+  protected readonly heroTagline = CONTEST_HERO_TAGLINE;
   /** Placeholder count for loading skeleton cards. */
   protected readonly skeletonPlaceholders = [1, 2, 3] as const;
 
@@ -1088,5 +1097,52 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   protected enteredContest(row: ContestListRow): boolean {
     const e = this.entryInfoByContestId[row.contestId];
     return !!e?.loaded && e.entered;
+  }
+
+  /** P2 — contextual cheer / urgency on the card (open, scheduled, scoring). */
+  protected engagementCardLine(row: ContestListRow): string | null {
+    const ent = this.entryInfoByContestId[row.contestId];
+    const entered = !!ent?.loaded && ent.entered;
+    const openLine = openEnteredEngagementLine(
+      row.status,
+      entered,
+      row.windowEnd.getTime(),
+      this.nowMs,
+    );
+    if (openLine) {
+      return openLine;
+    }
+    const sched = scheduledWarmupLine(
+      row.status,
+      row.windowStart.getTime(),
+      this.nowMs,
+    );
+    if (sched) {
+      return sched;
+    }
+    return null;
+  }
+
+  /** P2 — celebration strip for paid contests (dry-run honest). */
+  protected paidDelight(row: ContestListRow): PaidDelightView | null {
+    if (row.status !== 'paid') {
+      return null;
+    }
+    return paidResultDelight(
+      this.finalResultsByContestId[row.contestId],
+      this.enteredContest(row),
+    );
+  }
+
+  /** Icon for {@link engagementCardLine} (Material Symbols name). */
+  protected engagementCardIcon(row: ContestListRow): string {
+    switch (row.status) {
+      case 'open':
+        return 'sports_esports';
+      case 'scheduled':
+        return 'event';
+      default:
+        return 'rocket_launch';
+    }
   }
 }
