@@ -1,10 +1,18 @@
 rules_version = '2';
-// Target database id: roster-riddles (matches Angular `initializeFirestore(..., 'roster-riddles')`).
-// Deploy: Firebase Console → Firestore → select database "roster-riddles" → Rules,
-// or: firebase deploy --only firestore:roster-riddles (with firebase.json below).
+// Deploy: `firebase deploy --only firestore:(default)|firestore:roster-riddles` per `firebase.json`.
 
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Public read caches (writes only from Admin SDK / Cloud Functions)
+    match /cache/{docId} {
+      allow read: if docId == 'mlb_players_snapshot'
+        || docId == 'career_path_players_snapshot_meta'
+        || docId == 'career_path_players_snapshot'
+        || docId.matches('^career_path_shard_[0-9]+$')
+        || docId == 'mlb_nicknames';
+      allow write: if false;
+    }
 
     // Profiles: only the signed-in user may access `users/{uid}` (equivalent to auth.uid == path uid).
     match /users/{userId} {
@@ -25,8 +33,30 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Future contest / money paths — deny all client reads/writes; use Admin SDK or trusted backends.
-    match /contests/{document=**} {
+    // Weekly contests (Phase 4 B1): `contests/{contestId}` — signed-in read; writes via Admin SDK only.
+    match /contests/{contestId} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+
+    // Weekly contests (Phase 4 B2): `contests/{contestId}/entries/{uid}` — read own entry only; writes via Admin SDK (Story C1).
+    match /contests/{contestId}/entries/{entryUid} {
+      allow read: if signedIn() && request.auth.uid == entryUid;
+      allow create, update, delete: if false;
+    }
+
+    // Phase 4 B3: immutable `results/*` and `payouts/*` — signed-in read; Admin SDK writes only.
+    match /contests/{contestId}/results/{resultDocId} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+    match /contests/{contestId}/payouts/{payoutDocId} {
+      allow read: if signedIn();
+      allow create, update, delete: if false;
+    }
+
+    // Any other contest subpaths — deny clients.
+    match /contests/{contestId}/{document=**} {
       allow read, write: if false;
     }
     match /contestEntries/{document=**} {
@@ -36,8 +66,7 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
-    // Precomputed leaderboards (Story B2): one doc per board under snapshots/boards (even path segments).
-    // Story F1: request rate limits are enforced in Express, not in rules (Firestore has no per-IP RPS primitive).
+    // Precomputed leaderboards (Phase 3): one doc per board under snapshots/boards (even path segments).
     // Other paths under leaderboards/ have no rule → denied by default.
     match /leaderboards/snapshots/boards/{boardId} {
       allow read: if boardId in [
@@ -53,6 +82,10 @@ service cloud.firestore {
     match /cache/{document=**} {
       allow read: if true;
       allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

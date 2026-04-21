@@ -44,6 +44,8 @@ export class NavComponent implements OnInit, OnDestroy {
   protected readonly GameType = GameType;
   /** Story G2 — false when staging/prod built with LEADERBOARDS_UI_ENABLED=false */
   protected readonly leaderboardsUiEnabled = environment.leaderboardsUiEnabled;
+  /** Story C2 — false when staging/prod built with WEEKLY_CONTESTS_UI_ENABLED=false */
+  protected readonly weeklyContestsUiEnabled = environment.weeklyContestsUiEnabled;
 
   @ViewChild('drawer', { static: true }) public drawer!: MatDrawer;
 
@@ -84,6 +86,7 @@ export class NavComponent implements OnInit, OnDestroy {
   protected viewProfile = false;
   protected viewRoster = false;
   protected viewLeaderboard = false;
+  protected viewContests = false;
   protected matDrawerPosition = MatDrawerPosition.START;
   protected selectedRoster?: UiPlayer<AttributesType>[];
   protected selectedRosterByYears?: CareerPathPlayer[];
@@ -178,6 +181,9 @@ export class NavComponent implements OnInit, OnDestroy {
     } else {
       this.gameService.currentGame = GameType.BIO_BALL;
     }
+    if (this.gameService.currentGame() !== GameType.BIO_BALL) {
+      this.viewContests = false;
+    }
   }
 
   protected handleDifficultyChange(difficulty: Difficulty): void {
@@ -202,6 +208,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewProfile = false;
     this.viewRoster = false;
     this.viewLeaderboard = false;
+    this.viewContests = false;
     this.drawer.open();
   }
 
@@ -211,6 +218,17 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewProfile = false;
     this.viewRoster = false;
     this.viewLeaderboard = true;
+    this.viewContests = false;
+    this.drawer.open();
+  }
+
+  protected openContests(): void {
+    this.matDrawerPosition = MatDrawerPosition.START;
+    this.viewMenu = false;
+    this.viewProfile = false;
+    this.viewRoster = false;
+    this.viewLeaderboard = false;
+    this.viewContests = true;
     this.drawer.open();
   }
 
@@ -219,6 +237,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewMenu = false;
     this.viewRoster = false;
     this.viewLeaderboard = false;
+    this.viewContests = false;
     this.viewProfile = true;
     this.drawer.open();
   }
@@ -237,6 +256,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewProfile = false;
     this.viewRoster = false;
     this.viewLeaderboard = false;
+    this.viewContests = false;
     this.drawer.open();
   }
 
@@ -268,6 +288,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.viewMenu = false;
     this.viewProfile = false;
     this.viewLeaderboard = false;
+    this.viewContests = false;
     this.viewRoster = true;
     this.matDrawerPosition = MatDrawerPosition.START;
     this.drawer.open();

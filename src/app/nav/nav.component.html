@@ -25,6 +25,17 @@
       <ng-container *ngIf="leaderboardsUiEnabled && viewLeaderboard">
         <leaderboard-panel></leaderboard-panel>
       </ng-container>
+      <ng-container
+        *ngIf="
+          weeklyContestsUiEnabled &&
+          viewContests &&
+          currentGameName === GameType.BIO_BALL
+        "
+      >
+        <contests-panel
+          (requestSignIn)="openLoginMenu()"
+        ></contests-panel>
+      </ng-container>
       <ng-container *ngIf="viewMenu">
         <how-to-play
           [gameType]="currentGameName"
@@ -36,7 +47,12 @@
       </ng-container>
       <div
         *ngIf="
-          !loggedIn && !viewProfile && !viewMenu && !viewRoster && !viewLeaderboard
+          !loggedIn &&
+            !viewProfile &&
+            !viewMenu &&
+            !viewRoster &&
+            !viewLeaderboard &&
+            !viewContests
         "
         class="login-menu"
       >
@@ -60,6 +76,21 @@
             (keydown.space)="$event.preventDefault(); openLeaderboard()"
           >
             <span class="material-symbols-outlined menu-icon">leaderboard</span>
+          </div>
+          <div
+            *ngIf="
+              weeklyContestsUiEnabled &&
+              currentGameName === GameType.BIO_BALL
+            "
+            class="menu-icon-container"
+            role="button"
+            tabindex="0"
+            aria-label="Open weekly contests"
+            (click)="openContests()"
+            (keydown.enter)="openContests()"
+            (keydown.space)="$event.preventDefault(); openContests()"
+          >
+            <span class="material-symbols-outlined menu-icon">event</span>
           </div>
         </div>
         <div class="icons-right-container">

@@ -53,6 +53,7 @@ import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directi
 import { authHttpInterceptor } from './auth/auth-http.interceptor';
 import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
 import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-panel.component';
+import { ContestsPanelComponent } from './nav/contests-panel/contests-panel.component';
 
 @NgModule({
   declarations: [
@@ -84,6 +85,7 @@ import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-p
     FeatureFlagDirective,
     LoginPanelComponent,
     LeaderboardPanelComponent,
+    ContestsPanelComponent,
   ],
   imports: [
     BrowserModule,

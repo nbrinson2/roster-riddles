@@ -3,10 +3,17 @@ import express from 'express';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
+import { postContestJoin } from './server/contest-join.http.js';
+import { getContestDetail, getContestList } from './server/contest-read.http.js';
+import { postContestCloseDueWindows } from './server/contest-close-due-windows.http.js';
+import { postContestRunScoring } from './server/contest-scoring.http.js';
+import { postContestTransition } from './server/contest-transition.http.js';
 import { postGameplayEvent } from './server/gameplay-events.js';
 import { getLeaderboardPage } from './server/leaderboards.http.js';
 import { postRebuildLeaderboardSnapshots } from './server/leaderboards-snapshot-rebuild.http.js';
 import {
+  contestJoinRateLimitHookMiddleware,
+  contestReadRateLimitHookMiddleware,
   gameplayEventRateLimitHookMiddleware,
   leaderboardRateLimitHookMiddleware,
 } from './server/rate-limit-hooks.middleware.js';
@@ -64,6 +71,31 @@ app.post(
   postGameplayEvent,
 );
 
+/** Join weekly contest — authenticated; idempotent entry under `contests/{id}/entries/{uid}` (Story C1). */
+app.post(
+  '/api/v1/contests/:contestId/join',
+  requireFirebaseAuth,
+  contestJoinRateLimitHookMiddleware,
+  postContestJoin,
+);
+
+/**
+ * Contest list + detail — authenticated; public-safe fields only (Story D2).
+ * Register list route before `/:contestId` so `/contests` is not captured as an id.
+ */
+app.get(
+  '/api/v1/contests',
+  requireFirebaseAuth,
+  contestReadRateLimitHookMiddleware,
+  getContestList,
+);
+app.get(
+  '/api/v1/contests/:contestId',
+  requireFirebaseAuth,
+  contestReadRateLimitHookMiddleware,
+  getContestDetail,
+);
+
 /**
  * Public leaderboard page (Admin SDK collection-group query). Pagination + optional display names from Auth.
  * Story D1 — see docs/leaderboards-api-d1.md
@@ -82,6 +114,31 @@ app.post(
   '/api/internal/v1/leaderboard-snapshots/rebuild',
   postRebuildLeaderboardSnapshots,
 );
+
+/**
+ * Contest lifecycle — Story D1; Story F2 `paid`→`scoring`|`cancelled` with `force` + artifact deletes.
+ * Bearer `CONTESTS_OPERATOR_SECRET` (or `x-contests-operator-secret`).
+ * @see docs/weekly-contests-ops-d1.md, docs/weekly-contests-ops-f2.md
+ */
+app.post(
+  '/api/internal/v1/contests/:contestId/transition',
+  postContestTransition,
+);
+
+/**
+ * Story E1 — Cloud Scheduler / cron: close join windows and enqueue scoring worker.
+ * @see docs/weekly-contests-ops-e1.md
+ */
+app.post(
+  '/api/internal/v1/contests/close-due-windows',
+  postContestCloseDueWindows,
+);
+
+/**
+ * Story E2 — scoring worker (body `{ contestId }`). Register before `/:contestId` routes.
+ * @see docs/weekly-contests-ops-e2.md
+ */
+app.post('/api/internal/v1/contests/run-scoring', postContestRunScoring);
 
 // Serve static files from the Angular app
 const distPath = join(__dirname, 'dist/roster-riddles/browser');

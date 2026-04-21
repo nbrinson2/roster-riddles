@@ -1,0 +1,58 @@
+{
+  "$schemaNote": "Copy to repo-root weekly-contest-staging.json (gitignored) or pass path as argv[1]. Replace example UIDs with real Firebase Auth uids in your staging project before writing to Firestore.",
+  "contestId": "staging_g1_example",
+  "title": "G1 staging seed — Bio Ball mini-league (dry-run / FAKE_USD only)",
+  "status": "open",
+  "rulesVersion": 1,
+  "leagueGamesN": 10,
+  "windowStart": "2026-01-15T12:00:00.000Z",
+  "windowEnd": "2027-01-15T12:00:00.000Z",
+  "metadata": {
+    "environment": "staging",
+    "notRealMoney": true,
+    "currencyNote": "FAKE_USD — contest payouts are numeric dry-run only (Story F1); not real money."
+  },
+  "entrants": [
+    {
+      "uid": "stagingG1Alice0001",
+      "displayNameSnapshot": "Alice",
+      "joinedAt": "2026-01-16T12:00:00.000Z",
+      "slate": [
+        "won",
+        "won",
+        "won",
+        "won",
+        "won",
+        "won",
+        "won",
+        "won",
+        "won",
+        "won"
+      ]
+    },
+    {
+      "uid": "stagingG1Bob00002",
+      "displayNameSnapshot": "Bob",
+      "joinedAt": "2026-01-16T12:00:00.000Z",
+      "slate": [
+        "won",
+        "won",
+        "won",
+        "won",
+        "won",
+        "lost",
+        "lost",
+        "lost",
+        "lost",
+        "lost"
+      ]
+    }
+  ],
+  "expectedAfterScoring": {
+    "comment": "With leagueGamesN=10: Alice 10 wins rank 1; Bob 5 wins rank 2. Dry-run winner line uses amountCents 10000 for rank 1 (FAKE_USD).",
+    "rank1Uid": "stagingG1Alice0001",
+    "rank2Uid": "stagingG1Bob00002",
+    "dryRunWinnerAmountCents": 10000,
+    "currency": "FAKE_USD"
+  }
+}

@@ -63,6 +63,8 @@ Weekly boards require one of:
 
 **Recommendation when picked up:** (1) for consistent O(1) reads at leaderboard time; document schema in a Phase 3.1 ADR amendment.
 
+**Related (not Phase 3 leaderboards):** Time-bounded **weekly contests** (join, scoring window, dry-run payouts) are covered in [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md) — **Bio Ball only** in Phase 4 v1.
+
 ## Cost posture
 
 ### Option A — Precomputed top-K (preferred at scale)

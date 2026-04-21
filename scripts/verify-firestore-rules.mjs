@@ -74,8 +74,43 @@ try {
   // cache: client cannot write
   await assertFails(setDoc(doc(alice, 'cache', 'y'), { bad: true }));
 
-  // future contest path: deny
-  await assertFails(setDoc(doc(alice, 'contests', 'w1'), { a: 1 }));
+  // contests/{contestId}: signed-in read; client writes denied
+  await assertSucceeds(getDoc(doc(alice, 'contests', 'c1')));
+  await assertFails(getDoc(doc(unauth, 'contests', 'c1')));
+  await assertFails(setDoc(doc(alice, 'contests', 'c1'), { a: 1 }));
+
+  // contests/.../entries/{uid}: read own entry only; no client writes
+  await assertSucceeds(
+    getDoc(doc(alice, 'contests', 'c1', 'entries', 'alice')),
+  );
+  await assertFails(
+    getDoc(doc(alice, 'contests', 'c1', 'entries', 'bob')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'entries', 'alice'), {
+      schemaVersion: 1,
+    }),
+  );
+
+  // contests/.../results/* and payouts/*: signed-in read; no client writes (Story B3)
+  await assertSucceeds(
+    getDoc(doc(alice, 'contests', 'c1', 'results', 'final')),
+  );
+  await assertFails(
+    getDoc(doc(unauth, 'contests', 'c1', 'results', 'final')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'results', 'final'), { schemaVersion: 1 }),
+  );
+  await assertSucceeds(
+    getDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun'), { x: 1 }),
+  );
+
+  // unknown contest subpath: deny
+  await assertFails(getDoc(doc(alice, 'contests', 'c1', 'scratch', 'x')));
 
   // ledgers: deny
   await assertFails(setDoc(doc(alice, 'ledgers', 'l1'), { a: 1 }));
