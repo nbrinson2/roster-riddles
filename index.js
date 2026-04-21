@@ -20,6 +20,7 @@ import {
 import {
   getAdminContestList,
   postAdminContestCreate,
+  postAdminContestRunScoring,
   postAdminContestTransition,
 } from './server/admin-contests.http.js';
 import {
@@ -102,6 +103,13 @@ app.post(
   requireAdmin,
   contestReadRateLimitHookMiddleware,
   postAdminContestTransition,
+);
+app.post(
+  '/api/v1/admin/contests/:contestId/run-scoring',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestRunScoring,
 );
 
 app.get(

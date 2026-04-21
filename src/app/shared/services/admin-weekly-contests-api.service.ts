@@ -55,6 +55,16 @@ export interface AdminContestCreateResponse {
   contest: AdminContestPublicRow;
 }
 
+/** Response from POST /api/v1/admin/contests/:contestId/run-scoring (Story E2). */
+export interface AdminContestRunScoringResponse {
+  ok: true;
+  contestId: string;
+  scoringJobId: string;
+  /** True when the job advanced the contest `scoring` → `paid`. */
+  transitioned: boolean;
+  standingsCount: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminWeeklyContestsApiService {
   private readonly http = inject(HttpClient);
@@ -87,6 +97,15 @@ export class AdminWeeklyContestsApiService {
     return this.http.post<AdminContestCreateResponse>(
       this.apiUrl('/api/v1/admin/contests'),
       body,
+    );
+  }
+
+  /** Runs mini-league scoring (E2). Contest must be in `scoring`; success may set status to `paid`. */
+  runScoring(contestId: string): Observable<AdminContestRunScoringResponse> {
+    const id = encodeURIComponent(contestId);
+    return this.http.post<AdminContestRunScoringResponse>(
+      this.apiUrl(`/api/v1/admin/contests/${id}/run-scoring`),
+      {},
     );
   }
 }

@@ -105,6 +105,17 @@
         <p class="awc-window">{{ formatWindow(row) }}</p>
         <div class="awc-actions">
           <button
+            *ngIf="row.status === 'scoring'"
+            type="button"
+            class="awc-btn awc-btn-primary"
+            [disabled]="runScoringBusyId !== null"
+            (click)="submitRunScoring(row.contestId)"
+          >
+            {{
+              runScoringBusyId === row.contestId ? 'Running scoring…' : 'Run scoring job'
+            }}
+          </button>
+          <button
             type="button"
             class="awc-btn"
             (click)="toggleManage(row)"
@@ -113,6 +124,18 @@
             {{ managingId === row.contestId ? 'Close' : 'Change status' }}
           </button>
         </div>
+        <p
+          *ngIf="runScoringOk?.contestId === row.contestId"
+          class="awc-muted awc-card-footnote"
+        >
+          {{ runScoringOk?.text }}
+        </p>
+        <p
+          *ngIf="runScoringError && runScoringErrorContestId === row.contestId"
+          class="awc-error awc-card-footnote"
+        >
+          {{ runScoringError }}
+        </p>
 
         <div *ngIf="managingId === row.contestId" class="awc-form">
           <label class="awc-field">

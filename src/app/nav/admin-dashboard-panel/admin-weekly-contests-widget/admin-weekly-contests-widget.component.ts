@@ -51,6 +51,12 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
   protected transitionSubmitting = false;
   protected transitionError: string | null = null;
 
+  /** E2 scoring job (contest must be `scoring`). */
+  protected runScoringBusyId: string | null = null;
+  protected runScoringError: string | null = null;
+  protected runScoringErrorContestId: string | null = null;
+  protected runScoringOk: { contestId: string; text: string } | null = null;
+
   /** Shown after a successful create (server-assigned id). */
   protected lastCreatedContestId: string | null = null;
 
@@ -180,6 +186,32 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
       });
   }
 
+  protected submitRunScoring(contestId: string): void {
+    this.runScoringBusyId = contestId;
+    this.runScoringError = null;
+    this.runScoringErrorContestId = null;
+    this.runScoringOk = null;
+    this.api
+      .runScoring(contestId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.runScoringBusyId = null;
+          const paid = res.transitioned ? ' Contest status is now Paid.' : '';
+          this.runScoringOk = {
+            contestId,
+            text: `Scoring job finished (${res.standingsCount} ranked).${paid}`,
+          };
+          this.loadList(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.runScoringBusyId = null;
+          this.runScoringErrorContestId = contestId;
+          this.runScoringError = this.mapRunScoringError(err);
+        },
+      });
+  }
+
   protected submitCreate(): void {
     this.createError = null;
     this.lastCreatedContestId = null;
@@ -299,5 +331,23 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
     const body = err.error as { error?: { message?: string } } | null;
     const msg = body?.error?.message;
     return typeof msg === 'string' ? msg : 'Could not create contest.';
+  }
+
+  private mapRunScoringError(err: HttpErrorResponse): string {
+    if (err.status === 403) {
+      return 'Admin access required.';
+    }
+    if (err.status === 401) {
+      return 'Sign in required.';
+    }
+    const body = err.error as { error?: { message?: string; code?: string } } | null;
+    const code = body?.error?.code;
+    const msg = body?.error?.message;
+    if (code === 'contest_not_scoring') {
+      return typeof msg === 'string'
+        ? msg
+        : 'Contest must be in Scoring state (move it from Open first).';
+    }
+    return typeof msg === 'string' ? msg : 'Scoring job failed.';
   }
 }
