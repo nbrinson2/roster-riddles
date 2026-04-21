@@ -1,6 +1,10 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import {
+  getStripeClient,
   getStripeSecretKeyMode,
   isContestsPaymentsEnabled,
   resetStripeClientForTests,
@@ -31,5 +35,18 @@ describe('stripe-server (Story P5-C1)', () => {
     assert.equal(isContestsPaymentsEnabled(), false);
     delete process.env.CONTESTS_PAYMENTS_ENABLED;
     assert.equal(isContestsPaymentsEnabled(), false);
+  });
+
+  it('resolves STRIPE_SECRET_KEY from a gitignored file path', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rr-stripe-key-'));
+    const keyFile = path.join(dir, 'stripe-secret-key.txt');
+    const sk = 'sk_test_12345678901234567890123456789012';
+    fs.writeFileSync(keyFile, `${sk}\n`, 'utf8');
+    process.env.STRIPE_SECRET_KEY = keyFile;
+    process.env.CONTESTS_PAYMENTS_ENABLED = 'false';
+    resetStripeClientForTests();
+    const client = getStripeClient();
+    assert.ok(client);
+    assert.equal(getStripeSecretKeyMode(sk), 'test');
   });
 });

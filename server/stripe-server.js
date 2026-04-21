@@ -1,9 +1,11 @@
 /**
  * Stripe server SDK — Phase 5 Story P5-C1.
  * Secret key from env only; never log full keys.
+ * `STRIPE_SECRET_KEY` may be a path to a one-line file (same pattern as `resolveSecretFromEnv` elsewhere).
  * @see docs/stripe.md
  */
 import Stripe from 'stripe';
+import { resolveSecretFromEnv } from './contest-internal-auth.js';
 
 /** Lazy singleton — resettable in tests via {@link resetStripeClientForTests}. */
 let stripeSingleton = null;
@@ -65,7 +67,7 @@ export function validateStripeConfigAtStartup() {
  * @returns {Stripe | null}
  */
 export function getStripeClient() {
-  const key = process.env.STRIPE_SECRET_KEY?.trim();
+  const key = resolveSecretFromEnv('STRIPE_SECRET_KEY');
   if (!key) {
     if (isContestsPaymentsEnabled()) {
       throw new Error('STRIPE_SECRET_KEY required when CONTESTS_PAYMENTS_ENABLED=true');

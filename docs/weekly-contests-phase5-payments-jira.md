@@ -219,12 +219,16 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Acceptance criteria**
 
-- [ ] Works end-to-end in **test mode** with [Stripe test cards](https://stripe.com/docs/testing).
-- [ ] `stripePublishableKey` only if using Elements later; Checkout redirect may not need publishable key on client — document either way.
+- [x] Works end-to-end in **test mode** with [Stripe test cards](https://stripe.com/docs/testing) (requires server flags + P5-E webhook for entry to flip to `paid`).
+- [x] `stripePublishableKey` documented — not required for Checkout redirect ([weekly-contests-api-phase5.md](weekly-contests-api-phase5.md), [stripe.md](stripe.md)).
 
 **Dependencies**
 
 - Story P5-D1, P5-E1 (webhook updates entry).
+
+**Deliverable**
+
+- [`contests-panel.component.ts`](../src/app/nav/contests-panel/contests-panel.component.ts) / [`.html`](../src/app/nav/contests-panel/contests-panel.component.html) / [`.scss`](../src/app/nav/contests-panel/contests-panel.component.scss), [`environment.ts`](../src/environment.ts) (`contestsPaymentsEnabled`), [`generate-env-prod.mjs`](../scripts/generate-env-prod.mjs), [`docs/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md) ✅
 
 ---
 

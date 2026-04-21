@@ -6,6 +6,7 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
 import {
   collection,
   doc,
@@ -19,7 +20,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, takeUntil } from 'rxjs/operators';
 import { AuthService } from 'src/app/auth/auth.service';
 import { getConfiguredFirestore } from 'src/app/config/firestore-instance';
 import {
@@ -27,6 +28,7 @@ import {
   type ContestDocument,
   type ContestStatus,
 } from 'src/app/shared/models/contest.model';
+import type { ContestEntryPaymentStatus } from 'src/app/shared/models/contest-entry.model';
 import type {
   ContestDryRunPayoutsDocument,
   ContestPayoutLine,
@@ -74,8 +76,11 @@ import {
 /** Per-contest entry doc (signed-in user), for “You’re in” and join UI. */
 interface ContestEntryRowState {
   loaded: boolean;
+  /** Firestore doc exists (`entries/{uid}`). */
   entered: boolean;
   rulesAcceptedVersion: number | string | null;
+  /** Phase 5 — when set, drives paid vs free “you’re in” (webhook writes `paid`). */
+  paymentStatus?: ContestEntryPaymentStatus | null;
 }
 
 /** Max `paid` contests shown (most recent by window end), in addition to all open + scheduled. */
@@ -128,6 +133,12 @@ interface ContestJoinResponse {
   };
 }
 
+interface ContestCheckoutSessionResponse {
+  schemaVersion: number;
+  url: string;
+  sessionId: string;
+}
+
 @Component({
   selector: 'contests-panel',
   templateUrl: './contests-panel.component.html',
@@ -157,6 +168,12 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   protected joinSuccess: string | null = null;
 
   /**
+   * After Stripe Checkout success redirect; cleared when entry shows `paymentStatus === paid`
+   * (P5-E webhook) or user starts another checkout.
+   */
+  private checkoutAwaitPaymentContestId: string | null = null;
+
+  /**
    * Rules version for the expanded contest when the user is entered — backed by
    * {@link entryInfoByContestId}.
    */
@@ -165,11 +182,19 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     if (!id) {
       return null;
     }
-    const e = this.entryInfoByContestId[id];
-    if (!e?.loaded || !e.entered) {
+    const row = this.rows.find((r) => r.contestId === id);
+    if (!row || !this.entryCountsAsConfirmedEntrant(row)) {
       return null;
     }
-    return e.rulesAcceptedVersion ?? null;
+    const e = this.entryInfoByContestId[id];
+    return e?.rulesAcceptedVersion ?? null;
+  }
+
+  /** P5-D2 — note under dry-run copy when real Stripe Checkout is enabled. */
+  protected get realMoneyPaymentsCopy(): string | null {
+    return environment.contestsPaymentsEnabled
+      ? 'Entry fees use live Stripe Checkout in this environment (test or live keys per server). Payouts shown above may still be dry-run — check contest details.'
+      : null;
   }
 
   /** For countdowns / lock-soon; updated every second while the panel is active. */
@@ -202,9 +227,17 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     private readonly auth: AuthService,
     private readonly http: HttpClient,
     private readonly weeklyContestSlate: WeeklyContestSlateService,
+    private readonly router: Router,
   ) {}
 
   ngOnInit(): void {
+    this.router.events
+      .pipe(
+        filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.processStripeCheckoutReturnQueryParams());
+
     this.auth.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
       this.loggedIn = !!user;
       this.uid = user?.uid ?? null;
@@ -217,10 +250,12 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         this.listError = null;
         this.expandedContestId = null;
         this.entryInfoByContestId = {};
+        this.checkoutAwaitPaymentContestId = null;
         return;
       }
       this.attachListListeners();
       this.startContestClock();
+      queueMicrotask(() => this.processStripeCheckoutReturnQueryParams());
     });
   }
 
@@ -369,6 +404,11 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     if (!row || !this.uid || !this.rulesCheckbox || this.joinSubmitting) {
       return;
     }
+    if (this.contestRequiresPayment(row)) {
+      this.joinError =
+        'This contest has an entry fee — use Pay & enter to continue.';
+      return;
+    }
     if (!this.canAttemptJoin(row)) {
       this.joinError =
         this.joinDisabledReason(row) ?? 'Join is not available right now.';
@@ -447,6 +487,213 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       default:
         return typeof msg === 'string' ? msg : 'Could not join this contest.';
     }
+  }
+
+  /** Contest charges an entry fee and the app is built for paid Checkout (P5-D2). */
+  protected contestRequiresPayment(row: ContestListRow): boolean {
+    return (
+      environment.contestsPaymentsEnabled &&
+      typeof row.entryFeeCents === 'number' &&
+      Number.isFinite(row.entryFeeCents) &&
+      row.entryFeeCents > 0
+    );
+  }
+
+  /**
+   * “You’re in” / rules banner — free contests: doc exists; paid contests: `paymentStatus === paid`
+   * (webhook) unless legacy free row.
+   */
+  protected entryCountsAsConfirmedEntrant(row: ContestListRow): boolean {
+    const e = this.entryInfoByContestId[row.contestId];
+    if (!e?.loaded || !e.entered) {
+      return false;
+    }
+    if (!this.contestRequiresPayment(row)) {
+      return true;
+    }
+    return e.paymentStatus === 'paid';
+  }
+
+  protected formatEntryFeeUsd(row: ContestListRow): string | null {
+    if (
+      row.entryFeeCents == null ||
+      !Number.isFinite(row.entryFeeCents) ||
+      row.entryFeeCents <= 0
+    ) {
+      return null;
+    }
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: 'USD',
+    }).format(row.entryFeeCents / 100);
+  }
+
+  /** Shown after returning from Stripe until webhook sets `paymentStatus: paid` on the entry doc. */
+  protected confirmingPayment(row: ContestListRow): boolean {
+    return (
+      this.checkoutAwaitPaymentContestId === row.contestId &&
+      !this.entryCountsAsConfirmedEntrant(row)
+    );
+  }
+
+  protected submitPaidCheckout(): void {
+    const row = this.selected;
+    if (!row || !this.uid || !this.rulesCheckbox || this.joinSubmitting) {
+      return;
+    }
+    if (!this.contestRequiresPayment(row)) {
+      return;
+    }
+    if (!this.canAttemptJoin(row)) {
+      this.joinError =
+        this.joinDisabledReason(row) ?? 'Checkout is not available right now.';
+      return;
+    }
+
+    this.joinSubmitting = true;
+    this.joinError = null;
+    this.joinSuccess = null;
+    this.checkoutAwaitPaymentContestId = null;
+
+    const base = environment.baseUrl || '';
+    const url = `${base}/api/v1/contests/${encodeURIComponent(row.contestId)}/checkout-session`;
+    const body = { clientRequestId: crypto.randomUUID() };
+
+    this.http
+      .post<ContestCheckoutSessionResponse>(url, body)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.joinSubmitting = false;
+          const dest = res.url?.trim();
+          if (dest) {
+            window.location.href = dest;
+            return;
+          }
+          this.joinError = 'Checkout did not return a redirect URL.';
+        },
+        error: (err: HttpErrorResponse) => {
+          this.joinSubmitting = false;
+          this.joinError = this.mapCheckoutError(err);
+        },
+      });
+  }
+
+  private mapCheckoutError(err: HttpErrorResponse): string {
+    const body = err.error as { error?: { code?: string; message?: string } };
+    const code = body?.error?.code;
+    const msg = body?.error?.message;
+    if (err.status === 401) {
+      return 'Sign in again, then retry.';
+    }
+    if (err.status === 429) {
+      return 'Too many checkout attempts. Wait a moment and try again.';
+    }
+    if (err.status === 503 && code === 'contest_payments_disabled') {
+      return typeof msg === 'string'
+        ? msg
+        : 'Paid entry is not enabled on this server.';
+    }
+    if (err.status === 503) {
+      return typeof msg === 'string'
+        ? msg
+        : 'Checkout is unavailable (server configuration).';
+    }
+    if (err.status === 409 && code === 'already_in_open_contest') {
+      return typeof msg === 'string'
+        ? msg
+        : 'You are already in another open contest for this game type.';
+    }
+    if (err.status === 409 && code === 'already_entered') {
+      return typeof msg === 'string'
+        ? msg
+        : 'You already have an entry (or checkout in progress) for this contest.';
+    }
+    if (err.status === 502 && code === 'stripe_checkout_failed') {
+      return 'Stripe could not start checkout. Try again in a moment.';
+    }
+    if (err.status === 0) {
+      return 'Could not reach the server. Is the API running?';
+    }
+    switch (code) {
+      case 'contest_no_entry_fee':
+        return 'This contest has no entry fee — use the free join button instead.';
+      case 'join_window_closed':
+        return 'The entry window is closed.';
+      case 'contest_not_open':
+        return 'This contest is not open for new entries.';
+      case 'wrong_game_mode':
+        return 'This contest is not available for Bio Ball in this build.';
+      case 'contest_not_found':
+        return 'That contest no longer exists.';
+      case 'validation_error':
+        return typeof msg === 'string' ? msg : 'Invalid request.';
+      default:
+        return typeof msg === 'string'
+          ? msg
+          : 'Could not start checkout for this contest.';
+    }
+  }
+
+  /**
+   * Stripe redirects to `/bio-ball/mlb?checkout=success|cancel&contestId=…` (see server checkout handler).
+   */
+  private processStripeCheckoutReturnQueryParams(): void {
+    let tree;
+    try {
+      tree = this.router.parseUrl(this.router.url);
+    } catch {
+      return;
+    }
+    const checkout = tree.queryParams['checkout'];
+    const rawId = tree.queryParams['contestId'];
+    if (checkout !== 'success' && checkout !== 'cancel') {
+      return;
+    }
+    if (typeof rawId !== 'string' || !rawId.trim()) {
+      return;
+    }
+    const contestId = decodeURIComponent(rawId.trim());
+
+    const pathOnly = this.router.url.replace(/\?.*/, '');
+    void this.router.navigateByUrl(pathOnly, { replaceUrl: true });
+
+    if (!this.loggedIn) {
+      return;
+    }
+
+    if (checkout === 'success') {
+      this.checkoutAwaitPaymentContestId = contestId;
+      this.expandedContestId = contestId;
+      this.joinError = null;
+      this.joinSuccess = null;
+      return;
+    }
+
+    this.checkoutAwaitPaymentContestId = null;
+    this.expandedContestId = contestId;
+    this.joinError =
+      'Payment was cancelled. You can review the rules and try again when you’re ready.';
+    this.joinSuccess = null;
+  }
+
+  private parsePaymentStatus(
+    raw: unknown,
+  ): ContestEntryPaymentStatus | null {
+    if (typeof raw !== 'string' || !raw.trim()) {
+      return null;
+    }
+    const s = raw.trim();
+    if (
+      s === 'free' ||
+      s === 'pending' ||
+      s === 'paid' ||
+      s === 'failed' ||
+      s === 'refunded'
+    ) {
+      return s;
+    }
+    return null;
   }
 
   private attachListListeners(): void {
@@ -570,6 +817,9 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         this.rulesCheckbox = false;
         this.joinError = null;
         this.joinSuccess = null;
+        if (this.checkoutAwaitPaymentContestId === prevExpandedId) {
+          this.checkoutAwaitPaymentContestId = null;
+        }
       }
     }
   }
@@ -710,23 +960,36 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
               loaded: true,
               entered: false,
               rulesAcceptedVersion: null,
+              paymentStatus: null,
             };
             return;
           }
           const data = snap.data();
           const v = data['rulesAcceptedVersion'] as number | string | undefined;
+          const ps = this.parsePaymentStatus(data['paymentStatus']);
           this.entryInfoByContestId[id] = {
             loaded: true,
             entered: true,
             rulesAcceptedVersion:
               v === undefined || v === null ? null : v,
+            paymentStatus: ps,
           };
+          if (ps === 'paid') {
+            if (this.checkoutAwaitPaymentContestId === id) {
+              this.checkoutAwaitPaymentContestId = null;
+            }
+            const row = this.rows.find((r) => r.contestId === id);
+            if (row?.gameMode === CONTEST_GAME_MODE_BIO_BALL) {
+              this.weeklyContestSlate.refreshSlateAfterEntryChange();
+            }
+          }
         },
         () => {
           this.entryInfoByContestId[id] = {
             loaded: true,
             entered: false,
             rulesAcceptedVersion: null,
+            paymentStatus: null,
           };
         },
       );
@@ -792,8 +1055,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   }
 
   protected showYoureIn(row: ContestListRow): boolean {
-    const e = this.entryInfoByContestId[row.contestId];
-    return !!e?.loaded && e.entered;
+    return this.entryCountsAsConfirmedEntrant(row);
   }
 
   protected statusChipAriaLabel(row: ContestListRow): string {
@@ -1001,8 +1263,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     if (!v) {
       return null;
     }
-    const ent = this.entryInfoByContestId[row.contestId];
-    const entered = !!ent?.loaded && ent.entered;
+    const entered = this.entryCountsAsConfirmedEntrant(row);
     return formatYourPlaceCardLine(v, entered);
   }
 
@@ -1077,8 +1338,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     if (row.status !== 'paid') {
       return false;
     }
-    const e = this.entryInfoByContestId[row.contestId];
-    if (!e?.loaded || !e.entered) {
+    if (!this.entryCountsAsConfirmedEntrant(row)) {
       return false;
     }
     const v = this.finalResultsByContestId[row.contestId];
@@ -1095,14 +1355,12 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   }
 
   protected enteredContest(row: ContestListRow): boolean {
-    const e = this.entryInfoByContestId[row.contestId];
-    return !!e?.loaded && e.entered;
+    return this.entryCountsAsConfirmedEntrant(row);
   }
 
   /** P2 — contextual cheer / urgency on the card (open, scheduled, scoring). */
   protected engagementCardLine(row: ContestListRow): string | null {
-    const ent = this.entryInfoByContestId[row.contestId];
-    const entered = !!ent?.loaded && ent.entered;
+    const entered = this.entryCountsAsConfirmedEntrant(row);
     const openLine = openEnteredEngagementLine(
       row.status,
       entered,

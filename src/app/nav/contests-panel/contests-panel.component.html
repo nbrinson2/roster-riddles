@@ -10,6 +10,9 @@
   </header>
 
   <p class="cc-dry-run" role="note">{{ dryRunCopy }}</p>
+  <p *ngIf="realMoneyPaymentsCopy" class="cc-real-money" role="note">
+    {{ realMoneyPaymentsCopy }}
+  </p>
 
   <div *ngIf="!loggedIn" class="cc-sign-in state state-empty">
     <span class="material-symbols-outlined state-empty-icon">login</span>
@@ -180,6 +183,12 @@
           <p class="cc-detail-meta">
             Status: {{ statusLabel(row.status) }} · Rules version
             {{ row.rulesVersion }} · Slate size {{ row.leagueGamesN }}
+          </p>
+          <p *ngIf="formatEntryFeeUsd(row) as fee" class="cc-entry-fee">
+            <strong>Entry fee:</strong> {{ fee }}
+            <ng-container *ngIf="!contestRequiresPayment(row)">
+              — free join only in this build (paid Checkout disabled).</ng-container
+            >
           </p>
 
           <div
@@ -366,6 +375,20 @@
             </div>
           </div>
 
+          <div
+            *ngIf="confirmingPayment(row)"
+            class="cc-confirming-payment"
+            role="status"
+            aria-live="polite"
+          >
+            <mat-spinner diameter="22" aria-hidden="true"></mat-spinner>
+            <div>
+              <strong>Confirming payment…</strong>
+              Finishing your entry can take a few seconds after you return from
+              checkout. You can leave this panel open.
+            </div>
+          </div>
+
           <div *ngIf="joinSuccess" class="cc-success cc-success--delight" role="status">
             <span class="material-symbols-outlined" aria-hidden="true"
               >celebration</span
@@ -405,9 +428,21 @@
               entryRulesVersion == null
             "
             [disabled]="!rulesCheckbox || joinSubmitting"
-            (click)="submitJoin()"
+            (click)="
+              contestRequiresPayment(row)
+                ? submitPaidCheckout()
+                : submitJoin()
+            "
           >
-            {{ joinSubmitting ? "Joining…" : "Join contest" }}
+            {{
+              joinSubmitting
+                ? contestRequiresPayment(row)
+                  ? "Redirecting…"
+                  : "Joining…"
+                : contestRequiresPayment(row)
+                  ? "Pay & enter"
+                  : "Join contest"
+            }}
           </button>
         </div>
       </li>

@@ -4,6 +4,7 @@
  * Business logic (entries, ledger) lands in Story P5-E — this handler only verifies and ACKs.
  * @see docs/weekly-contests-phase5-webhooks.md
  */
+import { resolveSecretFromEnv } from './contest-internal-auth.js';
 import {
   getStripeClient,
   sendStripeServiceUnavailable,
@@ -15,7 +16,7 @@ import {
  */
 export function postStripeWebhook(req, res) {
   const requestId = req.requestId ?? 'unknown';
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim();
+  const webhookSecret = resolveSecretFromEnv('STRIPE_WEBHOOK_SECRET');
   if (!webhookSecret) {
     console.error(
       JSON.stringify({

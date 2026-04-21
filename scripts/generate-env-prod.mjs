@@ -64,6 +64,9 @@ const weeklyContestsUiEnabled = process.env.WEEKLY_CONTESTS_UI_ENABLED !== 'fals
 /** Story AD-4 — omit admin dashboard affordance when ADMIN_DASHBOARD_UI_ENABLED=false */
 const adminDashboardUiEnabled = process.env.ADMIN_DASHBOARD_UI_ENABLED !== 'false';
 
+/** Story P5-D2 — match Express `CONTESTS_PAYMENTS_ENABLED=true` for paid Checkout UX */
+const contestsPaymentsEnabled = process.env.CONTESTS_PAYMENTS_ENABLED === 'true';
+
 const content = `import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
 import type { DeploymentEnvironment } from './environment.types';
 
@@ -84,6 +87,7 @@ export const environment = {
   leaderboardsUiEnabled: ${leaderboardsUiEnabled},
   weeklyContestsUiEnabled: ${weeklyContestsUiEnabled},
   adminDashboardUiEnabled: ${adminDashboardUiEnabled},
+  contestsPaymentsEnabled: ${contestsPaymentsEnabled},
   featureFlags,
   firebase: {
     apiKey: ${JSON.stringify(process.env.FIREBASE_API_KEY)},

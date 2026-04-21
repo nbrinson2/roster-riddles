@@ -1,6 +1,6 @@
 # Weekly contests API — Phase 5 (payments)
 
-**Status:** Story P5-D1 (`checkout-session`) implemented; webhook business logic in P5-E.  
+**Status:** Stories P5-D1 (`checkout-session`), P5-D2 (Angular Checkout redirect + confirming UI) implemented; webhook business logic in P5-E.  
 **Related:** [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md), [stripe.md](stripe.md)
 
 ---
@@ -63,6 +63,15 @@ Success and cancel URLs point at:
 `/bio-ball/mlb?contestId=<id>&checkout=success|cancel`
 
 Base origin from **`CONTESTS_CHECKOUT_APP_ORIGIN`** (no trailing slash), e.g. `http://localhost:4300` for `ng serve` behind the usual proxy.
+
+---
+
+## Angular client (Story P5-D2)
+
+- **Feature flag:** `environment.contestsPaymentsEnabled` — set at build from **`CONTESTS_PAYMENTS_ENABLED`** (same meaning as Express; see `scripts/generate-env-prod.mjs`). Local dev: set `contestsPaymentsEnabled: true` in `src/environment.ts` when testing paid entry.
+- **Paid path:** contests with `entryFeeCents > 0` show **Pay & enter**, call `POST .../checkout-session`, then **`window.location.href = session.url`** (full redirect to Stripe).
+- **Return URL:** server sends users to `/bio-ball/mlb?checkout=success|cancel&contestId=…`; the contests panel strips query params and, on success, shows **Confirming payment…** until Firestore `entries/{uid}.paymentStatus === paid` (written by webhook P5-E).
+- **`stripePublishableKey`:** not required for Checkout redirect (no Stripe.js on the client). Optional for future Elements.
 
 ---
 
