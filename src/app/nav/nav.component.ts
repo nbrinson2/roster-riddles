@@ -11,6 +11,7 @@ import { MatDrawer } from '@angular/material/sidenav';
 import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import type { User } from 'firebase/auth';
 import { filter, Subject, takeUntil } from 'rxjs';
+import type { AuthSuccessDetail } from '../auth/login-panel/login-panel.component';
 import { AuthService } from '../auth/auth.service';
 import { UserMeCapabilitiesService } from '../auth/user-me-capabilities.service';
 import {
@@ -98,6 +99,17 @@ export class NavComponent implements OnInit, OnDestroy {
   protected selectedRosterYears?: string;
   protected selectedRosterTeamName?: TeamFullName;
 
+  /** Shown under the top bar after email/password sign-up until dismissed. */
+  protected postSignUpEmailBanner: NonNullable<
+    AuthSuccessDetail['postSignUpEmailVerification']
+  > | null = null;
+
+  /**
+   * True after {@link openLoginMenu} until the drawer finishes closing. Keeps the login
+   * panel mounted when `loggedIn` flips true on sign-in/up so the drawer does not render empty.
+   */
+  protected loginDrawerActive = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -167,6 +179,7 @@ export class NavComponent implements OnInit, OnDestroy {
       });
 
     this.drawer.closedStart.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.loginDrawerActive = false;
       if (this.viewRoster) {
         this.hintService.dismissHint();
       }
@@ -268,14 +281,23 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   protected logout(): void {
+    this.postSignUpEmailBanner = null;
+    this.loginDrawerActive = false;
     void this.authService.signOut();
   }
 
-  protected onLoginSuccess(): void {
+  protected onLoginSuccess(detail?: AuthSuccessDetail): void {
+    this.postSignUpEmailBanner =
+      detail?.postSignUpEmailVerification ?? null;
     this.drawer.close();
   }
 
+  protected dismissPostSignUpEmailBanner(): void {
+    this.postSignUpEmailBanner = null;
+  }
+
   protected openLoginMenu(): void {
+    this.loginDrawerActive = true;
     this.matDrawerPosition = MatDrawerPosition.END;
     this.viewMenu = false;
     this.viewProfile = false;

@@ -52,7 +52,7 @@
       </ng-container>
       <div
         *ngIf="
-          !loggedIn &&
+          (!loggedIn || loginDrawerActive) &&
             !viewProfile &&
             !viewAdmin &&
             !viewMenu &&
@@ -62,7 +62,7 @@
         "
         class="login-menu"
       >
-        <login-panel (authSuccess)="onLoginSuccess()"></login-panel>
+        <login-panel (authSuccess)="onLoginSuccess($event)"></login-panel>
       </div>
     </mat-sidenav>
     <mat-sidenav-content>
@@ -148,6 +148,34 @@
             </span>
           </div>
         </div>
+      </div>
+      <div
+        *ngIf="postSignUpEmailBanner as verifyBanner"
+        class="email-verify-post-login-banner"
+        role="status"
+      >
+        <div class="email-verify-post-login-banner__text">
+          <ng-container *ngIf="verifyBanner.verificationEmailSent">
+            <strong>Check your email.</strong> We sent a verification link to
+            <span class="email-verify-post-login-banner__addr">{{
+              verifyBanner.email
+            }}</span
+            >. Open the link to confirm your address (try your spam folder too).
+            Some features need a verified email.
+          </ng-container>
+          <ng-container *ngIf="!verifyBanner.verificationEmailSent">
+            <strong>Account created,</strong> but we could not send the verification
+            email. Open <strong>Profile</strong> (person icon) and tap
+            <strong>Resend verification email</strong>.
+          </ng-container>
+        </div>
+        <button
+          type="button"
+          class="email-verify-post-login-banner__dismiss"
+          (click)="dismissPostSignUpEmailBanner()"
+        >
+          Dismiss
+        </button>
       </div>
       <div class="game-container">
         <router-outlet></router-outlet>

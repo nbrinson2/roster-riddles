@@ -1,6 +1,11 @@
 <div class="login-panel">
   <div class="login-title">
     <h1>{{ mode === 'signIn' ? 'Sign in' : 'Create account' }}</h1>
+    <p *ngIf="mode === 'signUp'" class="signup-verify-lead">
+      After you sign up, we’ll send a <strong>verification link</strong> to your email.
+      You’ll need to confirm your address for some features (for example leaderboards).
+      Check spam if you don’t see it.
+    </p>
   </div>
 
   <div class="login-content">

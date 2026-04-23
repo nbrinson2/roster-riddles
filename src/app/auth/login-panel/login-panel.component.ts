@@ -2,6 +2,14 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { AuthService, type EmailSignUpOutcome } from '../auth.service';
 
+/** Passed to the parent on successful auth so it can show post–sign-up messaging. */
+export interface AuthSuccessDetail {
+  postSignUpEmailVerification?: {
+    verificationEmailSent: boolean;
+    email: string;
+  };
+}
+
 @Component({
   selector: 'login-panel',
   templateUrl: './login-panel.component.html',
@@ -9,7 +17,9 @@ import { AuthService, type EmailSignUpOutcome } from '../auth.service';
   standalone: false,
 })
 export class LoginPanelComponent {
-  @Output() readonly authSuccess = new EventEmitter<void>();
+  @Output() readonly authSuccess = new EventEmitter<
+    AuthSuccessDetail | undefined
+  >();
 
   protected mode: 'signIn' | 'signUp' = 'signIn';
   protected submitting = false;
@@ -47,17 +57,19 @@ export class LoginPanelComponent {
     try {
       if (this.mode === 'signIn') {
         await this.auth.signInWithEmail(email, password);
+        this.authSuccess.emit(undefined);
       } else {
         const outcome: EmailSignUpOutcome = await this.auth.signUpWithEmail(
           email,
           password,
         );
-        if (outcome === 'verification_email_failed') {
-          this.resetMessage =
-            'Account created, but we could not send the verification email. Open your profile and tap “Resend verification email”.';
-        }
+        this.authSuccess.emit({
+          postSignUpEmailVerification: {
+            verificationEmailSent: outcome === 'ok',
+            email: email.trim(),
+          },
+        });
       }
-      this.authSuccess.emit();
     } catch (err) {
       this.errorMessage = this.auth.mapAuthError(err);
     } finally {
@@ -71,7 +83,7 @@ export class LoginPanelComponent {
     this.submitting = true;
     try {
       await this.auth.signInWithGoogle();
-      this.authSuccess.emit();
+      this.authSuccess.emit(undefined);
     } catch (err) {
       this.errorMessage = this.auth.mapAuthError(err);
     } finally {
