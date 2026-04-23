@@ -3,19 +3,9 @@
     <div class="avatar-wrap">
       <span class="material-symbols-outlined account-icon">account_circle</span>
     </div>
-    <h1 *ngIf="user?.displayName || user?.email">
-      {{ user?.displayName || user?.email }}
-    </h1>
-    <p
-      class="email-line"
-      *ngIf="
-        user &&
-        user.displayName &&
-        user.email &&
-        user.displayName !== user.email
-      "
-    >
-      {{ user.email }}
+    <h1 *ngIf="profileHeading() as heading">{{ heading }}</h1>
+    <p class="email-line" *ngIf="showProfileEmailSubline()">
+      {{ user?.email }}
     </p>
   </header>
 

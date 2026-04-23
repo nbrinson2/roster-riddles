@@ -5,6 +5,7 @@ import type { User } from 'firebase/auth';
 import { Timestamp } from 'firebase/firestore';
 import { map, of, startWith, switchMap } from 'rxjs';
 import { AuthService } from 'src/app/auth/auth.service';
+import { resolvedUserDisplayName } from 'src/app/auth/user-display-name.util';
 import {
   USER_STATS_DOC_ID,
   type UserStatsDocument,
@@ -74,6 +75,28 @@ export class ProfileComponent {
       return false;
     }
     return u.providerData.some((p) => p?.providerId === 'password');
+  }
+
+  /**
+   * Profile title: Auth display name when set, otherwise email local part (before `@`).
+   */
+  protected profileHeading(): string | null {
+    const u = this.user;
+    if (!u) {
+      return null;
+    }
+    return resolvedUserDisplayName(u);
+  }
+
+  /** Second line: full email when it is not already the entire heading. */
+  protected showProfileEmailSubline(): boolean {
+    const u = this.user;
+    const em = u?.email?.trim();
+    if (!u || !em) {
+      return false;
+    }
+    const h = this.profileHeading();
+    return Boolean(h && h !== em);
   }
 
   protected async resendVerification(): Promise<void> {

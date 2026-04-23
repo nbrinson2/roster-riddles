@@ -9,6 +9,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { AuthService } from './auth.service';
+import { resolvedUserDisplayName } from './user-display-name.util';
 
 const USERS = 'users';
 
@@ -37,7 +38,7 @@ export class UserBootstrapService {
       if (!snap.exists()) {
         await setDoc(ref, {
           createdAt: serverTimestamp(),
-          displayName: user.displayName ?? null,
+          displayName: resolvedUserDisplayName(user),
           email: user.email ?? null,
           emailVerified: user.emailVerified,
           /** US-only contests: set later (self-attest, IP, or prompt). */
@@ -46,7 +47,7 @@ export class UserBootstrapService {
         return;
       }
       await updateDoc(ref, {
-        displayName: user.displayName ?? null,
+        displayName: resolvedUserDisplayName(user),
         email: user.email ?? null,
         emailVerified: user.emailVerified,
       });
