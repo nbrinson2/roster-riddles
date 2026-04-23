@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { AttributesType, UiPlayer } from 'src/app/game/bio-ball/models/bio-ball.models';
-import { EndResultMessage } from 'src/app/game/shared/constants/game.constants';
 import { PlayerAttrColor } from "src/app/shared/models/common-models";
 import { GameState } from '../../career-path/services/career-path-engine/career-path-engine.service';
 import { Header } from '../../shared/common-attribute-header/common-attribute-header.component';
@@ -14,7 +13,8 @@ import { BioBallEngineService } from '../services/bio-ball-engine/bio-ball-engin
 })
 export class AttributeHeaderComponent {
   get endOfGame(): boolean {
-    return this.gameService.gameState() === GameState.LOST;
+    const s = this.gameService.gameState();
+    return s === GameState.LOST || s === GameState.WON;
   }
 
   get endResultText(): string {
@@ -27,10 +27,8 @@ export class AttributeHeaderComponent {
 
   constructor(private gameService: BioBallEngineService<UiPlayer<AttributesType>>) {}
 
+  /** Win and loss share the same strip; outline uses Roster Riddles blue (`$color-secondary`). */
   protected getEndResultBorderColor(): string {
-    if (this.endResultText === EndResultMessage.WIN) {
-      return PlayerAttrColor.BLUE;
-    }
-    return PlayerAttrColor.ORANGE;
+    return PlayerAttrColor.BLUE;
   }
 }

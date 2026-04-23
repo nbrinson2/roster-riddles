@@ -12,9 +12,15 @@ import { CareerPathEngineService } from './game/career-path/services/career-path
 import { NicknameStreakComponent } from './game/nickname-streak/nickname-streak.component';
 import { NicknameStreakEngineService } from './game/nickname-streak/services/nickname-streak-engine.service';
 import { NicknameStreakResolver } from './game/nickname-streak/resolvers/nickname-streak.resolver';
+import { EmailVerifiedPageComponent } from './auth/email-verified-page/email-verified-page.component';
 
 export const APP_ROUTES: Routes = [
   { path: '', redirectTo: 'bio-ball/mlb', pathMatch: 'full' },
+
+  {
+    path: 'email-verified',
+    component: EmailVerifiedPageComponent,
+  },
 
   {
     path: 'bio-ball/:league',

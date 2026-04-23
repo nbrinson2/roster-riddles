@@ -1,0 +1,39 @@
+<div class="evp-page">
+  <div class="evp-card">
+    <h1 class="evp-title">Email verification</h1>
+
+    <ng-container [ngSwitch]="state">
+      <p *ngSwitchCase="'loading'" class="evp-body">Confirming your email…</p>
+
+      <ng-container *ngSwitchCase="'applied'">
+        <p class="evp-body evp-success">
+          Your email is verified. You can use all features that require a confirmed address.
+        </p>
+        <button type="button" mat-raised-button color="primary" (click)="goHome()">
+          Continue to game
+        </button>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'missing'">
+        <p class="evp-body">
+          Open the <strong>verification link</strong> from your inbox (or use
+          <strong>Resend verification email</strong> from your profile if you did not get one).
+        </p>
+        <button type="button" mat-raised-button color="primary" (click)="goHome()">
+          Back to game
+        </button>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'error'">
+        <p class="evp-body evp-error">
+          This link may have expired or already been used. Request a new verification email from
+          your profile.
+        </p>
+        <p *ngIf="errorDetail" class="evp-detail">{{ errorDetail }}</p>
+        <button type="button" mat-raised-button color="primary" (click)="goHome()">
+          Back to game
+        </button>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

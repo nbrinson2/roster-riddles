@@ -25,6 +25,17 @@
       <ng-container *ngIf="leaderboardsUiEnabled && viewLeaderboard">
         <leaderboard-panel></leaderboard-panel>
       </ng-container>
+      <ng-container
+        *ngIf="
+          weeklyContestsUiEnabled &&
+          viewContests &&
+          currentGameName === GameType.BIO_BALL
+        "
+      >
+        <contests-panel
+          (requestSignIn)="openLoginMenu()"
+        ></contests-panel>
+      </ng-container>
       <ng-container *ngIf="viewMenu">
         <how-to-play
           [gameType]="currentGameName"
@@ -34,65 +45,105 @@
       <ng-container *ngIf="loggedIn && viewProfile && user">
         <profile [user]="user"></profile>
       </ng-container>
+      <ng-container
+        *ngIf="loggedIn && viewAdmin && adminDashboardUiEnabled && user"
+      >
+        <admin-dashboard-panel></admin-dashboard-panel>
+      </ng-container>
       <div
         *ngIf="
-          !loggedIn && !viewProfile && !viewMenu && !viewRoster && !viewLeaderboard
+          (!loggedIn || loginDrawerActive) &&
+            !viewProfile &&
+            !viewAdmin &&
+            !viewMenu &&
+            !viewRoster &&
+            !viewLeaderboard &&
+            !viewContests
         "
         class="login-menu"
       >
-        <login-panel (authSuccess)="onLoginSuccess()"></login-panel>
+        <login-panel (authSuccess)="onLoginSuccess($event)"></login-panel>
       </div>
     </mat-sidenav>
     <mat-sidenav-content>
-      <div class="nav-container">
-        <div class="nav-left-icons">
-          <div class="menu-icon-container" (click)="openMenu()">
-            <span class="material-symbols-outlined menu-icon">info</span>
+      <nav-top-bar
+        [leaderboardsUiEnabled]="leaderboardsUiEnabled"
+        [weeklyContestsUiEnabled]="weeklyContestsUiEnabled"
+        [adminDashboardUiEnabled]="adminDashboardUiEnabled"
+        [loggedIn]="loggedIn"
+        (menuOpen)="openMenu()"
+        (leaderboardOpen)="openLeaderboard()"
+        (contestsOpen)="openContests()"
+        (difficultyChange)="handleDifficultyChange($event)"
+        (loginOpen)="openLoginMenu()"
+        (logout)="logout()"
+        (adminDashboardOpen)="openAdminDashboard()"
+        (profileOpen)="openProfileMenu()"
+      ></nav-top-bar>
+      <ng-container *ngIf="postSignUpEmailBanner as verifyBanner">
+        <inline-callout-banner
+          variant="info"
+          (dismiss)="dismissPostSignUpEmailBanner()"
+        >
+          <div callout-body>
+            <ng-container *ngIf="verifyBanner.verificationEmailSent">
+              <strong>Check your email.</strong> We sent a verification link to
+              <span class="inline-callout__accent">{{ verifyBanner.email }}</span>.
+              Open the link to confirm your address (try your spam folder too).
+              Some features need a verified email.
+            </ng-container>
+            <ng-container *ngIf="!verifyBanner.verificationEmailSent">
+              <strong>Account created,</strong> but we could not send the verification
+              email yet. Use <strong>Resend</strong> below or open
+              <strong>Profile</strong> (person icon).
+            </ng-container>
+            <p class="inline-callout__secondary">
+              Still waiting? Links can be delayed—try spam, then resend (limited to once per
+              minute here to protect your inbox).
+            </p>
           </div>
-          <div
-            *ngIf="leaderboardsUiEnabled"
-            class="menu-icon-container"
-            role="button"
-            tabindex="0"
-            aria-label="Open leaderboard"
-            (click)="openLeaderboard()"
-            (keydown.enter)="openLeaderboard()"
-            (keydown.space)="$event.preventDefault(); openLeaderboard()"
+          <div callout-actions>
+            <button
+              type="button"
+              class="inline-callout__btn"
+              (click)="openProfileFromVerifyBanner()"
+            >
+              Open profile
+            </button>
+            <button
+              type="button"
+              class="inline-callout__btn inline-callout__btn--primary"
+              [disabled]="
+                bannerResendLoading || bannerResendCooldownSec > 0
+              "
+              (click)="resendVerificationFromBanner()"
+            >
+              {{
+                bannerResendLoading
+                  ? 'Sending…'
+                  : bannerResendCooldownSec > 0
+                    ? 'Resend in ' + bannerResendCooldownSec + 's'
+                    : 'Resend verification email'
+              }}
+            </button>
+          </div>
+          <p
+            *ngIf="bannerResendMessage"
+            callout-feedback
+            class="inline-callout__feedback inline-callout__feedback--ok"
           >
-            <span class="material-symbols-outlined menu-icon">leaderboard</span>
-          </div>
-        </div>
-        <div class="icons-right-container">
-          <ng-container *ngIf="currentGameMode() !== 'n/a'">
-            <difficulty-toggle
-              [value]="currentGameMode()"
-              (valueChange)="handleDifficultyChange($event)"
-            ></difficulty-toggle>
-          </ng-container>
-          <div *ngIf="!loggedIn" class="login-button" (click)="openLoginMenu()">
-            <span class="material-symbols-outlined login-icon"> login </span>
-          </div>
-          <div *ngIf="loggedIn" class="profile-logout-container">
-            <span
-              class="material-symbols-outlined logout-icon"
-              (click)="logout()"
-            >
-              logout
-            </span>
-            <span
-              class="material-symbols-outlined profile-icon"
-              (click)="openProfileMenu()"
-              (keydown.enter)="openProfileMenu()"
-              (keydown.space)="$event.preventDefault(); openProfileMenu()"
-              role="button"
-              tabindex="0"
-              aria-label="Account"
-            >
-              person
-            </span>
-          </div>
-        </div>
-      </div>
+            {{ bannerResendMessage }}
+          </p>
+          <p
+            *ngIf="bannerResendError"
+            callout-feedback
+            class="inline-callout__feedback inline-callout__feedback--err"
+            role="alert"
+          >
+            {{ bannerResendError }}
+          </p>
+        </inline-callout-banner>
+      </ng-container>
       <div class="game-container">
         <router-outlet></router-outlet>
       </div>

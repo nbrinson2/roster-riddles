@@ -4,6 +4,35 @@
   padding-bottom: 32px;
 }
 
+.verify-email-banner {
+  margin: 16px 20px 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 193, 7, 0.35);
+  background: rgba(255, 193, 7, 0.08);
+  font-family: constants.$font-family-secondary;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.88);
+
+  .verify-email-text {
+    margin: 0 0 12px;
+  }
+
+  .verify-email-status {
+    margin: 10px 0 0;
+    font-size: 0.85rem;
+
+    &--ok {
+      color: #a5d6a7;
+    }
+
+    &--err {
+      color: #ffab91;
+    }
+  }
+}
+
 .header {
   color: constants.$color-header;
   font-family: constants.$font-family;
@@ -257,6 +286,66 @@
     height: 28px;
     flex-shrink: 0;
     margin-top: 2px;
+  }
+
+  .mode-win-streak {
+    &:not(:first-child) {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .mode-win-streak__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2px;
+
+    .mode-ico {
+      color: constants.$color-header;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+  }
+
+  .mode-win-streak__title {
+    font-family: constants.$font-family;
+    font-size: 15px;
+    letter-spacing: 0.03em;
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .streak-subsection {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .streak-subsection--nested {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  .streak-subsection__title {
+    margin: 0 0 6px;
+    font-family: constants.$font-family-secondary;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .streak-subsection__hint {
+    margin: 0 0 10px;
+    font-family: constants.$font-family-secondary;
+    font-size: 12px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.5);
   }
 
   .mini-dl {

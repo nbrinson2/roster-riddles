@@ -1,0 +1,40 @@
+<div class="arrw-widget" role="region" aria-labelledby="arrw-heading">
+  <section class="arrw-list-section" aria-labelledby="arrw-heading">
+    <div class="arrw-list-head">
+      <h4 id="arrw-heading" class="arrw-list-title">Recently registered</h4>
+      <button
+        type="button"
+        class="arrw-btn arrw-btn-small"
+        [disabled]="loading"
+        (click)="load()"
+      >
+        {{ loading ? 'Refreshing…' : 'Refresh' }}
+      </button>
+    </div>
+    <p *ngIf="loading && rows.length === 0" class="arrw-muted">Loading…</p>
+    <p *ngIf="error" class="arrw-error">{{ error }}</p>
+    <p *ngIf="!loading && !error && rows.length === 0" class="arrw-muted">
+      No Firebase Auth users found.
+    </p>
+    <ul *ngIf="rows.length > 0" class="arrw-user-list" role="list">
+      <li *ngFor="let row of rows" class="arrw-user-row" role="listitem">
+        <div class="arrw-user-row-main">
+          <span class="arrw-email">{{ row.email || '(no email)' }}</span>
+          <code class="arrw-uid" title="uid">{{ row.uid }}</code>
+          <span class="arrw-registered-at"
+            >Registered {{ row.createdAt | date : 'medium' }}</span
+          >
+          <span *ngIf="row.disabled" class="arrw-flag">Disabled</span>
+          <span *ngIf="isRowYou(row.uid)" class="arrw-flag arrw-flag--you">You</span>
+        </div>
+        <button type="button" class="arrw-btn arrw-btn-small" (click)="openRow(row)">
+          Open
+        </button>
+      </li>
+    </ul>
+    <p class="arrw-note">
+      The five accounts with the latest Auth creation time (full user list is scanned
+      server-side, same as the admin list).
+    </p>
+  </section>
+</div>

@@ -57,7 +57,7 @@ The app uses the **named Firestore database** **`roster-riddles`** (`initializeF
 
 Payments are not integrated yet. **Non-production** (local, staging) must use **Stripe test** keys only (`sk_test_…`, `pk_test_…`); **production** uses **live** keys supplied via Secret Manager / Cloud Run and CI substitutions — never commit real keys.
 
-- **Variable names and where they are set:** [docs/stripe.md](docs/stripe.md)
+- **Variable names and where they are set:** [docs/payments/stripe.md](docs/payments/stripe.md)
 - **Local placeholders:** `.env.example` (commented; copy to `.env` if you need Stripe locally)
 
 ## Build
@@ -112,7 +112,7 @@ The production Angular bundle is built **inside the image**; `scripts/generate-e
 1. Open [Cloud Build → Triggers](https://console.cloud.google.com/cloud-build/triggers) and edit the **roster-riddles** trigger (or create one for branch `main`).
 2. Under **Configuration**, choose **Cloud Build configuration file (yaml or json)** (not “Dockerfile” or “Autodetected”).
 3. Set **Location** to the repository and path **`cloudbuild.yaml`** (repository root).
-4. Under **Substitution variables**, add **user-defined** substitutions for **`_FIREBASE_API_KEY`**, **`_FIREBASE_AUTH_DOMAIN`**, **`_FIREBASE_PROJECT_ID`**, **`_FIREBASE_STORAGE_BUCKET`**, **`_FIREBASE_MESSAGING_SENDER_ID`**, **`_FIREBASE_APP_ID`** (and optionally **`_FIREBASE_MEASUREMENT_ID`**, **`_API_BASE_URL`**, **`_STRIPE_PUBLISHABLE_KEY`** — test key on the staging trigger, live only on production; see **`docs/stripe.md`**) using the same values as your Firebase web app. Adjust **`_AR_IMAGE_PATH`** only if your Artifact Registry image path differs from the default in **`cloudbuild.yaml`** (it matches Cloud Run **source deploy** paths like `.../roster-riddles/roster-riddles`).
+4. Under **Substitution variables**, add **user-defined** substitutions for **`_FIREBASE_API_KEY`**, **`_FIREBASE_AUTH_DOMAIN`**, **`_FIREBASE_PROJECT_ID`**, **`_FIREBASE_STORAGE_BUCKET`**, **`_FIREBASE_MESSAGING_SENDER_ID`**, **`_FIREBASE_APP_ID`** (and optionally **`_FIREBASE_MEASUREMENT_ID`**, **`_API_BASE_URL`**, **`_STRIPE_PUBLISHABLE_KEY`** — test key on the staging trigger, live only on production; see **`docs/payments/stripe.md`**) using the same values as your Firebase web app. Adjust **`_AR_IMAGE_PATH`** only if your Artifact Registry image path differs from the default in **`cloudbuild.yaml`** (it matches Cloud Run **source deploy** paths like `.../roster-riddles/roster-riddles`).
 
 The Cloud Build service account needs permission to push to Artifact Registry and to deploy Cloud Run (for example **Artifact Registry Writer** and **Cloud Run Admin** on the project, or a custom role that includes those capabilities).
 
@@ -171,16 +171,16 @@ Karma + Jasmine.
 
 ### QA: stats vs events (gameplay telemetry)
 
-To verify that **`users/{uid}/stats/summary`** matches a full replay of **`gameplayEvents`** (same logic as `server/stats-aggregate.js`), use Firebase Admin credentials and run:
+To verify that **`users/{uid}/stats/summary`** matches a full replay of **`gameplayEvents`** (same logic as `server/lib/stats-aggregate.js`), use Firebase Admin credentials and run:
 
 ```bash
 export FIRESTORE_DATABASE_ID=roster-riddles   # or your DB id; see .env.example
 npm run verify:stats-reconciliation -- <firebase-uid>
 ```
 
-Exit **0** means no diff. Full steps and flags: [docs/stats-reconciliation.md](docs/stats-reconciliation.md).
+Exit **0** means no diff. Full steps and flags: [docs/platform/stats-reconciliation.md](docs/platform/stats-reconciliation.md).
 
-**Gameplay API logging** (structured JSON, request ids, no secrets): [docs/gameplay-observability.md](docs/gameplay-observability.md).
+**Gameplay API logging** (structured JSON, request ids, no secrets): [docs/platform/gameplay-observability.md](docs/platform/gameplay-observability.md).
 
 ## Other
 

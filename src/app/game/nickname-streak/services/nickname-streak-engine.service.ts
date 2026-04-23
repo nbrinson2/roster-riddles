@@ -5,7 +5,7 @@ import { NicknameStreakPlayer } from '../models/nickname-streak.models';
 import { GameService } from 'src/app/shared/utils/game-service.token';
 import { SlideUpService } from 'src/app/shared/components/slide-up/slide-up.service';
 import { GameState } from '../../career-path/services/career-path-engine/career-path-engine.service';
-import { InputPlaceHolderText } from '../../shared/constants/game.constants';
+import { GameType, InputPlaceHolderText } from '../../shared/constants/game.constants';
 
 export interface NicknameStreakPlayerToGuess extends NicknameStreakPlayer {
   isCorrectGuess: boolean;
@@ -101,6 +101,18 @@ export class NicknameStreakEngineService
   protected startNewGameHard(players?: NicknameStreakPlayer[]): void {}
   protected updateStateAfterGuess(): void {}
 
+  protected override modeMetricsForTerminal(
+    _result: 'won' | 'lost' | 'abandoned',
+  ): Record<string, unknown> | undefined {
+    if (this.currentGame() !== GameType.NICKNAME_STREAK) {
+      return undefined;
+    }
+    return {
+      nicknameStreakCurrent: this.currentStreak(),
+      nicknameStreakBest: this.bestStreak(),
+    };
+  }
+
   protected selectNewTargetPlayer(): void {
     if (this.guessablePlayers.length === 0) {
       const randomIndex = Math.floor(Math.random() * this.allPlayers.length);
@@ -157,6 +169,7 @@ export class NicknameStreakEngineService
       this.currentGame(),
       this.currentGameMode(),
       this.mistakeCountForTerminal('won'),
+      this.modeMetricsForTerminal('won'),
     );
     this.gameplayTelemetry.onRoundStarted();
   }

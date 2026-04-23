@@ -1,0 +1,223 @@
+<div class="awc-widget">
+  <section class="awc-create" aria-labelledby="awc-create-heading">
+    <h4 id="awc-create-heading" class="awc-create-title">Create contest</h4>
+    <p class="awc-muted awc-create-lead">
+      The server assigns a unique contest id when you create (for example
+      <code>bb-1730000000000-a1b2c3d4</code>). Documents use <code>gameMode: bio-ball</code> and
+      schema v1 — see <code>docs/weekly-contests/weekly-contests-schema-contests.md</code>.
+    </p>
+    <p *ngIf="lastCreatedContestId" class="awc-created">
+      Created <code class="awc-created-id">{{ lastCreatedContestId }}</code>
+    </p>
+    <div class="awc-create-grid">
+      <label class="awc-field">
+        <span class="awc-label">Title (optional)</span>
+        <input
+          class="awc-input"
+          type="text"
+          [(ngModel)]="createTitle"
+          name="createTitle"
+          maxlength="200"
+          autocomplete="off"
+        />
+      </label>
+      <label class="awc-field">
+        <span class="awc-label">Initial status</span>
+        <select
+          class="awc-select"
+          [(ngModel)]="createStatus"
+          name="createStatus"
+        >
+          <option value="scheduled">Scheduled</option>
+          <option value="open">Open</option>
+        </select>
+      </label>
+      <label class="awc-field">
+        <span class="awc-label">Window start *</span>
+        <input
+          class="awc-input"
+          type="datetime-local"
+          [(ngModel)]="createWindowStart"
+          name="createWindowStart"
+        />
+      </label>
+      <label class="awc-field">
+        <span class="awc-label">Window end *</span>
+        <input
+          class="awc-input"
+          type="datetime-local"
+          [(ngModel)]="createWindowEnd"
+          name="createWindowEnd"
+        />
+      </label>
+      <label class="awc-field">
+        <span class="awc-label">League games (N)</span>
+        <input
+          class="awc-input"
+          type="number"
+          [(ngModel)]="createLeagueGamesN"
+          name="createLeagueGamesN"
+          min="1"
+          max="100"
+        />
+      </label>
+      <label class="awc-field">
+        <span class="awc-label">Rules version</span>
+        <input
+          class="awc-input"
+          type="number"
+          [(ngModel)]="createRulesVersion"
+          name="createRulesVersion"
+          min="1"
+        />
+      </label>
+      <label class="awc-field">
+        <span class="awc-label">Simulated prize pool (USD, optional)</span>
+        <input
+          class="awc-input"
+          type="number"
+          [(ngModel)]="createPrizePoolUsd"
+          name="createPrizePoolUsd"
+          min="0"
+          step="0.01"
+          placeholder="e.g. 500"
+          autocomplete="off"
+        />
+      </label>
+      <label class="awc-field">
+        <span class="awc-label">Entry fee (USD, optional)</span>
+        <input
+          class="awc-input"
+          type="number"
+          [(ngModel)]="createEntryFeeUsd"
+          name="createEntryFeeUsd"
+          min="0"
+          step="0.01"
+          placeholder="0 for free"
+          autocomplete="off"
+        />
+      </label>
+      <label class="awc-field">
+        <span class="awc-label">Max entrants (optional)</span>
+        <input
+          class="awc-input"
+          type="number"
+          [(ngModel)]="createMaxEntries"
+          name="createMaxEntries"
+          min="1"
+          step="1"
+          placeholder="UI display; enforcement TBD"
+          autocomplete="off"
+        />
+      </label>
+    </div>
+    <div class="awc-create-footer">
+      <p *ngIf="createError" class="awc-error">{{ createError }}</p>
+      <button
+        type="button"
+        class="awc-btn awc-btn-primary"
+        [disabled]="createSubmitting"
+        (click)="submitCreate()"
+      >
+        {{ createSubmitting ? 'Creating…' : 'Create contest' }}
+      </button>
+    </div>
+  </section>
+
+  <p *ngIf="loading" class="awc-muted awc-status-line">Loading contests…</p>
+  <p *ngIf="!loading && listError" class="awc-error awc-status-line">{{ listError }}</p>
+
+  <ng-container *ngIf="!loading && !listError">
+    <p *ngIf="rows.length === 0" class="awc-muted awc-empty">
+      No Bio Ball weekly contests found.
+    </p>
+
+    <ul *ngIf="rows.length > 0" class="awc-list" role="list">
+      <li *ngFor="let row of rows" class="awc-card" role="listitem">
+        <div class="awc-card-head">
+          <div class="awc-card-titles">
+            <span class="awc-title">{{ contestDisplayTitle(row) }}</span>
+            <span class="awc-id" title="Contest id">{{ row.contestId }}</span>
+          </div>
+          <span class="awc-badge">{{ statusLabel(row.status) }}</span>
+        </div>
+        <p class="awc-window">{{ formatWindow(row) }}</p>
+        <div class="awc-actions">
+          <button
+            *ngIf="row.status === 'scoring'"
+            type="button"
+            class="awc-btn awc-btn-primary"
+            [disabled]="runScoringBusyId !== null"
+            (click)="submitRunScoring(row.contestId)"
+          >
+            {{
+              runScoringBusyId === row.contestId ? 'Running scoring…' : 'Run scoring job'
+            }}
+          </button>
+          <button
+            type="button"
+            class="awc-btn"
+            (click)="toggleManage(row)"
+            [attr.aria-expanded]="managingId === row.contestId"
+          >
+            {{ managingId === row.contestId ? 'Close' : 'Change status' }}
+          </button>
+        </div>
+        <p
+          *ngIf="runScoringOk?.contestId === row.contestId"
+          class="awc-muted awc-card-footnote"
+        >
+          {{ runScoringOk?.text }}
+        </p>
+        <p
+          *ngIf="runScoringError && runScoringErrorContestId === row.contestId"
+          class="awc-error awc-card-footnote"
+        >
+          {{ runScoringError }}
+        </p>
+
+        <div *ngIf="managingId === row.contestId" class="awc-form">
+          <label class="awc-field">
+            <span class="awc-label">Target status</span>
+            <select
+              class="awc-select"
+              [(ngModel)]="targetStatus"
+              name="target-{{ row.contestId }}"
+            >
+              <option *ngFor="let t of transitionTargets" [value]="t">
+                {{ statusLabel(t) }}
+              </option>
+            </select>
+          </label>
+          <label class="awc-check">
+            <input type="checkbox" [(ngModel)]="forceTransition" name="force-{{ row.contestId }}" />
+            <span>Force</span>
+            <span class="awc-hint"
+              >(e.g. open→scoring before window end, or paid→scoring/cancelled — see runbook)</span
+            >
+          </label>
+          <label class="awc-field">
+            <span class="awc-label">Note (optional, logs)</span>
+            <input
+              class="awc-input"
+              type="text"
+              [(ngModel)]="reason"
+              maxlength="500"
+              name="reason-{{ row.contestId }}"
+              autocomplete="off"
+            />
+          </label>
+          <p *ngIf="transitionError" class="awc-error">{{ transitionError }}</p>
+          <button
+            type="button"
+            class="awc-btn awc-btn-primary"
+            [disabled]="transitionSubmitting"
+            (click)="submitTransition(row.contestId)"
+          >
+            {{ transitionSubmitting ? 'Applying…' : 'Apply transition' }}
+          </button>
+        </div>
+      </li>
+    </ul>
+  </ng-container>
+</div>

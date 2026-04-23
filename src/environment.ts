@@ -37,6 +37,26 @@ export const environment = {
    * Story G2 — hide left-nav leaderboard panel (staging/prod: set via `LEADERBOARDS_UI_ENABLED` at build).
    */
   leaderboardsUiEnabled: true,
+  /**
+   * Story C2 — hide weekly contests drawer (staging/prod: `WEEKLY_CONTESTS_UI_ENABLED` via `generate-env-prod.mjs`).
+   */
+  weeklyContestsUiEnabled: true,
+  /**
+   * Story P5-D2 — paid entry via Stripe Checkout. When true, contests with `entryFeeCents > 0` use
+   * `POST .../checkout-session` + redirect; requires server `CONTESTS_PAYMENTS_ENABLED=true`.
+   * Staging CI: `CONTESTS_PAYMENTS_ENABLED` at build. Production bundle: always off from `generate-env-prod.mjs`.
+   */
+  contestsPaymentsEnabled: true,
+  /**
+   * Story AD-4 — hide admin dashboard entry (staging/prod: `ADMIN_DASHBOARD_UI_ENABLED` via `generate-env-prod.mjs`).
+   * Local dev: set `false` here to simulate a build with the flag off.
+   */
+  adminDashboardUiEnabled: true,
+  /**
+   * Max time (ms) from Firebase ID token `authTime` before forced `signOut`. `0` = no limit.
+   * Staging/prod: `AUTH_SESSION_MAX_DAYS` via `generate-env-prod.mjs` (production defaults to 3 days if unset).
+   */
+  authSessionMaxMs: 0,
   featureFlags,
   firebase: firebaseConfig,
 };

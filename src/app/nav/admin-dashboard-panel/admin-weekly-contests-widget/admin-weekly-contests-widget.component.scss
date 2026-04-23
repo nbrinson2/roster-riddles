@@ -1,0 +1,249 @@
+@use '../../../../constants';
+
+.awc-widget {
+  font-family: constants.$font-family-secondary;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.awc-create {
+  min-width: 0;
+  max-width: 100%;
+  padding: 16px 16px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(204, 31, 65, 0.25);
+  background: rgba(204, 31, 65, 0.06);
+  box-sizing: border-box;
+}
+
+.awc-create-title {
+  margin: 0 0 10px;
+  font-size: 1.05rem;
+  font-family: constants.$font-family;
+  color: constants.$color-header;
+  letter-spacing: 0.02em;
+}
+
+.awc-create-lead {
+  margin: 0 0 16px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+
+  code {
+    font-size: 0.75rem;
+    word-break: break-all;
+  }
+}
+
+.awc-created {
+  margin: 0 0 16px;
+  font-size: 0.85rem;
+  color: rgba(180, 255, 200, 0.9);
+}
+
+.awc-created-id {
+  font-size: 0.78rem;
+  word-break: break-all;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.awc-create-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 18px;
+  column-gap: 16px;
+  width: 100%;
+
+  @media (min-width: 520px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 20px;
+    row-gap: 20px;
+  }
+}
+
+.awc-create-footer {
+  margin-top: 20px;
+  padding-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.awc-muted {
+  margin: 0;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.awc-status-line {
+  margin: 0;
+}
+
+.awc-empty {
+  margin: 0;
+  padding: 4px 0 2px;
+  line-height: 1.45;
+}
+
+.awc-error {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #ff8a8a;
+}
+
+.awc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.awc-card {
+  min-width: 0;
+  max-width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  box-sizing: border-box;
+}
+
+.awc-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.awc-card-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.awc-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #eee;
+  word-break: break-word;
+}
+
+.awc-id {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+  word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.awc-badge {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(204, 31, 65, 0.25);
+  color: constants.$color-header;
+  font-weight: 600;
+}
+
+.awc-window {
+  margin: 8px 0 10px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.awc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.awc-card-footnote {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.awc-btn {
+  cursor: pointer;
+  font-family: constants.$font-family;
+  font-size: 0.88rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(204, 31, 65, 0.45);
+  background: transparent;
+  color: constants.$color-header;
+}
+
+.awc-btn:hover {
+  background: rgba(204, 31, 65, 0.12);
+}
+
+.awc-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.awc-btn-primary {
+  background: rgba(204, 31, 65, 0.25);
+}
+
+.awc-form {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.awc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.awc-label {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.3;
+}
+
+.awc-select,
+.awc-input {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 0.88rem;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #111;
+  color: #eee;
+}
+
+.awc-check {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.awc-hint {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.45);
+  flex-basis: 100%;
+}

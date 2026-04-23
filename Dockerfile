@@ -28,6 +28,12 @@ ARG STRIPE_PUBLISHABLE_KEY=
 # Express Admin SDK must use the same DB as the Angular client (`environment.firestoreDatabaseId`).
 # Production: `roster-riddles`. Staging builds: pass empty so Express uses `(default)` (see server/admin-firestore.js).
 ARG FIRESTORE_DATABASE_ID=roster-riddles
+# Story AD-4 — Angular bundle: omit admin affordance when false (see scripts/generate-env-prod.mjs)
+ARG ADMIN_DASHBOARD_UI_ENABLED=
+# Story P5 — staging Angular paid UX when `true`; production bundle always omits paid UX (see generate-env-prod.mjs)
+ARG CONTESTS_PAYMENTS_ENABLED=false
+# Optional — max signed-in session in days (`0`/`off` = none). See `generate-env-prod.mjs` / `AuthSessionExpiryService`.
+ARG AUTH_SESSION_MAX_DAYS=
 
 ENV DEPLOYMENT=$DEPLOYMENT \
     FIREBASE_API_KEY=$FIREBASE_API_KEY \
@@ -39,7 +45,10 @@ ENV DEPLOYMENT=$DEPLOYMENT \
     FIREBASE_MEASUREMENT_ID=$FIREBASE_MEASUREMENT_ID \
     API_BASE_URL=$API_BASE_URL \
     STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY \
-    FIRESTORE_DATABASE_ID=$FIRESTORE_DATABASE_ID
+    FIRESTORE_DATABASE_ID=$FIRESTORE_DATABASE_ID \
+    ADMIN_DASHBOARD_UI_ENABLED=$ADMIN_DASHBOARD_UI_ENABLED \
+    CONTESTS_PAYMENTS_ENABLED=$CONTESTS_PAYMENTS_ENABLED \
+    AUTH_SESSION_MAX_DAYS=$AUTH_SESSION_MAX_DAYS
 
 # Fail fast with a clear message if Cloud Build did not pass --build-arg (see cloudbuild.yaml + trigger substitutions)
 RUN if [ -z "${FIREBASE_API_KEY:-}" ] || [ -z "${FIREBASE_PROJECT_ID:-}" ]; then \

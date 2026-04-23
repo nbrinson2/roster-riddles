@@ -10,6 +10,7 @@ import { provideFirestore } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -28,6 +29,7 @@ import { AttributeHeaderComponent } from './game/bio-ball/attribute-header/attri
 import { BioBallComponent } from './game/bio-ball/bio-ball.component';
 import { ActiveRosterTableComponent } from './nav/active-roster-table/active-roster-table.component';
 import { NavComponent } from './nav/nav.component';
+import { NavTopBarComponent } from './nav/nav-top-bar/nav-top-bar.component';
 import { ProfileComponent } from './nav/profile/profile.component';
 import { HintComponent } from './shared/components/hint/hint.component';
 import { SlideUpComponent } from './shared/components/slide-up/slide-up.component';
@@ -51,8 +53,21 @@ import { StreakCardComponent } from './game/nickname-streak/streak-card/streak-c
 import { GuessResultComponent } from './game/nickname-streak/guess-result/guess-result.component';
 import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directive';
 import { authHttpInterceptor } from './auth/auth-http.interceptor';
+import { EmailVerifiedPageComponent } from './auth/email-verified-page/email-verified-page.component';
+import { InlineCalloutBannerComponent } from './shared/components/inline-callout-banner/inline-callout-banner.component';
 import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
 import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-panel.component';
+import { ContestCardComponent } from './nav/contests-panel/components/contest-card/contest-card.component';
+import { ContestsPanelEmptyStateComponent } from './nav/contests-panel/components/empty-state/contests-panel-empty-state.component';
+import { ContestsPanelFetchErrorComponent } from './nav/contests-panel/components/fetch-error/contests-panel-fetch-error.component';
+import { ContestsPanelHeroComponent } from './nav/contests-panel/components/hero/contests-panel-hero.component';
+import { ContestsPanelLoadingComponent } from './nav/contests-panel/components/loading/contests-panel-loading.component';
+import { ContestsPanelSignInPromptComponent } from './nav/contests-panel/components/sign-in-prompt/contests-panel-sign-in-prompt.component';
+import { ContestsPanelComponent } from './nav/contests-panel/contests-panel.component';
+import { AdminDashboardPanelComponent } from './nav/admin-dashboard-panel/admin-dashboard-panel.component';
+import { AdminWeeklyContestsWidgetComponent } from './nav/admin-dashboard-panel/admin-weekly-contests-widget/admin-weekly-contests-widget.component';
+import { AdminRecentRegistrationsWidgetComponent } from './nav/admin-dashboard-panel/admin-recent-registrations-widget/admin-recent-registrations-widget.component';
+import { AdminUserClaimsWidgetComponent } from './nav/admin-dashboard-panel/admin-user-claims-widget/admin-user-claims-widget.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +78,7 @@ import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-p
     AttributeHeaderComponent,
     ActiveRosterTableComponent,
     NavComponent,
+    NavTopBarComponent,
     ProfileComponent,
     SlideUpComponent,
     HintComponent,
@@ -83,7 +99,20 @@ import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-p
     GuessResultComponent,
     FeatureFlagDirective,
     LoginPanelComponent,
+    EmailVerifiedPageComponent,
+    InlineCalloutBannerComponent,
     LeaderboardPanelComponent,
+    ContestsPanelComponent,
+    ContestsPanelHeroComponent,
+    ContestsPanelSignInPromptComponent,
+    ContestsPanelLoadingComponent,
+    ContestsPanelFetchErrorComponent,
+    ContestsPanelEmptyStateComponent,
+    ContestCardComponent,
+    AdminDashboardPanelComponent,
+    AdminWeeklyContestsWidgetComponent,
+    AdminRecentRegistrationsWidgetComponent,
+    AdminUserClaimsWidgetComponent,
   ],
   imports: [
     BrowserModule,
@@ -94,6 +123,7 @@ import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-p
     FormsModule,
     MatGridListModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatSidenavModule,
     MatTableModule,
     MatInputModule,

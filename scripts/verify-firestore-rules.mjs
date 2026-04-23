@@ -74,11 +74,85 @@ try {
   // cache: client cannot write
   await assertFails(setDoc(doc(alice, 'cache', 'y'), { bad: true }));
 
-  // future contest path: deny
-  await assertFails(setDoc(doc(alice, 'contests', 'w1'), { a: 1 }));
+  // contests/{contestId}: signed-in read; client writes denied
+  await assertSucceeds(getDoc(doc(alice, 'contests', 'c1')));
+  await assertFails(getDoc(doc(unauth, 'contests', 'c1')));
+  await assertFails(setDoc(doc(alice, 'contests', 'c1'), { a: 1 }));
+
+  // contests/.../entries/{uid}: read own entry only; no client writes
+  await assertSucceeds(
+    getDoc(doc(alice, 'contests', 'c1', 'entries', 'alice')),
+  );
+  await assertFails(
+    getDoc(doc(alice, 'contests', 'c1', 'entries', 'bob')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'entries', 'alice'), {
+      schemaVersion: 1,
+    }),
+  );
+
+  // contests/.../results/* and payouts/*: signed-in read; no client writes (Story B3)
+  await assertSucceeds(
+    getDoc(doc(alice, 'contests', 'c1', 'results', 'final')),
+  );
+  await assertFails(
+    getDoc(doc(unauth, 'contests', 'c1', 'results', 'final')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'results', 'final'), { schemaVersion: 1 }),
+  );
+  await assertSucceeds(
+    getDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun'), { x: 1 }),
+  );
+
+  // unknown contest subpath: deny
+  await assertFails(getDoc(doc(alice, 'contests', 'c1', 'scratch', 'x')));
+  await assertFails(
+    getDoc(doc(alice, 'contests', 'c1', 'stripePiSettlements', 'pi_test_1')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'stripePiSettlements', 'pi_test_1'), {
+      firstLedgerStripeEventId: 'evt_x',
+    }),
+  );
+  await assertFails(
+    getDoc(doc(unauth, 'contests', 'c1', 'stripePiSettlements', 'pi_test_1')),
+  );
+
+  // processedStripeEvents (Phase 5 P5-E1 / P5-G1): Admin only
+  await assertFails(getDoc(doc(alice, 'processedStripeEvents', 'evt_test_1')));
+  await assertFails(
+    setDoc(doc(alice, 'processedStripeEvents', 'evt_test_2'), {
+      outcome: 'ok',
+    }),
+  );
+  await assertFails(getDoc(doc(unauth, 'processedStripeEvents', 'evt_test_1')));
 
   // ledgers: deny
   await assertFails(setDoc(doc(alice, 'ledgers', 'l1'), { a: 1 }));
+
+  // ledgerEntries (Phase 5 P5-B2 / P5-G1): no client read or write
+  await assertFails(getDoc(doc(alice, 'ledgerEntries', 'evt_test_1')));
+  await assertFails(
+    setDoc(doc(alice, 'ledgerEntries', 'evt_test_1'), { schemaVersion: 1 }),
+  );
+  await assertFails(getDoc(doc(unauth, 'ledgerEntries', 'evt_test_1')));
+
+  // P5-G1: clients cannot forge paid entry / Stripe fields (writes still fully denied on entries)
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'entries', 'alice'), {
+      schemaVersion: 2,
+      contestId: 'c1',
+      uid: 'alice',
+      rulesAcceptedVersion: 1,
+      paymentStatus: 'paid',
+      stripePaymentIntentId: 'pi_evil',
+    }),
+  );
 
   console.log('Firestore rules verification passed.');
 } catch (err) {

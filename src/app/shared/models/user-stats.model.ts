@@ -1,5 +1,5 @@
 /**
- * Shape of `users/{uid}/stats/summary` (see `server/stats-aggregate.js`).
+ * Shape of `users/{uid}/stats/summary` (see `server/lib/stats-aggregate.js`).
  * Firestore may omit fields until first write.
  */
 export interface UserStatsTotals {
@@ -14,13 +14,23 @@ export interface UserStatsBestsByMode {
   fewestMistakesWin: number | null;
 }
 
+/** Consecutive `won` gameplay events for one `gameMode` (processing order). */
+export interface UserStatsWinStreakByMode {
+  currentWinStreak: number;
+  bestWinStreak: number;
+}
+
 export interface UserStatsDocument {
   aggregateVersion?: number;
   totals?: UserStatsTotals;
   totalsByMode?: Record<string, UserStatsTotals>;
   streaks?: {
-    currentWinStreak: number;
-    bestWinStreak: number;
+    byMode?: Record<string, UserStatsWinStreakByMode>;
+    /** Correct nickname guesses in a row (from gameplay `modeMetrics`; nickname mode only). */
+    nicknameStreak?: {
+      current: number;
+      best: number;
+    };
   };
   bests?: {
     fastestWinMs: number | null;

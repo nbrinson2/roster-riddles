@@ -1,0 +1,70 @@
+<div class="contests-panel">
+  <contests-panel-hero
+    [heroTagline]="heroTagline"
+    [dryRunCopy]="dryRunCopy"
+    [realMoneyPaymentsCopy]="realMoneyPaymentsCopy"
+  ></contests-panel-hero>
+
+  <contests-panel-sign-in-prompt
+    *ngIf="!loggedIn"
+    (requestSignIn)="onRequestSignIn()"
+  ></contests-panel-sign-in-prompt>
+
+  <div
+    *ngIf="loggedIn && !emailVerified"
+    class="cc-verify-email-banner"
+    role="status"
+  >
+    <span class="material-symbols-outlined" aria-hidden="true">mark_email_unread</span>
+    <div>
+      <strong>Verify your email to join contests.</strong>
+      Open <strong>Profile</strong> (person icon in the top bar), then use
+      <strong>Resend verification email</strong> if you need a new link. After you confirm your
+      address, return here and tap Join again.
+    </div>
+  </div>
+
+  <div *ngIf="loggedIn" class="cc-body">
+    <contests-panel-loading *ngIf="loading"></contests-panel-loading>
+
+    <contests-panel-fetch-error
+      *ngIf="!loading && listError"
+      [message]="listError"
+      (retry)="retryLoadContests()"
+    ></contests-panel-fetch-error>
+
+    <contests-panel-empty-state
+      *ngIf="!loading && !listError && rows.length === 0"
+    ></contests-panel-empty-state>
+
+    <div
+      *ngIf="!loading && !listError && rows.length > 0"
+      class="cc-list"
+      role="list"
+    >
+      <app-contest-card
+        *ngFor="let row of rows"
+        [row]="row"
+        [expanded]="expandedContestId === row.contestId"
+        [nowMs]="nowMs"
+        [payout]="paidPayoutByContestId[row.contestId]"
+        [finalResults]="finalResultsByContestId[row.contestId]"
+        [entryInfo]="entryInfoByContestId[row.contestId]"
+        [contestsPaymentsEnabled]="contestsPaymentsEnabled"
+        [checkoutAwaitContestId]="checkoutAwaitPaymentContestId"
+        [joinError]="joinError"
+        [joinSuccess]="joinSuccess"
+        [rulesCheckbox]="rulesCheckbox"
+        (rulesCheckboxChange)="rulesCheckbox = $event"
+        [joinSubmitting]="joinSubmitting"
+        [loggedIn]="loggedIn"
+        [emailVerified]="emailVerified"
+        [entryRulesVersion]="entryRulesVersion"
+        [fullRulesHref]="fullRulesHref"
+        (toggleExpand)="toggleExpand(row)"
+        (joinSubmit)="submitJoin()"
+        (paidCheckoutSubmit)="submitPaidCheckout()"
+      ></app-contest-card>
+    </div>
+  </div>
+</div>

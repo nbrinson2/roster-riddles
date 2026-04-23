@@ -1,0 +1,19 @@
+<div
+  class="cc-loading-wrap state state-loading"
+  role="status"
+  aria-busy="true"
+  aria-live="polite"
+>
+  <p class="cc-loading-title">Loading your contests…</p>
+  <mat-spinner diameter="36" aria-hidden="true"></mat-spinner>
+  <p class="cc-loading-hint">
+    Fetching open, upcoming, and recent completed contests.
+  </p>
+  <div class="cc-skeleton-list" aria-hidden="true">
+    <div *ngFor="let _ of skeletonPlaceholders" class="cc-skeleton-card">
+      <span class="cc-skeleton cc-skeleton--title"></span>
+      <span class="cc-skeleton cc-skeleton--line"></span>
+      <span class="cc-skeleton cc-skeleton--line cc-skeleton--short"></span>
+    </div>
+  </div>
+</div>
