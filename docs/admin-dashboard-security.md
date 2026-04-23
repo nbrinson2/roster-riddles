@@ -108,6 +108,8 @@ Rate limits: same contest-read hook as public contest reads ([`contestReadRateLi
 
 Implementation: [`server/admin/admin-contests.http.js`](../server/admin/admin-contests.http.js), [`server/admin/admin-users.http.js`](../server/admin/admin-users.http.js), [`server/middleware/require-admin.js`](../server/middleware/require-admin.js), shared transition runner [`server/contests/contest-transition-run.js`](../server/contests/contest-transition-run.js).
 
+**Broader picture:** what the dashboard exposes today vs operator-only tools vs roadmap considerations — [weekly-contests-admin-capabilities-and-roadmap.md](weekly-contests-admin-capabilities-and-roadmap.md).
+
 ---
 
 ## Implementation pointers (forward references)

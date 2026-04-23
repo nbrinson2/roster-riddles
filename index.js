@@ -27,6 +27,7 @@ import {
 import {
   getAdminUser,
   listAdminUsers,
+  listRecentRegisteredUsers,
   patchAdminUserClaim,
 } from './server/admin/admin-users.http.js';
 import { requireFirebaseAuth } from './server/middleware/require-auth.js';
@@ -126,6 +127,13 @@ app.get(
   requireAdmin,
   contestReadRateLimitHookMiddleware,
   listAdminUsers,
+);
+app.get(
+  '/api/v1/admin/users/recent-registrations',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  listRecentRegisteredUsers,
 );
 app.get(
   '/api/v1/admin/users/:targetUid',

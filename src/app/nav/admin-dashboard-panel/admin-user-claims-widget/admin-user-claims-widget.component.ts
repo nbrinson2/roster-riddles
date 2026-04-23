@@ -87,6 +87,12 @@ export class AdminUserClaimsWidgetComponent implements OnInit, OnDestroy {
     this.loadUser();
   }
 
+  /** Called by the parent dashboard when another widget selects a uid (e.g. recent signups). */
+  applyUidFromPeer(uid: string): void {
+    this.targetUidInput = uid;
+    this.loadUser();
+  }
+
   protected loadUser(): void {
     const uid = this.targetUidInput.trim();
     this.lookupError = null;
