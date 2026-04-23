@@ -417,11 +417,17 @@ Per P5-A1 decision:
 
 **Acceptance criteria**
 
-- [ ] CI runs new tests in `npm run test:server` or dedicated script documented in package.json.
+- [x] CI runs new tests in `npm run test:server` or dedicated script documented in package.json.
 
 **Dependencies**
 
 - Stories P5-E1, P5-F1.
+
+**Deliverable**
+
+- In-memory Firestore double + **`processContestPaymentSuccessWebhook`** idempotency tests: [`server/payments/stripe-webhook-success-idempotency.test.js`](../server/payments/stripe-webhook-success-idempotency.test.js) (picked up by `npm run test:server`).
+- Join matrix classifier + table tests: [`server/contests/contest-join-payment-path.js`](../server/contests/contest-join-payment-path.js), [`server/contests/contest-join-payment-matrix.test.js`](../server/contests/contest-join-payment-matrix.test.js).
+- Optional focused run: **`npm run test:server:phase5-payments`** ([`package.json`](../../package.json)).
 
 ---
 

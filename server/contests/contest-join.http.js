@@ -11,8 +11,8 @@ import { fetchAuthFieldsForUids } from '../lib/auth-display-names.js';
 import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { findBlockingOpenContestSameGameMode } from './contest-blocking-entry.js';
 import { getEntryFeeCentsFromContest } from './contest-entry-fee.js';
+import { classifyContestJoinPaymentPath } from './contest-join-payment-path.js';
 import { logContestJoinLine } from './contest-join-log.js';
-import { isPaidContestEntryForJoinReplay } from './contest-join-paid-replay.js';
 
 /** Phase 4 v1 — must match `ContestGameMode` / ADR. */
 const BIO_BALL = 'bio-ball';
@@ -340,7 +340,13 @@ export async function postContestJoin(req, res) {
 
   if (existingSnap.exists) {
     const existing = existingSnap.data();
-    if (entryFeeCents > 0 && !isPaidContestEntryForJoinReplay(existing)) {
+    const existingRecord = isRecord(existing) ? existing : undefined;
+    if (
+      classifyContestJoinPaymentPath(entryFeeCents, {
+        exists: true,
+        data: existingRecord,
+      }) === 'payment_required'
+    ) {
       return respondPaymentRequired(res, entryFeeCents, requestId, startMs, contestId);
     }
     logContestJoinLine({
@@ -402,7 +408,10 @@ export async function postContestJoin(req, res) {
     });
   }
 
-  if (entryFeeCents > 0) {
+  if (
+    classifyContestJoinPaymentPath(entryFeeCents, { exists: false }) ===
+    'payment_required'
+  ) {
     return respondPaymentRequired(res, entryFeeCents, requestId, startMs, contestId);
   }
 
