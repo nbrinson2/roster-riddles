@@ -20,6 +20,7 @@
     "test:stats-emulator": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/verify-stats-aggregate-emulator.mjs\"",
     "test:stats-concurrency": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/stats-concurrency-load-test.mjs\"",
     "verify:stats-reconciliation": "node ./scripts/verify-stats-reconciliation.mjs",
+    "migrate:stats-schema": "node ./scripts/migrate-stats-to-schema.mjs",
     "verify:leaderboard-cohort": "node ./scripts/verify-leaderboard-cohort.mjs",
     "seed:weekly-contest-staging": "node ./scripts/seed-weekly-contest-staging.mjs",
     "admin:set-claim": "node ./scripts/set-admin-claim.mjs",
