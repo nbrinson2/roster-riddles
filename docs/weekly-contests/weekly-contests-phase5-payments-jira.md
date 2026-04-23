@@ -294,7 +294,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Acceptance criteria**
 
-- [ ] Test mode refund in Dashboard or API produces consistent entry + ledger state.
+- [x] Test mode refund in Dashboard or API produces consistent entry + ledger state.
 
 **Dependencies**
 

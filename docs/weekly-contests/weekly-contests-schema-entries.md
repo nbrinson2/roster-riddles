@@ -36,6 +36,7 @@
 | `stripePaymentIntentId` | `string` | When paid | Stripe id prefix `pi_`. |
 | `stripeCustomerId` | `string` \| `null` | No | Stripe Customer `cus_...` if used. |
 | `paidAt` | `Timestamp` | When `paid` | Server time when payment success was recorded. |
+| `refundedAmountCents` | `number` (int) | When refunds apply (P5-E3) | Cumulative USD cents refunded via Stripe webhooks; capped at `entryFeeCentsSnapshot`. |
 | `lastStripeEventId` | `string` \| `null` | No | Last processed Stripe event id (e.g. `evt_...`) for support / idempotency debugging. |
 
 **Never store** full card numbers, CVC, or Stripe **secret** keys on this document.

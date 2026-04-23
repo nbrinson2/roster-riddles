@@ -62,6 +62,13 @@ export interface ContestEntryDocument {
   /** Server time when payment succeeded and entry became `paid`. */
   paidAt?: unknown;
 
+  /**
+   * Cumulative USD cents from Stripe `refund.updated` (succeeded) (P5-E3), capped at
+   * `entryFeeCentsSnapshot`. Full `charge.refunded` may set `paymentStatus: refunded` without this
+   * field until a matching `refund.updated` runs.
+   */
+  refundedAmountCents?: number;
+
   /** Last processed Stripe `event.id` (debugging / idempotency aid). */
   lastStripeEventId?: string | null;
 }

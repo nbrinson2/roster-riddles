@@ -1,6 +1,6 @@
 # Weekly contests — Stripe webhooks (Phase 5 Story P5-C2+)
 
-**Status:** Signature verification (P5-C2); **success** (P5-E1), **payment failure / expired session** (P5-E2), refunds (P5-E3).  
+**Status:** Signature verification (P5-C2); **success** (P5-E1), **failure / expired** (P5-E2), **refunds** (P5-E3).  
 **Endpoint:** `POST /api/v1/webhooks/stripe`  
 **Implementation:** [`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js), registered in [`index.js`](../index.js) **before** `express.json()` so the raw body is available for `stripe.webhooks.constructEvent`.
 
@@ -81,6 +81,36 @@
 
 ---
 
+## Story P5-E3 — Refunds (`CONTESTS_PAYMENTS_ENABLED=true`)
+
+**Implementation:** [`stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js) → [`stripe-webhook-contest-payment-refund.js`](../server/payments/stripe-webhook-contest-payment-refund.js).
+
+**Stripe API:** Contest `contestId` / `uid` are read from **PaymentIntent metadata** (same as Checkout) via `paymentIntents.retrieve` using the PaymentIntent on the refund or charge.
+
+### Event type → ledger + entry
+
+| Stripe `type` | When applied | `ledgerEntries/{event.id}` | `entries/{uid}` |
+|---------------|--------------|----------------------------|-----------------|
+| **`refund.updated`** | `status === succeeded`, `currency === usd`, `amount > 0`, PI has contest metadata | **`contest_entry_refund`**, **`direction: debit`**, `amountCents` = refund amount, `stripeObjectType: refund`, `stripeObjectId` = `re_...` | Increments **`refundedAmountCents`** (capped at `entryFeeCentsSnapshot`); **`paymentStatus`** stays **`paid`** until cumulative refund reaches snapshot, then **`refunded`** |
+| **`charge.refunded`** | Charge is **fully** refunded: `amount_refunded >= amount`, USD | **None** (avoids double-counting with `refund.updated`) | Sets **`paymentStatus: refunded`** + `lastStripeEventId`; **does not** set `refundedAmountCents` — `refund.updated` remains the source of truth for cents + ledger |
+
+**Idempotency:** `processedStripeEvents/{event.id}` for each Stripe event. **`refund.updated`:** skips with **`refund_skip_already_fully_refunded`** when cumulative refunds already reached the fee snapshot (no extra ledger row).
+
+**Subscribe in Stripe:** Use both **`refund.updated`** and **`charge.refunded`** for correct UX; ledger reconciliation relies on **`refund.updated` (succeeded)**.
+
+### Skip / error outcomes (representative)
+
+| Outcome | Meaning |
+|---------|---------|
+| `refund_skip_non_succeeded` | `refund.updated` not terminal success yet |
+| `refund_not_contest_metadata` | PI metadata missing `contestId` / `uid` |
+| `refund_no_entry` / `refund_no_contest` | Row or contest missing |
+| `refund_skip_entry_not_paid` | Entry not in a refundable payment state |
+| `refund_pi_mismatch` | Entry’s `stripePaymentIntentId` does not match refund PI |
+| `charge_refunded_skip_partial_or_non_usd` | Partial charge refund (handled via `refund.updated`) or non-USD |
+
+---
+
 ## Local development
 
 ```bash
@@ -95,4 +125,4 @@ The CLI prints a **webhook signing secret** (`whsec_...`) — set `STRIPE_WEBHOO
 ## Related
 
 - [stripe.md](../payments/stripe.md) — env vars  
-- [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — P5-E3 (refunds)  
+- [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — backlog / exit criteria  
