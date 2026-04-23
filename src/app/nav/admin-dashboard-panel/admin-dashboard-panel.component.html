@@ -20,9 +20,14 @@
     <app-admin-weekly-contests-widget></app-admin-weekly-contests-widget>
   </section>
 
-  <section class="adp-section" aria-labelledby="adp-users-heading">
-    <h3 id="adp-users-heading" class="adp-section-title">Admin users</h3>
-    <app-admin-user-claims-widget></app-admin-user-claims-widget>
+  <section class="adp-section" aria-labelledby="adp-user-management-heading">
+    <h3 id="adp-user-management-heading" class="adp-section-title">User management</h3>
+    <div class="adp-user-widgets">
+      <app-admin-recent-registrations-widget
+        (uidSelected)="claims.applyUidFromPeer($event)"
+      ></app-admin-recent-registrations-widget>
+      <app-admin-user-claims-widget #claims></app-admin-user-claims-widget>
+    </div>
   </section>
 
   <section class="adp-section" aria-labelledby="adp-runbooks-heading">

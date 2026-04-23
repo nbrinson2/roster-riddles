@@ -99,6 +99,13 @@ $adp-radius: 12px;
   letter-spacing: 0.03em;
 }
 
+.adp-user-widgets {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
 .adp-hint {
   margin: 0 0 12px;
   font-size: 0.8rem;
