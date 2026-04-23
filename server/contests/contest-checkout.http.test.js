@@ -3,21 +3,7 @@ import { describe, it } from 'node:test';
 import {
   buildStripeCheckoutReturnUrl,
   entryDataBlocksNewPaidCheckout,
-  getEntryFeeCentsFromContest,
 } from './contest-checkout.http.js';
-
-describe('getEntryFeeCentsFromContest', () => {
-  it('returns floored cents when valid', () => {
-    assert.equal(getEntryFeeCentsFromContest({ entryFeeCents: 999 }), 999);
-    assert.equal(getEntryFeeCentsFromContest({ entryFeeCents: 12.9 }), 12);
-  });
-
-  it('returns 0 when missing or invalid', () => {
-    assert.equal(getEntryFeeCentsFromContest({}), 0);
-    assert.equal(getEntryFeeCentsFromContest({ entryFeeCents: -1 }), 0);
-    assert.equal(getEntryFeeCentsFromContest({ entryFeeCents: NaN }), 0);
-  });
-});
 
 describe('entryDataBlocksNewPaidCheckout', () => {
   it('returns false when no entry', () => {

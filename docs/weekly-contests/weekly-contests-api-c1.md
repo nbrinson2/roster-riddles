@@ -56,7 +56,7 @@ When **`contests/{contestId}.entryFeeCents`** is a **positive** integer (paid en
 | Entry exists but not **`paid`** (e.g. `failed`, `pending`, legacy row without payment, `refunded`) | **409** | Same **`payment_required`** |
 | Entry exists with **`paymentStatus: paid`** | **200** | Normal **`idempotentReplay: true`** (same as free replay) |
 
-**Free contests** (`entryFeeCents === 0` or absent): unchanged — first call creates the entry; repeats return **200** with **`idempotentReplay: true`**.
+**Free contests** (`entryFeeCents === 0` or absent): unchanged — first call creates the entry; repeats return **200** with **`idempotentReplay: true`**. Regression: Story **P5-F2** — [`server/contests/contest-entry-fee.test.js`](../server/contests/contest-entry-fee.test.js); manual **Walk C** in [weekly-contests-ui-walkthrough-check.md](weekly-contests-ui-walkthrough-check.md).
 
 ```mermaid
 flowchart TD
@@ -102,6 +102,7 @@ Structured lines: `component: contest_join`, `outcome`, `requestId`, `httpStatus
 |------|------|
 | `server/contests/contest-join.http.js` | Handler |
 | `server/contests/contest-join-paid-replay.js` | Paid-contest idempotent replay rule (P5-F1) |
+| `server/contests/contest-entry-fee.js` | `getEntryFeeCentsFromContest` (join / checkout / webhooks; P5-F2 tests) |
 | `server/contests/contest-join-log.js` | JSON logs |
 | `server/middleware/rate-limit-hooks.middleware.js` | `contestJoinRateLimitHookMiddleware` |
 | `index.js` | Route registration |

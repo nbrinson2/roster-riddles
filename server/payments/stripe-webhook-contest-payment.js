@@ -8,7 +8,7 @@
 import admin from 'firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { fetchAuthFieldsForUids } from '../lib/auth-display-names.js';
-import { getEntryFeeCentsFromContest } from '../contests/contest-checkout.http.js';
+import { getEntryFeeCentsFromContest } from '../contests/contest-entry-fee.js';
 
 /** Top-level idempotency marker (Stripe `evt_...` redelivery). */
 export const PROCESSED_STRIPE_EVENTS = 'processedStripeEvents';

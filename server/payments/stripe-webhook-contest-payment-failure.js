@@ -4,7 +4,7 @@
  * @see docs/weekly-contests/weekly-contests-phase5-webhooks.md
  */
 import { FieldValue } from 'firebase-admin/firestore';
-import { getEntryFeeCentsFromContest } from '../contests/contest-checkout.http.js';
+import { getEntryFeeCentsFromContest } from '../contests/contest-entry-fee.js';
 import {
   PROCESSED_STRIPE_EVENTS,
   stripeContestMetadataToRecord,

@@ -339,7 +339,7 @@ Per P5-A1 decision:
 
 **Acceptance criteria**
 
-- [ ] Documented in [weekly-contests-ui-walkthrough-check.md](weekly-contests-ui-walkthrough-check.md) optional row for “free contest join”.
+- [x] Documented in [weekly-contests-ui-walkthrough-check.md](weekly-contests-ui-walkthrough-check.md) optional row for “free contest join”.
 
 **Dependencies**
 

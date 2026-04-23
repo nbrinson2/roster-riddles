@@ -13,7 +13,7 @@
 | **Game mode** | Contests entry is **Bio Ball only** — use the game switcher so **Bio Ball** is active; the nav **event** (weekly contests) icon appears only with Bio Ball when the UI flag is on. |
 | **Build flag** | `WEEKLY_CONTESTS_UI_ENABLED` must be true for this build/environment ([environment-matrix.md](environment-matrix.md)). |
 | **Auth** | **Signed-in** test user (Firebase). Unsigned users should only see sign-in, not the list. |
-| **Data** | **Walk A** needs at least one contest in **`open`** with **join window live** (`now ∈ [windowStart, windowEnd)`). **Walk B** needs at least one contest in **`paid`** with **`payouts/dryRun`** (and ideally **`results/final`**) already written — use staging seed or a completed contest from G2. |
+| **Data** | **Walk A** needs at least one contest in **`open`** with **join window live** (`now ∈ [windowStart, windowEnd)`). **Walk B** needs at least one contest in **`paid`** with **`payouts/dryRun`** (and ideally **`results/final`**) already written — use staging seed or a completed contest from G2. **Walk C** needs an **`open`** contest with **no entry fee** (`entryFeeCents` absent or **`0`**) — Phase 5 Story P5-F2. |
 
 ---
 
@@ -31,6 +31,21 @@ Goal: prove a new entrant can discover the dry-run banner, open a contest, accep
 
 **Pass:** Strip + card + expanded detail + join success + entered state.  
 **Fail:** List error, join disabled with no clear reason while window is open, or repeated 4xx/5xx on join.
+
+---
+
+## Walk C — Free contest join (`entryFeeCents === 0`) — Phase 5 P5-F2
+
+Goal: regression after paid-entry work — **zero-fee** contests still join via **`POST .../join`** only (no Stripe Checkout required). See [weekly-contests-api-c1.md](weekly-contests-api-c1.md) (free path) and [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) Story **P5-F2**.
+
+1. **Data** — Use or seed an **`open`** contest with **`entryFeeCents` omitted or `0`** (no paid-entry line on the card).
+2. **Drawer** — Open weekly contests (same as Walk A step 1).
+3. **Card** — Confirm the contest shows **no** paid-entry / Checkout CTA for that row (free path: **Join contest** only, not “Pay to enter” / checkout).
+4. **Join** — Accept rules, click **Join contest** (not checkout).
+5. **Outcome** — **200** success path: entered state, **no** `409` **`payment_required`** from the join API. Optional: repeat join once → **idempotent replay** still **200**.
+
+**Pass:** Free contest joins without Stripe; no `payment_required` on join.  
+**Fail:** Join returns **`payment_required`** while fee is zero, or UI forces checkout for a zero-fee contest.
 
 ---
 
@@ -62,11 +77,12 @@ Goal: prove a returning user can open the panel, find the most recent finished c
 |------|--------|
 | **A** | Discovery, trust copy (strip), join API + entry listener |
 | **B** | Read paths for **`paid`**, **`payouts/dryRun`**, **`results/final`**, P1 closure UI |
+| **C (P5-F2)** | **Free** contest (`entryFeeCents === 0`): join without Stripe; join API must **not** return **`payment_required`** |
 
 ---
 
 ## See also
 
 - Full lifecycle + operator steps: [weekly-contests-runbook-g2.md](weekly-contests-runbook-g2.md)  
-- Join contract: [weekly-contests-api-c1.md](weekly-contests-api-c1.md)  
+- Join contract: [weekly-contests-api-c1.md](weekly-contests-api-c1.md) (paid vs free — P5-F1 / P5-F2)  
 - Schema for results/payout docs: [weekly-contests-schema-results.md](weekly-contests-schema-results.md)

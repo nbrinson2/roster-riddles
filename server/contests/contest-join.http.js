@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { fetchAuthFieldsForUids } from '../lib/auth-display-names.js';
 import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { findBlockingOpenContestSameGameMode } from './contest-blocking-entry.js';
-import { getEntryFeeCentsFromContest } from './contest-checkout.http.js';
+import { getEntryFeeCentsFromContest } from './contest-entry-fee.js';
 import { logContestJoinLine } from './contest-join-log.js';
 import { isPaidContestEntryForJoinReplay } from './contest-join-paid-replay.js';
 

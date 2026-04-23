@@ -3,17 +3,21 @@
  * Authenticated Stripe Checkout Session for paid contest entry (redirect flow).
  * @see docs/weekly-contests/weekly-contests-api-phase5.md
  * @see docs/weekly-contests/weekly-contests-phase5-entry-fees-adr.md
+ * @see ./contest-entry-fee.js — `getEntryFeeCentsFromContest` (re-exported for callers that already import checkout)
  */
 import { Timestamp } from 'firebase-admin/firestore';
 import { z } from 'zod';
 import { findBlockingOpenContestSameGameMode } from './contest-blocking-entry.js';
 import { logContestCheckoutLine } from './contest-checkout-log.js';
+import { getEntryFeeCentsFromContest } from './contest-entry-fee.js';
 import { getAdminFirestore } from '../lib/admin-firestore.js';
 import {
   getStripeClient,
   isContestsPaymentsEnabled,
   sendStripeServiceUnavailable,
 } from '../payments/stripe-server.js';
+
+export { getEntryFeeCentsFromContest };
 
 /** Phase 4 v1 — must match contest join / ADR. */
 const BIO_BALL = 'bio-ball';
@@ -36,18 +40,6 @@ const checkoutBodySchema = z
  */
 function isRecord(c) {
   return c != null && typeof c === 'object' && !Array.isArray(c);
-}
-
-/**
- * @param {Record<string, unknown>} contest
- * @returns {number} Non-negative integer cents; `0` when absent or invalid.
- */
-export function getEntryFeeCentsFromContest(contest) {
-  const v = contest.entryFeeCents;
-  if (typeof v !== 'number' || !Number.isFinite(v) || v < 0) {
-    return 0;
-  }
-  return Math.floor(v);
 }
 
 /**
