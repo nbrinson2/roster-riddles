@@ -64,7 +64,7 @@
 - **Ledger:** internal table/collection for credits, debits, and balances per user and per contest (audit trail for disputes).
 - **Exit criteria:** money flows in **test mode**; ledger always matches Stripe dashboard for test cases.
 
-**Repository:** Not implemented end-to-end. See [stripe.md](stripe.md) for env var names and safety rules; Angular build can embed **publishable** keys only.
+**Repository:** Stripe Checkout, webhooks, ledger, and join gating are implemented for paid entry (**test mode**). See [stripe.md](stripe.md) for env var names and safety rules (Angular embeds **publishable** keys only). Staging sign-off: [weekly-contests-phase5-staging-qa.md](../weekly-contests/weekly-contests-phase5-staging-qa.md).
 
 **ADR (entry fees + join lifecycle):** [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md).
 
@@ -111,7 +111,7 @@ Follow phases **in order** where possible: **0 → 1 → 2 → 3 → 4 → 5 →
 | 2 | Events + stats | **Implemented** (gameplay events + aggregates; see [gameplay-stats-phase2.md](gameplay-stats-phase2.md)). |
 | 3 | Leaderboards | **Implemented** (see leaderboards docs). |
 | 4 | Weekly contests, dry-run | **Implemented** for Bio Ball + dry-run payouts. |
-| 5 | Entry fees | **Not implemented** (Stripe placeholders only). |
+| 5 | Entry fees | **Partial** — Checkout + webhooks + ledger in repo; staging sign-off per [weekly-contests-phase5-staging-qa.md](../weekly-contests/weekly-contests-phase5-staging-qa.md). |
 | 6 | Payouts | **Not implemented**. |
 | 7 | Hardening + ops | **Partial** — improve as money flows go live. |
 

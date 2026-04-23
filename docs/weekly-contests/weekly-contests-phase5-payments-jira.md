@@ -395,12 +395,16 @@ Per P5-A1 decision:
 
 **Acceptance criteria**
 
-- [ ] Steps to satisfy **Phase exit criteria** table at top of this doc.
-- [ ] Link from [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 5 section.
+- [x] Steps to satisfy **Phase exit criteria** table at top of this doc.
+- [x] Link from [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 5 section.
 
 **Dependencies**
 
 - Core stories P5-D2, P5-E1–E3 completed in staging.
+
+**Deliverable**
+
+- **[`docs/weekly-contests/weekly-contests-phase5-staging-qa.md`](weekly-contests-phase5-staging-qa.md)** ✅
 
 ---
 
@@ -443,5 +447,6 @@ Parallelism: **C1/C2** can start after A1; **B1/B2** after A1; **D1** after B+C;
 
 - [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) — Phases 5–7 context  
 - [stripe.md](../payments/stripe.md) — Environment variables  
+- [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md) — Staging QA & reconciliation (P5-H2)  
 - [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md) — Current entry shape  
 - [weekly-contests-api-c1.md](weekly-contests-api-c1.md) — Join API  
