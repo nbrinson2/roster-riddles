@@ -64,8 +64,13 @@ const weeklyContestsUiEnabled = process.env.WEEKLY_CONTESTS_UI_ENABLED !== 'fals
 /** Story AD-4 — omit admin dashboard affordance when ADMIN_DASHBOARD_UI_ENABLED=false */
 const adminDashboardUiEnabled = process.env.ADMIN_DASHBOARD_UI_ENABLED !== 'false';
 
-/** Story P5-D2 — match Express `CONTESTS_PAYMENTS_ENABLED=true` for paid Checkout UX */
-const contestsPaymentsEnabled = process.env.CONTESTS_PAYMENTS_ENABLED === 'true';
+/**
+ * Story P5-D2 — paid entry UX in the SPA (Stripe Checkout redirect).
+ * Production: always false (no live paid checkout in the prod bundle).
+ * Staging: true only when build receives `CONTESTS_PAYMENTS_ENABLED=true` (match server QA).
+ */
+const contestsPaymentsEnabled =
+  isStaging && process.env.CONTESTS_PAYMENTS_ENABLED === 'true';
 
 const content = `import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
 import type { DeploymentEnvironment } from './environment.types';

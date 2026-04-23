@@ -44,7 +44,7 @@ export const environment = {
   /**
    * Story P5-D2 — paid entry via Stripe Checkout. When true, contests with `entryFeeCents > 0` use
    * `POST .../checkout-session` + redirect; requires server `CONTESTS_PAYMENTS_ENABLED=true`.
-   * Staging/prod: `CONTESTS_PAYMENTS_ENABLED` at build via `generate-env-prod.mjs`.
+   * Staging CI: `CONTESTS_PAYMENTS_ENABLED` at build. Production bundle: always off from `generate-env-prod.mjs`.
    */
   contestsPaymentsEnabled: true,
   /**
