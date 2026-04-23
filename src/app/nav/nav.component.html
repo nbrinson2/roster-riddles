@@ -66,89 +66,20 @@
       </div>
     </mat-sidenav>
     <mat-sidenav-content>
-      <div class="nav-container">
-        <div class="nav-left-icons">
-          <div class="menu-icon-container" (click)="openMenu()">
-            <span class="material-symbols-outlined menu-icon">info</span>
-          </div>
-          <div
-            *ngIf="leaderboardsUiEnabled"
-            class="menu-icon-container"
-            role="button"
-            tabindex="0"
-            aria-label="Open leaderboard"
-            (click)="openLeaderboard()"
-            (keydown.enter)="openLeaderboard()"
-            (keydown.space)="$event.preventDefault(); openLeaderboard()"
-          >
-            <span class="material-symbols-outlined menu-icon">leaderboard</span>
-          </div>
-          <div
-            *ngIf="
-              weeklyContestsUiEnabled &&
-              currentGameName === GameType.BIO_BALL
-            "
-            class="menu-icon-container"
-            role="button"
-            tabindex="0"
-            aria-label="Open weekly contests"
-            (click)="openContests()"
-            (keydown.enter)="openContests()"
-            (keydown.space)="$event.preventDefault(); openContests()"
-          >
-            <span class="material-symbols-outlined menu-icon">event</span>
-          </div>
-        </div>
-        <div class="icons-right-container">
-          <ng-container *ngIf="currentGameMode() !== 'n/a'">
-            <difficulty-toggle
-              [value]="currentGameMode()"
-              (valueChange)="handleDifficultyChange($event)"
-            ></difficulty-toggle>
-          </ng-container>
-          <div *ngIf="!loggedIn" class="login-button" (click)="openLoginMenu()">
-            <span class="material-symbols-outlined login-icon"> login </span>
-          </div>
-          <div *ngIf="loggedIn" class="profile-logout-container">
-            <span
-              class="material-symbols-outlined logout-icon"
-              (click)="logout()"
-            >
-              logout
-            </span>
-            <div
-              *ngIf="
-                adminDashboardUiEnabled &&
-                  (userMeCapabilities.isAdmin$ | async)
-              "
-              class="admin-dashboard-icon-wrap"
-              role="button"
-              tabindex="0"
-              aria-label="Open admin dashboard"
-              (click)="openAdminDashboard()"
-              (keydown.enter)="openAdminDashboard()"
-              (keydown.space)="
-                $event.preventDefault(); openAdminDashboard()
-              "
-            >
-              <span class="material-symbols-outlined admin-dashboard-icon"
-                >admin_panel_settings</span
-              >
-            </div>
-            <span
-              class="material-symbols-outlined profile-icon"
-              (click)="openProfileMenu()"
-              (keydown.enter)="openProfileMenu()"
-              (keydown.space)="$event.preventDefault(); openProfileMenu()"
-              role="button"
-              tabindex="0"
-              aria-label="Account"
-            >
-              person
-            </span>
-          </div>
-        </div>
-      </div>
+      <nav-top-bar
+        [leaderboardsUiEnabled]="leaderboardsUiEnabled"
+        [weeklyContestsUiEnabled]="weeklyContestsUiEnabled"
+        [adminDashboardUiEnabled]="adminDashboardUiEnabled"
+        [loggedIn]="loggedIn"
+        (menuOpen)="openMenu()"
+        (leaderboardOpen)="openLeaderboard()"
+        (contestsOpen)="openContests()"
+        (difficultyChange)="handleDifficultyChange($event)"
+        (loginOpen)="openLoginMenu()"
+        (logout)="logout()"
+        (adminDashboardOpen)="openAdminDashboard()"
+        (profileOpen)="openProfileMenu()"
+      ></nav-top-bar>
       <div
         *ngIf="postSignUpEmailBanner as verifyBanner"
         class="email-verify-post-login-banner"

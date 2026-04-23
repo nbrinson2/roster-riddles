@@ -15,7 +15,6 @@ import type { User } from 'firebase/auth';
 import { filter, Subject, takeUntil } from 'rxjs';
 import type { AuthSuccessDetail } from '../auth/login-panel/login-panel.component';
 import { AuthService } from '../auth/auth.service';
-import { UserMeCapabilitiesService } from '../auth/user-me-capabilities.service';
 import {
   AttributesType,
   TeamFullName,
@@ -130,7 +129,6 @@ export class NavComponent implements OnInit, OnDestroy {
     private router: Router,
     private slideUpService: SlideUpService,
     private authService: AuthService,
-    protected readonly userMeCapabilities: UserMeCapabilitiesService,
     @Inject(GAME_SERVICE)
     private gameService: GameService<GamePlayer>,
     private nicknameStreakEngineService: NicknameStreakEngineService,

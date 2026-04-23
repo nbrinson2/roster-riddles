@@ -28,6 +28,7 @@ import { AttributeHeaderComponent } from './game/bio-ball/attribute-header/attri
 import { BioBallComponent } from './game/bio-ball/bio-ball.component';
 import { ActiveRosterTableComponent } from './nav/active-roster-table/active-roster-table.component';
 import { NavComponent } from './nav/nav.component';
+import { NavTopBarComponent } from './nav/nav-top-bar/nav-top-bar.component';
 import { ProfileComponent } from './nav/profile/profile.component';
 import { HintComponent } from './shared/components/hint/hint.component';
 import { SlideUpComponent } from './shared/components/slide-up/slide-up.component';
@@ -75,6 +76,7 @@ import { AdminUserClaimsWidgetComponent } from './nav/admin-dashboard-panel/admi
     AttributeHeaderComponent,
     ActiveRosterTableComponent,
     NavComponent,
+    NavTopBarComponent,
     ProfileComponent,
     SlideUpComponent,
     HintComponent,

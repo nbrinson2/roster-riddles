@@ -1,0 +1,74 @@
+<div class="nav-container">
+  <div class="nav-left-icons">
+    <div class="menu-icon-container" (click)="menuOpen.emit()">
+      <span class="material-symbols-outlined menu-icon">info</span>
+    </div>
+    <div
+      *ngIf="leaderboardsUiEnabled"
+      class="menu-icon-container"
+      role="button"
+      tabindex="0"
+      aria-label="Open leaderboard"
+      (click)="leaderboardOpen.emit()"
+      (keydown.enter)="leaderboardOpen.emit()"
+      (keydown.space)="$event.preventDefault(); leaderboardOpen.emit()"
+    >
+      <span class="material-symbols-outlined menu-icon">leaderboard</span>
+    </div>
+    <div
+      *ngIf="
+        weeklyContestsUiEnabled && currentGameName === GameType.BIO_BALL
+      "
+      class="menu-icon-container"
+      role="button"
+      tabindex="0"
+      aria-label="Open weekly contests"
+      (click)="contestsOpen.emit()"
+      (keydown.enter)="contestsOpen.emit()"
+      (keydown.space)="$event.preventDefault(); contestsOpen.emit()"
+    >
+      <span class="material-symbols-outlined menu-icon">event</span>
+    </div>
+  </div>
+  <div class="icons-right-container">
+    <ng-container *ngIf="currentGameMode() !== 'n/a'">
+      <difficulty-toggle
+        [value]="currentGameMode()"
+        (valueChange)="onDifficultyChange($event)"
+      ></difficulty-toggle>
+    </ng-container>
+    <div *ngIf="!loggedIn" class="login-button" (click)="loginOpen.emit()">
+      <span class="material-symbols-outlined login-icon"> login </span>
+    </div>
+    <div *ngIf="loggedIn" class="profile-logout-container">
+      <span class="material-symbols-outlined logout-icon" (click)="logout.emit()">
+        logout
+      </span>
+      <div
+        *ngIf="adminDashboardUiEnabled && (userMeCapabilities.isAdmin$ | async)"
+        class="admin-dashboard-icon-wrap"
+        role="button"
+        tabindex="0"
+        aria-label="Open admin dashboard"
+        (click)="adminDashboardOpen.emit()"
+        (keydown.enter)="adminDashboardOpen.emit()"
+        (keydown.space)="$event.preventDefault(); adminDashboardOpen.emit()"
+      >
+        <span class="material-symbols-outlined admin-dashboard-icon"
+          >admin_panel_settings</span
+        >
+      </div>
+      <span
+        class="material-symbols-outlined profile-icon"
+        (click)="profileOpen.emit()"
+        (keydown.enter)="profileOpen.emit()"
+        (keydown.space)="$event.preventDefault(); profileOpen.emit()"
+        role="button"
+        tabindex="0"
+        aria-label="Account"
+      >
+        person
+      </span>
+    </div>
+  </div>
+</div>
