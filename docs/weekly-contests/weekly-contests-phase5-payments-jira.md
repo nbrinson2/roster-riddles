@@ -358,8 +358,8 @@ Per P5-A1 decision:
 
 **Acceptance criteria**
 
-- [ ] Rules unit tests extended ([test:firestore-rules](package.json)) for new paths.
-- [ ] Deploy notes in [firestore-rules-deploy.md](../platform/firestore-rules-deploy.md) if new collections.
+- [x] Rules unit tests extended ([test:firestore-rules](package.json)) for new paths.
+- [x] Deploy notes in [firestore-rules-deploy.md](../platform/firestore-rules-deploy.md) if new collections.
 
 **Dependencies**
 

@@ -1,6 +1,19 @@
 # Deploying `firestore.rules` (staging + production)
 
-The repo’s rules file targets **gameplay stats** (`users/{uid}/gameplayEvents/*`, `users/{uid}/stats/*`) and existing profile/cache paths. Deploy the **same** `firestore.rules` everywhere the app’s clients talk to Firestore so clients cannot forge events or aggregates.
+The repo’s rules file targets **gameplay stats** (`users/{uid}/gameplayEvents/*`, `users/{uid}/stats/*`), existing profile/cache paths, and **Phase 5** payment paths (see below). Deploy the **same** `firestore.rules` everywhere the app’s clients talk to Firestore so clients cannot forge events or aggregates.
+
+### Phase 5 — payments (Story P5-G1)
+
+No **additional** composite indexes are required for these rules (deny-all client access). Paths locked down for **Admin SDK / server only**:
+
+| Path | Client access |
+|------|----------------|
+| **`ledgerEntries/{id}`** | No read or write |
+| **`processedStripeEvents/{id}`** | No read or write |
+| **`contests/{contestId}/stripePiSettlements/{paymentIntentId}`** | No read or write |
+| **`contests/{contestId}/entries/{uid}`** | Signed-in read **own** entry only; **no** client creates/updates/deletes (includes all payment fields) |
+
+Verify locally: `npm run test:firestore-rules`.
 
 ## Production (named database `roster-riddles`)
 
