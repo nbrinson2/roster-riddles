@@ -15,6 +15,8 @@ Creates a **Stripe Checkout Session** (`mode: payment`) so the caller can redire
 | **Rate limit** | Same as `POST .../join` — per **uid**, fixed window ([weekly-contests-api-c1.md](weekly-contests-api-c1.md)). |
 | **Feature flag** | Requires `CONTESTS_PAYMENTS_ENABLED=true` and `STRIPE_SECRET_KEY`; requires `CONTESTS_CHECKOUT_APP_ORIGIN` for success/cancel URLs. |
 
+**Join vs paid fee:** When **`entryFeeCents > 0`**, **`POST .../join`** responds with **409** `payment_required` (see [weekly-contests-api-c1.md](weekly-contests-api-c1.md)); only **Checkout + webhooks** create paid `entries/{uid}`.
+
 ### Request
 
 - **Path:** `contestId` — same charset rules as join ([weekly-contests-api-c1.md](weekly-contests-api-c1.md)).

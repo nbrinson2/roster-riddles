@@ -48,6 +48,9 @@ export interface ContestJoinResponse {
     joinedAt: string;
     displayNameSnapshot?: string | null;
     clientRequestId?: string;
+    /** Present when entry includes Phase 5 payment fields (e.g. paid replay). */
+    paymentStatus?: ContestEntryPaymentStatus;
+    entryFeeCentsSnapshot?: number;
   };
   contest: {
     contestId: string;

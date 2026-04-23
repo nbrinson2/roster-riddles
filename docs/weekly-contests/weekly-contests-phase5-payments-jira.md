@@ -321,8 +321,8 @@ Per P5-A1 decision:
 
 **Acceptance criteria**
 
-- [ ] [weekly-contests-api-c1.md](weekly-contests-api-c1.md) updated with new error codes and flow diagram (mermaid optional).
-- [ ] Idempotent replay behavior preserved for **free** contests.
+- [x] [weekly-contests-api-c1.md](weekly-contests-api-c1.md) updated with new error codes and flow diagram (mermaid optional).
+- [x] Idempotent replay behavior preserved for **free** contests.
 
 **Dependencies**
 

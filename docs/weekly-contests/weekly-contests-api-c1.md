@@ -1,7 +1,7 @@
 # Weekly contests — join API (Story C1)
 
 **Status:** Implemented (Express)  
-**Depends on:** [weekly-contests-schema-contests.md](weekly-contests-schema-contests.md), [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md)
+**Depends on:** [weekly-contests-schema-contests.md](weekly-contests-schema-contests.md), [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md), [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md) (paid vs free join)
 
 ## Endpoint
 
@@ -46,6 +46,27 @@
 
 If the user already has an entry document, **`idempotentReplay`** is **`true`** and the same shapes are returned (no duplicate write).
 
+### Paid contests (`entryFeeCents > 0`) — Phase 5 Story P5-F1
+
+When **`contests/{contestId}.entryFeeCents`** is a **positive** integer (paid entry fee), this endpoint **does not** create an entry. Clients must use **`POST /api/v1/contests/:contestId/checkout-session`** and complete Stripe Checkout; the **webhook** creates `entries/{uid}` with **`paymentStatus: paid`** ([weekly-contests-api-phase5.md](weekly-contests-api-phase5.md)).
+
+| Situation | HTTP | Response |
+|-----------|------|----------|
+| No entry yet | **409** | `error.code: payment_required`, `error.entryFeeCents` — use Checkout |
+| Entry exists but not **`paid`** (e.g. `failed`, `pending`, legacy row without payment, `refunded`) | **409** | Same **`payment_required`** |
+| Entry exists with **`paymentStatus: paid`** | **200** | Normal **`idempotentReplay: true`** (same as free replay) |
+
+**Free contests** (`entryFeeCents === 0` or absent): unchanged — first call creates the entry; repeats return **200** with **`idempotentReplay: true`**.
+
+```mermaid
+flowchart TD
+  A[POST join] --> B{contest.entryFeeCents > 0?}
+  B -->|no| C[Phase 4 free path: create or replay 200]
+  B -->|yes| D{entries/uid exists and paymentStatus paid?}
+  D -->|yes| E[200 idempotentReplay]
+  D -->|no| F[409 payment_required]
+```
+
 ## Errors
 
 | HTTP | `error.code` | When |
@@ -56,6 +77,7 @@ If the user already has an entry document, **`idempotentReplay`** is **`true`** 
 | 400 | `wrong_game_mode` | Contest is not Bio Ball (Phase 4 v1) |
 | 401 | `unauthenticated` | Missing/invalid Bearer token |
 | 404 | `contest_not_found` | No `contests/{contestId}` document |
+| 409 | `payment_required` | Contest has **`entryFeeCents > 0`**. Use Checkout (`POST .../checkout-session`); entry is created on successful payment webhook. Body includes **`error.entryFeeCents`**. (Story P5-F1.) |
 | 409 | `already_in_open_contest` | User already has an entry in another **`open`** contest with the same `gameMode` (one open contest per game type at a time). Response may include `existingContestId`. |
 | 429 | `rate_limited` | Per-uid join rate cap (see below) |
 | 500 | `internal_error` | Firestore/Auth failure |
@@ -79,6 +101,7 @@ Structured lines: `component: contest_join`, `outcome`, `requestId`, `httpStatus
 | File | Role |
 |------|------|
 | `server/contests/contest-join.http.js` | Handler |
+| `server/contests/contest-join-paid-replay.js` | Paid-contest idempotent replay rule (P5-F1) |
 | `server/contests/contest-join-log.js` | JSON logs |
 | `server/middleware/rate-limit-hooks.middleware.js` | `contestJoinRateLimitHookMiddleware` |
 | `index.js` | Route registration |

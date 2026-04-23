@@ -28,6 +28,11 @@ export function mapContestJoinErrorMessage(err: HttpErrorResponse): string {
       ? msg
       : 'You are already in another open contest for this game type. Finish or wait until it closes before joining a different one.';
   }
+  if (err.status === 409 && code === 'payment_required') {
+    return typeof msg === 'string'
+      ? msg
+      : 'This contest requires paid entry — use checkout from the contests panel.';
+  }
   if (err.status === 0) {
     return 'Could not reach the server. Is the API running?';
   }

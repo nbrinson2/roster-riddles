@@ -1,6 +1,8 @@
 /**
- * POST /api/v1/contests/:contestId/join — Story C1 (authenticated contest join).
+ * POST /api/v1/contests/:contestId/join — Story C1 (authenticated contest join);
+ * Phase 5 Story P5-F1 — paid contests (`entryFeeCents > 0`): **409** `payment_required` unless entry is **`paid`** (Checkout + webhook path).
  * @see docs/weekly-contests/weekly-contests-api-c1.md
+ * @see docs/weekly-contests/weekly-contests-phase5-entry-fees-adr.md
  */
 import admin from 'firebase-admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
@@ -8,7 +10,9 @@ import { z } from 'zod';
 import { fetchAuthFieldsForUids } from '../lib/auth-display-names.js';
 import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { findBlockingOpenContestSameGameMode } from './contest-blocking-entry.js';
+import { getEntryFeeCentsFromContest } from './contest-checkout.http.js';
 import { logContestJoinLine } from './contest-join-log.js';
+import { isPaidContestEntryForJoinReplay } from './contest-join-paid-replay.js';
 
 /** Phase 4 v1 — must match `ContestGameMode` / ADR. */
 const BIO_BALL = 'bio-ball';
@@ -48,6 +52,31 @@ function timestampToIso(ts) {
  */
 function isRecord(c) {
   return c != null && typeof c === 'object' && !Array.isArray(c);
+}
+
+/**
+ * @param {import('express').Response} res
+ * @param {number} entryFeeCents
+ * @param {string} requestId
+ * @param {number} startMs
+ * @param {string} contestId
+ */
+function respondPaymentRequired(res, entryFeeCents, requestId, startMs, contestId) {
+  logContestJoinLine({
+    requestId,
+    httpStatus: 409,
+    outcome: 'payment_required',
+    latencyMs: Date.now() - startMs,
+    contestId,
+  });
+  return res.status(409).json({
+    error: {
+      code: 'payment_required',
+      message:
+        'This contest has an entry fee. Complete Stripe Checkout first; your entry is created when payment succeeds (webhook). This endpoint only creates free entries.',
+      entryFeeCents,
+    },
+  });
 }
 
 /**
@@ -289,6 +318,8 @@ export async function postContestJoin(req, res) {
     });
   }
 
+  const entryFeeCents = getEntryFeeCentsFromContest(contest);
+
   const entryRef = db.doc(`contests/${contestId}/entries/${uid}`);
   let existingSnap;
   try {
@@ -309,6 +340,9 @@ export async function postContestJoin(req, res) {
 
   if (existingSnap.exists) {
     const existing = existingSnap.data();
+    if (entryFeeCents > 0 && !isPaidContestEntryForJoinReplay(existing)) {
+      return respondPaymentRequired(res, entryFeeCents, requestId, startMs, contestId);
+    }
     logContestJoinLine({
       requestId,
       httpStatus: 200,
@@ -366,6 +400,10 @@ export async function postContestJoin(req, res) {
         existingContestId: blockingContestId,
       },
     });
+  }
+
+  if (entryFeeCents > 0) {
+    return respondPaymentRequired(res, entryFeeCents, requestId, startMs, contestId);
   }
 
   let displayName = null;
@@ -451,6 +489,12 @@ function formatEntryResponse(data, contestId) {
         : null,
     clientRequestId:
       typeof d.clientRequestId === 'string' ? d.clientRequestId : undefined,
+    paymentStatus:
+      typeof d.paymentStatus === 'string' ? d.paymentStatus : undefined,
+    entryFeeCentsSnapshot:
+      typeof d.entryFeeCentsSnapshot === 'number' && Number.isFinite(d.entryFeeCentsSnapshot)
+        ? d.entryFeeCentsSnapshot
+        : undefined,
   };
 }
 

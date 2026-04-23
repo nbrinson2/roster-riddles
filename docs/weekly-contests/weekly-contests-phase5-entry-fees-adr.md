@@ -166,5 +166,5 @@ Related posture: [leaderboards-prize-verification-f3.md](../leaderboards/leaderb
 - [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) — Phases 5–7  
 - [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — implementation stories  
 - [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) — append-only **`ledgerEntries`** (P5-B2)  
-- [weekly-contests-api-c1.md](weekly-contests-api-c1.md) — join API (to be updated for `payment_required`)  
+- [weekly-contests-api-c1.md](weekly-contests-api-c1.md) — join API (**409** `payment_required` for paid contests — Story P5-F1)  
 - [stripe.md](../payments/stripe.md) — environment variables and key safety  
