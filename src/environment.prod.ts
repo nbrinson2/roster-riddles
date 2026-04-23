@@ -18,6 +18,8 @@ export const environment = {
   leaderboardsUiEnabled: true,
   weeklyContestsUiEnabled: true,
   adminDashboardUiEnabled: true,
+  /** Production: always false in CI output (`generate-env-prod.mjs`). Paid entry UX stays off until policy changes. */
+  contestsPaymentsEnabled: false,
   featureFlags,
   firebase: {
     apiKey: "x",

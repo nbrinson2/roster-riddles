@@ -12,7 +12,7 @@
  *
  * Exit: 0 OK; 1 mismatch / missing doc; 2 usage / read error.
  *
- * @see docs/leaderboards-test-cohort-g1.md
+ * @see docs/leaderboards/leaderboards-test-cohort-g1.md
  */
 import 'dotenv/config';
 import fs from 'fs';
@@ -20,12 +20,12 @@ import path from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 
-import { getAdminFirestore } from '../server/admin-firestore.js';
+import { getAdminFirestore } from '../server/lib/admin-firestore.js';
 import {
   LEADERBOARD_SCOPES,
   sortLeaderboardPageRows,
   winsScoreFromStatsDoc,
-} from '../server/leaderboard-query.js';
+} from '../server/leaderboards/leaderboard-query.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');
@@ -45,7 +45,7 @@ function usage() {
 function assertWins(data, uid, exp) {
   for (const [mode, want] of Object.entries(exp)) {
     const scope =
-      mode === 'global' ? 'global' : /** @type {import('../server/leaderboard-query.js').LeaderboardScope} */ (mode);
+      mode === 'global' ? 'global' : /** @type {import('../server/leaderboards/leaderboard-query.js').LeaderboardScope} */ (mode);
     if (mode !== 'global' && !LEADERBOARD_SCOPES.includes(/** @type {string} */ (scope))) {
       console.error(`Unknown mode in fixture for ${uid}: ${mode}`);
       process.exit(1);

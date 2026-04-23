@@ -4,7 +4,7 @@
  * Not stored as a separate Firestore collection in v1.
  *
  * Pagination limits (Story B3): enforced in trusted API / Admin SDK queries — see
- * `docs/leaderboards-indexes-pagination.md`.
+ * `docs/leaderboards/leaderboards-indexes-pagination.md`.
  */
 /** Maximum `limit` per collection-group leaderboard query or HTTP page (cost cap). */
 export const LEADERBOARD_MAX_PAGE_SIZE = 50;

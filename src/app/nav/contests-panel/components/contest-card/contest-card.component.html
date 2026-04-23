@@ -1,0 +1,320 @@
+<div class="cc-card" role="listitem">
+  <div class="cc-card-head">
+    <div class="cc-card-titles">
+      <span class="cc-card-title">{{ row.title }}</span>
+      <span class="cc-card-id" title="Contest id">{{ row.contestId }}</span>
+      <span *ngIf="showYoureIn(row)" class="cc-badge-in" role="status">
+        <span class="material-symbols-outlined" aria-hidden="true"
+          >verified</span
+        >
+        You’re in
+      </span>
+    </div>
+    <span
+      class="cc-chip"
+      [class.cc-chip--open]="row.status === 'open'"
+      [class.cc-chip--scoring]="row.status === 'scoring'"
+      [class.cc-chip--complete]="row.status === 'paid'"
+      [attr.aria-label]="statusChipAriaLabel(row)"
+      >{{ statusLabel(row.status) }}</span
+    >
+  </div>
+  <p *ngIf="lockSoon(row)" class="cc-lock-soon" role="status">
+    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+    Play window ends soon — finish your slate games before it closes.
+  </p>
+  <p *ngIf="countdownLine(row) as cd" class="cc-countdown" aria-live="polite">
+    {{ cd }}
+  </p>
+  <p
+    *ngIf="engagementCardLine(row) as engage"
+    class="cc-engage-line"
+    role="note"
+  >
+    <span class="material-symbols-outlined" aria-hidden="true">{{
+      engagementCardIcon(row)
+    }}</span>
+    {{ engage }}
+  </p>
+  <p class="cc-card-window">
+    {{ formatWindowLocal(row.windowStart, row.windowEnd) }}
+  </p>
+  <p class="cc-card-value-prop" [title]="contestScheduleLine(row)">
+    {{ contestScheduleLine(row) }}
+  </p>
+  <p class="cc-card-meta">
+    <ng-container *ngIf="row.status !== 'paid'">
+      {{ formatNonPaidCardMeta(row) }}
+    </ng-container>
+    <ng-container *ngIf="row.status === 'paid' && payout as po">
+      {{ formatPaidCardMeta(row, po) }}
+    </ng-container>
+  </p>
+  <p
+    *ngIf="row.status === 'paid' && yourPlaceCardLine(row) as ypl"
+    class="cc-card-your-place"
+  >
+    {{ ypl }}
+  </p>
+
+  <div class="cc-card-actions">
+    <button
+      type="button"
+      class="cc-expand-btn"
+      (click)="onToggleExpand()"
+      [attr.aria-expanded]="expanded"
+      [attr.aria-controls]="'cc-detail-' + row.contestId"
+    >
+      {{ expanded ? "Close" : "View details" }}
+    </button>
+  </div>
+
+  <div
+    *ngIf="expanded"
+    class="cc-card-expand"
+    [id]="'cc-detail-' + row.contestId"
+    role="region"
+    [attr.aria-label]="'Details for ' + row.title"
+  >
+    <h2 class="cc-detail-title">{{ row.title }}</h2>
+    <p class="cc-detail-window">
+      {{ formatWindowLocal(row.windowStart, row.windowEnd) }}
+    </p>
+    <p class="cc-detail-value-prop">{{ contestScheduleLine(row) }}</p>
+    <p class="cc-detail-meta">
+      Status: {{ statusLabel(row.status) }} · Rules version
+      {{ row.rulesVersion }} · Slate size {{ row.leagueGamesN }}
+    </p>
+    <p *ngIf="formatEntryFeeUsd(row) as fee" class="cc-entry-fee">
+      <strong>Entry fee:</strong> {{ fee }}
+      <ng-container *ngIf="!contestRequiresPayment(row)">
+        — free join only in this build (paid Checkout disabled).</ng-container
+      >
+    </p>
+
+    <div
+      *ngIf="row.status !== 'cancelled'"
+      class="cc-pipeline"
+      role="group"
+      [attr.aria-label]="'Contest progress for ' + row.title"
+    >
+      <p class="cc-pipeline-help">{{ pipelineHelpText(row) }}</p>
+      <ol class="cc-pipeline-steps" role="list">
+        <li
+          *ngFor="let label of pipelineStepLabels(); let i = index"
+          class="cc-pipeline-step"
+          [class.cc-pipeline-step--current]="
+            i === pipelineStepActiveIndex(row.status)
+          "
+          [class.cc-pipeline-step--past]="
+            i < pipelineStepActiveIndex(row.status)
+          "
+          role="listitem"
+        >
+          {{ label }}
+        </li>
+      </ol>
+    </div>
+    <p *ngIf="row.status === 'cancelled'" class="cc-pipeline-cancelled">
+      This contest was cancelled — there is no final payout for entrants.
+    </p>
+
+    <p *ngIf="joinDisabledReason(row)" class="cc-hint">
+      {{ joinDisabledReason(row) }}
+    </p>
+
+    <div class="cc-eligibility-block">
+      <h3 class="cc-rules-heading">Eligibility &amp; limits</h3>
+      <ul class="cc-rules-short-list">
+        <li *ngFor="let line of eligibilityBullets(row)">{{ line }}</li>
+      </ul>
+    </div>
+
+    <div class="cc-rules-block">
+      <h3 class="cc-rules-heading">Rules &amp; scoring</h3>
+      <ul class="cc-rules-short-list">
+        <li *ngFor="let line of rulesShortBullets(row.rulesVersion)">
+          {{ line }}
+        </li>
+      </ul>
+      <p class="cc-full-rules-link">
+        <a [href]="fullRulesHref" target="_blank" rel="noopener noreferrer"
+          >Open full rules (printable)</a
+        >
+      </p>
+      <p
+        *ngFor="let para of ruleParagraphs(row.rulesVersion)"
+        class="cc-rules-para"
+      >
+        {{ para }}
+      </p>
+    </div>
+
+    <ng-container *ngIf="row.status === 'paid'">
+      <p class="cc-detail-slate">{{ slateSummaryLine(row) }}</p>
+
+      <div
+        *ngIf="paidDelight(row) as d"
+        class="cc-paid-delight"
+        [ngClass]="{
+          'cc-paid-delight--winner': d.tier === 'winner',
+          'cc-paid-delight--podium': d.tier === 'podium',
+          'cc-paid-delight--played': d.tier === 'played',
+        }"
+        role="status"
+      >
+        <span
+          class="material-symbols-outlined cc-paid-delight-icon"
+          aria-hidden="true"
+          >{{
+            d.tier === "winner"
+              ? "emoji_events"
+              : d.tier === "podium"
+                ? "military_tech"
+                : "favorite"
+          }}</span
+        >
+        <div class="cc-paid-delight-text">
+          <p class="cc-paid-delight-head">{{ d.headline }}</p>
+          <p *ngIf="d.sub" class="cc-paid-delight-sub">{{ d.sub }}</p>
+        </div>
+      </div>
+
+      <div *ngIf="finalResults as fr" class="cc-results-closure">
+        <h3 class="cc-rules-heading">Final results</h3>
+        <p *ngIf="fr.loading" class="cc-results-loading" role="status">
+          Loading final results…
+        </p>
+        <p *ngIf="!fr.loading && fr.winnerLine" class="cc-results-winner">
+          {{ fr.winnerLine }}
+        </p>
+        <p
+          *ngIf="
+            !fr.loading &&
+              fr.yourRank != null &&
+              !fr.youMissingFromStandings
+          "
+          class="cc-results-yours"
+        >
+          Your finish: {{ formatOrdinalRank(fr.yourRank) }} of
+          {{ fr.entrants }} · {{ fr.yourWins }} wins ·
+          {{ fr.yourGamesPlayed }} games played ({{ fr.yourLosses }}
+          losses, {{ fr.yourAbandoned }} abandoned)<span
+            *ngIf="fr.yourTier === 'partial'"
+            > · partial slate</span
+          >.
+        </p>
+        <p
+          *ngIf="!fr.loading && fr.youMissingFromStandings && enteredContest(row)"
+          class="cc-results-missing"
+        >
+          You’re not in the published standings for this contest.
+        </p>
+      </div>
+
+      <div *ngIf="closureWhyBlockVisible(row)" class="cc-closure-why">
+        <h3 class="cc-rules-heading">{{ closureWhyHeading() }}</h3>
+        <ul class="cc-closure-why-list">
+          <li *ngFor="let line of closureWhyLines()">{{ line }}</li>
+        </ul>
+        <p class="cc-closure-rules-link">
+          <a [href]="fullRulesHref" target="_blank" rel="noopener noreferrer"
+            >Full rules &amp; tie-break policy</a
+          >
+        </p>
+      </div>
+
+      <ng-container *ngIf="payout as px">
+        <p
+          *ngIf="payoutTransparencyLine(px)"
+          class="cc-payout-transparency"
+        >
+          {{ payoutTransparencyLine(px) }}
+        </p>
+      </ng-container>
+    </ng-container>
+
+    <div *ngIf="row.status === 'paid'" class="cc-payout-block">
+      <h3 class="cc-rules-heading">Dry-run payout</h3>
+      <ng-container *ngIf="payout as px">
+        <p *ngIf="px.loading" class="cc-payout-loading">Loading…</p>
+        <p *ngIf="!px.loading && px.winnerText" class="cc-payout-winner">
+          {{ px.winnerText }}
+        </p>
+        <ul *ngIf="!px.loading && px.otherLines.length" class="cc-payout-lines">
+          <li *ngFor="let line of px.otherLines">{{ line }}</li>
+        </ul>
+        <p *ngIf="!px.loading && !px.winnerText" class="cc-hint">
+          Payout lines are not available for this contest yet.
+        </p>
+      </ng-container>
+    </div>
+
+    <div
+      *ngIf="entryRulesVersion != null"
+      class="cc-entry-banner"
+      role="status"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true"
+        >check_circle</span
+      >
+      <div>
+        <strong>You are entered.</strong>
+        Rules accepted version {{ entryRulesVersion }} (stored on your entry).
+      </div>
+    </div>
+
+    <div
+      *ngIf="confirmingPayment(row)"
+      class="cc-confirming-payment"
+      role="status"
+      aria-live="polite"
+    >
+      <mat-spinner diameter="22" aria-hidden="true"></mat-spinner>
+      <div>
+        <strong>Confirming payment…</strong>
+        Finishing your entry can take a few seconds after you return from
+        checkout. You can leave this panel open.
+      </div>
+    </div>
+
+    <div *ngIf="joinSuccess" class="cc-success cc-success--delight" role="status">
+      <span class="material-symbols-outlined" aria-hidden="true"
+        >celebration</span
+      >
+      <span class="cc-success-text">{{ joinSuccess }}</span>
+    </div>
+    <div *ngIf="joinError" class="cc-join-error" role="alert">
+      {{ joinError }}
+    </div>
+
+    <label
+      class="cc-accept"
+      *ngIf="
+        loggedIn && canAttemptJoin(row) && entryRulesVersion == null
+      "
+    >
+      <input
+        type="checkbox"
+        [ngModel]="rulesCheckbox"
+        (ngModelChange)="onRulesCheckboxChange($event)"
+        [name]="'rulesAccept-' + row.contestId"
+      />
+      <span
+        >I have read the rules above and accept rules version
+        {{ row.rulesVersion }} for this contest.</span
+      >
+    </label>
+
+    <button
+      mat-flat-button
+      type="button"
+      class="cc-join-btn"
+      *ngIf="loggedIn && canAttemptJoin(row) && entryRulesVersion == null"
+      [disabled]="!rulesCheckbox || joinSubmitting"
+      (click)="onJoinClick()"
+    >
+      {{ joinButtonLabel() }}
+    </button>
+  </div>
+</div>

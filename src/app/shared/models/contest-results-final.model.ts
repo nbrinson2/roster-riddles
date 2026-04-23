@@ -1,6 +1,6 @@
 /**
  * `contests/{contestId}/results/final` — weekly contests Phase 4 Story B3.
- * @see docs/weekly-contests-schema-results.md
+ * @see docs/weekly-contests/weekly-contests-schema-results.md
  */
 
 export const CONTEST_FINAL_RESULTS_SCHEMA_VERSION = 1;
@@ -11,7 +11,7 @@ export type ContestFinalTieBreakPolicy =
 
 export type ContestStandingTier = 'full' | 'partial';
 
-/** Nested audit under `results/final` — Story E3 (see docs/weekly-contests-schema-results.md). */
+/** Nested audit under `results/final` — Story E3 (see docs/weekly-contests/weekly-contests-schema-results.md). */
 export interface ContestTieResolutionAudit {
   schemaVersion: number;
   policyRef: string;

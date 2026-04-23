@@ -40,7 +40,9 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Weekly contests (Phase 4 B2): `contests/{contestId}/entries/{uid}` — read own entry only; writes via Admin SDK (Story C1).
+    // Weekly contests (Phase 4 B2 + Phase 5 P5-B1 / P5-G1): `contests/{contestId}/entries/{uid}` — read own entry only;
+    // all client writes denied (join + Stripe webhooks use Admin SDK). That includes Phase 5 payment fields
+    // (`paymentStatus`, `stripe*`, `paidAt`, `entryFeeCentsSnapshot`, `refundedAmountCents`, `lastStripeEventId`) — never client-writable.
     match /contests/{contestId}/entries/{entryUid} {
       allow read: if signedIn() && request.auth.uid == entryUid;
       allow create, update, delete: if false;
@@ -56,6 +58,11 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // Phase 5 P5-E1 / P5-G1: per-contest Stripe PI settlement markers (webhook idempotency aid) — Admin SDK only.
+    match /contests/{contestId}/stripePiSettlements/{paymentIntentId} {
+      allow read, write: if false;
+    }
+
     // Any other contest subpaths — deny clients.
     match /contests/{contestId}/{document=**} {
       allow read, write: if false;
@@ -64,6 +71,16 @@ service cloud.firestore {
       allow read, write: if false;
     }
     match /ledgers/{document=**} {
+      allow read, write: if false;
+    }
+
+    // Phase 5 P5-B2 / P5-G1: append-only payment ledger — Admin SDK only (no client read or write).
+    match /ledgerEntries/{ledgerEntryId} {
+      allow read, write: if false;
+    }
+
+    // Phase 5 P5-E1 / P5-G1: Stripe webhook idempotency docs — Admin SDK only (no client read or write).
+    match /processedStripeEvents/{eventId} {
       allow read, write: if false;
     }
 

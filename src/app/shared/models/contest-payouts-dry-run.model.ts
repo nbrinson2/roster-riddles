@@ -1,6 +1,6 @@
 /**
  * `contests/{contestId}/payouts/dryRun` — weekly contests Phase 4 Story B3 (numeric only; no Stripe).
- * @see docs/weekly-contests-schema-results.md
+ * @see docs/weekly-contests/weekly-contests-schema-results.md
  */
 
 export const CONTEST_DRY_RUN_PAYOUTS_SCHEMA_VERSION = 1;

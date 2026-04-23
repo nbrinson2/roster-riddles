@@ -12,7 +12,7 @@
  *
  * Exit: 0 OK; 1 validation; 2 Firestore error.
  *
- * @see docs/weekly-contests-staging-seed-g1.md
+ * @see docs/weekly-contests/weekly-contests-staging-seed-g1.md
  */
 import 'dotenv/config';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
@@ -21,8 +21,8 @@ import path from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 
-import { getAdminFirestore } from '../server/admin-firestore.js';
-import { computeGameplayEventId } from '../server/gameplay-events.js';
+import { getAdminFirestore } from '../server/lib/admin-firestore.js';
+import { computeGameplayEventId } from '../server/gameplay/gameplay-events.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, '..');

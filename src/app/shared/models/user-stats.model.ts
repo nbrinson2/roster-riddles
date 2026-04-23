@@ -1,5 +1,5 @@
 /**
- * Shape of `users/{uid}/stats/summary` (see `server/stats-aggregate.js`).
+ * Shape of `users/{uid}/stats/summary` (see `server/lib/stats-aggregate.js`).
  * Firestore may omit fields until first write.
  */
 export interface UserStatsTotals {

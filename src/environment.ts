@@ -42,6 +42,12 @@ export const environment = {
    */
   weeklyContestsUiEnabled: true,
   /**
+   * Story P5-D2 — paid entry via Stripe Checkout. When true, contests with `entryFeeCents > 0` use
+   * `POST .../checkout-session` + redirect; requires server `CONTESTS_PAYMENTS_ENABLED=true`.
+   * Staging CI: `CONTESTS_PAYMENTS_ENABLED` at build. Production bundle: always off from `generate-env-prod.mjs`.
+   */
+  contestsPaymentsEnabled: true,
+  /**
    * Story AD-4 — hide admin dashboard entry (staging/prod: `ADMIN_DASHBOARD_UI_ENABLED` via `generate-env-prod.mjs`).
    * Local dev: set `false` here to simulate a build with the flag off.
    */

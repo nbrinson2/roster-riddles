@@ -14,7 +14,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:firestore-rules": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/verify-firestore-rules.mjs\"",
-    "test:server": "node --test \"server/*.test.js\" && node ./scripts/seed-weekly-contest-staging.mjs ./docs/fixtures/weekly-contest-staging.example.json --dry-run",
+    "test:server": "node --test $(find server -name '*.test.js' -type f | sort) && node ./scripts/seed-weekly-contest-staging.mjs ./docs/fixtures/weekly-contest-staging.example.json --dry-run",
+    "test:server:phase5-payments": "node --test server/payments/stripe-webhook-success-idempotency.test.js server/contests/contest-join-payment-matrix.test.js",
     "rebuild:leaderboard-snapshots": "node scripts/rebuild-leaderboard-snapshots.mjs",
     "test:stats-emulator": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/verify-stats-aggregate-emulator.mjs\"",
     "test:stats-concurrency": "firebase emulators:exec --only firestore --project roster-riddles-457600 \"node ./scripts/stats-concurrency-load-test.mjs\"",
@@ -50,6 +51,7 @@
     "firebase": "^11.6.1",
     "firebase-admin": "^13.8.0",
     "rxjs": "~7.8.1",
+    "stripe": "^17.7.0",
     "tslib": "^2.4.0",
     "zod": "^3.24.2",
     "zone.js": "~0.15.0"

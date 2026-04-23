@@ -3,7 +3,7 @@
  * Requires Firebase Admin credentials (same as Express).
  */
 import 'dotenv/config';
-import { rebuildAllLeaderboardSnapshots } from '../server/leaderboard-snapshot-job.js';
+import { rebuildAllLeaderboardSnapshots } from '../server/leaderboards/leaderboard-snapshot-job.js';
 
 try {
   const r = await rebuildAllLeaderboardSnapshots();

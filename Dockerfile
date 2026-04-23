@@ -30,6 +30,8 @@ ARG STRIPE_PUBLISHABLE_KEY=
 ARG FIRESTORE_DATABASE_ID=roster-riddles
 # Story AD-4 — Angular bundle: omit admin affordance when false (see scripts/generate-env-prod.mjs)
 ARG ADMIN_DASHBOARD_UI_ENABLED=
+# Story P5 — staging Angular paid UX when `true`; production bundle always omits paid UX (see generate-env-prod.mjs)
+ARG CONTESTS_PAYMENTS_ENABLED=false
 
 ENV DEPLOYMENT=$DEPLOYMENT \
     FIREBASE_API_KEY=$FIREBASE_API_KEY \
@@ -42,7 +44,8 @@ ENV DEPLOYMENT=$DEPLOYMENT \
     API_BASE_URL=$API_BASE_URL \
     STRIPE_PUBLISHABLE_KEY=$STRIPE_PUBLISHABLE_KEY \
     FIRESTORE_DATABASE_ID=$FIRESTORE_DATABASE_ID \
-    ADMIN_DASHBOARD_UI_ENABLED=$ADMIN_DASHBOARD_UI_ENABLED
+    ADMIN_DASHBOARD_UI_ENABLED=$ADMIN_DASHBOARD_UI_ENABLED \
+    CONTESTS_PAYMENTS_ENABLED=$CONTESTS_PAYMENTS_ENABLED
 
 # Fail fast with a clear message if Cloud Build did not pass --build-arg (see cloudbuild.yaml + trigger substitutions)
 RUN if [ -z "${FIREBASE_API_KEY:-}" ] || [ -z "${FIREBASE_PROJECT_ID:-}" ]; then \
