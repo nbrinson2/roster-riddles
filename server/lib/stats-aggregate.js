@@ -9,7 +9,7 @@ import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 export const STATS_DOC_ID = 'summary';
 
 /** Bump when changing stored shape or merge logic. */
-export const STATS_SCHEMA_VERSION = 1;
+export const STATS_SCHEMA_VERSION = 2;
 
 /**
  * @typedef {'won' | 'lost' | 'abandoned'} GameResult
@@ -26,7 +26,7 @@ export const STATS_SCHEMA_VERSION = 1;
  * @property {number} aggregateVersion
  * @property {ModeTotals} totals
  * @property {Record<string, ModeTotals>} totalsByMode
- * @property {{ currentWinStreak: number, bestWinStreak: number }} streaks
+ * @property {{ byMode: Record<string, { currentWinStreak: number, bestWinStreak: number }>, nicknameStreak: { current: number, best: number } }} streaks
  * @property {{ fastestWinMs: number | null, fewestMistakesWin: number | null, byMode: Record<string, ModeBests> }} bests
  */
 
@@ -36,7 +36,10 @@ export function defaultStatsTree() {
     aggregateVersion: STATS_SCHEMA_VERSION,
     totals: { gamesPlayed: 0, wins: 0, losses: 0, abandoned: 0 },
     totalsByMode: {},
-    streaks: { currentWinStreak: 0, bestWinStreak: 0 },
+    streaks: {
+      byMode: {},
+      nicknameStreak: { current: 0, best: 0 },
+    },
     bests: {
       fastestWinMs: null,
       fewestMistakesWin: null,
@@ -64,9 +67,32 @@ export function normalizeStatsFromFirestore(raw) {
   }
 
   const streaks = d.streaks && typeof d.streaks === 'object' ? d.streaks : {};
+  const nickRaw = streaks.nicknameStreak;
+  let nicknameStreak = { current: 0, best: 0 };
+  if (nickRaw && typeof nickRaw === 'object') {
+    const nr = /** @type {Record<string, unknown>} */ (nickRaw);
+    nicknameStreak = {
+      current: num(nr.current, 0),
+      best: num(nr.best, 0),
+    };
+  }
+
+  const streakByModeRaw =
+    streaks.byMode && typeof streaks.byMode === 'object' ? streaks.byMode : {};
+  const streakByMode = {};
+  for (const k of Object.keys(streakByModeRaw)) {
+    const row = streakByModeRaw[k];
+    if (!row || typeof row !== 'object') continue;
+    const r = /** @type {Record<string, unknown>} */ (row);
+    streakByMode[k] = {
+      currentWinStreak: num(r.currentWinStreak, 0),
+      bestWinStreak: num(r.bestWinStreak, 0),
+    };
+  }
+
   base.streaks = {
-    currentWinStreak: num(streaks.currentWinStreak, 0),
-    bestWinStreak: num(streaks.bestWinStreak, 0),
+    byMode: streakByMode,
+    nicknameStreak,
   };
 
   const bests = d.bests && typeof d.bests === 'object' ? d.bests : {};
@@ -114,6 +140,10 @@ function defaultModeTotals() {
   return { gamesPlayed: 0, wins: 0, losses: 0, abandoned: 0 };
 }
 
+function defaultModeWinStreak() {
+  return { currentWinStreak: 0, bestWinStreak: 0 };
+}
+
 /** @param {unknown} v */
 function pickTotals(v) {
   if (!v || typeof v !== 'object') return {};
@@ -133,15 +163,50 @@ function num(v, def) {
   return def;
 }
 
+const NICK_STREAK_CAP = 1_000_000;
+
+/**
+ * Snapshot from client `modeMetrics` (Nickname Streak correct-guess run).
+ * @param {StatsTree} base
+ * @param {{ gameMode: GameMode, modeMetrics?: Record<string, unknown> }} event
+ */
+function mergeNicknameStreakFromModeMetrics(base, event) {
+  if (event.gameMode !== 'nickname-streak') return;
+  const mm = event.modeMetrics;
+  if (!mm || typeof mm !== 'object') return;
+  const o = /** @type {Record<string, unknown>} */ (mm);
+  const rawC = o.nicknameStreakCurrent;
+  const rawB = o.nicknameStreakBest;
+  if (typeof rawC !== 'number' || typeof rawB !== 'number') return;
+  if (!Number.isFinite(rawC) || !Number.isFinite(rawB)) return;
+  let c = Math.floor(rawC);
+  let b = Math.floor(rawB);
+  c = Math.max(0, Math.min(c, NICK_STREAK_CAP));
+  b = Math.max(0, Math.min(b, NICK_STREAK_CAP));
+  if (!base.streaks.nicknameStreak) {
+    base.streaks.nicknameStreak = { current: 0, best: 0 };
+  }
+  const ns = base.streaks.nicknameStreak;
+  ns.current = c;
+  ns.best = Math.max(ns.best ?? 0, b, c);
+}
+
 /**
  * @param {StatsTree | null | undefined} prev
- * @param {{ result: GameResult, gameMode: GameMode, durationMs: number, mistakeCount: number }} event
+ * @param {{ result: GameResult, gameMode: GameMode, durationMs: number, mistakeCount: number, modeMetrics?: Record<string, unknown> }} event
  * @returns {StatsTree}
  */
 export function applyEventToStatsTree(prev, event) {
   const base = prev
     ? structuredClone(prev)
     : defaultStatsTree();
+
+  if (!base.streaks.byMode || typeof base.streaks.byMode !== 'object') {
+    base.streaks.byMode = {};
+  }
+  if (!base.streaks.nicknameStreak || typeof base.streaks.nicknameStreak !== 'object') {
+    base.streaks.nicknameStreak = { current: 0, best: 0 };
+  }
 
   base.totals.gamesPlayed += 1;
   if (event.result === 'won') base.totals.wins += 1;
@@ -158,18 +223,19 @@ export function applyEventToStatsTree(prev, event) {
   else mt.abandoned += 1;
 
   /**
-   * Consecutive wins in **processing order** (API applies events as they are accepted).
-   * Loss and abandoned reset the current streak; they do not advance `bestWinStreak` except via prior wins.
+   * Consecutive wins per `gameMode` in **processing order** (API applies events as they are accepted).
+   * Loss and abandoned reset that mode’s current streak only.
    */
-  if (event.result === 'won') {
-    base.streaks.currentWinStreak = base.streaks.currentWinStreak + 1;
-  } else {
-    base.streaks.currentWinStreak = 0;
+  if (!base.streaks.byMode[event.gameMode]) {
+    base.streaks.byMode[event.gameMode] = defaultModeWinStreak();
   }
-  base.streaks.bestWinStreak = Math.max(
-    base.streaks.bestWinStreak,
-    base.streaks.currentWinStreak,
-  );
+  const sm = base.streaks.byMode[event.gameMode];
+  if (event.result === 'won') {
+    sm.currentWinStreak = sm.currentWinStreak + 1;
+  } else {
+    sm.currentWinStreak = 0;
+  }
+  sm.bestWinStreak = Math.max(sm.bestWinStreak, sm.currentWinStreak);
 
   if (event.result === 'won') {
     base.bests.fastestWinMs =
@@ -198,6 +264,8 @@ export function applyEventToStatsTree(prev, event) {
         : Math.min(mb.fewestMistakesWin, event.mistakeCount);
   }
 
+  mergeNicknameStreakFromModeMetrics(base, event);
+
   base.aggregateVersion = STATS_SCHEMA_VERSION;
   return base;
 }
@@ -224,7 +292,7 @@ export function buildStatsFirestoreDocument(tree, lastPlayedAtTs) {
  * @param {string} uid
  * @param {string} eventId
  * @param {Record<string, unknown>} eventPayloadWithoutCreatedAt — validated fields + uid, no `createdAt`
- * @param {{ result: GameResult, gameMode: GameMode, durationMs: number, mistakeCount: number }} statsInput
+ * @param {{ result: GameResult, gameMode: GameMode, durationMs: number, mistakeCount: number, modeMetrics?: Record<string, unknown> }} statsInput
  * @returns {Promise<{ existing: Record<string, unknown> | null }>}
  */
 export async function transactionalAppendEventAndUpdateStats(

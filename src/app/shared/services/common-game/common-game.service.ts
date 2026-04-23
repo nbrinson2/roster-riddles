@@ -136,6 +136,7 @@ export abstract class CommonGameService<T> {
       this.currentGame(),
       this.currentGameMode(),
       this.mistakeCountForTerminal('won'),
+      this.modeMetricsForTerminal('won'),
     );
   }
 
@@ -150,7 +151,17 @@ export abstract class CommonGameService<T> {
       this.currentGame(),
       this.currentGameMode(),
       this.mistakeCountForTerminal('lost'),
+      this.modeMetricsForTerminal('lost'),
     );
+  }
+
+  /**
+   * Optional per-mode fields stored on gameplay events (`modeMetrics`) and merged into profile stats.
+   */
+  protected modeMetricsForTerminal(
+    _result: 'won' | 'lost' | 'abandoned',
+  ): Record<string, unknown> | undefined {
+    return undefined;
   }
 
   /** Wrong guesses before terminal outcome (aligned with server `mistakeCount`). */

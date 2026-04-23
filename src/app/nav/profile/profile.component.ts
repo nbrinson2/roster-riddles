@@ -8,8 +8,10 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { resolvedUserDisplayName } from 'src/app/auth/user-display-name.util';
 import {
   USER_STATS_DOC_ID,
+  type UserStatsBestsByMode,
   type UserStatsDocument,
   type UserStatsTotals,
+  type UserStatsWinStreakByMode,
 } from 'src/app/shared/models/user-stats.model';
 
 const MODE_UI: Record<string, { label: string; icon: string }> = {
@@ -17,6 +19,9 @@ const MODE_UI: Record<string, { label: string; icon: string }> = {
   'career-path': { label: 'Career Path', icon: 'timeline' },
   'nickname-streak': { label: 'Nickname Streak', icon: 'badge' },
 };
+
+/** Stable order for win-streak rows (matches known game modes). */
+const STREAK_MODE_KEYS = ['bio-ball', 'career-path', 'nickname-streak'] as const;
 
 type StatsState =
   | { status: 'signed-out' }
@@ -31,6 +36,9 @@ type StatsState =
 })
 export class ProfileComponent {
   @Input() user: User | null = null;
+
+  /** Template: win streak subsection order. */
+  protected readonly streakModeKeys: readonly string[] = [...STREAK_MODE_KEYS];
 
   protected verifyResending = false;
   protected verifyError: string | null = null;
@@ -134,6 +142,24 @@ export class ProfileComponent {
     return s >= 60
       ? `${Math.floor(s / 60)}m ${Math.round(s % 60)}s`
       : `${s.toFixed(1)} s`;
+  }
+
+  /** Win streak for one `gameMode` key on `streaks.byMode`. */
+  winStreakForMode(doc: UserStatsDocument, mode: string): UserStatsWinStreakByMode {
+    const m = doc.streaks?.byMode?.[mode];
+    return {
+      currentWinStreak: m?.currentWinStreak ?? 0,
+      bestWinStreak: m?.bestWinStreak ?? 0,
+    };
+  }
+
+  /** Best win metrics for one `gameMode` on `bests.byMode`. */
+  bestsForMode(doc: UserStatsDocument, mode: string): UserStatsBestsByMode {
+    const m = doc.bests?.byMode?.[mode];
+    return {
+      fastestWinMs: m?.fastestWinMs ?? null,
+      fewestMistakesWin: m?.fewestMistakesWin ?? null,
+    };
   }
 
   totalsOrDefault(doc: UserStatsDocument | undefined): UserStatsTotals {

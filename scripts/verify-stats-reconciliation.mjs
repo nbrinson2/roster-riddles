@@ -79,7 +79,7 @@ function timestampMs(ts) {
 
 /**
  * @param {Record<string, unknown>} raw
- * @returns {{ result: string, gameMode: string, durationMs: number, mistakeCount: number } | null}
+ * @returns {{ result: string, gameMode: string, durationMs: number, mistakeCount: number, modeMetrics?: Record<string, unknown> } | null}
  */
 function toStatsInput(raw) {
   const result = raw.result;
@@ -98,7 +98,13 @@ function toStatsInput(raw) {
     typeof raw.mistakeCount === 'number' && Number.isFinite(raw.mistakeCount)
       ? Math.trunc(raw.mistakeCount)
       : 0;
-  return { result, gameMode, durationMs, mistakeCount };
+  /** @type {{ result: string, gameMode: string, durationMs: number, mistakeCount: number, modeMetrics?: Record<string, unknown> }} */
+  const out = { result, gameMode, durationMs, mistakeCount };
+  const mm = raw.modeMetrics;
+  if (mm && typeof mm === 'object') {
+    out.modeMetrics = /** @type {Record<string, unknown>} */ (mm);
+  }
+  return out;
 }
 
 /**
