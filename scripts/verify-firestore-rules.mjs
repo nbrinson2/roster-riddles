@@ -111,6 +111,12 @@ try {
 
   // unknown contest subpath: deny
   await assertFails(getDoc(doc(alice, 'contests', 'c1', 'scratch', 'x')));
+  await assertFails(
+    getDoc(doc(alice, 'contests', 'c1', 'stripePiSettlements', 'pi_test_1')),
+  );
+
+  // processedStripeEvents (Phase 5 P5-E1): Admin only
+  await assertFails(getDoc(doc(alice, 'processedStripeEvents', 'evt_test_1')));
 
   // ledgers: deny
   await assertFails(setDoc(doc(alice, 'ledgers', 'l1'), { a: 1 }));

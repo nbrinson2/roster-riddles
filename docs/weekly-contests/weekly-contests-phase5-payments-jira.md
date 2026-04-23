@@ -249,8 +249,8 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Acceptance criteria**
 
-- [ ] Duplicate delivery of same `event.id` does not duplicate ledger lines.
-- [ ] Structured log: `component: stripe_webhook`, `eventType`, `contestId`, `uid`, `outcome`.
+- [x] Duplicate delivery of same `event.id` does not duplicate ledger lines.
+- [x] Structured log: `component: stripe_webhook`, `eventType`, `contestId`, `uid`, `outcome`.
 
 **Dependencies**
 

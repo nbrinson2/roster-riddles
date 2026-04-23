@@ -18,7 +18,7 @@ describe('postStripeWebhook (Story P5-C2)', () => {
     resetStripeClientForTests();
   });
 
-  it('returns 503 when STRIPE_WEBHOOK_SECRET is unset', () => {
+  it('returns 503 when STRIPE_WEBHOOK_SECRET is unset', async () => {
     delete process.env.STRIPE_WEBHOOK_SECRET;
     process.env.STRIPE_SECRET_KEY = 'sk_test_fake_for_client_only';
     process.env.CONTESTS_PAYMENTS_ENABLED = 'false';
@@ -41,12 +41,12 @@ describe('postStripeWebhook (Story P5-C2)', () => {
       },
     };
 
-    postStripeWebhook(req, res);
+    await postStripeWebhook(req, res);
     assert.equal(statusCode, 503);
     assert.equal(jsonBody?.error?.code, 'stripe_webhook_not_configured');
   });
 
-  it('returns 400 when Stripe-Signature header is missing', () => {
+  it('returns 400 when Stripe-Signature header is missing', async () => {
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test_12345678901234567890123456789012';
     process.env.STRIPE_SECRET_KEY = 'sk_test_12345678901234567890123456789012';
     process.env.CONTESTS_PAYMENTS_ENABLED = 'false';
@@ -69,7 +69,7 @@ describe('postStripeWebhook (Story P5-C2)', () => {
       },
     };
 
-    postStripeWebhook(req, res);
+    await postStripeWebhook(req, res);
     assert.equal(statusCode, 400);
     assert.equal(jsonBody?.error?.code, 'stripe_webhook_missing_signature');
   });

@@ -1,12 +1,14 @@
 /**
- * POST /api/v1/webhooks/stripe — Stripe webhook endpoint (Phase 5 Story P5-C2).
+ * POST /api/v1/webhooks/stripe — Stripe webhook endpoint (Phase 5 Story P5-C2 + P5-E1).
  * Requires raw body + `Stripe-Signature` header; verifies with STRIPE_WEBHOOK_SECRET.
- * Business logic (entries, ledger) lands in Story P5-E — this handler only verifies and ACKs.
  * @see docs/weekly-contests/weekly-contests-phase5-webhooks.md
  */
+import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { resolveSecretFromEnv } from '../lib/contest-internal-auth.js';
+import { processContestPaymentSuccessWebhook } from './stripe-webhook-contest-payment.js';
 import {
   getStripeClient,
+  isContestsPaymentsEnabled,
   sendStripeServiceUnavailable,
 } from './stripe-server.js';
 
@@ -14,7 +16,7 @@ import {
  * @param {import('express').Request} req
  * @param {import('express').Response} res
  */
-export function postStripeWebhook(req, res) {
+export async function postStripeWebhook(req, res) {
   const requestId = req.requestId ?? 'unknown';
   const webhookSecret = resolveSecretFromEnv('STRIPE_WEBHOOK_SECRET');
   if (!webhookSecret) {
@@ -91,15 +93,48 @@ export function postStripeWebhook(req, res) {
     });
   }
 
-  console.log(
-    JSON.stringify({
-      component: 'stripe_webhook',
-      requestId,
-      outcome: 'received',
-      eventId: event.id,
-      eventType: event.type,
-    }),
-  );
+  const contestPaymentTypes =
+    event.type === 'checkout.session.completed' ||
+    event.type === 'payment_intent.succeeded';
+
+  if (isContestsPaymentsEnabled() && contestPaymentTypes) {
+    try {
+      const db = getAdminFirestore();
+      await processContestPaymentSuccessWebhook(db, event, requestId);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error(
+        JSON.stringify({
+          component: 'stripe_webhook',
+          severity: 'ERROR',
+          requestId,
+          eventId: event.id,
+          eventType: event.type,
+          outcome: 'contest_payment_handler_failed',
+          message: msg,
+        }),
+      );
+      return res.status(500).json({
+        error: {
+          code: 'stripe_webhook_internal_error',
+          message: 'Webhook processing failed.',
+        },
+      });
+    }
+  } else {
+    console.log(
+      JSON.stringify({
+        component: 'stripe_webhook',
+        requestId,
+        outcome: 'received',
+        eventId: event.id,
+        eventType: event.type,
+        ...(contestPaymentTypes && !isContestsPaymentsEnabled()
+          ? { contestPaymentSkipped: 'payments_disabled' }
+          : {}),
+      }),
+    );
+  }
 
   return res.status(200).json({ received: true });
 }

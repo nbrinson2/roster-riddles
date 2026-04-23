@@ -73,6 +73,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Phase 5 P5-E1: Stripe webhook idempotency + PI settlement — Admin SDK only.
+    match /processedStripeEvents/{eventId} {
+      allow read, write: if false;
+    }
+
     // Precomputed leaderboards (Phase 3): one doc per board under snapshots/boards (even path segments).
     // Other paths under leaderboards/ have no rule → denied by default.
     match /leaderboards/snapshots/boards/{boardId} {
