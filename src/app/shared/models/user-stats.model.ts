@@ -14,14 +14,19 @@ export interface UserStatsBestsByMode {
   fewestMistakesWin: number | null;
 }
 
+/** Consecutive `won` gameplay events for one `gameMode` (processing order). */
+export interface UserStatsWinStreakByMode {
+  currentWinStreak: number;
+  bestWinStreak: number;
+}
+
 export interface UserStatsDocument {
   aggregateVersion?: number;
   totals?: UserStatsTotals;
   totalsByMode?: Record<string, UserStatsTotals>;
   streaks?: {
-    currentWinStreak: number;
-    bestWinStreak: number;
-    /** Correct nickname guesses in a row (from gameplay `modeMetrics`). */
+    byMode?: Record<string, UserStatsWinStreakByMode>;
+    /** Correct nickname guesses in a row (from gameplay `modeMetrics`; nickname mode only). */
     nicknameStreak?: {
       current: number;
       best: number;

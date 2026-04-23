@@ -120,7 +120,7 @@ Single document id **`summary`** (subcollection `stats`), updated **only by trus
 | `lastPlayedAt` | `Timestamp` | Same instant as the last applied event’s `createdAt` (written in one transaction). |
 | `totals` | `map` | `gamesPlayed`, `wins`, `losses`, `abandoned`. |
 | `totalsByMode` | `map` | Per `gameMode` key: same counters as `totals`. |
-| `streaks` | `map` | `currentWinStreak`, `bestWinStreak` — consecutive `won` in **API processing order** (not calendar-day based). |
+| `streaks` | `map` | `byMode.{gameMode}.currentWinStreak` / `bestWinStreak` — consecutive `won` per mode in **API processing order**; plus `nicknameStreak.{current,best}` from nickname `modeMetrics`. |
 | `bests` | `map` | Global `fastestWinMs`, `fewestMistakesWin`, plus `byMode.{gameMode}` for the same two metrics (wins only). |
 
 **Reads:** authenticated user may **read** their own `stats` subcollection documents; **writes** from the client are **denied** in `firestore.rules` (Story 3).

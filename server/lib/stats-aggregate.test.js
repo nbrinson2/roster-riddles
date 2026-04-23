@@ -33,31 +33,31 @@ const A = (mode = 'bio-ball') => ({
 });
 
 describe('applyEventToStatsTree', () => {
-  it('first win sets totals and streak to 1', () => {
+  it('first win sets totals and that mode streak to 1', () => {
     let s = applyEventToStatsTree(null, W());
     assert.equal(s.totals.gamesPlayed, 1);
     assert.equal(s.totals.wins, 1);
-    assert.equal(s.streaks.currentWinStreak, 1);
-    assert.equal(s.streaks.bestWinStreak, 1);
+    assert.equal(s.streaks.byMode['bio-ball'].currentWinStreak, 1);
+    assert.equal(s.streaks.byMode['bio-ball'].bestWinStreak, 1);
   });
 
-  it('loss resets current streak; bestWinStreak preserves peak', () => {
+  it('loss resets current streak for that mode; bestWinStreak preserves peak', () => {
     let s = defaultStatsTree();
     s = applyEventToStatsTree(s, W());
     s = applyEventToStatsTree(s, W());
-    assert.equal(s.streaks.currentWinStreak, 2);
+    assert.equal(s.streaks.byMode['bio-ball'].currentWinStreak, 2);
     s = applyEventToStatsTree(s, L());
-    assert.equal(s.streaks.currentWinStreak, 0);
-    assert.equal(s.streaks.bestWinStreak, 2);
+    assert.equal(s.streaks.byMode['bio-ball'].currentWinStreak, 0);
+    assert.equal(s.streaks.byMode['bio-ball'].bestWinStreak, 2);
   });
 
-  it('abandoned resets streak like loss', () => {
+  it('abandoned resets streak for that mode like loss', () => {
     let s = applyEventToStatsTree(null, W());
     s = applyEventToStatsTree(s, W());
-    assert.equal(s.streaks.currentWinStreak, 2);
+    assert.equal(s.streaks.byMode['bio-ball'].currentWinStreak, 2);
     s = applyEventToStatsTree(s, A());
-    assert.equal(s.streaks.currentWinStreak, 0);
-    assert.equal(s.streaks.bestWinStreak, 2);
+    assert.equal(s.streaks.byMode['bio-ball'].currentWinStreak, 0);
+    assert.equal(s.streaks.byMode['bio-ball'].bestWinStreak, 2);
     assert.equal(s.totals.abandoned, 1);
   });
 
@@ -108,7 +108,20 @@ describe('applyEventToStatsTree', () => {
   it('does not use calendar boundaries for streaks (ordering only)', () => {
     let s = applyEventToStatsTree(null, W());
     s = applyEventToStatsTree(s, W());
-    assert.equal(s.streaks.currentWinStreak, 2);
+    assert.equal(s.streaks.byMode['bio-ball'].currentWinStreak, 2);
+  });
+
+  it('win streaks are independent per game mode', () => {
+    let s = applyEventToStatsTree(null, W('bio-ball'));
+    s = applyEventToStatsTree(s, W('bio-ball'));
+    assert.equal(s.streaks.byMode['bio-ball'].currentWinStreak, 2);
+    s = applyEventToStatsTree(s, W('career-path'));
+    assert.equal(s.streaks.byMode['bio-ball'].currentWinStreak, 2);
+    assert.equal(s.streaks.byMode['career-path'].currentWinStreak, 1);
+    s = applyEventToStatsTree(s, L('bio-ball'));
+    assert.equal(s.streaks.byMode['bio-ball'].currentWinStreak, 0);
+    assert.equal(s.streaks.byMode['bio-ball'].bestWinStreak, 2);
+    assert.equal(s.streaks.byMode['career-path'].currentWinStreak, 1);
   });
 
   it('merges nickname-streak guess counters from modeMetrics on won', () => {
@@ -116,12 +129,14 @@ describe('applyEventToStatsTree', () => {
       ...W('nickname-streak'),
       modeMetrics: { nicknameStreakCurrent: 2, nicknameStreakBest: 2 },
     });
+    assert.equal(s.streaks.byMode['nickname-streak'].currentWinStreak, 1);
     assert.equal(s.streaks.nicknameStreak.current, 2);
     assert.equal(s.streaks.nicknameStreak.best, 2);
     s = applyEventToStatsTree(s, {
       ...W('nickname-streak'),
       modeMetrics: { nicknameStreakCurrent: 3, nicknameStreakBest: 3 },
     });
+    assert.equal(s.streaks.byMode['nickname-streak'].currentWinStreak, 2);
     assert.equal(s.streaks.nicknameStreak.current, 3);
     assert.equal(s.streaks.nicknameStreak.best, 3);
   });
@@ -183,11 +198,14 @@ describe('normalizeStatsFromFirestore', () => {
   it('fills missing fields from partial Firestore doc', () => {
     const n = normalizeStatsFromFirestore({
       totals: { gamesPlayed: 2, wins: 1 },
-      streaks: { currentWinStreak: 0, bestWinStreak: 1 },
+      streaks: {
+        byMode: { 'bio-ball': { currentWinStreak: 0, bestWinStreak: 4 } },
+      },
     });
     assert.equal(n.totals.losses, 0);
     assert.equal(n.totals.abandoned, 0);
     assert.equal(n.bests.fastestWinMs, null);
+    assert.equal(n.streaks.byMode['bio-ball'].bestWinStreak, 4);
     assert.equal(n.streaks.nicknameStreak.current, 0);
     assert.equal(n.streaks.nicknameStreak.best, 0);
   });
