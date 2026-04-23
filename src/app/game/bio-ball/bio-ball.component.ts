@@ -30,7 +30,7 @@ export class BioBallComponent {
     private hintService: HintService,
     private rosterSelectionService: RosterSelectionService,
     @Inject(GAME_SERVICE)
-    private gameService: BioBallEngineService<UiPlayer<AttributesType>>
+    private readonly gameService: BioBallEngineService<UiPlayer<AttributesType>>,
   ) {
     this.route.data.pipe(first()).subscribe((d) => {
       this.gameService.startNewGame((d as Data).players);
