@@ -38,9 +38,65 @@ mat-sidenav {
   line-height: 1.45;
   color: rgba(255, 255, 255, 0.88);
 
-  &__text {
+  &__main {
     min-width: 0;
     flex: 1;
+  }
+
+  &__text {
+    min-width: 0;
+  }
+
+  &__still {
+    margin: 10px 0 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  &__btn {
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(0, 0, 0, 0.2);
+    color: #eee;
+    font-size: 0.78rem;
+    padding: 6px 12px;
+    font-family: constants.$font-family;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    &--primary {
+      border-color: rgba(204, 31, 65, 0.55);
+      color: constants.$color-header;
+    }
+  }
+
+  &__msg {
+    margin: 8px 0 0;
+    font-size: 0.78rem;
+
+    &--ok {
+      color: #c8e6c9;
+    }
+
+    &--err {
+      color: #ffccbc;
+    }
   }
 
   &__addr {

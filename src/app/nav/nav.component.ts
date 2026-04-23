@@ -1,7 +1,9 @@
 import {
+  ChangeDetectorRef,
   Component,
   computed,
   Inject,
+  NgZone,
   OnDestroy,
   OnInit,
   Signal,
@@ -110,9 +112,19 @@ export class NavComponent implements OnInit, OnDestroy {
    */
   protected loginDrawerActive = false;
 
+  /** Banner: resend cooldown (seconds remaining, 0 = ready). */
+  protected bannerResendCooldownSec = 0;
+  protected bannerResendLoading = false;
+  protected bannerResendMessage: string | null = null;
+  protected bannerResendError: string | null = null;
+
+  private bannerCooldownTimer: ReturnType<typeof setInterval> | null = null;
+
   private destroy$ = new Subject<void>();
 
   constructor(
+    private readonly ngZone: NgZone,
+    private readonly cdr: ChangeDetectorRef,
     private hintService: HintService,
     private rosterSelectionService: RosterSelectionService,
     private router: Router,
@@ -187,6 +199,7 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.clearBannerCooldownTimer();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -282,6 +295,10 @@ export class NavComponent implements OnInit, OnDestroy {
 
   protected logout(): void {
     this.postSignUpEmailBanner = null;
+    this.clearBannerCooldownTimer();
+    this.bannerResendCooldownSec = 0;
+    this.bannerResendMessage = null;
+    this.bannerResendError = null;
     this.loginDrawerActive = false;
     void this.authService.signOut();
   }
@@ -294,6 +311,60 @@ export class NavComponent implements OnInit, OnDestroy {
 
   protected dismissPostSignUpEmailBanner(): void {
     this.postSignUpEmailBanner = null;
+    this.clearBannerCooldownTimer();
+    this.bannerResendCooldownSec = 0;
+    this.bannerResendMessage = null;
+    this.bannerResendError = null;
+  }
+
+  protected openProfileFromVerifyBanner(): void {
+    this.openProfileMenu();
+  }
+
+  protected async resendVerificationFromBanner(): Promise<void> {
+    if (this.bannerResendCooldownSec > 0 || this.bannerResendLoading) {
+      return;
+    }
+    this.bannerResendError = null;
+    this.bannerResendMessage = null;
+    this.bannerResendLoading = true;
+    this.cdr.markForCheck();
+    try {
+      await this.authService.resendEmailVerification();
+      this.bannerResendMessage = 'Another verification email is on its way.';
+      this.bannerResendCooldownSec = 60;
+      this.startBannerResendCooldown();
+    } catch (err) {
+      this.bannerResendError = this.authService.mapAuthError(err);
+    } finally {
+      this.bannerResendLoading = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  private startBannerResendCooldown(): void {
+    this.clearBannerCooldownTimer();
+    this.ngZone.runOutsideAngular(() => {
+      this.bannerCooldownTimer = setInterval(() => {
+        this.ngZone.run(() => {
+          this.bannerResendCooldownSec = Math.max(
+            0,
+            this.bannerResendCooldownSec - 1,
+          );
+          this.cdr.markForCheck();
+          if (this.bannerResendCooldownSec <= 0) {
+            this.clearBannerCooldownTimer();
+          }
+        });
+      }, 1000);
+    });
+  }
+
+  private clearBannerCooldownTimer(): void {
+    if (this.bannerCooldownTimer != null) {
+      clearInterval(this.bannerCooldownTimer);
+      this.bannerCooldownTimer = null;
+    }
   }
 
   protected openLoginMenu(): void {

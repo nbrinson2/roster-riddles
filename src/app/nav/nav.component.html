@@ -154,20 +154,57 @@
         class="email-verify-post-login-banner"
         role="status"
       >
-        <div class="email-verify-post-login-banner__text">
-          <ng-container *ngIf="verifyBanner.verificationEmailSent">
-            <strong>Check your email.</strong> We sent a verification link to
-            <span class="email-verify-post-login-banner__addr">{{
-              verifyBanner.email
-            }}</span
-            >. Open the link to confirm your address (try your spam folder too).
-            Some features need a verified email.
-          </ng-container>
-          <ng-container *ngIf="!verifyBanner.verificationEmailSent">
-            <strong>Account created,</strong> but we could not send the verification
-            email. Open <strong>Profile</strong> (person icon) and tap
-            <strong>Resend verification email</strong>.
-          </ng-container>
+        <div class="email-verify-post-login-banner__main">
+          <div class="email-verify-post-login-banner__text">
+            <ng-container *ngIf="verifyBanner.verificationEmailSent">
+              <strong>Check your email.</strong> We sent a verification link to
+              <span class="email-verify-post-login-banner__addr">{{
+                verifyBanner.email
+              }}</span
+              >. Open the link to confirm your address (try your spam folder too).
+              Some features need a verified email.
+            </ng-container>
+            <ng-container *ngIf="!verifyBanner.verificationEmailSent">
+              <strong>Account created,</strong> but we could not send the verification
+              email yet. Use <strong>Resend</strong> below or open
+              <strong>Profile</strong> (person icon).
+            </ng-container>
+            <p class="email-verify-post-login-banner__still">
+              Still waiting? Links can be delayed—try spam, then resend (limited to once per
+              minute here to protect your inbox).
+            </p>
+          </div>
+          <div class="email-verify-post-login-banner__actions">
+            <button
+              type="button"
+              class="email-verify-post-login-banner__btn"
+              (click)="openProfileFromVerifyBanner()"
+            >
+              Open profile
+            </button>
+            <button
+              type="button"
+              class="email-verify-post-login-banner__btn email-verify-post-login-banner__btn--primary"
+              [disabled]="
+                bannerResendLoading || bannerResendCooldownSec > 0
+              "
+              (click)="resendVerificationFromBanner()"
+            >
+              {{
+                bannerResendLoading
+                  ? 'Sending…'
+                  : bannerResendCooldownSec > 0
+                    ? 'Resend in ' + bannerResendCooldownSec + 's'
+                    : 'Resend verification email'
+              }}
+            </button>
+          </div>
+          <p *ngIf="bannerResendMessage" class="email-verify-post-login-banner__msg email-verify-post-login-banner__msg--ok">
+            {{ bannerResendMessage }}
+          </p>
+          <p *ngIf="bannerResendError" class="email-verify-post-login-banner__msg email-verify-post-login-banner__msg--err" role="alert">
+            {{ bannerResendError }}
+          </p>
         </div>
         <button
           type="button"

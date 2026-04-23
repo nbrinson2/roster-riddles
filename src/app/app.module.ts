@@ -51,6 +51,7 @@ import { StreakCardComponent } from './game/nickname-streak/streak-card/streak-c
 import { GuessResultComponent } from './game/nickname-streak/guess-result/guess-result.component';
 import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directive';
 import { authHttpInterceptor } from './auth/auth-http.interceptor';
+import { EmailVerifiedPageComponent } from './auth/email-verified-page/email-verified-page.component';
 import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
 import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-panel.component';
 import { ContestCardComponent } from './nav/contests-panel/components/contest-card/contest-card.component';
@@ -94,6 +95,7 @@ import { AdminUserClaimsWidgetComponent } from './nav/admin-dashboard-panel/admi
     GuessResultComponent,
     FeatureFlagDirective,
     LoginPanelComponent,
+    EmailVerifiedPageComponent,
     LeaderboardPanelComponent,
     ContestsPanelComponent,
     ContestsPanelHeroComponent,

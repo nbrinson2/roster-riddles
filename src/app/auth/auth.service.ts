@@ -76,8 +76,10 @@ export class AuthService {
     }
     const origin = window.location?.origin;
     if (typeof origin === 'string' && /^https?:\/\//.test(origin)) {
+      const base = origin.replace(/\/$/, '');
       return {
-        url: `${origin.replace(/\/$/, '')}/`,
+        /** Must be listed under Firebase Auth → Authorized domains (same host as `base`). */
+        url: `${base}/email-verified`,
         handleCodeInApp: false,
       };
     }

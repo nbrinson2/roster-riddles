@@ -1,0 +1,52 @@
+@use '../../../constants';
+
+.evp-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background: #0a0a0a;
+  color: #eee;
+  font-family: constants.$font-family-secondary;
+}
+
+.evp-card {
+  max-width: 420px;
+  width: 100%;
+  padding: 28px 24px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.evp-title {
+  margin: 0 0 16px;
+  font-family: constants.$font-family;
+  font-size: 1.5rem;
+  color: constants.$color-header;
+  letter-spacing: 0.03em;
+}
+
+.evp-body {
+  margin: 0 0 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.evp-success {
+  color: #c8e6c9;
+}
+
+.evp-error {
+  color: #ffccbc;
+}
+
+.evp-detail {
+  margin: -12px 0 16px;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+  word-break: break-word;
+}
