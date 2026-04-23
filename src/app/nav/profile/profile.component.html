@@ -137,6 +137,22 @@
                       <dd>{{ st.bestWinStreak }}</dd>
                     </div>
                   </dl>
+                  <div class="streak-subsection">
+                    <h3 class="streak-subsection__title">Nickname Streak</h3>
+                    <p class="streak-subsection__hint">
+                      Correct nicknames in a row.
+                    </p>
+                    <dl class="mini-dl">
+                      <div class="mini-row">
+                        <dt>Current</dt>
+                        <dd>{{ nicknameStreakStats(doc).current }}</dd>
+                      </div>
+                      <div class="mini-row">
+                        <dt>Best</dt>
+                        <dd>{{ nicknameStreakStats(doc).best }}</dd>
+                      </div>
+                    </dl>
+                  </div>
                 </mat-card-content>
               </mat-card>
 

@@ -54,8 +54,9 @@ export class GameplayTelemetryService {
     gameType: GameType,
     difficulty: Difficulty,
     mistakeCount: number,
+    modeMetrics?: Record<string, unknown>,
   ): void {
-    this.sendTerminal('won', gameType, difficulty, mistakeCount);
+    this.sendTerminal('won', gameType, difficulty, mistakeCount, modeMetrics);
   }
 
   /** Loss — call from `CommonGameService.onLose` after state is set. */
@@ -63,8 +64,9 @@ export class GameplayTelemetryService {
     gameType: GameType,
     difficulty: Difficulty,
     mistakeCount: number,
+    modeMetrics?: Record<string, unknown>,
   ): void {
-    this.sendTerminal('lost', gameType, difficulty, mistakeCount);
+    this.sendTerminal('lost', gameType, difficulty, mistakeCount, modeMetrics);
   }
 
   /**
@@ -96,7 +98,20 @@ export class GameplayTelemetryService {
     }
     const gt = game.currentGame();
     const difficulty = game.currentGameMode();
-    this.sendTerminal('abandoned', gt, difficulty, mistakeCount);
+    const abandonMetrics =
+      gt === GameType.NICKNAME_STREAK
+        ? {
+            nicknameStreakCurrent: 0,
+            nicknameStreakBest: game.bestStreak(),
+          }
+        : undefined;
+    this.sendTerminal(
+      'abandoned',
+      gt,
+      difficulty,
+      mistakeCount,
+      abandonMetrics,
+    );
   }
 
   private shouldSend(): boolean {
@@ -108,6 +123,7 @@ export class GameplayTelemetryService {
     gameType: GameType,
     difficulty: Difficulty,
     mistakeCount: number,
+    modeMetrics?: Record<string, unknown>,
   ): void {
     if (!this.shouldSend() || !this.clientSessionId) {
       return;
@@ -146,6 +162,9 @@ export class GameplayTelemetryService {
       body['difficulty'] = difficulty;
     }
     body['deployment'] = environment.deployment;
+    if (modeMetrics && Object.keys(modeMetrics).length > 0) {
+      body['modeMetrics'] = modeMetrics;
+    }
 
     this.http.post(this.eventsUrl(), body).subscribe({
       error: (err: unknown) => {

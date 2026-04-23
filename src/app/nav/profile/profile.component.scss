@@ -288,6 +288,30 @@
     margin-top: 2px;
   }
 
+  .streak-subsection {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .streak-subsection__title {
+    margin: 0 0 6px;
+    font-family: constants.$font-family-secondary;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .streak-subsection__hint {
+    margin: 0 0 10px;
+    font-family: constants.$font-family-secondary;
+    font-size: 12px;
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
   .mini-dl {
     margin: 0;
     width: 100%;

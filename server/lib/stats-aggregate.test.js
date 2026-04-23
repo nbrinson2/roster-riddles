@@ -110,6 +110,40 @@ describe('applyEventToStatsTree', () => {
     s = applyEventToStatsTree(s, W());
     assert.equal(s.streaks.currentWinStreak, 2);
   });
+
+  it('merges nickname-streak guess counters from modeMetrics on won', () => {
+    let s = applyEventToStatsTree(null, {
+      ...W('nickname-streak'),
+      modeMetrics: { nicknameStreakCurrent: 2, nicknameStreakBest: 2 },
+    });
+    assert.equal(s.streaks.nicknameStreak.current, 2);
+    assert.equal(s.streaks.nicknameStreak.best, 2);
+    s = applyEventToStatsTree(s, {
+      ...W('nickname-streak'),
+      modeMetrics: { nicknameStreakCurrent: 3, nicknameStreakBest: 3 },
+    });
+    assert.equal(s.streaks.nicknameStreak.current, 3);
+    assert.equal(s.streaks.nicknameStreak.best, 3);
+  });
+
+  it('nickname-streak loss applies modeMetrics and preserves best', () => {
+    let s = applyEventToStatsTree(null, {
+      ...W('nickname-streak'),
+      modeMetrics: { nicknameStreakCurrent: 4, nicknameStreakBest: 4 },
+    });
+    s = applyEventToStatsTree(s, {
+      ...L('nickname-streak'),
+      modeMetrics: { nicknameStreakCurrent: 0, nicknameStreakBest: 4 },
+    });
+    assert.equal(s.streaks.nicknameStreak.current, 0);
+    assert.equal(s.streaks.nicknameStreak.best, 4);
+  });
+
+  it('non-nickname events do not require modeMetrics for nickname streak', () => {
+    let s = applyEventToStatsTree(null, W('bio-ball'));
+    assert.equal(s.streaks.nicknameStreak.current, 0);
+    assert.equal(s.streaks.nicknameStreak.best, 0);
+  });
 });
 
 /**
@@ -154,5 +188,7 @@ describe('normalizeStatsFromFirestore', () => {
     assert.equal(n.totals.losses, 0);
     assert.equal(n.totals.abandoned, 0);
     assert.equal(n.bests.fastestWinMs, null);
+    assert.equal(n.streaks.nicknameStreak.current, 0);
+    assert.equal(n.streaks.nicknameStreak.best, 0);
   });
 });

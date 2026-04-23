@@ -136,6 +136,15 @@ export class ProfileComponent {
       : `${s.toFixed(1)} s`;
   }
 
+  /** Nickname Streak correct-guess run (from gameplay `modeMetrics`). */
+  nicknameStreakStats(doc: UserStatsDocument): { current: number; best: number } {
+    const ns = doc.streaks?.nicknameStreak;
+    return {
+      current: ns?.current ?? 0,
+      best: ns?.best ?? 0,
+    };
+  }
+
   totalsOrDefault(doc: UserStatsDocument | undefined): UserStatsTotals {
     const t = doc?.totals;
     return {

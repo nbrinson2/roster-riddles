@@ -21,6 +21,11 @@ export interface UserStatsDocument {
   streaks?: {
     currentWinStreak: number;
     bestWinStreak: number;
+    /** Correct nickname guesses in a row (from gameplay `modeMetrics`). */
+    nicknameStreak?: {
+      current: number;
+      best: number;
+    };
   };
   bests?: {
     fastestWinMs: number | null;

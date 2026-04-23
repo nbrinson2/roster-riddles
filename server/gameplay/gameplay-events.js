@@ -283,6 +283,9 @@ export async function postGameplayEvent(req, res) {
         gameMode: parsed.gameMode,
         durationMs: parsed.durationMs,
         mistakeCount: parsed.mistakeCount,
+        ...(parsed.modeMetrics !== undefined
+          ? { modeMetrics: parsed.modeMetrics }
+          : {}),
       },
     );
     existing = out.existing;
