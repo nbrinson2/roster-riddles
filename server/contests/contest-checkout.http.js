@@ -16,6 +16,7 @@ import {
   isContestsPaymentsEnabled,
   sendStripeServiceUnavailable,
 } from '../payments/stripe-server.js';
+import { isContestJoinEmailVerifiedEnforced } from './contest-email-verified.js';
 
 export { getEntryFeeCentsFromContest };
 
@@ -97,6 +98,22 @@ export async function postContestCheckoutSession(req, res) {
     });
     return res.status(401).json({
       error: { code: 'unauthenticated', message: 'Authentication required.' },
+    });
+  }
+
+  if (isContestJoinEmailVerifiedEnforced() && req.user?.emailVerified !== true) {
+    logContestCheckoutLine({
+      requestId,
+      httpStatus: 403,
+      outcome: 'email_not_verified',
+      latencyMs: Date.now() - startMs,
+    });
+    return res.status(403).json({
+      error: {
+        code: 'email_not_verified',
+        message:
+          'Verify your email address before paid contest entry. Use Profile to resend the verification link, then try checkout again.',
+      },
     });
   }
 

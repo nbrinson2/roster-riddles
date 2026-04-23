@@ -45,6 +45,7 @@ export function getContestEligibilityBullets(
   maxEntries?: number | null,
 ): string[] {
   const lines: string[] = [
+    'A verified email address is required to join or pay for a contest (use Profile to resend the verification link if needed).',
     'You may be entered in at most one open contest at a time for Bio Ball (server-enforced at join).',
     `Your score uses up to ${leagueGamesN} qualifying Bio Ball games in order after you join, inside the play window shown on this card.`,
     'Contest times are absolute instants; labels use your device’s timezone. If an operator edits window times before you join, you will see the updated schedule here.',

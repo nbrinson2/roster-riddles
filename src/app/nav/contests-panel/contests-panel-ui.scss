@@ -918,6 +918,50 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   border: 1px solid rgba(211, 47, 47, 0.25);
 }
 
+.cc-verify-email-banner {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: $cc-radius;
+  border: 1px solid rgba(100, 181, 246, 0.35);
+  background: rgba(100, 181, 246, 0.1);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.88);
+
+  .material-symbols-outlined {
+    flex-shrink: 0;
+    font-size: 22px;
+    color: #90caf9;
+  }
+
+  strong {
+    color: #fff;
+  }
+}
+
+.cc-verify-email-card-hint {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(100, 181, 246, 0.28);
+  background: rgba(33, 150, 243, 0.08);
+
+  .material-symbols-outlined {
+    flex-shrink: 0;
+    font-size: 20px;
+    color: #90caf9;
+  }
+}
+
 ::ng-deep .state-loading .mat-mdc-progress-spinner circle {
   stroke: #cc1f41 !important;
 }

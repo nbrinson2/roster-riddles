@@ -13,6 +13,7 @@ import { findBlockingOpenContestSameGameMode } from './contest-blocking-entry.js
 import { getEntryFeeCentsFromContest } from './contest-entry-fee.js';
 import { classifyContestJoinPaymentPath } from './contest-join-payment-path.js';
 import { logContestJoinLine } from './contest-join-log.js';
+import { isContestJoinEmailVerifiedEnforced } from './contest-email-verified.js';
 
 /** Phase 4 v1 — must match `ContestGameMode` / ADR. */
 const BIO_BALL = 'bio-ball';
@@ -95,6 +96,22 @@ export async function postContestJoin(req, res) {
     });
     return res.status(401).json({
       error: { code: 'unauthenticated', message: 'Authentication required.' },
+    });
+  }
+
+  if (isContestJoinEmailVerifiedEnforced() && req.user?.emailVerified !== true) {
+    logContestJoinLine({
+      requestId,
+      httpStatus: 403,
+      outcome: 'email_not_verified',
+      latencyMs: Date.now() - startMs,
+    });
+    return res.status(403).json({
+      error: {
+        code: 'email_not_verified',
+        message:
+          'Verify your email address before joining contests. Use Profile to resend the verification link, then try again.',
+      },
     });
   }
 

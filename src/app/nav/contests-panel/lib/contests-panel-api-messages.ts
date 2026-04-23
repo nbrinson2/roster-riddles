@@ -17,6 +17,11 @@ export function mapContestJoinErrorMessage(err: HttpErrorResponse): string {
   if (err.status === 401) {
     return 'Sign in again, then retry.';
   }
+  if (err.status === 403 && code === 'email_not_verified') {
+    return typeof msg === 'string'
+      ? msg
+      : 'Verify your email before joining contests. Open Profile to resend the link.';
+  }
   if (err.status === 429) {
     return 'Too many join attempts. Wait a moment and try again.';
   }
@@ -59,6 +64,11 @@ export function mapContestCheckoutErrorMessage(err: HttpErrorResponse): string {
   const { code, message: msg } = apiErrorBody(err);
   if (err.status === 401) {
     return 'Sign in again, then retry.';
+  }
+  if (err.status === 403 && code === 'email_not_verified') {
+    return typeof msg === 'string'
+      ? msg
+      : 'Verify your email before paid entry. Open Profile to resend the link.';
   }
   if (err.status === 429) {
     return 'Too many checkout attempts. Wait a moment and try again.';

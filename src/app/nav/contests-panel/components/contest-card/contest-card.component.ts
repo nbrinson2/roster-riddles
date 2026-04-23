@@ -77,6 +77,8 @@ export class ContestCardComponent {
   @Input() rulesCheckbox = false;
   @Input() joinSubmitting = false;
   @Input() loggedIn = false;
+  /** When false, join / paid checkout controls are hidden (server requires verified email). */
+  @Input() emailVerified = false;
   /** Rules version banner when entered (from parent; scoped to expanded contest). */
   @Input() entryRulesVersion: number | string | null = null;
   @Input() fullRulesHref = CONTEST_FULL_RULES_HREF;
@@ -141,6 +143,27 @@ export class ContestCardComponent {
 
   protected joinDisabledReason(row: ContestListRow): string | null {
     return joinDisabledReasonForContest(row, Date.now());
+  }
+
+  /** Rules checkbox + join / checkout (not already entered, window allows join). */
+  protected canOfferJoin(row: ContestListRow): boolean {
+    return (
+      this.loggedIn &&
+      this.emailVerified &&
+      this.canAttemptJoin(row) &&
+      this.entryRulesVersion == null
+    );
+  }
+
+  /** In-card reminder when signed in but email not verified. */
+  protected showVerifyEmailJoinHint(row: ContestListRow): boolean {
+    return (
+      this.loggedIn &&
+      !this.emailVerified &&
+      this.expanded &&
+      this.canAttemptJoin(row) &&
+      this.entryRulesVersion == null
+    );
   }
 
   protected contestRequiresPayment(row: ContestListRow): boolean {
