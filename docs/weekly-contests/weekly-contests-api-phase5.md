@@ -1,7 +1,7 @@
 # Weekly contests API — Phase 5 (payments)
 
 **Status:** Stories P5-D1 (`checkout-session`), P5-D2 (Angular Checkout redirect + confirming UI) implemented; webhook business logic in P5-E.  
-**Related:** [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md), [stripe.md](stripe.md)
+**Related:** [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md), [stripe.md](../payments/stripe.md)
 
 ---
 

@@ -33,11 +33,11 @@ Product and engineering agree on **what “score” means** per game mode (reuse
 
 **Deliverable (merged)**
 
-- **[`docs/leaderboards-phase3-adr.md`](leaderboards-phase3-adr.md)** — ADR with score (**`wins`** from `stats/summary`), dimensions (**global + per-mode all-time**; **weekly deferred**), refresh (**precomputed top-K + scheduled batch** preferred; collection-group alternative for small MAU), cost posture, anti-abuse P0/P1, tie-breaks, and sign-off table.
+- **[`docs/leaderboards/leaderboards-phase3-adr.md`](leaderboards-phase3-adr.md)** — ADR with score (**`wins`** from `stats/summary`), dimensions (**global + per-mode all-time**; **weekly deferred**), refresh (**precomputed top-K + scheduled batch** preferred; collection-group alternative for small MAU), cost posture, anti-abuse P0/P1, tie-breaks, and sign-off table.
 
 **Acceptance criteria**
 
-- [x] Written ADR in repo (`docs/leaderboards-phase3-adr.md`) covering:
+- [x] Written ADR in repo (`docs/leaderboards/leaderboards-phase3-adr.md`) covering:
   - [x] **Score:** **`wins`** from Phase 2 aggregate (`totals` / `totalsByMode`); source `users/{uid}/stats/summary`.
   - [x] **Dimensions:** v1 = **global all-time** + **per-game-mode all-time**; **weekly out of scope** for v1; **league** axis deferred.
   - [x] **Refresh:** **Batch/snapshot** default for precomputed boards; staleness and optional “updated at” UX; collection-group query path for dev/small scale.
@@ -47,7 +47,7 @@ Product and engineering agree on **what “score” means** per game mode (reuse
 
 **Dependencies**
 
-- Phase 2 event/aggregate semantics documented (`docs/gameplay-stats-phase2.md`).
+- Phase 2 event/aggregate semantics documented (`docs/platform/gameplay-stats-phase2.md`).
 
 ---
 
@@ -70,7 +70,7 @@ Specify documents that support **composite queries** (e.g. `weekId + score DESC`
 - [x] Rules impact listed (new paths read/write matrix).
 - [x] No PII beyond what product approves (e.g. optional display name only).
 
-**Deliverable:** [`docs/leaderboards-schema-query-path.md`](leaderboards-schema-query-path.md), [`firestore.indexes.json`](../firestore.indexes.json) (collection-group indexes), [`src/app/shared/models/leaderboard-query.model.ts`](../src/app/shared/models/leaderboard-query.model.ts).
+**Deliverable:** [`docs/leaderboards/leaderboards-schema-query-path.md`](leaderboards-schema-query-path.md), [`firestore.indexes.json`](../firestore.indexes.json) (collection-group indexes), [`src/app/shared/models/leaderboard-query.model.ts`](../src/app/shared/models/leaderboard-query.model.ts).
 
 **Dependencies**
 
@@ -98,7 +98,7 @@ If ADR chooses **scheduled recomputation**, define snapshot documents (v1: **`le
 
 - Story A0; mutually exclusive implementation with B1 for the same dimension or hybrid clearly described (see deliverable doc).
 
-**Deliverable:** [`docs/leaderboards-schema-precomputed.md`](leaderboards-schema-precomputed.md), [`src/app/shared/models/leaderboard-snapshot.model.ts`](../src/app/shared/models/leaderboard-snapshot.model.ts), [`firestore.rules`](../firestore.rules) (`leaderboards/snapshots/boards/*` read/write matrix).
+**Deliverable:** [`docs/leaderboards/leaderboards-schema-precomputed.md`](leaderboards-schema-precomputed.md), [`src/app/shared/models/leaderboard-snapshot.model.ts`](../src/app/shared/models/leaderboard-snapshot.model.ts), [`firestore.rules`](../firestore.rules) (`leaderboards/snapshots/boards/*` read/write matrix).
 
 ---
 
@@ -123,7 +123,7 @@ For each query pattern (weekly + mode + score sort, etc.), specify **collection 
 
 - Story B1 (and B2 if applicable).
 
-**Deliverable:** [`docs/leaderboards-indexes-pagination.md`](leaderboards-indexes-pagination.md), [`firestore.indexes.json`](../firestore.indexes.json), [`src/app/shared/models/leaderboard-query.model.ts`](../src/app/shared/models/leaderboard-query.model.ts) (`LEADERBOARD_*_PAGE_SIZE`), cross-links from B1 + [firestore-rules-deploy.md](firestore-rules-deploy.md) (indexes §).
+**Deliverable:** [`docs/leaderboards/leaderboards-indexes-pagination.md`](leaderboards-indexes-pagination.md), [`firestore.indexes.json`](../firestore.indexes.json), [`src/app/shared/models/leaderboard-query.model.ts`](../src/app/shared/models/leaderboard-query.model.ts) (`LEADERBOARD_*_PAGE_SIZE`), cross-links from B1 + [firestore-rules-deploy.md](../platform/firestore-rules-deploy.md) (indexes §).
 
 ---
 
@@ -150,7 +150,7 @@ Single pipeline: on relevant gameplay outcome, update per-user leaderboard input
 
 - Phase 2 event ingestion; Story A0 scoring rules.
 
-**Deliverable:** [`docs/leaderboards-trusted-writer-c1.md`](leaderboards-trusted-writer-c1.md) (trusted path + idempotency + merge semantics), [`server/lib/stats-aggregate.js`](../server/lib/stats-aggregate.js) (JSDoc cross-links), [`server/lib/stats-aggregate.test.js`](../server/lib/stats-aggregate.test.js) (`leaderboard score fields` tests).
+**Deliverable:** [`docs/leaderboards/leaderboards-trusted-writer-c1.md`](leaderboards-trusted-writer-c1.md) (trusted path + idempotency + merge semantics), [`server/lib/stats-aggregate.js`](../server/lib/stats-aggregate.js) (JSDoc cross-links), [`server/lib/stats-aggregate.test.js`](../server/lib/stats-aggregate.test.js) (`leaderboard score fields` tests).
 
 ---
 
@@ -199,7 +199,7 @@ Express (or BFF) routes return JSON: rows with rank, score, uid/displayName per 
 
 - Stories B1–B3, C1.
 
-**Deliverable:** [`docs/leaderboards-api-d1.md`](leaderboards-api-d1.md), [`server/leaderboards/leaderboards.http.js`](../server/leaderboards/leaderboards.http.js), [`server/leaderboards/leaderboard-query.js`](../server/leaderboards/leaderboard-query.js), [`server/leaderboards/leaderboard-log.js`](../server/leaderboards/leaderboard-log.js), [`server/middleware/rate-limit-hooks.middleware.js`](../server/middleware/rate-limit-hooks.middleware.js), route in [`index.js`](../index.js).
+**Deliverable:** [`docs/leaderboards/leaderboards-api-d1.md`](leaderboards-api-d1.md), [`server/leaderboards/leaderboards.http.js`](../server/leaderboards/leaderboards.http.js), [`server/leaderboards/leaderboard-query.js`](../server/leaderboards/leaderboard-query.js), [`server/leaderboards/leaderboard-log.js`](../server/leaderboards/leaderboard-log.js), [`server/middleware/rate-limit-hooks.middleware.js`](../server/middleware/rate-limit-hooks.middleware.js), route in [`index.js`](../index.js).
 
 **Notes (v1):** Per-mode boards use **`scope`** (`bio-ball`, etc.); there is no separate **`gameMode`** query param. **`week`** returns 400 (weekly out of scope). Leaderboard **`GET`** is **public** (no Bearer required); **`displayName`** from Auth when resolvable.
 
@@ -253,7 +253,7 @@ Subscribe to query results or precomputed doc; throttle UI updates; handle index
 
 **Deliverable (merged)**
 
-- **[`docs/leaderboards-realtime-e1.md`](leaderboards-realtime-e1.md)** — B2 single-doc `onSnapshot` (no composite index), D1 short-poll, throttle / pagination notes, rough MAU cost formulas.
+- **[`docs/leaderboards/leaderboards-realtime-e1.md`](leaderboards-realtime-e1.md)** — B2 single-doc `onSnapshot` (no composite index), D1 short-poll, throttle / pagination notes, rough MAU cost formulas.
 - **Optional client wiring:** `leaderboardUseFirestoreSnapshot` and `leaderboardPollIntervalMs` in [`src/environment.ts`](../src/environment.ts); [`leaderboard-panel`](../src/app/nav/leaderboard-panel/) implements both paths.
 
 ---
@@ -281,7 +281,7 @@ Job reads source of truth (aggregates or events sample), writes precomputed docs
 
 **Deliverable (merged)**
 
-- **[`docs/leaderboards-batch-e2.md`](leaderboards-batch-e2.md)** — batch job, `POST /api/internal/v1/leaderboard-snapshots/rebuild`, Cloud Scheduler `gcloud` example + console steps, env `LEADERBOARD_SNAPSHOT_CRON_SECRET`, `npm run rebuild:leaderboard-snapshots`.
+- **[`docs/leaderboards/leaderboards-batch-e2.md`](leaderboards-batch-e2.md)** — batch job, `POST /api/internal/v1/leaderboard-snapshots/rebuild`, Cloud Scheduler `gcloud` example + console steps, env `LEADERBOARD_SNAPSHOT_CRON_SECRET`, `npm run rebuild:leaderboard-snapshots`.
 - **Code:** [`server/leaderboards/leaderboard-snapshot-job.js`](../server/leaderboards/leaderboard-snapshot-job.js), [`server/leaderboards/leaderboards-snapshot-rebuild.http.js`](../server/leaderboards/leaderboards-snapshot-rebuild.http.js), [`server/leaderboards/leaderboard-snapshot-log.js`](../server/leaderboards/leaderboard-snapshot-log.js); **`GET /api/v1/leaderboards`** returns **`snapshotGeneratedAt`**; leaderboard panel shows “Data as of” from API or snapshot doc.
 
 ---
@@ -310,7 +310,7 @@ Express middleware or API Gateway; thresholds for `POST` score paths and aggress
 
 **Deliverable (merged)**
 
-- **[`docs/leaderboards-rate-limits-f1.md`](leaderboards-rate-limits-f1.md)** — defaults, env vars, staging `curl` loop for 429, Firestore rules note.
+- **[`docs/leaderboards/leaderboards-rate-limits-f1.md`](leaderboards-rate-limits-f1.md)** — defaults, env vars, staging `curl` loop for 429, Firestore rules note.
 - **Code:** [`server/middleware/rate-limit-hooks.middleware.js`](../server/middleware/rate-limit-hooks.middleware.js), [`server/lib/in-memory-rate-limit.js`](../server/lib/in-memory-rate-limit.js), [`server/lib/client-ip.js`](../server/lib/client-ip.js); `GET /api/v1/leaderboards` + `POST /api/v1/me/gameplay-events` wired; [`firestore.rules`](../firestore.rules) comment (rules do not implement RPS).
 
 ---
@@ -337,7 +337,7 @@ Product picks minimum bar: verified email, captcha on signup, or “shadow” pe
 
 **Deliverable (merged)**
 
-- **[`docs/leaderboards-duplicate-accounts-f2.md`](leaderboards-duplicate-accounts-f2.md)** — design, FAQ line, QA env `LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`.
+- **[`docs/leaderboards/leaderboards-duplicate-accounts-f2.md`](leaderboards-duplicate-accounts-f2.md)** — design, FAQ line, QA env `LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`.
 - **Code:** [`server/leaderboards/leaderboard-email-verified.js`](../server/leaderboards/leaderboard-email-verified.js); [`server/lib/auth-display-names.js`](../server/lib/auth-display-names.js) (`fetchAuthFieldsForUids`); [`GET /api/v1/leaderboards`](../server/leaderboards/leaderboards.http.js) + snapshot job filter; response **`listingPolicy`**; leaderboard panel hint.
 
 ---
@@ -363,7 +363,7 @@ Out of scope for many v1s; story exists so Jira tracks explicit deferral or thin
 
 **Deliverable (merged)**
 
-- **Deferred path:** ADR anti-abuse table updated + **[`docs/leaderboards-prize-verification-f3.md`](leaderboards-prize-verification-f3.md)** — v1 scope, future claim/review shape, owners, “what not to do.”
+- **Deferred path:** ADR anti-abuse table updated + **[`docs/leaderboards/leaderboards-prize-verification-f3.md`](leaderboards-prize-verification-f3.md)** — v1 scope, future claim/review shape, owners, “what not to do.”
 
 ---
 
@@ -391,8 +391,8 @@ Seed data in staging; run reconciliation script or export; compare to leaderboar
 
 **Deliverable (merged)**
 
-- **[`docs/leaderboards-test-cohort-g1.md`](leaderboards-test-cohort-g1.md)** — sign-off table, manual API steps, edge-case matrix (ties; weekly/timezone N/A v1; F2 caveat).
-- **[`docs/fixtures/leaderboard-cohort.example.json`](fixtures/leaderboard-cohort.example.json)** — copy to gitignored `leaderboard-test-cohort.json`.
+- **[`docs/leaderboards/leaderboards-test-cohort-g1.md`](leaderboards-test-cohort-g1.md)** — sign-off table, manual API steps, edge-case matrix (ties; weekly/timezone N/A v1; F2 caveat).
+- **[`docs/fixtures/leaderboard-cohort.example.json`](../fixtures/leaderboard-cohort.example.json)** — copy to gitignored `leaderboard-test-cohort.json`.
 - **[`scripts/verify-leaderboard-cohort.mjs`](../scripts/verify-leaderboard-cohort.mjs)** + **`npm run verify:leaderboard-cohort`**.
 
 ---
@@ -410,7 +410,7 @@ On-call steps; link to Cloud Logging filters; feature flag to hide UI/API if nee
 
 **Acceptance criteria**
 
-- [x] `docs/leaderboards-runbook.md` merged.
+- [x] `docs/leaderboards/leaderboards-runbook.md` merged.
 
 **Dependencies**
 
@@ -418,7 +418,7 @@ On-call steps; link to Cloud Logging filters; feature flag to hide UI/API if nee
 
 **Deliverable (merged)**
 
-- **[`docs/leaderboards-runbook.md`](leaderboards-runbook.md)** — index deploy, cache/freshness, E2 replay, Cloud Logging filters, **`LEADERBOARDS_DISABLED`** (API) + **`LEADERBOARDS_UI_ENABLED`** (build-time UI), escalation checklist.
+- **[`docs/leaderboards/leaderboards-runbook.md`](leaderboards-runbook.md)** — index deploy, cache/freshness, E2 replay, Cloud Logging filters, **`LEADERBOARDS_DISABLED`** (API) + **`LEADERBOARDS_UI_ENABLED`** (build-time UI), escalation checklist.
 
 ---
 

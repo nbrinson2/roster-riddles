@@ -9,7 +9,7 @@ Single place for **release owners** and **QA** to run and sign off the **weekly 
 
 **Production:** To **create** a contest in prod (not just exercise staging), see [Production: creating a contest](#production-creating-a-contest).
 
-General hosting and Firebase layout: [environment-matrix.md](environment-matrix.md).
+General hosting and Firebase layout: [environment-matrix.md](../platform/environment-matrix.md).
 
 **Quick UI-only smoke check (anytime):** first-time strip → card → join, and returning user → last paid contest → payout + details — see [weekly-contests-ui-walkthrough-check.md](weekly-contests-ui-walkthrough-check.md).
 
@@ -39,7 +39,7 @@ export AUTH_BEARER_USER="…"           # Firebase ID token for curl join tests
 
 Clients **cannot** write `contests/{contestId}` ([weekly-contests-schema-contests.md](weekly-contests-schema-contests.md); [firestore.rules](../firestore.rules)). Starting a weekly contest in **production** is an **operator** action.
 
-1. **Firestore (production project + database)** — Add **`contests/{contestId}`** with required fields: **`schemaVersion`**, **`status`** (often **`scheduled`** first, or **`open`** when you are ready for entries), **`gameMode: bio-ball`**, **`rulesVersion`**, **`windowStart`**, **`windowEnd`**, **`leagueGamesN`**, **`createdAt`**, **`updatedAt`**, optional **`title`** / **`metadata`**. Use the **same** Firestore **database id** as the live app (**`FIRESTORE_DATABASE_ID`** — production may use the named DB `roster-riddles`; staging often uses `(default)` — see [environment-matrix.md](environment-matrix.md)).
+1. **Firestore (production project + database)** — Add **`contests/{contestId}`** with required fields: **`schemaVersion`**, **`status`** (often **`scheduled`** first, or **`open`** when you are ready for entries), **`gameMode: bio-ball`**, **`rulesVersion`**, **`windowStart`**, **`windowEnd`**, **`leagueGamesN`**, **`createdAt`**, **`updatedAt`**, optional **`title`** / **`metadata`**. Use the **same** Firestore **database id** as the live app (**`FIRESTORE_DATABASE_ID`** — production may use the named DB `roster-riddles`; staging often uses `(default)` — see [environment-matrix.md](../platform/environment-matrix.md)).
 
    - **How to write:** Firebase **Console** (manual), or a one-off **Admin SDK** script / job using **production** credentials only — never commit keys.
 

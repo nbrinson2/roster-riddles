@@ -1,7 +1,7 @@
 # Leaderboards — query-path schema (Story B1)
 
 **Status:** Implemented (schema + indexes + types)  
-**Depends on:** [leaderboards-phase3-adr.md](leaderboards-phase3-adr.md) (Story A0), [gameplay-stats-phase2.md](gameplay-stats-phase2.md)  
+**Depends on:** [leaderboards-phase3-adr.md](leaderboards-phase3-adr.md) (Story A0), [gameplay-stats-phase2.md](../platform/gameplay-stats-phase2.md)  
 **See also (batch path):** [leaderboards-schema-precomputed.md](leaderboards-schema-precomputed.md) (Story B2) — same score semantics; precomputed top-K docs for cheap reads at scale.  
 **Indexes & pagination (Story B3):** [leaderboards-indexes-pagination.md](leaderboards-indexes-pagination.md) — composite indexes, `limit` / `startAfter`, deploy.  
 **Trusted writes (Story C1):** [leaderboards-trusted-writer-c1.md](leaderboards-trusted-writer-c1.md) — `stats/summary` updates only via Admin SDK + idempotent events.  
@@ -95,7 +95,7 @@ Each scope needs a **composite index** (document id + sort field). See `firestor
 
 Composite **collection group** indexes are listed and explained in **[leaderboards-indexes-pagination.md](leaderboards-indexes-pagination.md)** (Story B3), including the canonical **`orderBy`** chain, **`limit`** caps (`LEADERBOARD_MAX_PAGE_SIZE`), and **`startAfter`** pagination. Source of truth: **`firestore.indexes.json`** (four indexes on `stats`: global + three modes).
 
-Deploy indexes with rules to the **`roster-riddles`** database — see [firestore-rules-deploy.md](firestore-rules-deploy.md) § Composite indexes.
+Deploy indexes with rules to the **`roster-riddles`** database — see [firestore-rules-deploy.md](../platform/firestore-rules-deploy.md) § Composite indexes.
 
 ## Security rules impact (read/write matrix)
 

@@ -4,8 +4,8 @@
 |-------|--------|
 | **Status** | Accepted (engineering draft — legal/commerce review required before **live** Stripe keys) |
 | **Date** | 2026-04-21 |
-| **Scope** | **Paid entry** for existing weekly contests (`contests/{contestId}` / `entries/{uid}`) using **Stripe**; **single currency USD**; **no** winner payouts, **no** Stripe Connect — those are [Phase 6](product-roadmap-contests-and-payments.md). |
-| **Depends on** | [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md), [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md), [stripe.md](stripe.md) |
+| **Scope** | **Paid entry** for existing weekly contests (`contests/{contestId}` / `entries/{uid}`) using **Stripe**; **single currency USD**; **no** winner payouts, **no** Stripe Connect — those are [Phase 6](../product/product-roadmap-contests-and-payments.md). |
+| **Depends on** | [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md), [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md), [stripe.md](../payments/stripe.md) |
 | **Implements (backlog)** | [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) Story P5-A1 |
 
 ---
@@ -38,7 +38,7 @@ Phase 5 adds **real entry fees** (test mode in staging, live only after **Phase 
 
 | Topic | Stance |
 |--------|--------|
-| **Stripe Connect**, **transfers** to winners, **KYC** for recipients | **Out of scope** — [Phase 6](product-roadmap-contests-and-payments.md). |
+| **Stripe Connect**, **transfers** to winners, **KYC** for recipients | **Out of scope** — [Phase 6](../product/product-roadmap-contests-and-payments.md). |
 | **Tax**, **1099**, **withholding** | **Out of scope** — requires product + finance; not blocking test-mode entry fees. |
 | **Refunds** | **Hooks only** in Phase 5 (webhook handlers for `charge.refunded` / similar); **policy** (when operator may refund) remains **Phase 0** / legal. |
 | **Non-USD currency** | **Deferred** — v1 USD cents only. |
@@ -135,11 +135,11 @@ The following are **not** satisfied by this ADR alone:
 
 - **Regional** gambling / sweepstakes analysis, **age**, **jurisdiction** gating.
 - Published **Terms of Service**, **Privacy Policy**, **Contest Rules**, **Refund Policy** appropriate for **paid** entry.
-- **Success metrics** (e.g. payout SLA) — see [product-roadmap-contests-and-payments.md](product-roadmap-contests-and-payments.md) Phase 0.
+- **Success metrics** (e.g. payout SLA) — see [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0.
 
-**Engineering rule:** **Production** builds may use **Stripe live** keys only after **product + legal** sign-off recorded below and operator process in [stripe.md](stripe.md).
+**Engineering rule:** **Production** builds may use **Stripe live** keys only after **product + legal** sign-off recorded below and operator process in [stripe.md](../payments/stripe.md).
 
-Related posture: [leaderboards-prize-verification-f3.md](leaderboards-prize-verification-f3.md) (eligibility / verification — contests may adopt analogous patterns for prizes in Phase 6).
+Related posture: [leaderboards-prize-verification-f3.md](../leaderboards/leaderboards-prize-verification-f3.md) (eligibility / verification — contests may adopt analogous patterns for prizes in Phase 6).
 
 ---
 
@@ -163,8 +163,8 @@ Related posture: [leaderboards-prize-verification-f3.md](leaderboards-prize-veri
 
 ## References
 
-- [product-roadmap-contests-and-payments.md](product-roadmap-contests-and-payments.md) — Phases 5–7  
+- [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) — Phases 5–7  
 - [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — implementation stories  
 - [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) — append-only **`ledgerEntries`** (P5-B2)  
 - [weekly-contests-api-c1.md](weekly-contests-api-c1.md) — join API (to be updated for `payment_required`)  
-- [stripe.md](stripe.md) — environment variables and key safety  
+- [stripe.md](../payments/stripe.md) — environment variables and key safety  

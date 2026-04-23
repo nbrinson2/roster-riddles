@@ -1,7 +1,7 @@
 # Leaderboards & gameplay — API rate limits (Story F1)
 
 **Status:** Implemented (Express)  
-**Depends on:** [leaderboards-api-d1.md](leaderboards-api-d1.md) (D1), [gameplay-stats-phase2.md](gameplay-stats-phase2.md)
+**Depends on:** [leaderboards-api-d1.md](leaderboards-api-d1.md) (D1), [gameplay-stats-phase2.md](../platform/gameplay-stats-phase2.md)
 
 ## Scope
 

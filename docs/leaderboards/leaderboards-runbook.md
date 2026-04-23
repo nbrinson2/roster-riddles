@@ -41,7 +41,7 @@ firebase deploy --only firestore:indexes --project roster-riddles-staging
 firebase deploy --only firestore:indexes --project roster-riddles-457600
 ```
 
-**Rules + indexes together** (if you intentionally bundle): see [firestore-rules-deploy.md](firestore-rules-deploy.md) and `package.json` scripts `deploy:firestore:staging` / `deploy:firestore:prod`.
+**Rules + indexes together** (if you intentionally bundle): see [firestore-rules-deploy.md](../platform/firestore-rules-deploy.md) and `package.json` scripts `deploy:firestore:staging` / `deploy:firestore:prod`.
 
 **Validation:** In **GCP Console → Firestore → Indexes**, wait until status is **Enabled** (not **Building**) before relying on collection-group leaderboard queries or the E2 batch job at scale.
 
@@ -152,7 +152,7 @@ New builds read **`LEADERBOARDS_UI_ENABLED`** at **bundle generation** time (`sc
 |-------|------------------|
 | **Process up** | `GET /health` on the API host — returns `{ "status": "ok" }` ([index.js](../index.js)). |
 | **Cohort correctness (staging)** | [leaderboards-test-cohort-g1.md](leaderboards-test-cohort-g1.md) — `npm run verify:leaderboard-cohort`. |
-| **Stats vs events** | `npm run verify:stats-reconciliation` (see [stats-reconciliation.md](stats-reconciliation.md)). |
+| **Stats vs events** | `npm run verify:stats-reconciliation` (see [stats-reconciliation.md](../platform/stats-reconciliation.md)). |
 
 ---
 

@@ -24,7 +24,7 @@ Separate **Firebase projects** (or at minimum separate web apps + Admin credenti
 - **Dev** uses checked-in `firebase.staging.ts` (same staging project as CI staging builds; client-safe web config only).
 - **Staging / prod** bundles must **not** embed production config in git: run `scripts/generate-env-prod.mjs` before `ng build`, which writes gitignored `environment.prod.ts` or `environment.staging.ts`.
 - **Leaderboard realtime (E1):** `leaderboardUseFirestoreSnapshot` is **false** in dev and **staging** builds, **true** in **production** builds (`scripts/generate-env-prod.mjs` — listener on precomputed snapshot docs; requires batch job E2 in prod).
-- **Leaderboard listing (F2):** Express omits **`emailVerified: false`** users from rankings by default; set **`LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`** on the **server** for QA (see [leaderboards-duplicate-accounts-f2.md](leaderboards-duplicate-accounts-f2.md)).
+- **Leaderboard listing (F2):** Express omits **`emailVerified: false`** users from rankings by default; set **`LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`** on the **server** for QA (see [leaderboards-duplicate-accounts-f2.md](../leaderboards/leaderboards-duplicate-accounts-f2.md)).
 
 ## Stripe (future payments)
 

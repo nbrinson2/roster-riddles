@@ -43,7 +43,7 @@
 
 **Deliverable (merged)**
 
-- **[`docs/admin-dashboard-security.md`](admin-dashboard-security.md)**
+- **[`docs/admin/admin-dashboard-security.md`](admin-dashboard-security.md)**
 
 ---
 
@@ -78,7 +78,7 @@
 - **[`server/lib/auth-claims.js`](../server/lib/auth-claims.js)** — `isAdminFromDecodedToken` (unit-tested).
 - **[`server/middleware/require-auth.js`](../server/middleware/require-auth.js)** — sets **`req.user.isAdmin`** for all bearer-authenticated routes.
 - **[`index.js`](../index.js)** — **`GET /api/v1/me`** returns **`isAdmin`**.
-- **[`docs/admin-dashboard-security.md`](admin-dashboard-security.md)** — response field table.
+- **[`docs/admin/admin-dashboard-security.md`](admin-dashboard-security.md)** — response field table.
 
 ---
 
@@ -108,7 +108,7 @@
 
 **Deliverable (merged)**
 
-- **[`docs/admin-dashboard-ops-ad3.md`](admin-dashboard-ops-ad3.md)** — staging vs prod, verification curl, session revocation note.
+- **[`docs/admin/admin-dashboard-ops-ad3.md`](admin-dashboard-ops-ad3.md)** — staging vs prod, verification curl, session revocation note.
 - **[`scripts/set-admin-claim.mjs`](../scripts/set-admin-claim.mjs)** — `npm run admin:set-claim -- <uid> --grant|--revoke [--dry-run]`.
 
 ---

@@ -15,7 +15,7 @@ Operators with a **Firebase service account** for the right project can grant or
 
 | Requirement | Notes |
 |-------------|--------|
-| **Target project** | Use credentials for **staging** (`roster-riddles-staging`) or **production** (`roster-riddles-457600` per [environment-matrix.md](environment-matrix.md)) — **never** run staging keys against prod. |
+| **Target project** | Use credentials for **staging** (`roster-riddles-staging`) or **production** (`roster-riddles-457600` per [environment-matrix.md](../platform/environment-matrix.md)) — **never** run staging keys against prod. |
 | **Service account** | JSON key with permission to manage users (typically **Firebase Authentication Admin** / project-level). Store under **`secrets/`** (gitignored). |
 | **Env** | `GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json` **or** `FIREBASE_SERVICE_ACCOUNT_JSON=<inline JSON>` — same pattern as Express ([`.env.example`](../.env.example)). |
 
@@ -78,7 +78,7 @@ Expect **`"isAdmin": true`** after **`--grant`**, **`"isAdmin": false`** after *
 | Tier | Firebase project (typical) | Notes |
 |------|----------------------------|--------|
 | **Staging** | `roster-riddles-staging` | Safe for test accounts; use **staging** service account only. |
-| **Production** | Production project in [environment-matrix.md](environment-matrix.md) | Minimal operators; document **who** was granted access and **ticket** reference. **Break-glass** discipline. |
+| **Production** | Production project in [environment-matrix.md](../platform/environment-matrix.md) | Minimal operators; document **who** was granted access and **ticket** reference. **Break-glass** discipline. |
 
 Always confirm **`project_id`** inside the service account JSON matches the environment you intend.
 

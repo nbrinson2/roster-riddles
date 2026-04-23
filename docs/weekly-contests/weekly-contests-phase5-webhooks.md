@@ -13,7 +13,7 @@
 | **Raw body** | Stripe signs the **exact** JSON bytes. Use `express.raw({ type: 'application/json' })` **only** on this route, registered **before** global `express.json()`. |
 | **Header** | `Stripe-Signature` — required; missing → **400** `stripe_webhook_missing_signature`. |
 | **Secret** | `STRIPE_WEBHOOK_SECRET` (Dashboard → Webhooks → signing secret, or `stripe listen` CLI secret). Unset → **503** `stripe_webhook_not_configured` (do not accept unsigned traffic). |
-| **API key** | `STRIPE_SECRET_KEY` must be set for `getStripeClient()` — same as Checkout (see [stripe.md](stripe.md)). |
+| **API key** | `STRIPE_SECRET_KEY` must be set for `getStripeClient()` — same as Checkout (see [stripe.md](../payments/stripe.md)). |
 | **Auth** | **No** Firebase `Authorization` — Stripe calls this endpoint; trust is **HMAC signature only**. |
 
 ---
@@ -39,5 +39,5 @@ The CLI prints a **webhook signing secret** (`whsec_...`) — set `STRIPE_WEBHOO
 
 ## Related
 
-- [stripe.md](stripe.md) — env vars  
+- [stripe.md](../payments/stripe.md) — env vars  
 - [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — P5-E handlers next  

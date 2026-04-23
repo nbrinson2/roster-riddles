@@ -36,7 +36,7 @@ Lock **product rules** for v1: what “week” means (**timezone**, boundaries),
 
 **Acceptance criteria**
 
-- [x] **`docs/weekly-contests-phase4-adr.md`** merged with:
+- [x] **`docs/weekly-contests/weekly-contests-phase4-adr.md`** merged with:
   - [x] **Status machine:** `scheduled` → `open` → `scoring` → `paid` \| `cancelled` (and `scoring` → `cancelled` on failure / admin cancel).
   - [x] **Contest document** minimum fields: `windowStart`, `windowEnd` (instants), `rulesVersion`, `status`, `createdAt`, `updatedAt`, optional `metadata` for admin.
   - [x] **Entry document:** idempotent key **`contestId` + `uid`**, `joinedAt`, **`rulesAcceptedVersion`** (snapshot), `displayNameSnapshot` or policy for public display.
@@ -52,7 +52,7 @@ Lock **product rules** for v1: what “week” means (**timezone**, boundaries),
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-phase4-adr.md`](weekly-contests-phase4-adr.md)** — bio-ball-only **mini-league** (`leagueGamesN` games after join; **product default `10`**): lifecycle, `contests/{id}` + `entries/{uid}`, `results/final`, dry-run payouts, tie-break, security.
+- **[`docs/weekly-contests/weekly-contests-phase4-adr.md`](weekly-contests-phase4-adr.md)** — bio-ball-only **mini-league** (`leagueGamesN` games after join; **product default `10`**): lifecycle, `contests/{id}` + `entries/{uid}`, `results/final`, dry-run payouts, tie-break, security.
 
 ---
 
@@ -81,7 +81,7 @@ Authoritative **`contests/{id}`** documents with **typed** fields, validation on
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-schema-contests.md`](weekly-contests-schema-contests.md)** — field table, example JSON, query notes.
+- **[`docs/weekly-contests/weekly-contests-schema-contests.md`](weekly-contests-schema-contests.md)** — field table, example JSON, query notes.
 - **[`firestore.rules`](../firestore.rules)** — `contests/{contestId}` read if signed-in; no client writes; subpaths denied until B2+.
 - **[`firestore.indexes.json`](../firestore.indexes.json)** — `status` + `windowStart` / `windowEnd` composite indexes.
 - **[`src/app/shared/models/contest.model.ts`](../src/app/shared/models/contest.model.ts)** — `ContestDocument`, `ContestStatus`, schema version + defaults.
@@ -111,7 +111,7 @@ Choose **physical layout** (e.g. `contests/{contestId}/entries/{uid}` or `contes
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-schema-entries.md`](weekly-contests-schema-entries.md)** — path `contests/{contestId}/entries/{uid}`, fields, idempotency, late-join policy pointer (API in C1).
+- **[`docs/weekly-contests/weekly-contests-schema-entries.md`](weekly-contests-schema-entries.md)** — path `contests/{contestId}/entries/{uid}`, fields, idempotency, late-join policy pointer (API in C1).
 - **[`firestore.rules`](../firestore.rules)** — read **own** entry doc only; **no** client writes.
 - **[`firestore.indexes.json`](../firestore.indexes.json)** — collection group **`entries`**: `uid` + `joinedAt` + `__name__` (my-entries query).
 - **[`src/app/shared/models/contest-entry.model.ts`](../src/app/shared/models/contest-entry.model.ts)** — `ContestEntryDocument`.
@@ -141,7 +141,7 @@ After scoring, persist **immutable** artifacts (path per ADR), e.g. final ordere
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-schema-results.md`](weekly-contests-schema-results.md)** — `results/final`, `payouts/dryRun`, standing rows, tie metadata, QA JSON.
+- **[`docs/weekly-contests/weekly-contests-schema-results.md`](weekly-contests-schema-results.md)** — `results/final`, `payouts/dryRun`, standing rows, tie metadata, QA JSON.
 - **[`firestore.rules`](../firestore.rules)** — `results/*`, `payouts/*` read if signed-in; no client writes.
 - **[`src/app/shared/models/contest-results-final.model.ts`](../src/app/shared/models/contest-results-final.model.ts)** — `ContestFinalResultsDocument`, `ContestStandingRow`.
 - **[`src/app/shared/models/contest-payouts-dry-run.model.ts`](../src/app/shared/models/contest-payouts-dry-run.model.ts)** — dry-run payout lines.
@@ -173,7 +173,7 @@ Express (or Cloud Function) endpoint: verify Firebase **ID token**, load contest
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-api-c1.md`](weekly-contests-api-c1.md)** — contract, errors, env.
+- **[`docs/weekly-contests/weekly-contests-api-c1.md`](weekly-contests-api-c1.md)** — contract, errors, env.
 - **`POST /api/v1/contests/:contestId/join`** in [`index.js`](../index.js); [`server/contests/contest-join.http.js`](../server/contests/contest-join.http.js), [`server/contests/contest-join-log.js`](../server/contests/contest-join-log.js); [`contestJoinRateLimitHookMiddleware`](../server/middleware/rate-limit-hooks.middleware.js).
 
 ---
@@ -230,7 +230,7 @@ Define **who** moves `scheduled`→`open` (clock vs manual), `open`→`scoring` 
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-ops-d1.md`](weekly-contests-ops-d1.md)** — transition matrix, endpoint, env, examples.
+- **[`docs/weekly-contests/weekly-contests-ops-d1.md`](weekly-contests-ops-d1.md)** — transition matrix, endpoint, env, examples.
 - **[`server/contests/contest-transitions.js`](../server/contests/contest-transitions.js)** — adjacency + guards (`open`→`scoring` / `windowEnd` + optional `force`).
 - **[`server/contests/contest-transition.http.js`](../server/contests/contest-transition.http.js)**, **[`server/contests/contest-transition-log.js`](../server/contests/contest-transition-log.js)** — transactional update, structured logs.
 - **[`index.js`](../index.js)** — `POST /api/internal/v1/contests/:contestId/transition`.
@@ -260,7 +260,7 @@ Expose minimal fields for UI; hide internal admin notes. Pagination if list grow
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-api-d2.md`](weekly-contests-api-d2.md)** — contract, query params, errors, rate limits.
+- **[`docs/weekly-contests/weekly-contests-api-d2.md`](weekly-contests-api-d2.md)** — contract, query params, errors, rate limits.
 - **`GET /api/v1/contests`**, **`GET /api/v1/contests/:contestId`** — [`index.js`](../index.js); [`server/contests/contest-read.http.js`](../server/contests/contest-read.http.js); [`server/contests/contest-public.js`](../server/contests/contest-public.js); [`server/contests/contest-read-log.js`](../server/contests/contest-read-log.js); [`contestReadRateLimitHookMiddleware`](../server/middleware/rate-limit-hooks.middleware.js).
 - **[`server/contests/contest-public.test.js`](../server/contests/contest-public.test.js)** — projection tests.
 
@@ -290,7 +290,7 @@ Reliable **at-least-once** trigger; dedupe so multiple schedulers don’t corrup
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-ops-e1.md`](weekly-contests-ops-e1.md)** — hook contract, env, recovery, Scheduler example.
+- **[`docs/weekly-contests/weekly-contests-ops-e1.md`](weekly-contests-ops-e1.md)** — hook contract, env, recovery, Scheduler example.
 - **`POST /api/internal/v1/contests/close-due-windows`** — [`index.js`](../index.js); [`server/contests/contest-close-due-windows.http.js`](../server/contests/contest-close-due-windows.http.js); [`server/contests/contest-scoring-log.js`](../server/contests/contest-scoring-log.js).
 
 ---
@@ -318,7 +318,7 @@ Trusted code path using Admin SDK: query events in `[windowStart, windowEnd)` (o
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-ops-e2.md`](weekly-contests-ops-e2.md)** — contract, E1 webhook wiring, index note.
+- **[`docs/weekly-contests/weekly-contests-ops-e2.md`](weekly-contests-ops-e2.md)** — contract, E1 webhook wiring, index note.
 - **`POST /api/internal/v1/contests/run-scoring`** — [`index.js`](../index.js); [`server/contests/contest-scoring.http.js`](../server/contests/contest-scoring.http.js); [`server/contests/contest-scoring-job.js`](../server/contests/contest-scoring-job.js); [`server/contests/contest-scoring-core.js`](../server/contests/contest-scoring-core.js); [`server/lib/contest-internal-auth.js`](../server/lib/contest-internal-auth.js).
 - **[`server/contests/contest-scoring-core.test.js`](../server/contests/contest-scoring-core.test.js)** — tie/slate unit tests.
 - **[`firestore.indexes.json`](../firestore.indexes.json)** — `gameplayEvents` composite for `gameMode` + `createdAt`.
@@ -350,7 +350,7 @@ Human- and machine-readable structure so support can answer “why #2 and #3 tie
 - [`server/contests/contest-scoring-tie-audit.js`](../server/contests/contest-scoring-tie-audit.js) — build `tieResolution` for `results/final`.
 - [`server/contests/contest-scoring-tie-audit.test.js`](../server/contests/contest-scoring-tie-audit.test.js) — unit tests.
 - [`server/contests/contest-scoring-job.js`](../server/contests/contest-scoring-job.js) — writes structured `tieResolution`.
-- [`docs/weekly-contests-schema-results.md`](weekly-contests-schema-results.md), [`docs/weekly-contests-phase4-adr.md`](weekly-contests-phase4-adr.md) — schema + ADR cross-links.
+- [`docs/weekly-contests/weekly-contests-schema-results.md`](weekly-contests-schema-results.md), [`docs/weekly-contests/weekly-contests-phase4-adr.md`](weekly-contests-phase4-adr.md) — schema + ADR cross-links.
 - [`src/app/shared/models/contest-results-final.model.ts`](../src/app/shared/models/contest-results-final.model.ts) — TypeScript types.
 
 ---
@@ -401,7 +401,7 @@ Optional for staging chaos; can be **curl + secret** internal endpoint. If out o
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-ops-f2.md`](weekly-contests-ops-f2.md)** — `paid` → `cancelled` \| `scoring` with **`force: true`**, secret auth, optional `reason`, artifact deletes; curl examples + manual Firestore fallback.
+- **[`docs/weekly-contests/weekly-contests-ops-f2.md`](weekly-contests-ops-f2.md)** — `paid` → `cancelled` \| `scoring` with **`force: true`**, secret auth, optional `reason`, artifact deletes; curl examples + manual Firestore fallback.
 - **[`server/contests/contest-transitions.js`](../server/contests/contest-transitions.js)** — `paid` edges; **`override_requires_force`** without `force`.
 - **[`server/contests/contest-transition.http.js`](../server/contests/contest-transition.http.js)** — transactional delete of **`results/final`** and **`payouts/dryRun`** on F2 transitions.
 
@@ -431,8 +431,8 @@ Repeatable checklist similar to leaderboard G1: known UIDs, expected ranks after
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-staging-seed-g1.md`](weekly-contests-staging-seed-g1.md)** — checklist, env, post-seed lifecycle pointers.
-- **[`docs/fixtures/weekly-contest-staging.example.json`](fixtures/weekly-contest-staging.example.json)** — example contest + entrants + **`slate`** + **`expectedAfterScoring`** (**FAKE_USD** / **`dryRunWinnerAmountCents`**).
+- **[`docs/weekly-contests/weekly-contests-staging-seed-g1.md`](weekly-contests-staging-seed-g1.md)** — checklist, env, post-seed lifecycle pointers.
+- **[`docs/fixtures/weekly-contest-staging.example.json`](../fixtures/weekly-contest-staging.example.json)** — example contest + entrants + **`slate`** + **`expectedAfterScoring`** (**FAKE_USD** / **`dryRunWinnerAmountCents`**).
 - **[`scripts/seed-weekly-contest-staging.mjs`](../scripts/seed-weekly-contest-staging.mjs)** — `npm run seed:weekly-contest-staging` (optional **`--dry-run`**).
 
 ---
@@ -459,7 +459,7 @@ Runbook: who runs triggers, how to verify logs, how to reset for another week (n
 
 **Deliverable (merged)**
 
-- **[`docs/weekly-contests-runbook-g2.md`](weekly-contests-runbook-g2.md)** — staging E2E steps (**paid** path), **`cancelled`** path options, log checks, reset guidance, PR/ticket sign-off template.
+- **[`docs/weekly-contests/weekly-contests-runbook-g2.md`](weekly-contests-runbook-g2.md)** — staging E2E steps (**paid** path), **`cancelled`** path options, log checks, reset guidance, PR/ticket sign-off template.
 
 ---
 

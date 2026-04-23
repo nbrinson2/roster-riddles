@@ -12,7 +12,7 @@ Provide a **repeatable** way to load a **fake Bio Ball contest**, **entrant rows
 
 ## Fixture
 
-1. Copy **[`docs/fixtures/weekly-contest-staging.example.json`](fixtures/weekly-contest-staging.example.json)** to **`weekly-contest-staging.json`** in the repo root (gitignored), **or** keep a path elsewhere and pass it as the first CLI argument.
+1. Copy **[`docs/fixtures/weekly-contest-staging.example.json`](../fixtures/weekly-contest-staging.example.json)** to **`weekly-contest-staging.json`** in the repo root (gitignored), **or** keep a path elsewhere and pass it as the first CLI argument.
 2. Set **`contestId`**, **`entrants[].uid`**, and window timestamps for your environment. Example UIDs in the committed fixture are placeholders — **replace with real Firebase Auth `uid`s** from staging before running a real seed (test accounts you control).
 3. **`metadata.currencyNote`** and **`expectedAfterScoring`** document **FAKE_USD** / **`dryRunWinnerAmountCents`** (**10000** = **$100.00** notional for rank 1 in v1 scoring).
 
@@ -66,7 +66,7 @@ To void or re-score after **`paid`**, see [weekly-contests-ops-f2.md](weekly-con
 
 ## References
 
-- Example fixture: [`docs/fixtures/weekly-contest-staging.example.json`](fixtures/weekly-contest-staging.example.json)
+- Example fixture: [`docs/fixtures/weekly-contest-staging.example.json`](../fixtures/weekly-contest-staging.example.json)
 - Script: [`scripts/seed-weekly-contest-staging.mjs`](../scripts/seed-weekly-contest-staging.mjs)
 - E2E staging sign-off: [weekly-contests-runbook-g2.md](weekly-contests-runbook-g2.md) — Story G2
 - Jira: [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Story G1

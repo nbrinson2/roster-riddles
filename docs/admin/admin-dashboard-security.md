@@ -93,7 +93,7 @@ Implementation: [`server/middleware/require-auth.js`](../server/middleware/requi
 
 ## Admin API — weekly contests (browser)
 
-These routes use the same **`Authorization: Bearer <Firebase ID token>`** as **`GET /api/v1/me`**, plus **`requireAdmin`** (**`admin: true`** custom claim). They are **not** the operator-secret internal hooks; transitions are enforced with the same rules as [`POST /api/internal/v1/contests/:contestId/transition`](../index.js) (see [weekly-contests-ops-d1.md](weekly-contests-ops-d1.md)).
+These routes use the same **`Authorization: Bearer <Firebase ID token>`** as **`GET /api/v1/me`**, plus **`requireAdmin`** (**`admin: true`** custom claim). They are **not** the operator-secret internal hooks; transitions are enforced with the same rules as [`POST /api/internal/v1/contests/:contestId/transition`](../index.js) (see [weekly-contests-ops-d1.md](../weekly-contests/weekly-contests-ops-d1.md)).
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -108,7 +108,7 @@ Rate limits: same contest-read hook as public contest reads ([`contestReadRateLi
 
 Implementation: [`server/admin/admin-contests.http.js`](../server/admin/admin-contests.http.js), [`server/admin/admin-users.http.js`](../server/admin/admin-users.http.js), [`server/middleware/require-admin.js`](../server/middleware/require-admin.js), shared transition runner [`server/contests/contest-transition-run.js`](../server/contests/contest-transition-run.js).
 
-**Broader picture:** what the dashboard exposes today vs operator-only tools vs roadmap considerations — [weekly-contests-admin-capabilities-and-roadmap.md](weekly-contests-admin-capabilities-and-roadmap.md).
+**Broader picture:** what the dashboard exposes today vs operator-only tools vs roadmap considerations — [weekly-contests-admin-capabilities-and-roadmap.md](../weekly-contests/weekly-contests-admin-capabilities-and-roadmap.md).
 
 ---
 

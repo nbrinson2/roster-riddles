@@ -1,12 +1,12 @@
 # Phase 5 — Payments (entry fees) — Jira backlog
 
-**Scope:** **Paid entry** for weekly contests via **Stripe** (Checkout Session and/or Payment Element), **server-authoritative** payment state, **webhooks** for lifecycle events, and an **append-only ledger** for audit and reconciliation — **no** winner payouts yet (that is [Phase 6](product-roadmap-contests-and-payments.md)). **Never** store full card or bank numbers; store only Stripe object ids.
+**Scope:** **Paid entry** for weekly contests via **Stripe** (Checkout Session and/or Payment Element), **server-authoritative** payment state, **webhooks** for lifecycle events, and an **append-only ledger** for audit and reconciliation — **no** winner payouts yet (that is [Phase 6](../product/product-roadmap-contests-and-payments.md)). **Never** store full card or bank numbers; store only Stripe object ids.
 
 **Prerequisites**
 
-- [product-roadmap-contests-and-payments.md](product-roadmap-contests-and-payments.md) Phase **0** legal / product gates addressed for **entry fees** (regions, ToS, contest rules, refunds at a high level).
+- [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase **0** legal / product gates addressed for **entry fees** (regions, ToS, contest rules, refunds at a high level).
 - Phase **4** complete in target environments: `contests/{id}`, `entries/{uid}`, join API, scoring, `results/final`, `payouts/dryRun` (numeric).
-- [stripe.md](stripe.md) — env var naming; test vs live keys.
+- [stripe.md](../payments/stripe.md) — env var naming; test vs live keys.
 
 **Suggested labels:** `phase-5`, `contests`, `payments`, `stripe`  
 **Suggested fix version:** `Weekly contests — entry fees (Stripe test mode)`
@@ -33,7 +33,7 @@
 | Field | Value |
 |-------|--------|
 | **Type** | Story |
-| **Summary** | Author `docs/weekly-contests-phase5-entry-fees-adr.md`: entry fee timing, Stripe objects, entry states, free vs paid join, refund policy hooks. |
+| **Summary** | Author `docs/weekly-contests/weekly-contests-phase5-entry-fees-adr.md`: entry fee timing, Stripe objects, entry states, free vs paid join, refund policy hooks. |
 
 **Description**
 
@@ -58,7 +58,7 @@ Lock engineering decisions before large implementation:
 
 **Deliverable**
 
-- **[`docs/weekly-contests-phase5-entry-fees-adr.md`](weekly-contests-phase5-entry-fees-adr.md)** ✅
+- **[`docs/weekly-contests/weekly-contests-phase5-entry-fees-adr.md`](weekly-contests-phase5-entry-fees-adr.md)** ✅
 
 ---
 
@@ -77,7 +77,7 @@ Add fields such as (exact names in schema doc): `paymentStatus`, `stripeCheckout
 
 **Acceptance criteria**
 
-- [x] `docs/weekly-contests-schema-entries.md` updated (or new subsection) with field table and example JSON.
+- [x] `docs/weekly-contests/weekly-contests-schema-entries.md` updated (or new subsection) with field table and example JSON.
 - [x] TypeScript model updated (`contest-entry.model.ts` or equivalent).
 - [x] No client writes to these fields in `firestore.rules` (all entry writes already denied to clients; comment updated).
 
@@ -104,7 +104,7 @@ Choose layout: e.g. `ledgerEntries/{autoId}` with `userId`, `contestId`, `entryI
 
 **Acceptance criteria**
 
-- [x] `docs/weekly-contests-phase5-ledger-schema.md` (or section in ADR) with field list and idempotency rule (**one ledger line per `stripeEventId`** for webhook-driven lines).
+- [x] `docs/weekly-contests/weekly-contests-phase5-ledger-schema.md` (or section in ADR) with field list and idempotency rule (**one ledger line per `stripeEventId`** for webhook-driven lines).
 - [x] Firestore rules: **no client create/update/delete** on ledger paths (no client **read** either).
 - [x] Composite indexes if listing “by user” or “by contest” for support queries.
 
@@ -129,7 +129,7 @@ Choose layout: e.g. `ledgerEntries/{autoId}` with `userId`, `contestId`, `entryI
 
 **Description**
 
-Add `stripe` package to **server** dependencies. Read secret from env ([stripe.md](stripe.md)); never log full keys. Optional: log Stripe **account id** or mode (`test`/`live`) on boot for ops sanity.
+Add `stripe` package to **server** dependencies. Read secret from env ([stripe.md](../payments/stripe.md)); never log full keys. Optional: log Stripe **account id** or mode (`test`/`live`) on boot for ops sanity.
 
 **Acceptance criteria**
 
@@ -142,7 +142,7 @@ Add `stripe` package to **server** dependencies. Read secret from env ([stripe.m
 
 **Deliverable**
 
-- [`server/payments/stripe-server.js`](../server/payments/stripe-server.js), [`server/payments/stripe-server.test.js`](../server/payments/stripe-server.test.js), [`stripe`](../package.json) dependency, [`docs/stripe.md`](stripe.md), [`.env.example`](../.env.example) ✅
+- [`server/payments/stripe-server.js`](../server/payments/stripe-server.js), [`server/payments/stripe-server.test.js`](../server/payments/stripe-server.test.js), [`stripe`](../package.json) dependency, [`docs/payments/stripe.md`](../payments/stripe.md), [`.env.example`](../.env.example) ✅
 
 ---
 
@@ -159,7 +159,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Acceptance criteria**
 
-- [x] Documented in `docs/weekly-contests-phase5-webhooks.md` (or ADR appendix): path, header, replay attack considerations (Stripe timestamp tolerance).
+- [x] Documented in `docs/weekly-contests/weekly-contests-phase5-webhooks.md` (or ADR appendix): path, header, replay attack considerations (Stripe timestamp tolerance).
 - [x] Invalid signature returns 400; valid signed events return 200 (verify end-to-end with `stripe listen --forward-to …/api/v1/webhooks/stripe` and test-mode signing secret).
 
 **Dependencies**
@@ -168,7 +168,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Deliverable**
 
-- [`index.js`](../index.js) (middleware order: `requestIdMiddleware` → raw `POST /api/v1/webhooks/stripe` → `express.json()`), [`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js), [`server/payments/stripe-webhook.http.test.js`](../server/payments/stripe-webhook.http.test.js), [`docs/weekly-contests-phase5-webhooks.md`](weekly-contests-phase5-webhooks.md) ✅
+- [`index.js`](../index.js) (middleware order: `requestIdMiddleware` → raw `POST /api/v1/webhooks/stripe` → `express.json()`), [`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js), [`server/payments/stripe-webhook.http.test.js`](../server/payments/stripe-webhook.http.test.js), [`docs/weekly-contests/weekly-contests-phase5-webhooks.md`](weekly-contests-phase5-webhooks.md) ✅
 
 ---
 
@@ -191,7 +191,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Acceptance criteria**
 
-- [x] OpenAPI-style table in [`docs/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md) with errors: `401`, `404`, `409` (already entered), `400` (no fee / wrong status).
+- [x] OpenAPI-style table in [`docs/weekly-contests/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md) with errors: `401`, `404`, `409` (already entered), `400` (no fee / wrong status).
 - [x] Rate limit per uid (reuse contest join limits — [`contestJoinRateLimitHookMiddleware`](../server/middleware/rate-limit-hooks.middleware.js)).
 
 **Dependencies**
@@ -200,7 +200,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Deliverable**
 
-- [`server/contests/contest-checkout.http.js`](../server/contests/contest-checkout.http.js), [`server/contests/contest-checkout-log.js`](../server/contests/contest-checkout-log.js), [`server/contests/contest-blocking-entry.js`](../server/contests/contest-blocking-entry.js) (shared guard with join), [`server/contests/contest-checkout.http.test.js`](../server/contests/contest-checkout.http.test.js), [`index.js`](../index.js), [`docs/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md), [`.env.example`](../.env.example) (`CONTESTS_CHECKOUT_APP_ORIGIN`) ✅
+- [`server/contests/contest-checkout.http.js`](../server/contests/contest-checkout.http.js), [`server/contests/contest-checkout-log.js`](../server/contests/contest-checkout-log.js), [`server/contests/contest-blocking-entry.js`](../server/contests/contest-blocking-entry.js) (shared guard with join), [`server/contests/contest-checkout.http.test.js`](../server/contests/contest-checkout.http.test.js), [`index.js`](../index.js), [`docs/weekly-contests/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md), [`.env.example`](../.env.example) (`CONTESTS_CHECKOUT_APP_ORIGIN`) ✅
 
 ---
 
@@ -220,7 +220,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 **Acceptance criteria**
 
 - [x] Works end-to-end in **test mode** with [Stripe test cards](https://stripe.com/docs/testing) (requires server flags + P5-E webhook for entry to flip to `paid`).
-- [x] `stripePublishableKey` documented — not required for Checkout redirect ([weekly-contests-api-phase5.md](weekly-contests-api-phase5.md), [stripe.md](stripe.md)).
+- [x] `stripePublishableKey` documented — not required for Checkout redirect ([weekly-contests-api-phase5.md](weekly-contests-api-phase5.md), [stripe.md](../payments/stripe.md)).
 
 **Dependencies**
 
@@ -228,7 +228,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Deliverable**
 
-- [`contests-panel.component.ts`](../src/app/nav/contests-panel/contests-panel.component.ts) / [`.html`](../src/app/nav/contests-panel/contests-panel.component.html) / [`.scss`](../src/app/nav/contests-panel/contests-panel.component.scss), [`environment.ts`](../src/environment.ts) (`contestsPaymentsEnabled`), [`generate-env-prod.mjs`](../scripts/generate-env-prod.mjs), [`docs/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md) ✅
+- [`contests-panel.component.ts`](../src/app/nav/contests-panel/contests-panel.component.ts) / [`.html`](../src/app/nav/contests-panel/contests-panel.component.html) / [`.scss`](../src/app/nav/contests-panel/contests-panel.component.scss), [`environment.ts`](../src/environment.ts) (`contestsPaymentsEnabled`), [`generate-env-prod.mjs`](../scripts/generate-env-prod.mjs), [`docs/weekly-contests/weekly-contests-api-phase5.md`](weekly-contests-api-phase5.md) ✅
 
 ---
 
@@ -272,7 +272,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Acceptance criteria**
 
-- [ ] Documented matrix of event types → entry state in `docs/weekly-contests-phase5-webhooks.md`.
+- [ ] Documented matrix of event types → entry state in `docs/weekly-contests/weekly-contests-phase5-webhooks.md`.
 
 **Dependencies**
 
@@ -359,7 +359,7 @@ Per P5-A1 decision:
 **Acceptance criteria**
 
 - [ ] Rules unit tests extended ([test:firestore-rules](package.json)) for new paths.
-- [ ] Deploy notes in [firestore-rules-deploy.md](firestore-rules-deploy.md) if new collections.
+- [ ] Deploy notes in [firestore-rules-deploy.md](../platform/firestore-rules-deploy.md) if new collections.
 
 **Dependencies**
 
@@ -378,7 +378,7 @@ Per P5-A1 decision:
 
 **Acceptance criteria**
 
-- [ ] Log schema snippet in `docs/weekly-contests-phase5-observability.md` (new, short).
+- [ ] Log schema snippet in `docs/weekly-contests/weekly-contests-phase5-observability.md` (new, short).
 
 **Dependencies**
 
@@ -391,12 +391,12 @@ Per P5-A1 decision:
 | Field | Value |
 |-------|--------|
 | **Type** | Story |
-| **Summary** | `docs/weekly-contests-phase5-staging-qa.md`: Stripe CLI listen, test cards, ledger vs Dashboard spot-check, sign-off template. |
+| **Summary** | `docs/weekly-contests/weekly-contests-phase5-staging-qa.md`: Stripe CLI listen, test cards, ledger vs Dashboard spot-check, sign-off template. |
 
 **Acceptance criteria**
 
 - [ ] Steps to satisfy **Phase exit criteria** table at top of this doc.
-- [ ] Link from [product-roadmap-contests-and-payments.md](product-roadmap-contests-and-payments.md) Phase 5 section.
+- [ ] Link from [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 5 section.
 
 **Dependencies**
 
@@ -441,7 +441,7 @@ Parallelism: **C1/C2** can start after A1; **B1/B2** after A1; **D1** after B+C;
 
 ## References
 
-- [product-roadmap-contests-and-payments.md](product-roadmap-contests-and-payments.md) — Phases 5–7 context  
-- [stripe.md](stripe.md) — Environment variables  
+- [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) — Phases 5–7 context  
+- [stripe.md](../payments/stripe.md) — Environment variables  
 - [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md) — Current entry shape  
 - [weekly-contests-api-c1.md](weekly-contests-api-c1.md) — Join API  

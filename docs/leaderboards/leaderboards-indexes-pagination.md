@@ -89,7 +89,7 @@ const snap = await q.get();
 
 ## Deploying indexes (staging / production)
 
-Use the same flow as [firestore-rules-deploy.md](firestore-rules-deploy.md) § **Composite indexes**: deploy **`firestore:roster-riddles`** (or your configured database id) so **rules + indexes** stay aligned. Wait until indexes show **Enabled** in the console before load-testing queries.
+Use the same flow as [firestore-rules-deploy.md](../platform/firestore-rules-deploy.md) § **Composite indexes**: deploy **`firestore:roster-riddles`** (or your configured database id) so **rules + indexes** stay aligned. Wait until indexes show **Enabled** in the console before load-testing queries.
 
 ## References
 

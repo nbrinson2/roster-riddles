@@ -4,7 +4,7 @@
 |-------|--------|
 | **Status** | Accepted (engineering defaults; PM may adjust “weekly” timing and copy) |
 | **Date** | 2026-04-15 |
-| **Depends on** | [gameplay-stats-phase2.md](gameplay-stats-phase2.md) — events + `users/{uid}/stats/summary` |
+| **Depends on** | [gameplay-stats-phase2.md](../platform/gameplay-stats-phase2.md) — events + `users/{uid}/stats/summary` |
 
 ## Context
 
@@ -63,7 +63,7 @@ Weekly boards require one of:
 
 **Recommendation when picked up:** (1) for consistent O(1) reads at leaderboard time; document schema in a Phase 3.1 ADR amendment.
 
-**Related (not Phase 3 leaderboards):** Time-bounded **weekly contests** (join, scoring window, dry-run payouts) are covered in [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md) — **Bio Ball only** in Phase 4 v1.
+**Related (not Phase 3 leaderboards):** Time-bounded **weekly contests** (join, scoring window, dry-run payouts) are covered in [weekly-contests-phase4-adr.md](../weekly-contests/weekly-contests-phase4-adr.md) — **Bio Ball only** in Phase 4 v1.
 
 ## Cost posture
 
@@ -114,7 +114,7 @@ Weekly boards require one of:
 
 ## References
 
-- Phase 2: [gameplay-stats-phase2.md](gameplay-stats-phase2.md)
+- Phase 2: [gameplay-stats-phase2.md](../platform/gameplay-stats-phase2.md)
 - Query-path schema (Story B1): [leaderboards-schema-query-path.md](leaderboards-schema-query-path.md)
 - Aggregate logic: `server/lib/stats-aggregate.js`
 - Jira-style backlog: [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md)

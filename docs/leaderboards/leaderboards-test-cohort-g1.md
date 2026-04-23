@@ -11,7 +11,7 @@ This does **not** replace full production monitoring; it is an **exit gate** for
 
 ## Fixture
 
-1. Copy **[`docs/fixtures/leaderboard-cohort.example.json`](fixtures/leaderboard-cohort.example.json)** to **`leaderboard-test-cohort.json`** in the repo root (gitignored).
+1. Copy **[`docs/fixtures/leaderboard-cohort.example.json`](../fixtures/leaderboard-cohort.example.json)** to **`leaderboard-test-cohort.json`** in the repo root (gitignored).
 2. Replace placeholder UIDs with **real staging** Firebase Auth `uid`s whose `users/{uid}/stats/summary` you control (seed gameplay events or manual writes per Phase 2).
 3. Set **`expected`** wins per scope (`global` required per row; per-mode keys optional).
 4. Set **`expectedGlobalOrder`** to the cohort UIDs sorted by **global** wins descending, then **`uid` ascending** for ties — same as [`sortLeaderboardPageRows`](../server/leaderboards/leaderboard-query.js).
@@ -19,7 +19,7 @@ This does **not** replace full production monitoring; it is an **exit gate** for
 ## Automated check
 
 ```bash
-# From repo root; Admin credentials for staging (see docs/environment-matrix.md)
+# From repo root; Admin credentials for staging (see docs/platform/environment-matrix.md)
 export GOOGLE_APPLICATION_CREDENTIALS=./secrets/roster-riddles-staging-adminsdk.json
 export FIRESTORE_DATABASE_ID='(default)'
 
@@ -54,7 +54,7 @@ Copy this table into a PR comment or release ticket and complete before “leade
 
 | Step | Done | Initials | Date |
 |------|:----:|----------|------|
-| Cohort `stats/summary` docs seeded / reconciled (see [stats-reconciliation.md](stats-reconciliation.md) per user if needed) | [ ] | | |
+| Cohort `stats/summary` docs seeded / reconciled (see [stats-reconciliation.md](../platform/stats-reconciliation.md) per user if needed) | [ ] | | |
 | `leaderboard-test-cohort.json` present locally (not committed) with real UIDs + expected wins + `expectedGlobalOrder` | [ ] | | |
 | `npm run verify:leaderboard-cohort` exits **0** | [ ] | | |
 | Manual `GET /api/v1/leaderboards?scope=global` spot-check | [ ] | | |
@@ -67,7 +67,7 @@ Copy this table into a PR comment or release ticket and complete before “leade
 
 ## References
 
-- Fixture example: [`docs/fixtures/leaderboard-cohort.example.json`](fixtures/leaderboard-cohort.example.json)
+- Fixture example: [`docs/fixtures/leaderboard-cohort.example.json`](../fixtures/leaderboard-cohort.example.json)
 - Script: [`scripts/verify-leaderboard-cohort.mjs`](../scripts/verify-leaderboard-cohort.mjs)
 - Jira: [leaderboards-phase3-jira.md](leaderboards-phase3-jira.md) — Story G1
 - Ops: [leaderboards-runbook.md](leaderboards-runbook.md) — Story G2 (indexes, rebuild, kill switch)

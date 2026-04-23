@@ -1,7 +1,7 @@
 # Leaderboards — authoritative score updates (Story C1, trusted writer)
 
 **Status:** Implemented (same pipeline as Phase 2 gameplay stats)  
-**Depends on:** [leaderboards-phase3-adr.md](leaderboards-phase3-adr.md) (Story A0), [gameplay-stats-phase2.md](gameplay-stats-phase2.md), [leaderboards-schema-query-path.md](leaderboards-schema-query-path.md)
+**Depends on:** [leaderboards-phase3-adr.md](leaderboards-phase3-adr.md) (Story A0), [gameplay-stats-phase2.md](../platform/gameplay-stats-phase2.md), [leaderboards-schema-query-path.md](leaderboards-schema-query-path.md)
 
 ## Summary
 
@@ -36,7 +36,7 @@ Firestore **security rules** deny client **`create`/`update`/`delete`** on `game
 | **Network retry** | Safe: duplicate POSTs collapse to a single append + single aggregate update. |
 | **Different `clientSessionId`** | New event → new **`eventId`** → **another** stats update (intended for distinct sessions). |
 
-This matches Phase 2 event semantics; reconciliation scripts replay events in order — see `docs/stats-reconciliation.md` / `scripts/verify-stats-reconciliation.mjs`.
+This matches Phase 2 event semantics; reconciliation scripts replay events in order — see `docs/platform/stats-reconciliation.md` / `scripts/verify-stats-reconciliation.mjs`.
 
 ## Merge semantics (not “max score”)
 
