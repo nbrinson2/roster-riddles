@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { AuthService } from '../auth.service';
+import { AuthService, type EmailSignUpOutcome } from '../auth.service';
 
 @Component({
   selector: 'login-panel',
@@ -48,7 +48,14 @@ export class LoginPanelComponent {
       if (this.mode === 'signIn') {
         await this.auth.signInWithEmail(email, password);
       } else {
-        await this.auth.signUpWithEmail(email, password);
+        const outcome: EmailSignUpOutcome = await this.auth.signUpWithEmail(
+          email,
+          password,
+        );
+        if (outcome === 'verification_email_failed') {
+          this.resetMessage =
+            'Account created, but we could not send the verification email. Open your profile and tap “Resend verification email”.';
+        }
       }
       this.authSuccess.emit();
     } catch (err) {

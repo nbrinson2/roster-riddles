@@ -31,6 +31,10 @@ type StatsState =
 export class ProfileComponent {
   @Input() user: User | null = null;
 
+  protected verifyResending = false;
+  protected verifyError: string | null = null;
+  protected verifySuccess: string | null = null;
+
   private readonly auth = inject(AuthService);
   private readonly firestore = inject(Firestore);
 
@@ -63,6 +67,28 @@ export class ProfileComponent {
   );
 
   readonly showStatsSection = computed(() => this.user != null);
+
+  protected showVerifyEmailBanner(): boolean {
+    const u = this.user;
+    if (!u?.email || u.emailVerified) {
+      return false;
+    }
+    return u.providerData.some((p) => p?.providerId === 'password');
+  }
+
+  protected async resendVerification(): Promise<void> {
+    this.verifyError = null;
+    this.verifySuccess = null;
+    this.verifyResending = true;
+    try {
+      await this.auth.resendEmailVerification();
+      this.verifySuccess = 'Verification email sent. Check your inbox and spam folder.';
+    } catch (err) {
+      this.verifyError = this.auth.mapAuthError(err);
+    } finally {
+      this.verifyResending = false;
+    }
+  }
 
   readonly statsLoading = computed(
     () => this.statsState().status === 'loading',

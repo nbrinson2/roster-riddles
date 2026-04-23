@@ -1,15 +1,19 @@
 import { Injectable, inject } from '@angular/core';
 import { Auth, authState } from '@angular/fire/auth';
-import type { User } from 'firebase/auth';
+import type { ActionCodeSettings, User } from 'firebase/auth';
 import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
+  sendEmailVerification,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithPopup,
   signOut,
 } from 'firebase/auth';
 import { Observable, shareReplay } from 'rxjs';
+
+/** Result of email/password sign-up after `createUserWithEmailAndPassword`. */
+export type EmailSignUpOutcome = 'ok' | 'verification_email_failed';
 
 /**
  * Firebase Authentication wrapper. Use `user$` for app-wide session state.
@@ -29,12 +33,55 @@ export class AuthService {
     );
   }
 
-  signUpWithEmail(email: string, password: string): Promise<void> {
-    return createUserWithEmailAndPassword(
+  /**
+   * Creates the account then asks Firebase to send a verification email.
+   * Sign-up still succeeds if the verification send fails (e.g. rate limit); caller may show a warning.
+   */
+  async signUpWithEmail(
+    email: string,
+    password: string,
+  ): Promise<EmailSignUpOutcome> {
+    const cred = await createUserWithEmailAndPassword(
       this.auth,
       email.trim(),
-      password
-    ).then(() => undefined);
+      password,
+    );
+    try {
+      await sendEmailVerification(cred.user, this.emailActionCodeSettings());
+      return 'ok';
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          component: 'auth_service',
+          action: 'sendEmailVerification',
+          message: err instanceof Error ? err.message.slice(0, 200) : String(err),
+        }),
+      );
+      return 'verification_email_failed';
+    }
+  }
+
+  /** Resend verification for the signed-in email/password user (no-op if already verified). */
+  async resendEmailVerification(): Promise<void> {
+    const u = this.auth.currentUser;
+    if (!u?.email || u.emailVerified) {
+      return;
+    }
+    await sendEmailVerification(u, this.emailActionCodeSettings());
+  }
+
+  private emailActionCodeSettings(): ActionCodeSettings | undefined {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+    const origin = window.location?.origin;
+    if (typeof origin === 'string' && /^https?:\/\//.test(origin)) {
+      return {
+        url: `${origin.replace(/\/$/, '')}/`,
+        handleCodeInApp: false,
+      };
+    }
+    return undefined;
   }
 
   signInWithGoogle(): Promise<void> {
@@ -81,6 +128,8 @@ export class AuthService {
         return 'An account already exists with this email using a different sign-in method.';
       case 'auth/network-request-failed':
         return 'Network error. Check your connection and try again.';
+      case 'auth/unauthorized-continue-uri':
+        return 'Email link is misconfigured. Ask the site admin to add this domain in Firebase Auth authorized domains.';
       default:
         return 'Something went wrong. Please try again.';
     }
