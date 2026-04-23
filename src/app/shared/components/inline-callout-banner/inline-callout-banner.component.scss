@@ -1,0 +1,123 @@
+@use '../../../../constants';
+
+.inline-callout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 10px 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-family: constants.$font-family-secondary;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.88);
+
+  &__main {
+    min-width: 0;
+    flex: 1;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+
+    &:empty {
+      display: none;
+    }
+  }
+
+  &__dismiss {
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.25);
+    color: #eee;
+    font-size: 0.78rem;
+    padding: 6px 10px;
+    font-family: constants.$font-family;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  &--info {
+    border: 1px solid rgba(100, 181, 246, 0.35);
+    background: rgba(100, 181, 246, 0.1);
+  }
+
+  &--success {
+    border: 1px solid rgba(129, 199, 132, 0.45);
+    background: rgba(129, 199, 132, 0.12);
+  }
+
+  &--warning {
+    border: 1px solid rgba(255, 213, 79, 0.45);
+    background: rgba(255, 213, 79, 0.1);
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  &--neutral {
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
+
+/* Helpers for projected markup (None encapsulation; all scoped under `.inline-callout`). */
+.inline-callout [callout-body] {
+  min-width: 0;
+}
+
+.inline-callout .inline-callout__secondary {
+  margin: 10px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.inline-callout .inline-callout__accent {
+  word-break: break-all;
+  color: #b3e5fc;
+}
+
+.inline-callout .inline-callout__btn {
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(0, 0, 0, 0.2);
+  color: #eee;
+  font-size: 0.78rem;
+  padding: 6px 12px;
+  font-family: constants.$font-family;
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    border-color: rgba(204, 31, 65, 0.55);
+    color: constants.$color-header;
+  }
+}
+
+.inline-callout .inline-callout__feedback {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+
+  &--ok {
+    color: #c8e6c9;
+  }
+
+  &--err {
+    color: #ffccbc;
+  }
+}

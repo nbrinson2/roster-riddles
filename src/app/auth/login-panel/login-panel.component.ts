@@ -1,13 +1,11 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
+import type { EmailVerificationPostSignUpPayload } from '../email-verification-post-signup.types';
 import { AuthService, type EmailSignUpOutcome } from '../auth.service';
 
 /** Passed to the parent on successful auth so it can show post–sign-up messaging. */
 export interface AuthSuccessDetail {
-  postSignUpEmailVerification?: {
-    verificationEmailSent: boolean;
-    email: string;
-  };
+  postSignUpEmailVerification?: EmailVerificationPostSignUpPayload;
 }
 
 @Component({

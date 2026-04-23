@@ -80,19 +80,16 @@
         (adminDashboardOpen)="openAdminDashboard()"
         (profileOpen)="openProfileMenu()"
       ></nav-top-bar>
-      <div
-        *ngIf="postSignUpEmailBanner as verifyBanner"
-        class="email-verify-post-login-banner"
-        role="status"
-      >
-        <div class="email-verify-post-login-banner__main">
-          <div class="email-verify-post-login-banner__text">
+      <ng-container *ngIf="postSignUpEmailBanner as verifyBanner">
+        <inline-callout-banner
+          variant="info"
+          (dismiss)="dismissPostSignUpEmailBanner()"
+        >
+          <div callout-body>
             <ng-container *ngIf="verifyBanner.verificationEmailSent">
               <strong>Check your email.</strong> We sent a verification link to
-              <span class="email-verify-post-login-banner__addr">{{
-                verifyBanner.email
-              }}</span
-              >. Open the link to confirm your address (try your spam folder too).
+              <span class="inline-callout__accent">{{ verifyBanner.email }}</span>.
+              Open the link to confirm your address (try your spam folder too).
               Some features need a verified email.
             </ng-container>
             <ng-container *ngIf="!verifyBanner.verificationEmailSent">
@@ -100,22 +97,22 @@
               email yet. Use <strong>Resend</strong> below or open
               <strong>Profile</strong> (person icon).
             </ng-container>
-            <p class="email-verify-post-login-banner__still">
+            <p class="inline-callout__secondary">
               Still waiting? Links can be delayed—try spam, then resend (limited to once per
               minute here to protect your inbox).
             </p>
           </div>
-          <div class="email-verify-post-login-banner__actions">
+          <div callout-actions>
             <button
               type="button"
-              class="email-verify-post-login-banner__btn"
+              class="inline-callout__btn"
               (click)="openProfileFromVerifyBanner()"
             >
               Open profile
             </button>
             <button
               type="button"
-              class="email-verify-post-login-banner__btn email-verify-post-login-banner__btn--primary"
+              class="inline-callout__btn inline-callout__btn--primary"
               [disabled]="
                 bannerResendLoading || bannerResendCooldownSec > 0
               "
@@ -130,21 +127,23 @@
               }}
             </button>
           </div>
-          <p *ngIf="bannerResendMessage" class="email-verify-post-login-banner__msg email-verify-post-login-banner__msg--ok">
+          <p
+            *ngIf="bannerResendMessage"
+            callout-feedback
+            class="inline-callout__feedback inline-callout__feedback--ok"
+          >
             {{ bannerResendMessage }}
           </p>
-          <p *ngIf="bannerResendError" class="email-verify-post-login-banner__msg email-verify-post-login-banner__msg--err" role="alert">
+          <p
+            *ngIf="bannerResendError"
+            callout-feedback
+            class="inline-callout__feedback inline-callout__feedback--err"
+            role="alert"
+          >
             {{ bannerResendError }}
           </p>
-        </div>
-        <button
-          type="button"
-          class="email-verify-post-login-banner__dismiss"
-          (click)="dismissPostSignUpEmailBanner()"
-        >
-          Dismiss
-        </button>
-      </div>
+        </inline-callout-banner>
+      </ng-container>
       <div class="game-container">
         <router-outlet></router-outlet>
       </div>

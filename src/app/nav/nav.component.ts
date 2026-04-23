@@ -14,6 +14,7 @@ import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import type { User } from 'firebase/auth';
 import { filter, Subject, takeUntil } from 'rxjs';
 import type { AuthSuccessDetail } from '../auth/login-panel/login-panel.component';
+import type { EmailVerificationPostSignUpPayload } from '../auth/email-verification-post-signup.types';
 import { AuthService } from '../auth/auth.service';
 import {
   AttributesType,
@@ -101,9 +102,8 @@ export class NavComponent implements OnInit, OnDestroy {
   protected selectedRosterTeamName?: TeamFullName;
 
   /** Shown under the top bar after email/password sign-up until dismissed. */
-  protected postSignUpEmailBanner: NonNullable<
-    AuthSuccessDetail['postSignUpEmailVerification']
-  > | null = null;
+  protected postSignUpEmailBanner: EmailVerificationPostSignUpPayload | null =
+    null;
 
   /**
    * True after {@link openLoginMenu} until the drawer finishes closing. Keeps the login
