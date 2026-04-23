@@ -8,6 +8,7 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { resolvedUserDisplayName } from 'src/app/auth/user-display-name.util';
 import {
   USER_STATS_DOC_ID,
+  type UserStatsBestsByMode,
   type UserStatsDocument,
   type UserStatsTotals,
   type UserStatsWinStreakByMode,
@@ -152,12 +153,12 @@ export class ProfileComponent {
     };
   }
 
-  /** Nickname Streak correct-guess run (from gameplay `modeMetrics`). */
-  nicknameStreakStats(doc: UserStatsDocument): { current: number; best: number } {
-    const ns = doc.streaks?.nicknameStreak;
+  /** Best win metrics for one `gameMode` on `bests.byMode`. */
+  bestsForMode(doc: UserStatsDocument, mode: string): UserStatsBestsByMode {
+    const m = doc.bests?.byMode?.[mode];
     return {
-      current: ns?.current ?? 0,
-      best: ns?.best ?? 0,
+      fastestWinMs: m?.fastestWinMs ?? null,
+      fewestMistakesWin: m?.fewestMistakesWin ?? null,
     };
   }
 

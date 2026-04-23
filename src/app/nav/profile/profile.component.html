@@ -146,25 +146,36 @@
                 </mat-card-content>
               </mat-card>
 
-              <mat-card class="stats-card streak-card" *ngIf="doc.bests as b">
+              <mat-card class="stats-card streak-card">
                 <mat-card-header class="stats-card__header-row">
                   <mat-icon class="card-ico">emoji_events</mat-icon>
                   <div class="stats-card__titles">
                     <mat-card-title>Bests (wins)</mat-card-title>
-                    <mat-card-subtitle>Personal records</mat-card-subtitle>
+                    <mat-card-subtitle
+                      >Per game mode · personal records from wins only</mat-card-subtitle
+                    >
                   </div>
                 </mat-card-header>
                 <mat-card-content>
-                  <dl class="mini-dl">
-                    <div class="mini-row">
-                      <dt>Fastest win</dt>
-                      <dd>{{ formatMs(b.fastestWinMs) }}</dd>
+                  <div
+                    class="mode-win-streak"
+                    *ngFor="let mode of streakModeKeys"
+                  >
+                    <div class="mode-win-streak__head">
+                      <mat-icon class="mode-ico">{{ modeIcon(mode) }}</mat-icon>
+                      <span class="mode-win-streak__title">{{ modeLabel(mode) }}</span>
                     </div>
-                    <div class="mini-row">
-                      <dt>Fewest mistakes</dt>
-                      <dd>{{ b.fewestMistakesWin ?? "—" }}</dd>
-                    </div>
-                  </dl>
+                    <dl class="mini-dl">
+                      <div class="mini-row">
+                        <dt>Fastest win</dt>
+                        <dd>{{ formatMs(bestsForMode(doc, mode).fastestWinMs) }}</dd>
+                      </div>
+                      <div class="mini-row">
+                        <dt>Fewest mistakes</dt>
+                        <dd>{{ bestsForMode(doc, mode).fewestMistakesWin ?? "—" }}</dd>
+                      </div>
+                    </dl>
+                  </div>
                 </mat-card-content>
               </mat-card>
             </div>
