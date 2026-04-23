@@ -12,7 +12,7 @@
  *
  * Exit: 0 OK; 1 mismatch / missing doc; 2 usage / read error.
  *
- * @see docs/leaderboards-test-cohort-g1.md
+ * @see docs/leaderboards/leaderboards-test-cohort-g1.md
  */
 import 'dotenv/config';
 import fs from 'fs';

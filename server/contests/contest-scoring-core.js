@@ -1,6 +1,6 @@
 /**
  * Mini-league contest scoring (Story E2) — pure logic for tests and job.
- * @see docs/weekly-contests-phase4-adr.md — Mini-league scoring
+ * @see docs/weekly-contests/weekly-contests-phase4-adr.md — Mini-league scoring
  */
 
 export const TIE_BREAK_POLICY =

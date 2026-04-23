@@ -1,8 +1,8 @@
 /**
  * POST /api/v1/contests/:contestId/checkout-session — Phase 5 Story P5-D1.
  * Authenticated Stripe Checkout Session for paid contest entry (redirect flow).
- * @see docs/weekly-contests-api-phase5.md
- * @see docs/weekly-contests-phase5-entry-fees-adr.md
+ * @see docs/weekly-contests/weekly-contests-api-phase5.md
+ * @see docs/weekly-contests/weekly-contests-phase5-entry-fees-adr.md
  */
 import { Timestamp } from 'firebase-admin/firestore';
 import { z } from 'zod';

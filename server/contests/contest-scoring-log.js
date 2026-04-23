@@ -1,6 +1,6 @@
 /**
  * Structured logs for contest scoring pipeline (Story E1 / E2).
- * @see docs/weekly-contests-ops-e1.md
+ * @see docs/weekly-contests/weekly-contests-ops-e1.md
  */
 
 /**

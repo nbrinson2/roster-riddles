@@ -12,7 +12,7 @@
  *
  * Exit: 0 OK; 1 validation; 2 Firestore error.
  *
- * @see docs/weekly-contests-staging-seed-g1.md
+ * @see docs/weekly-contests/weekly-contests-staging-seed-g1.md
  */
 import 'dotenv/config';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';

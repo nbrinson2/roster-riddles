@@ -1,6 +1,6 @@
 /**
  * POST /api/internal/v1/contests/:contestId/transition — Story D1 (operator / cron secret).
- * @see docs/weekly-contests-ops-d1.md
+ * @see docs/weekly-contests/weekly-contests-ops-d1.md
  */
 import { z } from 'zod';
 import { getAdminFirestore } from '../lib/admin-firestore.js';

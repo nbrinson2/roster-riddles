@@ -1,6 +1,6 @@
 /**
  * Admin — read user record and set Firebase Auth custom claim `admin` (browser; `requireAdmin`).
- * @see docs/admin-dashboard-security.md
+ * @see docs/admin/admin-dashboard-security.md
  */
 import { z } from 'zod';
 import { ensureFirebaseAdminInitialized } from '../lib/firebase-admin-init.js';

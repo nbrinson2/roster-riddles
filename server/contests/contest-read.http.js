@@ -1,6 +1,6 @@
 /**
  * GET /api/v1/contests and GET /api/v1/contests/:contestId — Story D2.
- * @see docs/weekly-contests-api-d2.md
+ * @see docs/weekly-contests/weekly-contests-api-d2.md
  */
 import { z } from 'zod';
 import { getAdminFirestore } from '../lib/admin-firestore.js';

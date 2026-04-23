@@ -2,7 +2,7 @@
  * Stripe server SDK — Phase 5 Story P5-C1.
  * Secret key from env only; never log full keys.
  * `STRIPE_SECRET_KEY` may be a path to a one-line file (same pattern as `resolveSecretFromEnv` elsewhere).
- * @see docs/stripe.md
+ * @see docs/payments/stripe.md
  */
 import Stripe from 'stripe';
 import { resolveSecretFromEnv } from '../lib/contest-internal-auth.js';

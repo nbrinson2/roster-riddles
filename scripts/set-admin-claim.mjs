@@ -15,7 +15,7 @@
  * reflects the new isAdmin. Use --revoke-sessions to invalidate refresh tokens (stronger),
  * and/or --disable-user to block sign-in entirely.
  *
- * @see docs/admin-dashboard-ops-ad3.md
+ * @see docs/admin/admin-dashboard-ops-ad3.md
  */
 import 'dotenv/config';
 import admin from 'firebase-admin';

@@ -1,6 +1,6 @@
 /**
  * POST /api/internal/v1/contests/run-scoring — Story E2 (secured; E1 webhook target).
- * @see docs/weekly-contests-ops-e2.md
+ * @see docs/weekly-contests/weekly-contests-ops-e2.md
  */
 import { z } from 'zod';
 import { getAdminFirestore } from '../lib/admin-firestore.js';

@@ -14,7 +14,7 @@ import 'dotenv/config';
  *
  * Exit: 0 if aggregate matches recomputation; 1 on mismatch or invalid events; 2 usage / Firestore init / truncated --limit.
  *
- * @see docs/stats-reconciliation.md
+ * @see docs/platform/stats-reconciliation.md
  */
 import { isDeepStrictEqual } from 'node:util';
 import process from 'node:process';

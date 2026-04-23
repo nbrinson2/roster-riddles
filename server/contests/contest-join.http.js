@@ -1,6 +1,6 @@
 /**
  * POST /api/v1/contests/:contestId/join — Story C1 (authenticated contest join).
- * @see docs/weekly-contests-api-c1.md
+ * @see docs/weekly-contests/weekly-contests-api-c1.md
  */
 import admin from 'firebase-admin';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';

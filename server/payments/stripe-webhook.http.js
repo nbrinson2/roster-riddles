@@ -2,7 +2,7 @@
  * POST /api/v1/webhooks/stripe — Stripe webhook endpoint (Phase 5 Story P5-C2).
  * Requires raw body + `Stripe-Signature` header; verifies with STRIPE_WEBHOOK_SECRET.
  * Business logic (entries, ledger) lands in Story P5-E — this handler only verifies and ACKs.
- * @see docs/weekly-contests-phase5-webhooks.md
+ * @see docs/weekly-contests/weekly-contests-phase5-webhooks.md
  */
 import { resolveSecretFromEnv } from '../lib/contest-internal-auth.js';
 import {

@@ -52,7 +52,7 @@ function isApiV1AdminUrl(requestUrl: string): boolean {
  * **Token refresh:** Firebase `User#getIdToken()` returns a valid JWT and refreshes it
  * automatically when expired (no separate refresh step needed for typical calls).
  * For **`GET /api/v1/me`** and **`/api/v1/admin/*`**, **`getIdToken(true)`** is used so claim changes from Admin SDK
- * appear without waiting for natural expiry (see `docs/admin-dashboard-security.md`).
+ * appear without waiting for natural expiry (see `docs/admin/admin-dashboard-security.md`).
  * Logged-out users (`currentUser` null) send the request unchanged — no stale header.
  */
 export const authHttpInterceptor: HttpInterceptorFn = (req, next) => {

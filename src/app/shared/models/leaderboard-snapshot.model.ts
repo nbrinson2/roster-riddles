@@ -1,6 +1,6 @@
 /**
  * Precomputed leaderboard snapshot documents (Story B2 — batch path).
- * Path: leaderboards/snapshots/boards/{boardId} — see docs/leaderboards-schema-precomputed.md
+ * Path: leaderboards/snapshots/boards/{boardId} — see docs/leaderboards/leaderboards-schema-precomputed.md
  */
 
 export const LEADERBOARD_SNAPSHOT_SCHEMA_VERSION = 1;

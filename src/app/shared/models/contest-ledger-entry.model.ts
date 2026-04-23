@@ -1,7 +1,7 @@
 /**
  * Firestore `ledgerEntries/{ledgerEntryId}` — Phase 5 Story P5-B2 (append-only payment ledger).
  * Server / Admin SDK writes only; clients have no access.
- * @see docs/weekly-contests-phase5-ledger-schema.md
+ * @see docs/weekly-contests/weekly-contests-phase5-ledger-schema.md
  */
 
 export const CONTEST_LEDGER_ENTRY_SCHEMA_VERSION = 1;

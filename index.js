@@ -77,7 +77,7 @@ app.get('/api/v1/mlb/people/:id', async (req, res, next) => {
  * to future contest/score routes the same way.
  *
  * Response includes `isAdmin` from custom claim `admin: true` (Story AD-2).
- * @see docs/admin-dashboard-security.md
+ * @see docs/admin/admin-dashboard-security.md
  */
 app.get('/api/v1/me', requireFirebaseAuth, (req, res) => {
   res.status(200).json({
@@ -90,7 +90,7 @@ app.get('/api/v1/me', requireFirebaseAuth, (req, res) => {
 
 /**
  * Admin — weekly contests (Firebase `admin: true` claim). List all statuses; transition without operator secret.
- * @see docs/admin-dashboard-security.md
+ * @see docs/admin/admin-dashboard-security.md
  */
 app.get(
   '/api/v1/admin/contests',
@@ -193,7 +193,7 @@ app.get(
 
 /**
  * Public leaderboard page (Admin SDK collection-group query). Pagination + optional display names from Auth.
- * Story D1 — see docs/leaderboards-api-d1.md
+ * Story D1 — see docs/leaderboards/leaderboards-api-d1.md
  */
 app.get(
   '/api/v1/leaderboards',
@@ -213,7 +213,7 @@ app.post(
 /**
  * Contest lifecycle — Story D1; Story F2 `paid`→`scoring`|`cancelled` with `force` + artifact deletes.
  * Bearer `CONTESTS_OPERATOR_SECRET` (or `x-contests-operator-secret`).
- * @see docs/weekly-contests-ops-d1.md, docs/weekly-contests-ops-f2.md
+ * @see docs/weekly-contests/weekly-contests-ops-d1.md, docs/weekly-contests/weekly-contests-ops-f2.md
  */
 app.post(
   '/api/internal/v1/contests/:contestId/transition',
@@ -222,7 +222,7 @@ app.post(
 
 /**
  * Story E1 — Cloud Scheduler / cron: close join windows and enqueue scoring worker.
- * @see docs/weekly-contests-ops-e1.md
+ * @see docs/weekly-contests/weekly-contests-ops-e1.md
  */
 app.post(
   '/api/internal/v1/contests/close-due-windows',
@@ -231,7 +231,7 @@ app.post(
 
 /**
  * Story E2 — scoring worker (body `{ contestId }`). Register before `/:contestId` routes.
- * @see docs/weekly-contests-ops-e2.md
+ * @see docs/weekly-contests/weekly-contests-ops-e2.md
  */
 app.post('/api/internal/v1/contests/run-scoring', postContestRunScoring);
 

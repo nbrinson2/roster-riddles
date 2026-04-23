@@ -1,6 +1,6 @@
 /**
  * Story F2 — duplicate-account friction: only Auth email-verified users appear on published leaderboards.
- * @see docs/leaderboards-duplicate-accounts-f2.md
+ * @see docs/leaderboards/leaderboards-duplicate-accounts-f2.md
  */
 
 /**

@@ -1,7 +1,7 @@
 /**
  * Weekly contests — allowed status transitions (Story D1).
- * @see docs/weekly-contests-phase4-adr.md
- * @see docs/weekly-contests-ops-d1.md
+ * @see docs/weekly-contests/weekly-contests-phase4-adr.md
+ * @see docs/weekly-contests/weekly-contests-ops-d1.md
  */
 
 /** @typedef {'scheduled'|'open'|'scoring'|'paid'|'cancelled'} ContestStatus */

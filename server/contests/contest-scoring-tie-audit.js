@@ -1,6 +1,6 @@
 /**
  * Story E3 — structured tie-resolution audit for `results/final.tieResolution`.
- * @see docs/weekly-contests-phase4-adr.md — Mini-league scoring
+ * @see docs/weekly-contests/weekly-contests-phase4-adr.md — Mini-league scoring
  */
 
 /** Nested schema for tieResolution (independent of results/final schemaVersion). */

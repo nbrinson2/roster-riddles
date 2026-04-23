@@ -1,6 +1,6 @@
 /**
  * Admin weekly contests — list, create, transition (Firebase `admin: true` claim).
- * @see docs/admin-dashboard-security.md
+ * @see docs/admin/admin-dashboard-security.md
  */
 import { randomBytes } from 'node:crypto';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';

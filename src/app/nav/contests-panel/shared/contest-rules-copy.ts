@@ -1,6 +1,6 @@
 /**
  * Rules copy shown before join (Story C2). Align with ADR / operator policy; version when policy changes.
- * @see docs/weekly-contests-phase4-adr.md
+ * @see docs/weekly-contests/weekly-contests-phase4-adr.md
  */
 
 /** Shown wherever contest “payouts” or prizes are described in the UI. */

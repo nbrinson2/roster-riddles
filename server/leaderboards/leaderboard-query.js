@@ -1,5 +1,5 @@
 /**
- * Collection-group leaderboard queries (Story D1) — shared with docs/leaderboards-indexes-pagination.md
+ * Collection-group leaderboard queries (Story D1) — shared with docs/leaderboards/leaderboards-indexes-pagination.md
  */
 import { FieldPath } from 'firebase-admin/firestore';
 

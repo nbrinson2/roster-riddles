@@ -1,6 +1,6 @@
 /**
  * Firebase Auth custom claims used by the API (Story AD-2).
- * @see docs/admin-dashboard-security.md
+ * @see docs/admin/admin-dashboard-security.md
  */
 
 /**

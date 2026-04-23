@@ -1,8 +1,8 @@
 /**
  * Firestore `contests/{contestId}/entries/{uid}` — weekly contests Phase 4 Story B2;
  * Phase 5 Story P5-B1 adds optional payment fields (Stripe ids, `paymentStatus`).
- * @see docs/weekly-contests-schema-entries.md
- * @see docs/weekly-contests-phase5-entry-fees-adr.md
+ * @see docs/weekly-contests/weekly-contests-schema-entries.md
+ * @see docs/weekly-contests/weekly-contests-phase5-entry-fees-adr.md
  */
 
 /** Phase 4 baseline shape (free join, no payment fields). */

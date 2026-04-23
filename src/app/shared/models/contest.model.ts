@@ -1,6 +1,6 @@
 /**
  * Firestore `contests/{contestId}` — weekly contests Phase 4 Story B1.
- * @see docs/weekly-contests-schema-contests.md
+ * @see docs/weekly-contests/weekly-contests-schema-contests.md
  */
 
 export const CONTEST_SCHEMA_VERSION = 1;

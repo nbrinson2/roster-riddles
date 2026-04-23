@@ -1,7 +1,7 @@
 /**
  * POST /api/internal/v1/contests/close-due-windows — Story E1 (cron / secured hook).
  * Finds `open` contests whose `windowEnd` has passed, moves them to `scoring`, optionally POSTs to a worker URL.
- * @see docs/weekly-contests-ops-e1.md
+ * @see docs/weekly-contests/weekly-contests-ops-e1.md
  */
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '../lib/admin-firestore.js';

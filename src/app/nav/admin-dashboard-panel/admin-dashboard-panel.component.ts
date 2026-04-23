@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 /** One row in the operator docs list (paths relative to repo root). */
 export interface AdminDocLink {
   title: string;
-  /** e.g. `docs/admin-dashboard-ops-ad3.md` */
+  /** e.g. `docs/admin/admin-dashboard-ops-ad3.md` */
   path: string;
 }
 
@@ -25,19 +25,19 @@ export class AdminDashboardPanelComponent {
   protected readonly docLinks: AdminDocLink[] = [
     {
       title: 'Admin claim (grant / revoke)',
-      path: 'docs/admin-dashboard-ops-ad3.md',
+      path: 'docs/admin/admin-dashboard-ops-ad3.md',
     },
     {
       title: 'Admin dashboard — security & backlog',
-      path: 'docs/admin-dashboard-security.md',
+      path: 'docs/admin/admin-dashboard-security.md',
     },
     {
       title: 'Weekly contests — runbook',
-      path: 'docs/weekly-contests-runbook-g2.md',
+      path: 'docs/weekly-contests/weekly-contests-runbook-g2.md',
     },
     {
       title: 'Leaderboards — runbook',
-      path: 'docs/leaderboards-runbook.md',
+      path: 'docs/leaderboards/leaderboards-runbook.md',
     },
   ];
 }
