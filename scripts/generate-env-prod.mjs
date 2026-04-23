@@ -72,6 +72,26 @@ const adminDashboardUiEnabled = process.env.ADMIN_DASHBOARD_UI_ENABLED !== 'fals
 const contestsPaymentsEnabled =
   isStaging && process.env.CONTESTS_PAYMENTS_ENABLED === 'true';
 
+/** Max session from last auth (`authTime`). 0 = disabled. Prod defaults to 3d if unset; staging defaults to 0. */
+const authSessionMaxDaysRaw = (process.env.AUTH_SESSION_MAX_DAYS ?? '').trim();
+const authSessionMaxDaysLower = authSessionMaxDaysRaw.toLowerCase();
+let authSessionMaxMs = 0;
+if (
+  authSessionMaxDaysLower === '0' ||
+  authSessionMaxDaysLower === 'off' ||
+  authSessionMaxDaysLower === 'false' ||
+  authSessionMaxDaysLower === 'none'
+) {
+  authSessionMaxMs = 0;
+} else if (authSessionMaxDaysRaw !== '' && Number.isFinite(Number(authSessionMaxDaysRaw))) {
+  const d = Number(authSessionMaxDaysRaw);
+  if (d > 0) {
+    authSessionMaxMs = Math.round(d * 86400000);
+  }
+} else if (!isStaging) {
+  authSessionMaxMs = Math.round(3 * 86400000);
+}
+
 const content = `import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
 import type { DeploymentEnvironment } from './environment.types';
 
@@ -93,6 +113,7 @@ export const environment = {
   weeklyContestsUiEnabled: ${weeklyContestsUiEnabled},
   adminDashboardUiEnabled: ${adminDashboardUiEnabled},
   contestsPaymentsEnabled: ${contestsPaymentsEnabled},
+  authSessionMaxMs: ${authSessionMaxMs},
   featureFlags,
   firebase: {
     apiKey: ${JSON.stringify(process.env.FIREBASE_API_KEY)},

@@ -52,6 +52,11 @@ export const environment = {
    * Local dev: set `false` here to simulate a build with the flag off.
    */
   adminDashboardUiEnabled: true,
+  /**
+   * Max time (ms) from Firebase ID token `authTime` before forced `signOut`. `0` = no limit.
+   * Staging/prod: `AUTH_SESSION_MAX_DAYS` via `generate-env-prod.mjs` (production defaults to 3 days if unset).
+   */
+  authSessionMaxMs: 0,
   featureFlags,
   firebase: firebaseConfig,
 };
