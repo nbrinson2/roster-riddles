@@ -1,6 +1,7 @@
 /**
  * Phase 5 Story P5-E1 — `checkout.session.completed` / `payment_intent.succeeded`:
  * idempotent entry + ledger writes for contest entry fees.
+ * Exports {@link stripeContestMetadataToRecord} for P5-E2 failure handlers.
  * @see docs/weekly-contests/weekly-contests-phase5-payments-jira.md
  * @see docs/weekly-contests/weekly-contests-phase5-entry-fees-adr.md
  */
@@ -22,10 +23,11 @@ const LEDGER_SCHEMA_VERSION = 1;
 const ENTRY_SCHEMA_PHASE5 = 2;
 
 /**
+ * Stripe metadata objects only include string values; normalize for contest handlers.
  * @param {Record<string, string> | null | undefined} meta
  * @returns {Record<string, string>}
  */
-function metadataToRecord(meta) {
+export function stripeContestMetadataToRecord(meta) {
   if (!meta || typeof meta !== 'object') {
     return {};
   }
@@ -95,7 +97,7 @@ export function extractContestPaymentPayloadFromStripeEvent(event) {
     if (session.payment_status !== 'paid') {
       return null;
     }
-    const md = metadataToRecord(session.metadata);
+    const md = stripeContestMetadataToRecord(session.metadata);
     const contestId = md.contestId;
     const uid = md.uid;
     if (!contestId || !uid) {
@@ -144,7 +146,7 @@ export function extractContestPaymentPayloadFromStripeEvent(event) {
 
   if (t === 'payment_intent.succeeded') {
     const pi = /** @type {import('stripe').Stripe.PaymentIntent} */ (event.data.object);
-    const md = metadataToRecord(pi.metadata);
+    const md = stripeContestMetadataToRecord(pi.metadata);
     const contestId = md.contestId;
     const uid = md.uid;
     if (!contestId || !uid) {

@@ -1,10 +1,11 @@
 /**
- * POST /api/v1/webhooks/stripe — Stripe webhook endpoint (Phase 5 Story P5-C2 + P5-E1).
+ * POST /api/v1/webhooks/stripe — Stripe webhook endpoint (Phase 5 Story P5-C2 + P5-E1 + P5-E2).
  * Requires raw body + `Stripe-Signature` header; verifies with STRIPE_WEBHOOK_SECRET.
  * @see docs/weekly-contests/weekly-contests-phase5-webhooks.md
  */
 import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { resolveSecretFromEnv } from '../lib/contest-internal-auth.js';
+import { processContestPaymentFailureWebhook } from './stripe-webhook-contest-payment-failure.js';
 import { processContestPaymentSuccessWebhook } from './stripe-webhook-contest-payment.js';
 import {
   getStripeClient,
@@ -93,14 +94,24 @@ export async function postStripeWebhook(req, res) {
     });
   }
 
-  const contestPaymentTypes =
+  const contestPaymentSuccessTypes =
     event.type === 'checkout.session.completed' ||
     event.type === 'payment_intent.succeeded';
+  const contestPaymentFailureTypes =
+    event.type === 'payment_intent.payment_failed' ||
+    event.type === 'checkout.session.async_payment_failed' ||
+    event.type === 'checkout.session.expired';
+  const contestPaymentTypes =
+    contestPaymentSuccessTypes || contestPaymentFailureTypes;
 
   if (isContestsPaymentsEnabled() && contestPaymentTypes) {
     try {
       const db = getAdminFirestore();
-      await processContestPaymentSuccessWebhook(db, event, requestId);
+      if (contestPaymentSuccessTypes) {
+        await processContestPaymentSuccessWebhook(db, event, requestId);
+      } else {
+        await processContestPaymentFailureWebhook(db, event, requestId);
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error(

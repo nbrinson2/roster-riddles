@@ -1,6 +1,6 @@
 # Weekly contests — Stripe webhooks (Phase 5 Story P5-C2+)
 
-**Status:** Signature verification (P5-C2); **success webhooks** for paid contest entry (P5-E1) — `checkout.session.completed` and `payment_intent.succeeded` with contest metadata. Failure/refund handlers: P5-E2/E3.  
+**Status:** Signature verification (P5-C2); **success** (P5-E1), **payment failure / expired session** (P5-E2), refunds (P5-E3).  
 **Endpoint:** `POST /api/v1/webhooks/stripe`  
 **Implementation:** [`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js), registered in [`index.js`](../index.js) **before** `express.json()` so the raw body is available for `stripe.webhooks.constructEvent`.
 
@@ -50,6 +50,37 @@
 
 ---
 
+## Story P5-E2 — Payment failed / session expired (`CONTESTS_PAYMENTS_ENABLED=true`)
+
+**Implementation:** [`stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js) → [`stripe-webhook-contest-payment-failure.js`](../server/payments/stripe-webhook-contest-payment-failure.js).
+
+**Ledger:** **No** `ledgerEntries` writes on failure (v1 — no informational ledger lines).
+
+### Event type → Firestore behavior
+
+| Stripe `type` | Parsed when | `processedStripeEvents/{event.id}` | `entries/{uid}` update |
+|---------------|-------------|--------------------------------------|-------------------------|
+| **`payment_intent.payment_failed`** | `metadata.contestId` + `metadata.uid` present; `pi_` id on object | Always written when handled (idempotency) | **`paymentStatus: failed`** only if doc exists and current status is **`pending`** or **`failed`**; merge `stripePaymentIntentId`, `lastStripeEventId`, `schemaVersion` 2 |
+| **`checkout.session.async_payment_failed`** | `mode === payment` + same metadata keys on session | Same | Same; may set **`stripeCheckoutSessionId`** from session id |
+| **`checkout.session.expired`** | `mode === payment` + same metadata | Same | Same; may set **`stripeCheckoutSessionId`** |
+
+### Outcomes (no entry / skip / terminal)
+
+| Condition | `processedStripeEvents.outcome` (representative) | Entry doc |
+|-----------|---------------------------------------------------|-----------|
+| Contest missing | `failure_no_contest` | — |
+| Contest has no entry fee (`entryFeeCents` 0 / absent) | `failure_ignored_free_contest` | — |
+| No `entries/{uid}` (typical abandoned Checkout) | `failure_no_entry` | — |
+| Entry **`paid`**, **`free`**, or **`refunded`** | `failure_skip_terminal_entry` | Unchanged (never downgrade from paid) |
+| Entry exists but **`paymentStatus`** is not `pending` / `failed` (e.g. legacy Phase 4 row) | `failure_skipped_legacy_entry` | Unchanged |
+| Entry **`pending`** or **`failed`** | `failure_entry_marked_failed` | `paymentStatus: failed` + Stripe ids / `lastStripeEventId` |
+
+**Structured logs:** Same `component: stripe_webhook` JSON lines with `contestId`, `uid`, `outcome` (e.g. `failure_no_entry`, `failure_entry_marked_failed`).
+
+**Payments disabled:** Same as P5-E1 — no Firestore updates; **200** + `contestPaymentSkipped: payments_disabled` in the generic `received` log when applicable.
+
+---
+
 ## Local development
 
 ```bash
@@ -64,4 +95,4 @@ The CLI prints a **webhook signing secret** (`whsec_...`) — set `STRIPE_WEBHOO
 ## Related
 
 - [stripe.md](../payments/stripe.md) — env vars  
-- [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — P5-E2 / P5-E3 (failure + refund handlers)  
+- [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — P5-E3 (refunds)  

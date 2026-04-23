@@ -272,7 +272,7 @@ Register **`POST /api/v1/webhooks/stripe`** (or namespaced path) **before** JSON
 
 **Acceptance criteria**
 
-- [ ] Documented matrix of event types → entry state in `docs/weekly-contests/weekly-contests-phase5-webhooks.md`.
+- [x] Documented matrix of event types → entry state in `docs/weekly-contests/weekly-contests-phase5-webhooks.md`.
 
 **Dependencies**
 
