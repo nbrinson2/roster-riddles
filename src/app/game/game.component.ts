@@ -47,6 +47,7 @@ export class GameComponent {
         [user, slate],
       ):
         | { variant: 'sign_in' }
+        | { variant: 'verify_email' }
         | { variant: 'no_entry' }
         | { variant: 'active'; slate: WeeklyContestSlateUi } => {
         if (!user) {
@@ -54,6 +55,9 @@ export class GameComponent {
         }
         if (slate) {
           return { variant: 'active', slate };
+        }
+        if (user.emailVerified !== true) {
+          return { variant: 'verify_email' };
         }
         return { variant: 'no_entry' };
       },

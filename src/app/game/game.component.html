@@ -112,6 +112,23 @@
               calendar tab.
             </p>
           </div>
+          <div
+            *ngIf="strip.variant === 'verify_email'"
+            class="game-contest-banner game-contest-banner--muted"
+            role="region"
+            aria-label="Verify email for weekly contests"
+          >
+            <div class="game-contest-banner__inner">
+              <span class="material-symbols-outlined" aria-hidden="true">mark_email_unread</span>
+              <p class="game-contest-banner__muted-line">
+                Verify your email to join weekly contests — open Profile to resend the link.
+              </p>
+            </div>
+            <p class="game-contest-banner__sr-only">
+              Your account needs a verified email before you can enter a contest. Use the person
+              icon for Profile, then resend or complete email verification.
+            </p>
+          </div>
         </div>
       </ng-container>
     </ng-container>

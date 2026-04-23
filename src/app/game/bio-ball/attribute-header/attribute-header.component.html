@@ -1,20 +1,24 @@
 <div class="content-container">
-  <div *ngIf="!endOfGame" class="attr-container">
-    <common-attribute-header
-      [attrHeaders]="attrHeaders"
-      [numberOfColumns]="9"
-    ></common-attribute-header>
-  </div>
-  <div *ngIf="endOfGame" class="end-result-header">
-    <mat-grid-list cols="9" rowHeight="40px">
-      <mat-grid-tile colspan="9">
-        <div
-          class="column-content end-result"
-          [ngClass]="getEndResultBorderColor()"
-        >
-          <span class="end-result-text">{{ endResultText }}</span>
-        </div>
-      </mat-grid-tile>
-    </mat-grid-list>
+  <div class="push-viewport">
+    <div class="push-track" [class.push-track--pushed]="endOfGame">
+      <div class="push-slab attr-slab">
+        <common-attribute-header
+          [attrHeaders]="attrHeaders"
+          [numberOfColumns]="9"
+        ></common-attribute-header>
+      </div>
+      <div class="push-slab end-slab">
+        <mat-grid-list cols="9" rowHeight="40px">
+          <mat-grid-tile colspan="9">
+            <div
+              class="column-content end-result"
+              [ngClass]="getEndResultBorderColor()"
+            >
+              <span *ngIf="endOfGame" class="end-result-text">{{ endResultText }}</span>
+            </div>
+          </mat-grid-tile>
+        </mat-grid-list>
+      </div>
+    </div>
   </div>
 </div>

@@ -68,6 +68,8 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   protected readonly heroTagline = CONTEST_HERO_TAGLINE;
 
   protected loggedIn = false;
+  /** Firebase `emailVerified`; required to join or start paid checkout (server-enforced). */
+  protected emailVerified = false;
   protected loading = true;
   protected listError: string | null = null;
   protected rows: ContestListRow[] = [];
@@ -137,8 +139,10 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
 
     this.auth.user$.pipe(takeUntil(this.destroy$)).subscribe((user) => {
       this.loggedIn = !!user;
+      this.emailVerified = user?.emailVerified === true;
       this.uid = user?.uid ?? null;
       if (!user) {
+        this.emailVerified = false;
         this.stopContestClock();
         this.firestoreSync.stopAll(this.firestoreUi());
         this.rows = [];
@@ -211,6 +215,11 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         this.joinDisabledReason(row) ?? 'Join is not available right now.';
       return;
     }
+    if (!this.emailVerified) {
+      this.joinError =
+        'Verify your email before joining. Open Profile (person icon) to resend the verification link.';
+      return;
+    }
 
     this.joinSubmitting = true;
     this.joinError = null;
@@ -266,6 +275,11 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     if (!this.canAttemptJoin(row)) {
       this.joinError =
         this.joinDisabledReason(row) ?? 'Checkout is not available right now.';
+      return;
+    }
+    if (!this.emailVerified) {
+      this.joinError =
+        'Verify your email before paid entry. Open Profile (person icon) to resend the verification link.';
       return;
     }
 

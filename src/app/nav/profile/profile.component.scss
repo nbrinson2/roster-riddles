@@ -4,6 +4,35 @@
   padding-bottom: 32px;
 }
 
+.verify-email-banner {
+  margin: 16px 20px 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 193, 7, 0.35);
+  background: rgba(255, 193, 7, 0.08);
+  font-family: constants.$font-family-secondary;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.88);
+
+  .verify-email-text {
+    margin: 0 0 12px;
+  }
+
+  .verify-email-status {
+    margin: 10px 0 0;
+    font-size: 0.85rem;
+
+    &--ok {
+      color: #a5d6a7;
+    }
+
+    &--err {
+      color: #ffab91;
+    }
+  }
+}
+
 .header {
   color: constants.$color-header;
   font-family: constants.$font-family;

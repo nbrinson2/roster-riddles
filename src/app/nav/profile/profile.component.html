@@ -3,21 +3,32 @@
     <div class="avatar-wrap">
       <span class="material-symbols-outlined account-icon">account_circle</span>
     </div>
-    <h1 *ngIf="user?.displayName || user?.email">
-      {{ user?.displayName || user?.email }}
-    </h1>
-    <p
-      class="email-line"
-      *ngIf="
-        user &&
-        user.displayName &&
-        user.email &&
-        user.displayName !== user.email
-      "
-    >
-      {{ user.email }}
+    <h1 *ngIf="profileHeading() as heading">{{ heading }}</h1>
+    <p class="email-line" *ngIf="showProfileEmailSubline()">
+      {{ user?.email }}
     </p>
   </header>
+
+  <section *ngIf="showVerifyEmailBanner()" class="verify-email-banner" role="region" aria-label="Email verification">
+    <p class="verify-email-text">
+      Please verify <strong>{{ user?.email }}</strong> — we sent a link when you signed up. Some providers hide it in spam.
+    </p>
+    <button
+      type="button"
+      mat-stroked-button
+      color="primary"
+      (click)="resendVerification()"
+      [disabled]="verifyResending"
+    >
+      {{ verifyResending ? 'Sending…' : 'Resend verification email' }}
+    </button>
+    <p *ngIf="verifySuccess" class="verify-email-status verify-email-status--ok" role="status">
+      {{ verifySuccess }}
+    </p>
+    <p *ngIf="verifyError" class="verify-email-status verify-email-status--err" role="alert">
+      {{ verifyError }}
+    </p>
+  </section>
 
   <div class="content-container">
     <section class="stats-section" *ngIf="showStatsSection()">

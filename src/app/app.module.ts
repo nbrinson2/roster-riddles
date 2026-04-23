@@ -10,6 +10,7 @@ import { provideFirestore } from '@angular/fire/firestore';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -28,6 +29,7 @@ import { AttributeHeaderComponent } from './game/bio-ball/attribute-header/attri
 import { BioBallComponent } from './game/bio-ball/bio-ball.component';
 import { ActiveRosterTableComponent } from './nav/active-roster-table/active-roster-table.component';
 import { NavComponent } from './nav/nav.component';
+import { NavTopBarComponent } from './nav/nav-top-bar/nav-top-bar.component';
 import { ProfileComponent } from './nav/profile/profile.component';
 import { HintComponent } from './shared/components/hint/hint.component';
 import { SlideUpComponent } from './shared/components/slide-up/slide-up.component';
@@ -51,6 +53,8 @@ import { StreakCardComponent } from './game/nickname-streak/streak-card/streak-c
 import { GuessResultComponent } from './game/nickname-streak/guess-result/guess-result.component';
 import { FeatureFlagDirective } from './shared/feature-flag/feature-flag.directive';
 import { authHttpInterceptor } from './auth/auth-http.interceptor';
+import { EmailVerifiedPageComponent } from './auth/email-verified-page/email-verified-page.component';
+import { InlineCalloutBannerComponent } from './shared/components/inline-callout-banner/inline-callout-banner.component';
 import { LoginPanelComponent } from './auth/login-panel/login-panel.component';
 import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-panel.component';
 import { ContestCardComponent } from './nav/contests-panel/components/contest-card/contest-card.component';
@@ -74,6 +78,7 @@ import { AdminUserClaimsWidgetComponent } from './nav/admin-dashboard-panel/admi
     AttributeHeaderComponent,
     ActiveRosterTableComponent,
     NavComponent,
+    NavTopBarComponent,
     ProfileComponent,
     SlideUpComponent,
     HintComponent,
@@ -94,6 +99,8 @@ import { AdminUserClaimsWidgetComponent } from './nav/admin-dashboard-panel/admi
     GuessResultComponent,
     FeatureFlagDirective,
     LoginPanelComponent,
+    EmailVerifiedPageComponent,
+    InlineCalloutBannerComponent,
     LeaderboardPanelComponent,
     ContestsPanelComponent,
     ContestsPanelHeroComponent,
@@ -116,6 +123,7 @@ import { AdminUserClaimsWidgetComponent } from './nav/admin-dashboard-panel/admi
     FormsModule,
     MatGridListModule,
     MatButtonModule,
+    MatButtonToggleModule,
     MatSidenavModule,
     MatTableModule,
     MatInputModule,

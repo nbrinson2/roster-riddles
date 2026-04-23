@@ -1,0 +1,21 @@
+<section
+  class="inline-callout"
+  [ngClass]="'inline-callout--' + variant"
+  [attr.role]="role"
+>
+  <div class="inline-callout__main">
+    <ng-content select="[callout-body]"></ng-content>
+    <div class="inline-callout__actions">
+      <ng-content select="[callout-actions]"></ng-content>
+    </div>
+    <ng-content select="[callout-feedback]"></ng-content>
+  </div>
+  <button
+    *ngIf="showDismiss"
+    type="button"
+    class="inline-callout__dismiss"
+    (click)="dismiss.emit()"
+  >
+    {{ dismissLabel }}
+  </button>
+</section>

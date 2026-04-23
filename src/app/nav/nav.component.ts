@@ -1,7 +1,9 @@
 import {
+  ChangeDetectorRef,
   Component,
   computed,
   Inject,
+  NgZone,
   OnDestroy,
   OnInit,
   Signal,
@@ -11,8 +13,9 @@ import { MatDrawer } from '@angular/material/sidenav';
 import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import type { User } from 'firebase/auth';
 import { filter, Subject, takeUntil } from 'rxjs';
+import type { AuthSuccessDetail } from '../auth/login-panel/login-panel.component';
+import type { EmailVerificationPostSignUpPayload } from '../auth/email-verification-post-signup.types';
 import { AuthService } from '../auth/auth.service';
-import { UserMeCapabilitiesService } from '../auth/user-me-capabilities.service';
 import {
   AttributesType,
   TeamFullName,
@@ -98,15 +101,34 @@ export class NavComponent implements OnInit, OnDestroy {
   protected selectedRosterYears?: string;
   protected selectedRosterTeamName?: TeamFullName;
 
+  /** Shown under the top bar after email/password sign-up until dismissed. */
+  protected postSignUpEmailBanner: EmailVerificationPostSignUpPayload | null =
+    null;
+
+  /**
+   * True after {@link openLoginMenu} until the drawer finishes closing. Keeps the login
+   * panel mounted when `loggedIn` flips true on sign-in/up so the drawer does not render empty.
+   */
+  protected loginDrawerActive = false;
+
+  /** Banner: resend cooldown (seconds remaining, 0 = ready). */
+  protected bannerResendCooldownSec = 0;
+  protected bannerResendLoading = false;
+  protected bannerResendMessage: string | null = null;
+  protected bannerResendError: string | null = null;
+
+  private bannerCooldownTimer: ReturnType<typeof setInterval> | null = null;
+
   private destroy$ = new Subject<void>();
 
   constructor(
+    private readonly ngZone: NgZone,
+    private readonly cdr: ChangeDetectorRef,
     private hintService: HintService,
     private rosterSelectionService: RosterSelectionService,
     private router: Router,
     private slideUpService: SlideUpService,
     private authService: AuthService,
-    protected readonly userMeCapabilities: UserMeCapabilitiesService,
     @Inject(GAME_SERVICE)
     private gameService: GameService<GamePlayer>,
     private nicknameStreakEngineService: NicknameStreakEngineService,
@@ -167,6 +189,7 @@ export class NavComponent implements OnInit, OnDestroy {
       });
 
     this.drawer.closedStart.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.loginDrawerActive = false;
       if (this.viewRoster) {
         this.hintService.dismissHint();
       }
@@ -174,6 +197,7 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.clearBannerCooldownTimer();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -268,14 +292,81 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   protected logout(): void {
+    this.postSignUpEmailBanner = null;
+    this.clearBannerCooldownTimer();
+    this.bannerResendCooldownSec = 0;
+    this.bannerResendMessage = null;
+    this.bannerResendError = null;
+    this.loginDrawerActive = false;
     void this.authService.signOut();
   }
 
-  protected onLoginSuccess(): void {
+  protected onLoginSuccess(detail?: AuthSuccessDetail): void {
+    this.postSignUpEmailBanner =
+      detail?.postSignUpEmailVerification ?? null;
     this.drawer.close();
   }
 
+  protected dismissPostSignUpEmailBanner(): void {
+    this.postSignUpEmailBanner = null;
+    this.clearBannerCooldownTimer();
+    this.bannerResendCooldownSec = 0;
+    this.bannerResendMessage = null;
+    this.bannerResendError = null;
+  }
+
+  protected openProfileFromVerifyBanner(): void {
+    this.openProfileMenu();
+  }
+
+  protected async resendVerificationFromBanner(): Promise<void> {
+    if (this.bannerResendCooldownSec > 0 || this.bannerResendLoading) {
+      return;
+    }
+    this.bannerResendError = null;
+    this.bannerResendMessage = null;
+    this.bannerResendLoading = true;
+    this.cdr.markForCheck();
+    try {
+      await this.authService.resendEmailVerification();
+      this.bannerResendMessage = 'Another verification email is on its way.';
+      this.bannerResendCooldownSec = 60;
+      this.startBannerResendCooldown();
+    } catch (err) {
+      this.bannerResendError = this.authService.mapAuthError(err);
+    } finally {
+      this.bannerResendLoading = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  private startBannerResendCooldown(): void {
+    this.clearBannerCooldownTimer();
+    this.ngZone.runOutsideAngular(() => {
+      this.bannerCooldownTimer = setInterval(() => {
+        this.ngZone.run(() => {
+          this.bannerResendCooldownSec = Math.max(
+            0,
+            this.bannerResendCooldownSec - 1,
+          );
+          this.cdr.markForCheck();
+          if (this.bannerResendCooldownSec <= 0) {
+            this.clearBannerCooldownTimer();
+          }
+        });
+      }, 1000);
+    });
+  }
+
+  private clearBannerCooldownTimer(): void {
+    if (this.bannerCooldownTimer != null) {
+      clearInterval(this.bannerCooldownTimer);
+      this.bannerCooldownTimer = null;
+    }
+  }
+
   protected openLoginMenu(): void {
+    this.loginDrawerActive = true;
     this.matDrawerPosition = MatDrawerPosition.END;
     this.viewMenu = false;
     this.viewProfile = false;

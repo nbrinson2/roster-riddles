@@ -288,11 +288,18 @@
       {{ joinError }}
     </div>
 
+    <div
+      *ngIf="showVerifyEmailJoinHint(row)"
+      class="cc-verify-email-card-hint"
+      role="status"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">mark_email_unread</span>
+      <span>Verify your email (Profile → resend) before you can join this contest.</span>
+    </div>
+
     <label
       class="cc-accept"
-      *ngIf="
-        loggedIn && canAttemptJoin(row) && entryRulesVersion == null
-      "
+      *ngIf="canOfferJoin(row)"
     >
       <input
         type="checkbox"
@@ -310,7 +317,7 @@
       mat-flat-button
       type="button"
       class="cc-join-btn"
-      *ngIf="loggedIn && canAttemptJoin(row) && entryRulesVersion == null"
+      *ngIf="canOfferJoin(row)"
       [disabled]="!rulesCheckbox || joinSubmitting"
       (click)="onJoinClick()"
     >

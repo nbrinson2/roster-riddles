@@ -20,6 +20,8 @@ export const environment = {
   adminDashboardUiEnabled: true,
   /** Production: always false in CI output (`generate-env-prod.mjs`). Paid entry UX stays off until policy changes. */
   contestsPaymentsEnabled: false,
+  /** Overwritten by `generate-env-prod.mjs` from `AUTH_SESSION_MAX_DAYS` (prod default 3 days if unset). */
+  authSessionMaxMs: 3 * 24 * 60 * 60 * 1000,
   featureFlags,
   firebase: {
     apiKey: "x",

@@ -5,6 +5,7 @@
 #   _FIREBASE_STORAGE_BUCKET, _FIREBASE_MESSAGING_SENDER_ID, _FIREBASE_APP_ID
 # Optional: _FIREBASE_MEASUREMENT_ID, _API_BASE_URL, _DEPLOYMENT (default production; use `staging` + staging Firebase subs for a staging service)
 # Optional: _CONTESTS_PAYMENTS_ENABLED (default `false`) — Express + staging Angular paid entry; production SPA ignores this (always off). Staging QA: set `true`.
+# Optional: _AUTH_SESSION_MAX_DAYS — Angular `authSessionMaxMs` (see generate-env-prod.mjs). `0`/`off` = no forced logout. Prod default 3d if unset; staging default 0 if unset.
 # Optional Stripe (Phase 1): _STRIPE_PUBLISHABLE_KEY — test (`pk_test_`) for staging trigger, live (`pk_live_`) for prod only (see docs/stripe.md)
 #
 # Also set: _AR_HOSTNAME, _AR_PROJECT_ID, _AR_REPOSITORY, _AR_IMAGE_PATH (Artifact Registry
@@ -54,6 +55,8 @@ steps:
       - 'ADMIN_DASHBOARD_UI_ENABLED=$_ADMIN_DASHBOARD_UI_ENABLED'
       - '--build-arg'
       - 'CONTESTS_PAYMENTS_ENABLED=$_CONTESTS_PAYMENTS_ENABLED'
+      - '--build-arg'
+      - 'AUTH_SESSION_MAX_DAYS=$_AUTH_SESSION_MAX_DAYS'
 
   # Push before deploy: the `images:` shortcut pushes only after *all* steps, which would run deploy too early.
   - name: gcr.io/cloud-builders/docker
@@ -101,6 +104,7 @@ substitutions:
   _ADMIN_DASHBOARD_UI_ENABLED: ''
   # Story P5 — server + staging build: live/test paid entry off unless trigger sets `true`
   _CONTESTS_PAYMENTS_ENABLED: 'false'
+  _AUTH_SESSION_MAX_DAYS: ''
 
 options:
   logging: CLOUD_LOGGING_ONLY

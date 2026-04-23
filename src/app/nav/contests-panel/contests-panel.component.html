@@ -10,6 +10,20 @@
     (requestSignIn)="onRequestSignIn()"
   ></contests-panel-sign-in-prompt>
 
+  <div
+    *ngIf="loggedIn && !emailVerified"
+    class="cc-verify-email-banner"
+    role="status"
+  >
+    <span class="material-symbols-outlined" aria-hidden="true">mark_email_unread</span>
+    <div>
+      <strong>Verify your email to join contests.</strong>
+      Open <strong>Profile</strong> (person icon in the top bar), then use
+      <strong>Resend verification email</strong> if you need a new link. After you confirm your
+      address, return here and tap Join again.
+    </div>
+  </div>
+
   <div *ngIf="loggedIn" class="cc-body">
     <contests-panel-loading *ngIf="loading"></contests-panel-loading>
 
@@ -44,6 +58,7 @@
         (rulesCheckboxChange)="rulesCheckbox = $event"
         [joinSubmitting]="joinSubmitting"
         [loggedIn]="loggedIn"
+        [emailVerified]="emailVerified"
         [entryRulesVersion]="entryRulesVersion"
         [fullRulesHref]="fullRulesHref"
         (toggleExpand)="toggleExpand(row)"
