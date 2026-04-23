@@ -22,6 +22,7 @@ Never commit keys. Never put **secret** keys in the Angular app — only **publi
 | `CONTESTS_CHECKOUT_APP_ORIGIN` | Express — public **browser** origin for Stripe Checkout **success/cancel** URLs (Phase 5 Story P5-D1). Example: `http://localhost:4300` when using `ng serve`; production: `https://your-domain.com`. **No trailing slash.** | `.env` / Cloud Run |
 | `STRIPE_PUBLISHABLE_KEY` | Angular build (`environment.*` via `generate-env-prod.mjs`) | **Cloud Build:** substitution `_STRIPE_PUBLISHABLE_KEY` → Docker `--build-arg STRIPE_PUBLISHABLE_KEY` → `generate-env-prod.mjs`. Use **test** publishable key for staging triggers; **live** only on the production trigger. |
 | `STRIPE_WEBHOOK_SECRET` | Express — `POST /api/v1/webhooks/stripe` ([`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js); see [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md)) | Same file-path pattern as `STRIPE_SECRET_KEY` when local. **test** `whsec_…` from Stripe CLI or Dashboard. |
+| `CONTESTS_PAYMENTS_METRIC_COUNTERS` | Optional — set to **`1`** to emit extra **`contest_payments_metrics`** JSON lines (failure counters) alongside webhook logs; see [weekly-contests-phase5-observability.md](../weekly-contests/weekly-contests-phase5-observability.md) (P5-H1). | Omit in dev unless testing sinks. |
 
 ## Server module (Phase 5 — P5-C1, P5-C2)
 

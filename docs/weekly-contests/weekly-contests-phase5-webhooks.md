@@ -2,7 +2,8 @@
 
 **Status:** Signature verification (P5-C2); **success** (P5-E1), **failure / expired** (P5-E2), **refunds** (P5-E3).  
 **Endpoint:** `POST /api/v1/webhooks/stripe`  
-**Implementation:** [`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js), registered in [`index.js`](../index.js) **before** `express.json()` so the raw body is available for `stripe.webhooks.constructEvent`.
+**Implementation:** [`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js), registered in [`index.js`](../index.js) **before** `express.json()` so the raw body is available for `stripe.webhooks.constructEvent`.  
+**Structured logs / metrics (P5-H1):** [`weekly-contests-phase5-observability.md`](weekly-contests-phase5-observability.md), [`contest-payments-observability.js`](../../server/payments/contest-payments-observability.js).
 
 ---
 

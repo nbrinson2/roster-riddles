@@ -378,7 +378,7 @@ Per P5-A1 decision:
 
 **Acceptance criteria**
 
-- [ ] Log schema snippet in `docs/weekly-contests/weekly-contests-phase5-observability.md` (new, short).
+- [x] Log schema snippet in `docs/weekly-contests/weekly-contests-phase5-observability.md` (new, short).
 
 **Dependencies**
 

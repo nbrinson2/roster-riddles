@@ -1,6 +1,9 @@
 /**
- * Structured logs for POST /api/v1/contests/:contestId/checkout-session (Story P5-D1).
+ * Structured logs for POST /api/v1/contests/:contestId/checkout-session (Story P5-D1 + P5-H1).
+ * @see docs/weekly-contests/weekly-contests-phase5-observability.md
  */
+
+import { CONTEST_PAYMENTS_LOG_DOMAIN } from '../payments/contest-payments-observability.js';
 
 /**
  * @param {Record<string, unknown>} payload
@@ -17,6 +20,7 @@ export function logContestCheckoutLine(payload) {
     component: 'contest_checkout',
     severity,
     timestamp: new Date().toISOString(),
+    domain: CONTEST_PAYMENTS_LOG_DOMAIN,
     ...payload,
   };
   const sink = severity === 'ERROR' ? console.error : console.log;

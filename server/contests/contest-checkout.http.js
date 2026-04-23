@@ -517,6 +517,7 @@ export async function postContestCheckoutSession(req, res) {
       outcome: 'ok',
       latencyMs: Date.now() - startMs,
       contestId,
+      uid,
     });
 
     return res.status(200).json({

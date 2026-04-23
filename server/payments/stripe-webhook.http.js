@@ -1,10 +1,14 @@
 /**
- * POST /api/v1/webhooks/stripe — Stripe webhook endpoint (Phase 5 Story P5-C2 + P5-E1–E3).
+ * POST /api/v1/webhooks/stripe — Stripe webhook endpoint (Phase 5 Story P5-C2 + P5-E1–E3 + P5-H1 logs).
  * Requires raw body + `Stripe-Signature` header; verifies with STRIPE_WEBHOOK_SECRET.
  * @see docs/weekly-contests/weekly-contests-phase5-webhooks.md
  */
 import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { resolveSecretFromEnv } from '../lib/contest-internal-auth.js';
+import {
+  emitContestWebhookFailureMetric,
+  logStripeWebhookLine,
+} from './contest-payments-observability.js';
 import { processContestPaymentFailureWebhook } from './stripe-webhook-contest-payment-failure.js';
 import { processContestPaymentRefundWebhook } from './stripe-webhook-contest-payment-refund.js';
 import { processContestPaymentSuccessWebhook } from './stripe-webhook-contest-payment.js';
@@ -22,15 +26,17 @@ export async function postStripeWebhook(req, res) {
   const requestId = req.requestId ?? 'unknown';
   const webhookSecret = resolveSecretFromEnv('STRIPE_WEBHOOK_SECRET');
   if (!webhookSecret) {
-    console.error(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        severity: 'WARN',
-        requestId,
-        outcome: 'webhook_secret_missing',
-        message: 'STRIPE_WEBHOOK_SECRET is not set',
-      }),
-    );
+    logStripeWebhookLine({
+      severity: 'WARNING',
+      requestId,
+      outcome: 'webhook_secret_missing',
+      httpStatus: 503,
+      message: 'STRIPE_WEBHOOK_SECRET is not set',
+    });
+    emitContestWebhookFailureMetric({
+      outcome: 'webhook_secret_missing',
+      requestId,
+    });
     return res.status(503).json({
       error: {
         code: 'stripe_webhook_not_configured',
@@ -46,6 +52,15 @@ export async function postStripeWebhook(req, res) {
 
   const sig = req.headers['stripe-signature'];
   if (!sig || typeof sig !== 'string') {
+    logStripeWebhookLine({
+      requestId,
+      outcome: 'stripe_webhook_missing_signature',
+      httpStatus: 400,
+    });
+    emitContestWebhookFailureMetric({
+      outcome: 'stripe_webhook_missing_signature',
+      requestId,
+    });
     return res.status(400).json({
       error: {
         code: 'stripe_webhook_missing_signature',
@@ -56,15 +71,18 @@ export async function postStripeWebhook(req, res) {
 
   const rawBody = req.body;
   if (!Buffer.isBuffer(rawBody)) {
-    console.error(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        severity: 'ERROR',
-        requestId,
-        outcome: 'invalid_body_type',
-        message: 'Expected raw Buffer body — ensure express.raw runs before express.json',
-      }),
-    );
+    logStripeWebhookLine({
+      severity: 'ERROR',
+      requestId,
+      outcome: 'invalid_body_type',
+      httpStatus: 500,
+      message:
+        'Expected raw Buffer body — ensure express.raw runs before express.json',
+    });
+    emitContestWebhookFailureMetric({
+      outcome: 'invalid_body_type',
+      requestId,
+    });
     return res.status(500).json({
       error: {
         code: 'stripe_webhook_misconfigured',
@@ -78,15 +96,17 @@ export async function postStripeWebhook(req, res) {
     event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        severity: 'WARN',
-        requestId,
-        outcome: 'signature_verify_failed',
-        message: msg,
-      }),
-    );
+    logStripeWebhookLine({
+      severity: 'WARNING',
+      requestId,
+      outcome: 'signature_verify_failed',
+      httpStatus: 400,
+      message: msg,
+    });
+    emitContestWebhookFailureMetric({
+      outcome: 'signature_verify_failed',
+      requestId,
+    });
     return res.status(400).json({
       error: {
         code: 'stripe_webhook_invalid_signature',
@@ -121,17 +141,21 @@ export async function postStripeWebhook(req, res) {
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      console.error(
-        JSON.stringify({
-          component: 'stripe_webhook',
-          severity: 'ERROR',
-          requestId,
-          eventId: event.id,
-          eventType: event.type,
-          outcome: 'contest_payment_handler_failed',
-          message: msg,
-        }),
-      );
+      logStripeWebhookLine({
+        severity: 'ERROR',
+        requestId,
+        eventId: event.id,
+        eventType: event.type,
+        outcome: 'contest_payment_handler_failed',
+        httpStatus: 500,
+        message: msg,
+      });
+      emitContestWebhookFailureMetric({
+        outcome: 'contest_payment_handler_failed',
+        requestId,
+        eventId: event.id,
+        eventType: event.type,
+      });
       return res.status(500).json({
         error: {
           code: 'stripe_webhook_internal_error',
@@ -140,18 +164,15 @@ export async function postStripeWebhook(req, res) {
       });
     }
   } else {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        outcome: 'received',
-        eventId: event.id,
-        eventType: event.type,
-        ...(contestPaymentTypes && !isContestsPaymentsEnabled()
-          ? { contestPaymentSkipped: 'payments_disabled' }
-          : {}),
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      outcome: 'received',
+      eventId: event.id,
+      eventType: event.type,
+      ...(contestPaymentTypes && !isContestsPaymentsEnabled()
+        ? { contestPaymentSkipped: 'payments_disabled' }
+        : {}),
+    });
   }
 
   return res.status(200).json({ received: true });

@@ -8,6 +8,10 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { getEntryFeeCentsFromContest } from '../contests/contest-entry-fee.js';
 import {
+  emitContestWebhookFailureMetric,
+  logStripeWebhookLine,
+} from './contest-payments-observability.js';
+import {
   PROCESSED_STRIPE_EVENTS,
   stripeContestMetadataToRecord,
 } from './stripe-webhook-contest-payment.js';
@@ -40,22 +44,26 @@ export function paymentIntentIdFromValue(v) {
 /**
  * @param {import('stripe').Stripe} stripe
  * @param {string} piId
+ * @param {string} requestId
  * @returns {Promise<Record<string, string> | null>}
  */
-async function fetchPaymentIntentMetadata(stripe, piId) {
+async function fetchPaymentIntentMetadata(stripe, piId, requestId) {
   try {
     const pi = await stripe.paymentIntents.retrieve(piId);
     return stripeContestMetadataToRecord(pi.metadata);
   } catch (e) {
-    console.error(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        severity: 'WARN',
-        outcome: 'refund_pi_retrieve_failed',
-        paymentIntentId: piId,
-        message: e instanceof Error ? e.message : String(e),
-      }),
-    );
+    logStripeWebhookLine({
+      severity: 'WARNING',
+      requestId,
+      outcome: 'refund_pi_retrieve_failed',
+      paymentIntentId: piId,
+      message: e instanceof Error ? e.message : String(e),
+    });
+    emitContestWebhookFailureMetric({
+      outcome: 'refund_pi_retrieve_failed',
+      requestId,
+      paymentIntentId: piId,
+    });
     return null;
   }
 }
@@ -86,32 +94,26 @@ export async function processContestPaymentRefundWebhook(db, stripe, event, requ
 async function processRefundUpdated(db, stripe, event, requestId) {
   const refund = /** @type {import('stripe').Stripe.Refund} */ (event.data.object);
   if (refund.status !== 'succeeded') {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        refundId: refund.id,
-        refundStatus: refund.status,
-        outcome: 'refund_skip_non_succeeded',
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      refundId: refund.id,
+      refundStatus: refund.status,
+      outcome: 'refund_skip_non_succeeded',
+    });
     return { outcome: 'refund_skip_non_succeeded' };
   }
 
   const currency = typeof refund.currency === 'string' ? refund.currency.toLowerCase() : '';
   if (currency !== 'usd') {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        outcome: 'refund_skip_currency',
-        currency: refund.currency,
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      outcome: 'refund_skip_currency',
+      currency: refund.currency,
+    });
     return { outcome: 'refund_skip_currency' };
   }
 
@@ -120,43 +122,34 @@ async function processRefundUpdated(db, stripe, event, requestId) {
       ? Math.floor(refund.amount)
       : 0;
   if (amountCents <= 0) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        outcome: 'refund_skip_zero_amount',
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      outcome: 'refund_skip_zero_amount',
+    });
     return { outcome: 'refund_skip_zero_amount' };
   }
 
   const piId = paymentIntentIdFromValue(refund.payment_intent);
   if (!piId) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        outcome: 'refund_skip_no_payment_intent',
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      outcome: 'refund_skip_no_payment_intent',
+    });
     return { outcome: 'refund_skip_no_payment_intent' };
   }
 
-  const md = await fetchPaymentIntentMetadata(stripe, piId);
+  const md = await fetchPaymentIntentMetadata(stripe, piId, requestId);
   if (!md || !md.contestId || !md.uid) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        outcome: 'refund_not_contest_metadata',
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      outcome: 'refund_not_contest_metadata',
+    });
     return { outcome: 'refund_not_contest_metadata' };
   }
 
@@ -164,18 +157,15 @@ async function processRefundUpdated(db, stripe, event, requestId) {
   const processedRef = db.doc(`${PROCESSED_STRIPE_EVENTS}/${event.id}`);
   const pre = await processedRef.get();
   if (pre.exists) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        severity: 'INFO',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        contestId,
-        uid,
-        outcome: 'duplicate_stripe_event',
-      }),
-    );
+    logStripeWebhookLine({
+      severity: 'INFO',
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      contestId,
+      uid,
+      outcome: 'duplicate_stripe_event',
+    });
     return { outcome: 'duplicate_stripe_event', contestId, uid };
   }
 
@@ -381,18 +371,15 @@ async function processRefundUpdated(db, stripe, event, requestId) {
     outcome = 'refund_ok';
   });
 
-  console.log(
-    JSON.stringify({
-      component: 'stripe_webhook',
-      requestId,
-      eventId: event.id,
-      eventType: event.type,
-      contestId,
-      uid,
-      outcome,
-      ledgerWritten,
-    }),
-  );
+  logStripeWebhookLine({
+    requestId,
+    eventId: event.id,
+    eventType: event.type,
+    contestId,
+    uid,
+    outcome,
+    ledgerWritten,
+  });
 
   return { outcome, contestId, uid, ledgerWritten };
 }
@@ -407,29 +394,23 @@ async function processChargeRefunded(db, stripe, event, requestId) {
   const charge = /** @type {import('stripe').Stripe.Charge} */ (event.data.object);
   const piId = paymentIntentIdFromValue(charge.payment_intent);
   if (!piId) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        outcome: 'charge_refunded_skip_no_pi',
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      outcome: 'charge_refunded_skip_no_pi',
+    });
     return { outcome: 'charge_refunded_skip_no_pi' };
   }
 
-  const md = await fetchPaymentIntentMetadata(stripe, piId);
+  const md = await fetchPaymentIntentMetadata(stripe, piId, requestId);
   if (!md || !md.contestId || !md.uid) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        outcome: 'charge_refunded_not_contest_metadata',
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      outcome: 'charge_refunded_not_contest_metadata',
+    });
     return { outcome: 'charge_refunded_not_contest_metadata' };
   }
 
@@ -447,38 +428,32 @@ async function processChargeRefunded(db, stripe, event, requestId) {
     chargeAmount > 0 && amountRefunded >= chargeAmount && cur === 'usd';
 
   if (!isFullChargeRefund) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        contestId,
-        uid,
-        outcome: 'charge_refunded_skip_partial_or_non_usd',
-        amountRefunded,
-        chargeAmount,
-        currency: charge.currency,
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      contestId,
+      uid,
+      outcome: 'charge_refunded_skip_partial_or_non_usd',
+      amountRefunded,
+      chargeAmount,
+      currency: charge.currency,
+    });
     return { outcome: 'charge_refunded_skip_partial_or_non_usd', contestId, uid };
   }
 
   const processedRef = db.doc(`${PROCESSED_STRIPE_EVENTS}/${event.id}`);
   const pre = await processedRef.get();
   if (pre.exists) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        severity: 'INFO',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        contestId,
-        uid,
-        outcome: 'duplicate_stripe_event',
-      }),
-    );
+    logStripeWebhookLine({
+      severity: 'INFO',
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      contestId,
+      uid,
+      outcome: 'duplicate_stripe_event',
+    });
     return { outcome: 'duplicate_stripe_event', contestId, uid };
   }
 
@@ -617,18 +592,15 @@ async function processChargeRefunded(db, stripe, event, requestId) {
     outcome = 'charge_refunded_entry_synced';
   });
 
-  console.log(
-    JSON.stringify({
-      component: 'stripe_webhook',
-      requestId,
-      eventId: event.id,
-      eventType: event.type,
-      contestId,
-      uid,
-      outcome,
-      ledgerWritten: false,
-    }),
-  );
+  logStripeWebhookLine({
+    requestId,
+    eventId: event.id,
+    eventType: event.type,
+    contestId,
+    uid,
+    outcome,
+    ledgerWritten: false,
+  });
 
   return { outcome, contestId, uid, ledgerWritten: false };
 }

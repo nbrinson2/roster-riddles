@@ -5,6 +5,7 @@
  */
 import { FieldValue } from 'firebase-admin/firestore';
 import { getEntryFeeCentsFromContest } from '../contests/contest-entry-fee.js';
+import { logStripeWebhookLine } from './contest-payments-observability.js';
 import {
   PROCESSED_STRIPE_EVENTS,
   stripeContestMetadataToRecord,
@@ -99,15 +100,12 @@ export function extractContestPaymentFailurePayload(event) {
 export async function processContestPaymentFailureWebhook(db, event, requestId) {
   const payload = extractContestPaymentFailurePayload(event);
   if (!payload) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        outcome: 'not_contest_failure_payload',
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      outcome: 'not_contest_failure_payload',
+    });
     return { outcome: 'not_contest_failure_payload' };
   }
 
@@ -118,18 +116,15 @@ export async function processContestPaymentFailureWebhook(db, event, requestId) 
 
   const preProcessed = await processedRef.get();
   if (preProcessed.exists) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        severity: 'INFO',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        contestId,
-        uid,
-        outcome: 'duplicate_stripe_event',
-      }),
-    );
+    logStripeWebhookLine({
+      severity: 'INFO',
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      contestId,
+      uid,
+      outcome: 'duplicate_stripe_event',
+    });
     return { outcome: 'duplicate_stripe_event', contestId, uid };
   }
 
@@ -269,17 +264,14 @@ export async function processContestPaymentFailureWebhook(db, event, requestId) 
     outcome = 'failure_entry_marked_failed';
   });
 
-  console.log(
-    JSON.stringify({
-      component: 'stripe_webhook',
-      requestId,
-      eventId: event.id,
-      eventType: event.type,
-      contestId,
-      uid,
-      outcome,
-    }),
-  );
+  logStripeWebhookLine({
+    requestId,
+    eventId: event.id,
+    eventType: event.type,
+    contestId,
+    uid,
+    outcome,
+  });
 
   return { outcome, contestId, uid };
 }

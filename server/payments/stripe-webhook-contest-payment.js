@@ -9,6 +9,10 @@ import admin from 'firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 import { fetchAuthFieldsForUids } from '../lib/auth-display-names.js';
 import { getEntryFeeCentsFromContest } from '../contests/contest-entry-fee.js';
+import {
+  emitContestWebhookFailureMetric,
+  logStripeWebhookLine,
+} from './contest-payments-observability.js';
 
 /** Top-level idempotency marker (Stripe `evt_...` redelivery). */
 export const PROCESSED_STRIPE_EVENTS = 'processedStripeEvents';
@@ -187,15 +191,12 @@ export function extractContestPaymentPayloadFromStripeEvent(event) {
 export async function processContestPaymentSuccessWebhook(db, event, requestId) {
   const payload = extractContestPaymentPayloadFromStripeEvent(event);
   if (!payload) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        outcome: 'not_contest_checkout_payload',
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      outcome: 'not_contest_checkout_payload',
+    });
     return { outcome: 'not_contest_checkout_payload' };
   }
 
@@ -209,17 +210,14 @@ export async function processContestPaymentSuccessWebhook(db, event, requestId) 
       uid,
       sourceEventType: payload.sourceEventType,
     }, requestId);
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        contestId,
-        uid,
-        outcome: 'invalid_entry_fee_metadata',
-      }),
-    );
+    logStripeWebhookLine({
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      contestId,
+      uid,
+      outcome: 'invalid_entry_fee_metadata',
+    });
     return { outcome: 'invalid_entry_fee_metadata', contestId, uid };
   }
 
@@ -240,18 +238,15 @@ export async function processContestPaymentSuccessWebhook(db, event, requestId) 
 
   const preProcessed = await processedRef.get();
   if (preProcessed.exists) {
-    console.log(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        severity: 'INFO',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
-        contestId,
-        uid,
-        outcome: 'duplicate_stripe_event',
-      }),
-    );
+    logStripeWebhookLine({
+      severity: 'INFO',
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      contestId,
+      uid,
+      outcome: 'duplicate_stripe_event',
+    });
     return { outcome: 'duplicate_stripe_event', contestId, uid };
   }
 
@@ -528,18 +523,15 @@ export async function processContestPaymentSuccessWebhook(db, event, requestId) 
     outcome = writeLedger ? 'ok' : 'ok_duplicate_pi_event';
   });
 
-  console.log(
-    JSON.stringify({
-      component: 'stripe_webhook',
-      requestId,
-      eventId: event.id,
-      eventType: event.type,
-      contestId,
-      uid,
-      outcome,
-      ledgerWritten,
-    }),
-  );
+  logStripeWebhookLine({
+    requestId,
+    eventId: event.id,
+    eventType: event.type,
+    contestId,
+    uid,
+    outcome,
+    ledgerWritten,
+  });
 
   return { outcome, contestId, uid, ledgerWritten };
 }
@@ -560,15 +552,17 @@ async function markProcessedRejected(db, eventId, fields, requestId) {
       { merge: true },
     );
   } catch (e) {
-    console.error(
-      JSON.stringify({
-        component: 'stripe_webhook',
-        severity: 'ERROR',
-        requestId,
-        eventId,
-        outcome: 'mark_processed_failed',
-        message: e instanceof Error ? e.message : String(e),
-      }),
-    );
+    logStripeWebhookLine({
+      severity: 'ERROR',
+      requestId,
+      eventId,
+      outcome: 'mark_processed_failed',
+      message: e instanceof Error ? e.message : String(e),
+    });
+    emitContestWebhookFailureMetric({
+      outcome: 'mark_processed_failed',
+      requestId,
+      eventId,
+    });
   }
 }
