@@ -1,11 +1,22 @@
 <div class="login-panel">
-  <div class="login-title">
-    <h1>{{ mode === 'signIn' ? 'Sign in' : 'Create account' }}</h1>
-    <p *ngIf="mode === 'signUp'" class="signup-verify-lead">
-      After you sign up, we’ll send a <strong>verification link</strong> to your email.
-      You’ll need to confirm your address for some features (for example leaderboards).
-      Check spam if you don’t see it.
+  <div class="login-step-header">
+    <p class="login-step-lead">
+      {{
+        mode === 'signIn'
+          ? 'Sign in with your existing account.'
+          : 'Create a new account with email or Google.'
+      }}
     </p>
+    <mat-button-toggle-group
+      class="auth-mode-toggle"
+      [value]="mode"
+      (change)="onAuthModeChange($event)"
+      appearance="legacy"
+      aria-label="Sign in or create account"
+    >
+      <mat-button-toggle value="signIn">Sign in</mat-button-toggle>
+      <mat-button-toggle value="signUp">Create account</mat-button-toggle>
+    </mat-button-toggle-group>
   </div>
 
   <div class="login-content">
@@ -19,7 +30,7 @@
       <span class="google-button-label">Continue with Google</span>
     </button>
 
-    <div class="divider"><span>or</span></div>
+    <div class="divider"><span>or use email</span></div>
 
     <form [formGroup]="form" (ngSubmit)="submitEmailPassword()" class="email-form">
       <mat-form-field appearance="outline" class="full-width">
@@ -33,13 +44,73 @@
         <mat-label>Password</mat-label>
         <input
           matInput
-          type="password"
+          [type]="mode === 'signUp' && showPassword ? 'text' : 'password'"
           formControlName="password"
           [attr.autocomplete]="mode === 'signUp' ? 'new-password' : 'current-password'"
         />
         <mat-error *ngIf="form.controls.password.hasError('required')">Password is required</mat-error>
-        <mat-error *ngIf="form.controls.password.hasError('minlength')">At least 6 characters</mat-error>
+        <mat-error *ngIf="mode === 'signIn' && form.controls.password.hasError('minlength')">
+          At least 6 characters
+        </mat-error>
+        <mat-error *ngIf="mode === 'signUp' && form.controls.password.hasError('signupMinLength')">
+          Use at least {{ signupMinLen }} characters for new accounts.
+        </mat-error>
+        <mat-error *ngIf="mode === 'signUp' && form.controls.password.hasError('signupCharClasses')">
+          Use at least two character types among: lowercase, uppercase, numbers, symbols.
+        </mat-error>
       </mat-form-field>
+
+      <ul
+        *ngIf="mode === 'signUp'"
+        class="password-checklist"
+        aria-live="polite"
+      >
+        <li
+          *ngFor="let row of signupChecklist(form.controls.password.value)"
+          [class.password-checklist__item--met]="row.met"
+          class="password-checklist__item"
+        >
+          <span class="password-checklist__mark" aria-hidden="true">{{ row.met ? '✓' : '○' }}</span>
+          {{ row.label }}
+        </li>
+      </ul>
+
+      <div *ngIf="mode === 'signUp'" class="show-password-row">
+        <label class="show-password-label">
+          <input
+            type="checkbox"
+            class="show-password-input"
+            [checked]="showPassword"
+            (change)="showPassword = $any($event.target).checked"
+          />
+          Show password
+        </label>
+      </div>
+
+      <mat-form-field
+        *ngIf="mode === 'signUp'"
+        appearance="outline"
+        class="full-width"
+      >
+        <mat-label>Confirm password</mat-label>
+        <input
+          matInput
+          [type]="showPassword ? 'text' : 'password'"
+          formControlName="confirmPassword"
+          autocomplete="new-password"
+        />
+        <mat-error *ngIf="form.controls.confirmPassword.hasError('required')">
+          Confirm your password
+        </mat-error>
+        <mat-error *ngIf="form.controls.confirmPassword.hasError('mismatch')">
+          Passwords do not match
+        </mat-error>
+      </mat-form-field>
+
+      <p *ngIf="mode === 'signUp'" class="signup-verify-lead">
+        After you create your account, we’ll send a <strong>verification link</strong> to your email.
+        Some features need a verified address — check spam if you don’t see it.
+      </p>
 
       <p *ngIf="errorMessage" class="message error" role="alert">{{ errorMessage }}</p>
       <p *ngIf="resetMessage" class="message success" role="status">{{ resetMessage }}</p>
@@ -51,14 +122,11 @@
         class="submit-button"
         [disabled]="submitting"
       >
-        {{ submitting ? 'Please wait…' : mode === 'signIn' ? 'Sign in' : 'Sign up' }}
+        {{ submitting ? 'Please wait…' : mode === 'signIn' ? 'Sign in' : 'Create account' }}
       </button>
     </form>
 
     <div class="links">
-      <button type="button" class="link" (click)="setMode(mode === 'signIn' ? 'signUp' : 'signIn')">
-        {{ mode === 'signIn' ? 'Need an account? Sign up' : 'Have an account? Sign in' }}
-      </button>
       <button
         *ngIf="mode === 'signIn'"
         type="button"
