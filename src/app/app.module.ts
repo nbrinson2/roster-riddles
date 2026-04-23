@@ -56,6 +56,7 @@ import { LeaderboardPanelComponent } from './nav/leaderboard-panel/leaderboard-p
 import { ContestsPanelComponent } from './nav/contests-panel/contests-panel.component';
 import { AdminDashboardPanelComponent } from './nav/admin-dashboard-panel/admin-dashboard-panel.component';
 import { AdminWeeklyContestsWidgetComponent } from './nav/admin-dashboard-panel/admin-weekly-contests-widget/admin-weekly-contests-widget.component';
+import { AdminRecentRegistrationsWidgetComponent } from './nav/admin-dashboard-panel/admin-recent-registrations-widget/admin-recent-registrations-widget.component';
 import { AdminUserClaimsWidgetComponent } from './nav/admin-dashboard-panel/admin-user-claims-widget/admin-user-claims-widget.component';
 
 @NgModule({
@@ -91,6 +92,7 @@ import { AdminUserClaimsWidgetComponent } from './nav/admin-dashboard-panel/admi
     ContestsPanelComponent,
     AdminDashboardPanelComponent,
     AdminWeeklyContestsWidgetComponent,
+    AdminRecentRegistrationsWidgetComponent,
     AdminUserClaimsWidgetComponent,
   ],
   imports: [

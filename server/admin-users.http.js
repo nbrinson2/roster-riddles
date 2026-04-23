@@ -100,6 +100,74 @@ export async function listAdminUsers(req, res) {
   });
 }
 
+const RECENT_REGISTRATIONS_LIMIT = 5;
+
+/**
+ * Paginate Firebase Auth `listUsers`, sort by account creation time (newest first),
+ * return the {@link RECENT_REGISTRATIONS_LIMIT} most recently registered users.
+ * @type {import('express').RequestHandler}
+ */
+export async function listRecentRegisteredUsers(req, res) {
+  return withContestReadRateLimit(req, res, async () => {
+    let auth;
+    try {
+      auth = ensureFirebaseAdminInitialized().auth();
+    } catch (e) {
+      return res.status(503).json({
+        error: {
+          code: 'server_misconfigured',
+          message:
+            e instanceof Error ? e.message : 'Authentication is not configured.',
+        },
+      });
+    }
+
+    try {
+      /** @type {{ uid: string; email: string | null; disabled: boolean; createdAtMs: number }[]} */
+      const rows = [];
+      let nextPageToken;
+      do {
+        const result = await auth.listUsers(1000, nextPageToken);
+        for (const userRecord of result.users) {
+          const raw = userRecord.metadata?.creationTime;
+          const createdAtMs =
+            typeof raw === 'string' && Number.isFinite(Date.parse(raw))
+              ? Date.parse(raw)
+              : 0;
+          rows.push({
+            uid: userRecord.uid,
+            email: userRecord.email ?? null,
+            disabled: userRecord.disabled,
+            createdAtMs,
+          });
+        }
+        nextPageToken = result.pageToken;
+      } while (nextPageToken);
+
+      rows.sort((a, b) => b.createdAtMs - a.createdAtMs);
+      const top = rows.slice(0, RECENT_REGISTRATIONS_LIMIT).map((r) => ({
+        uid: r.uid,
+        email: r.email,
+        disabled: r.disabled,
+        createdAt: new Date(r.createdAtMs).toISOString(),
+      }));
+
+      return res.status(200).json({
+        schemaVersion: 1,
+        users: top,
+      });
+    } catch (e) {
+      return res.status(500).json({
+        error: {
+          code: 'list_users_failed',
+          message:
+            e instanceof Error ? e.message.slice(0, 200) : 'Could not list users.',
+        },
+      });
+    }
+  });
+}
+
 /**
  * `GET /api/v1/admin/users/:targetUid` — email + admin claim (Admin SDK).
  * @type {import('express').RequestHandler}

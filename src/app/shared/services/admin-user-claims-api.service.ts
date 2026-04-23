@@ -28,6 +28,19 @@ export interface AdminUsersListResponse {
   admins: AdminListEntry[];
 }
 
+export interface RecentRegistrationEntry {
+  uid: string;
+  email: string | null;
+  disabled: boolean;
+  /** Account creation instant (ISO 8601). */
+  createdAt: string;
+}
+
+export interface RecentRegistrationsResponse {
+  schemaVersion: number;
+  users: RecentRegistrationEntry[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminUserClaimsApiService {
   private readonly http = inject(HttpClient);
@@ -39,6 +52,12 @@ export class AdminUserClaimsApiService {
   listAdmins(): Observable<AdminUsersListResponse> {
     return this.http.get<AdminUsersListResponse>(
       this.apiUrl('/api/v1/admin/users/admins'),
+    );
+  }
+
+  listRecentRegistrations(): Observable<RecentRegistrationsResponse> {
+    return this.http.get<RecentRegistrationsResponse>(
+      this.apiUrl('/api/v1/admin/users/recent-registrations'),
     );
   }
 
