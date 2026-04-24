@@ -61,6 +61,13 @@ const leaderboardsUiEnabled = process.env.LEADERBOARDS_UI_ENABLED !== 'false';
 /** Story C2 — omit weekly contests drawer when WEEKLY_CONTESTS_UI_ENABLED=false */
 const weeklyContestsUiEnabled = process.env.WEEKLY_CONTESTS_UI_ENABLED !== 'false';
 
+/**
+ * Phase 0 — omit “Weekly contest” tab inside the leaderboard panel when LEADERBOARD_CONTEST_TAB_ENABLED=false.
+ * Independent of the contests drawer (`WEEKLY_CONTESTS_UI_ENABLED`).
+ */
+const leaderboardContestTabEnabled =
+  process.env.LEADERBOARD_CONTEST_TAB_ENABLED !== 'false';
+
 /** Story AD-4 — omit admin dashboard affordance when ADMIN_DASHBOARD_UI_ENABLED=false */
 const adminDashboardUiEnabled = process.env.ADMIN_DASHBOARD_UI_ENABLED !== 'false';
 
@@ -111,6 +118,7 @@ export const environment = {
   leaderboardUseFirestoreSnapshot: ${leaderboardUseFirestoreSnapshot},
   leaderboardsUiEnabled: ${leaderboardsUiEnabled},
   weeklyContestsUiEnabled: ${weeklyContestsUiEnabled},
+  leaderboardContestTabEnabled: ${leaderboardContestTabEnabled},
   adminDashboardUiEnabled: ${adminDashboardUiEnabled},
   contestsPaymentsEnabled: ${contestsPaymentsEnabled},
   authSessionMaxMs: ${authSessionMaxMs},

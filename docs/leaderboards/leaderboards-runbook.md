@@ -140,6 +140,9 @@ New builds read **`LEADERBOARDS_UI_ENABLED`** at **bundle generation** time (`sc
 | **`LEADERBOARDS_UI_ENABLED=false`** | Toolbar **leaderboard** icon and sidenav **leaderboard** panel are not rendered (`environment.leaderboardsUiEnabled === false`). |
 | Unset or not `false` | Panel shown as usual. |
 
+| **`LEADERBOARD_CONTEST_TAB_ENABLED=false`** | Hides only the **Weekly contest** segment inside the leaderboard panel (`environment.leaderboardContestTabEnabled === false`). Does **not** hide the weekly contests drawer (`WEEKLY_CONTESTS_UI_ENABLED`). |
+| Unset or not `false` | Weekly contest tab shown when `weeklyContestsUiEnabled` is also on. |
+
 **Local dev:** `src/environment.ts` keeps the panel **on** unless you change it manually (no `.env` hook for Angular in the default dev flow).
 
 **Operational note:** Disabling **API** does not stop clients already in **Firestore snapshot listener** mode ([E1](leaderboards-realtime-e1.md)) from receiving snapshot updates. For a full “silent” prod UI, set **both** `LEADERBOARDS_DISABLED=true` and ship a build with **`LEADERBOARDS_UI_ENABLED=false`**, or roll back to a revision that omits the panel.

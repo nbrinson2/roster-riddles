@@ -1,18 +1,30 @@
 <div class="leaderboard-panel">
+  <mat-button-toggle-group
+    *ngIf="showWeeklyContestLeaderboardTab"
+    class="lb-surface-toggle"
+    [value]="surfaceMode"
+    (change)="onSurfaceModeChange($event)"
+    appearance="legacy"
+    aria-label="Leaderboard view"
+  >
+    <mat-button-toggle value="alltime">All-time</mat-button-toggle>
+    <mat-button-toggle value="weeklyContest">Weekly contest</mat-button-toggle>
+  </mat-button-toggle-group>
+
   <header class="lb-hero">
     <div class="lb-hero-icon" aria-hidden="true">
       <span class="material-symbols-outlined">emoji_events</span>
     </div>
     <div class="lb-hero-text">
       <h1 class="lb-title">Leaderboard</h1>
-      <p class="lb-subtitle">All-time wins</p>
+      <p class="lb-subtitle">{{ heroSubtitle }}</p>
       <p *ngIf="listingEmailVerifiedRequired" class="lb-policy-hint">
         Verified email is required to appear on this board.
       </p>
     </div>
   </header>
 
-  <div class="lb-toolbar">
+  <div class="lb-toolbar" *ngIf="surfaceMode === 'alltime'">
     <label class="lb-label" for="lb-scope-select">Board</label>
     <div class="lb-select-wrap">
       <select
@@ -29,11 +41,40 @@
     </div>
   </div>
 
-  <p *ngIf="lastUpdatedLabel" class="lb-updated" aria-live="polite">
+  <div class="lb-toolbar" *ngIf="surfaceMode === 'weeklyContest' && !contestListLoading">
+    <ng-container *ngIf="openContestRows.length > 0">
+      <label class="lb-label" for="lb-contest-select">Open contest</label>
+      <div class="lb-select-wrap">
+        <select
+          id="lb-contest-select"
+          class="lb-select"
+          [value]="selectedContestId || ''"
+          (change)="onContestSelect($any($event.target).value)"
+        >
+          <option
+            *ngFor="let c of openContestRows; trackBy: trackByContestId"
+            [value]="c.contestId"
+          >
+            {{ contestOptionLabel(c) }}
+          </option>
+        </select>
+        <span class="material-symbols-outlined lb-select-chevron" aria-hidden="true"
+          >expand_more</span
+        >
+      </div>
+    </ng-container>
+    <p class="lb-contest-scope-note">
+      Weekly contest standings here are Bio Ball only in v1. Contests in
+      <strong>scoring</strong> or <strong>paid</strong> are not listed until a
+      new week opens.
+    </p>
+  </div>
+
+  <p *ngIf="surfaceMode === 'alltime' && lastUpdatedLabel" class="lb-updated" aria-live="polite">
     Data as of {{ lastUpdatedLabel }}
   </p>
 
-  <div class="lb-body">
+  <div class="lb-body" *ngIf="surfaceMode === 'alltime'">
     <div *ngIf="loading" class="state state-loading">
       <mat-spinner diameter="40"></mat-spinner>
       <span>Loading rankings…</span>
@@ -121,6 +162,49 @@
         >
         {{ loadingMore ? "Loading…" : "Load more" }}
       </button>
+    </div>
+  </div>
+
+  <div class="lb-body lb-body--weekly" *ngIf="surfaceMode === 'weeklyContest'">
+    <div *ngIf="contestListLoading" class="state state-loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <span>Loading open contests…</span>
+    </div>
+
+    <div
+      *ngIf="!contestListLoading && contestListError"
+      class="state state-error"
+      role="alert"
+    >
+      {{ contestListError }}
+    </div>
+
+    <div
+      *ngIf="!contestListLoading && !contestListError && openContestRows.length === 0"
+      class="state state-empty"
+    >
+      <span class="material-symbols-outlined state-empty-icon">event_busy</span>
+      <p>No open Bio Ball contests right now.</p>
+      <p class="lb-empty-hint">Open contests appear here while join is active.</p>
+    </div>
+
+    <div
+      *ngIf="!contestListLoading && !contestListError && openContestRows.length > 0"
+      class="lb-weekly-placeholder"
+    >
+      <ng-container *ngIf="selectedContest as row">
+        <p class="lb-weekly-lede">
+          After you join, your first <strong>{{ row.leagueGamesN }}</strong> Bio
+          Ball games that <em>start</em> on or after your join time count toward
+          this mini-league, if they fall in the window
+          <strong>{{ row.windowStart.toLocaleString() }}</strong> up to (but not
+          including) <strong>{{ row.windowEnd.toLocaleString() }}</strong>.
+        </p>
+        <p class="lb-weekly-coming">
+          Live standings for this contest in the leaderboard panel are not
+          available yet. Final results are published when the contest closes.
+        </p>
+      </ng-container>
     </div>
   </div>
 </div>
