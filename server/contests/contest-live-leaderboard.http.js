@@ -3,6 +3,8 @@
  * Phase 1 — same computation as E2 (`computeStandingsForEntryDocs`); read-only, no auth required.
  */
 import { z } from 'zod';
+import admin from 'firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { firestoreTimestampToIso } from '../lib/firestore-timestamp-iso.js';
@@ -250,6 +252,7 @@ export async function getContestLiveLeaderboard(req, res) {
       db,
       { windowStart: ws, windowEnd: we, leagueGamesN },
       entriesSnap.docs,
+      { auth: getAuth(admin.app()) },
     );
 
     const computedAtIso = new Date().toISOString();

@@ -193,6 +193,40 @@ describe('computeStandingsForEntryDocs', () => {
     );
   });
 
+  it('uses Auth email local part when snapshot empty and auth provided', async () => {
+    const ws = ts(0);
+    const we = ts(10_000_000);
+    const leagueGamesN = 2;
+    const db = mockDb({
+      u1: [{ result: 'won' }, { result: 'won' }],
+    });
+    /** @type {import('firebase-admin/auth').Auth} */
+    const auth = /** @type {import('firebase-admin/auth').Auth} */ ({
+      async getUsers(identifiers) {
+        const byUid = {
+          u1: {
+            uid: 'u1',
+            email: 'mystery_user@gmail.com',
+            displayName: '',
+            emailVerified: true,
+          },
+        };
+        const users = identifiers
+          .map((/** @type {{ uid: string }} */ id) => byUid[id.uid])
+          .filter(Boolean);
+        return { users, notFound: [] };
+      },
+    });
+    const standings = await computeStandingsForEntryDocs(
+      /** @type {import('firebase-admin/firestore').Firestore} */ (db),
+      { windowStart: ws, windowEnd: we, leagueGamesN },
+      [entryDoc('u1', 0, null)],
+      { auth },
+    );
+    assert.equal(standings.length, 1);
+    assert.equal(standings[0].displayName, 'mystery_user');
+  });
+
   it('is deterministic for identical frozen inputs (live vs E2)', async () => {
     const ws = ts(100);
     const we = ts(9_000_000);

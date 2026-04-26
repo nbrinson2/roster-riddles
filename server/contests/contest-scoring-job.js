@@ -2,8 +2,11 @@
  * Contest scoring job — loads entries + gameplay events, writes B3 artifacts, moves scoring→paid.
  * Story E2.
  */
+import admin from 'firebase-admin';
+import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { randomBytes } from 'node:crypto';
+import { ensureFirebaseAdminInitialized } from '../lib/firebase-admin-init.js';
 import { buildDryRunPayoutLines, EVENT_SOURCE, TIE_BREAK_POLICY } from './contest-scoring-core.js';
 import { computeStandingsForEntryDocs } from './contest-standings-compute.js';
 import { buildTieResolutionAudit } from './contest-scoring-tie-audit.js';
@@ -131,11 +134,13 @@ export async function runContestScoringJob({ db, contestId, scoringJobId, reques
 
   const entriesSnap = await db.collection(`contests/${contestId}/entries`).get();
 
+  ensureFirebaseAdminInitialized();
   const standings = await computeStandingsForEntryDocs(
     db,
     { windowStart: ws, windowEnd: we, leagueGamesN },
     entriesSnap.docs,
     {
+      auth: getAuth(admin.app()),
       onSkipEntry: ({ uid, reason }) => {
         logContestScoringLine({
           requestId,
