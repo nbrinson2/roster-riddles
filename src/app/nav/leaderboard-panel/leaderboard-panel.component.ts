@@ -12,7 +12,7 @@ import {
   where,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { EMPTY, Subject, timer } from 'rxjs';
+import { EMPTY, Subject, Subscription, timer } from 'rxjs';
 import { catchError, filter, switchMap, takeUntil } from 'rxjs/operators';
 import { getConfiguredFirestore } from 'src/app/config/firestore-instance';
 import { environment } from 'src/environment';
@@ -36,6 +36,27 @@ interface LeaderboardApiResponse {
   /** Story F2 — public listing omits unverified Auth emails when true. */
   listingPolicy?: { emailVerifiedRequired?: boolean };
   nextPageToken?: string;
+}
+
+/** `GET /api/v1/contests/:contestId/leaderboard` — aligns with `results/final` rows. */
+interface ContestLiveStandingRow {
+  rank: number;
+  uid: string;
+  wins: number;
+  gamesPlayed: number;
+  losses: number;
+  abandoned: number;
+  displayName: string | null;
+  tieBreakKey?: string;
+  tier?: string;
+}
+
+interface ContestLiveLeaderboardApiResponse {
+  schemaVersion: number;
+  contestId: string;
+  standings: ContestLiveStandingRow[];
+  computedAt?: string;
+  cache?: { hit?: boolean };
 }
 
 /** Phase 0 — leaderboard panel surface (all-time vs weekly contest UX). */
@@ -68,6 +89,12 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
   protected contestListError: string | null = null;
   protected selectedContestId: string | null = null;
 
+  /** Phase 3 — live standings from `GET /api/v1/contests/:contestId/leaderboard`. */
+  protected contestStandingsRows: ContestLiveStandingRow[] = [];
+  protected contestStandingsLoading = false;
+  protected contestStandingsError: string | null = null;
+  protected contestStandingsComputedAtLabel: string | null = null;
+
   protected readonly scopes: { value: LeaderboardScope; label: string }[] = [
     { value: 'global', label: 'All modes' },
     { value: 'bio-ball', label: 'Bio Ball' },
@@ -88,6 +115,8 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private snapshotUnsub: Unsubscribe | null = null;
   private contestListUnsub: Unsubscribe | null = null;
+  private contestLivePollSub: Subscription | null = null;
+  private contestStandingsRequestSeq = 0;
 
   constructor(private http: HttpClient) {}
 
@@ -101,6 +130,7 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.detachSnapshotListener();
     this.stopContestListListener();
+    this.stopContestLivePoll();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -125,9 +155,14 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
     this.errorMessage = null;
     if (mode === 'alltime') {
       this.stopContestListListener();
+      this.stopContestLivePoll();
       this.openContestRows = [];
       this.contestListError = null;
       this.selectedContestId = null;
+      this.contestStandingsRows = [];
+      this.contestStandingsError = null;
+      this.contestStandingsComputedAtLabel = null;
+      this.contestStandingsLoading = false;
       this.syncAllTimeLeaderboardSubscription();
       return;
     }
@@ -137,6 +172,10 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
     this.lastUpdatedLabel = null;
     this.loading = false;
     this.loadingMore = false;
+    this.contestStandingsRows = [];
+    this.contestStandingsError = null;
+    this.contestStandingsComputedAtLabel = null;
+    this.stopContestLivePoll();
     this.startContestListListener();
   }
 
@@ -145,6 +184,8 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedContestId = contestId;
+    this.stopContestLivePoll();
+    this.loadContestLiveStandings();
   }
 
   protected get selectedContest(): ContestListRow | null {
@@ -409,6 +450,7 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
       qOpen,
       (snap) => {
         this.contestListLoading = false;
+        const previousSelected = this.selectedContestId;
         const rows: ContestListRow[] = [];
         snap.forEach((d) => {
           const parsed = parseContestFirestoreRow(d.id, d.data());
@@ -423,12 +465,26 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
         rows.sort(
           (a, b) => a.windowEnd.getTime() - b.windowEnd.getTime(),
         );
+        if (rows.length === 0) {
+          this.openContestRows = [];
+          this.selectedContestId = null;
+          this.stopContestLivePoll();
+          this.contestStandingsRows = [];
+          this.contestStandingsError = null;
+          this.contestStandingsComputedAtLabel = null;
+          this.contestStandingsLoading = false;
+          return;
+        }
         this.openContestRows = rows;
         if (
           !this.selectedContestId ||
           !rows.some((r) => r.contestId === this.selectedContestId)
         ) {
           this.selectedContestId = rows[0]?.contestId ?? null;
+        }
+        if (this.selectedContestId !== previousSelected) {
+          this.stopContestLivePoll();
+          this.loadContestLiveStandings();
         }
       },
       (err: Error) => {
@@ -454,6 +510,156 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
    */
   protected trackByContestId(_i: number, row: ContestListRow): string {
     return row.contestId;
+  }
+
+  /**
+   * @param {number} _i
+   * @param {ContestLiveStandingRow} row
+   */
+  protected trackByContestStanding(_i: number, row: ContestLiveStandingRow): string {
+    return `${row.rank}-${row.uid}`;
+  }
+
+  protected formatContestTier(tier: string | undefined): string {
+    if (tier === 'full') {
+      return 'Full';
+    }
+    if (tier === 'partial') {
+      return 'Partial';
+    }
+    return tier ? String(tier) : '—';
+  }
+
+  /** Shown under the contest table when polling is enabled. */
+  protected get contestLivePollHint(): string | null {
+    const ms = environment.contestLiveLeaderboardPollIntervalMs ?? 0;
+    if (ms <= 0) {
+      return null;
+    }
+    const sec = Math.max(1, Math.round(ms / 1000));
+    return `Standings refresh about every ${sec}s while this tab is open.`;
+  }
+
+  /**
+   * @param {{ silent?: boolean }} [opts]
+   */
+  private loadContestLiveStandings(opts?: { silent?: boolean }): void {
+    const silent = opts?.silent === true;
+    const id = this.selectedContestId;
+    if (!id || this.surfaceMode !== 'weeklyContest') {
+      return;
+    }
+    const seq = ++this.contestStandingsRequestSeq;
+    if (!silent) {
+      this.contestStandingsLoading = true;
+      this.contestStandingsError = null;
+    }
+    const url = this.buildContestLiveStandingsUrl(id);
+    this.http
+      .get<ContestLiveLeaderboardApiResponse>(url)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (
+            seq !== this.contestStandingsRequestSeq ||
+            this.surfaceMode !== 'weeklyContest'
+          ) {
+            return;
+          }
+          const rows = Array.isArray(res.standings) ? res.standings : [];
+          this.contestStandingsRows = rows;
+          this.contestStandingsError = null;
+          this.contestStandingsComputedAtLabel = this.formatComputedAtLabel(
+            res.computedAt,
+          );
+          if (!silent) {
+            this.contestStandingsLoading = false;
+            this.startContestLivePoll();
+          }
+        },
+        error: (err: HttpErrorResponse) => {
+          if (
+            seq !== this.contestStandingsRequestSeq ||
+            this.surfaceMode !== 'weeklyContest'
+          ) {
+            return;
+          }
+          if (!silent) {
+            this.contestStandingsLoading = false;
+            this.contestStandingsError = this.mapContestLiveStandingsError(err);
+            this.contestStandingsRows = [];
+            this.contestStandingsComputedAtLabel = null;
+          }
+        },
+      });
+  }
+
+  private formatComputedAtLabel(iso: string | undefined): string | null {
+    if (typeof iso !== 'string' || !iso.trim()) {
+      return null;
+    }
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? null : d.toLocaleString();
+  }
+
+  private buildContestLiveStandingsUrl(contestId: string): string {
+    const base = environment.baseUrl || '';
+    return `${base}/api/v1/contests/${encodeURIComponent(contestId)}/leaderboard`;
+  }
+
+  private mapContestLiveStandingsError(err: HttpErrorResponse): string {
+    if (err.status === 0) {
+      return 'Could not reach the server. Is the API running?';
+    }
+    const body = err.error as
+      | { error?: { code?: string; message?: string } }
+      | null;
+    const code = body?.error?.code;
+    const msg = body?.error?.message;
+    if (typeof msg === 'string' && msg.trim()) {
+      return msg;
+    }
+    if (code === 'contest_not_open') {
+      return 'This contest is no longer open. Try another contest or check final results.';
+    }
+    if (code === 'contest_not_found') {
+      return 'Contest not found.';
+    }
+    if (code === 'rate_limited') {
+      return 'Too many requests. Try again shortly.';
+    }
+    if (err.status === 503) {
+      return 'Server is not configured for this request.';
+    }
+    return 'Could not load contest standings.';
+  }
+
+  private stopContestLivePoll(): void {
+    if (this.contestLivePollSub) {
+      this.contestLivePollSub.unsubscribe();
+      this.contestLivePollSub = null;
+    }
+  }
+
+  private startContestLivePoll(): void {
+    this.stopContestLivePoll();
+    const ms = environment.contestLiveLeaderboardPollIntervalMs ?? 0;
+    if (ms <= 0) {
+      return;
+    }
+    if (this.surfaceMode !== 'weeklyContest' || !this.selectedContestId) {
+      return;
+    }
+    this.contestLivePollSub = timer(ms, ms)
+      .pipe(
+        takeUntil(this.destroy$),
+        filter(
+          () =>
+            this.surfaceMode === 'weeklyContest' &&
+            this.selectedContestId != null,
+        ),
+      )
+      .subscribe(() => this.loadContestLiveStandings({ silent: true }));
   }
 
   private mapSnapshotToRows(

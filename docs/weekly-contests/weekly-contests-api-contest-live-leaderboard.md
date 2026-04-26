@@ -56,6 +56,10 @@ Standings use the same pipeline as E2 scoring: `loadQualifyingSlate` → `tallyS
 | 503 | `server_misconfigured` | Admin Firestore not available. |
 | 500 | `internal_error` | Unexpected failure while computing. |
 
+## Angular (Phase 3)
+
+The nav **leaderboard panel** weekly tab calls this route using `environment.baseUrl` (same-origin in prod). Polling interval: **`contestLiveLeaderboardPollIntervalMs`** / build env above.
+
 ## Related
 
 - [leaderboards-contest-live-roadmap.md](../leaderboards/leaderboards-contest-live-roadmap.md) — Phases 0–5  

@@ -99,6 +99,26 @@ if (
   authSessionMaxMs = Math.round(3 * 86400000);
 }
 
+/** Phase 3 — Angular poll of contest live leaderboard HTTP (ms). Unset → 30s; `0` / off / false / none → off. */
+const contestLivePollRaw = (process.env.CONTEST_LIVE_LEADERBOARD_POLL_MS ?? '').trim();
+const contestLivePollLower = contestLivePollRaw.toLowerCase();
+let contestLiveLeaderboardPollIntervalMs = 30_000;
+if (contestLivePollRaw !== '') {
+  if (
+    contestLivePollLower === '0' ||
+    contestLivePollLower === 'off' ||
+    contestLivePollLower === 'false' ||
+    contestLivePollLower === 'none'
+  ) {
+    contestLiveLeaderboardPollIntervalMs = 0;
+  } else if (Number.isFinite(Number(contestLivePollRaw))) {
+    contestLiveLeaderboardPollIntervalMs = Math.max(
+      0,
+      Math.round(Number(contestLivePollRaw)),
+    );
+  }
+}
+
 const content = `import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
 import type { DeploymentEnvironment } from './environment.types';
 
@@ -119,6 +139,7 @@ export const environment = {
   leaderboardsUiEnabled: ${leaderboardsUiEnabled},
   weeklyContestsUiEnabled: ${weeklyContestsUiEnabled},
   leaderboardContestTabEnabled: ${leaderboardContestTabEnabled},
+  contestLiveLeaderboardPollIntervalMs: ${contestLiveLeaderboardPollIntervalMs},
   adminDashboardUiEnabled: ${adminDashboardUiEnabled},
   contestsPaymentsEnabled: ${contestsPaymentsEnabled},
   authSessionMaxMs: ${authSessionMaxMs},

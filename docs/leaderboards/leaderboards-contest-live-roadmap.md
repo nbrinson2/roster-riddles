@@ -1,11 +1,11 @@
 # Roadmap: active contest leaderboards in the leaderboard panel
 
-**Status:** Phases 0–2 shipped (UX, live HTTP, in-process cache + parity tests); Phases 3–5 (Angular table wiring, optional materialized doc, ops polish) remain.  
+**Status:** Phases 0–3 shipped (UX, live HTTP + cache, Angular weekly standings table + poll); Phases 4–5 remain optional / ops polish.  
 **Goal:** Surface **live** weekly-contest standings (while a contest is **`open`**) inside the nav **leaderboard panel**, alongside today’s **all-time** boards.
 
 **Context today**
 
-- **Leaderboard panel** (`src/app/nav/leaderboard-panel/`): **All-time** — scopes `global`, `bio-ball`, `career-path`, `nickname-streak`; data from Firestore snapshots `leaderboards/snapshots/boards/{scope}` or HTTP `/api/v1/leaderboards` (see `docs/leaderboards/`). **Weekly contest** (Phase 0) — segment + open-contest picker + ADR copy + placeholder for live rows; contest list from client Firestore (`status === 'open'`, Bio Ball only). Build flags: `weeklyContestsUiEnabled` **and** `leaderboardContestTabEnabled` (`LEADERBOARD_CONTEST_TAB_ENABLED` at bundle generation). **Live rows:** `GET /api/v1/contests/:contestId/leaderboard` (Phase 1) — wire in Angular per Phase 3.
+- **Leaderboard panel** (`src/app/nav/leaderboard-panel/`): **All-time** — scopes `global`, `bio-ball`, `career-path`, `nickname-streak`; data from Firestore snapshots `leaderboards/snapshots/boards/{scope}` or HTTP `/api/v1/leaderboards` (see `docs/leaderboards/`). **Weekly contest** — Firestore open-contest picker + ADR copy + **HTTP live standings table** (`GET /api/v1/contests/:contestId/leaderboard`) with optional **`contestLiveLeaderboardPollIntervalMs`** (`CONTEST_LIVE_LEADERBOARD_POLL_MS` at build, default 30s). Build flags: `weeklyContestsUiEnabled` **and** `leaderboardContestTabEnabled`.
 - **Weekly contests** (`docs/weekly-contests/weekly-contests-phase4-adr.md`): mini-league score is derived from **`users/{uid}/gameplayEvents`**, not from `stats/summary`. Immutable **`contests/{contestId}/results/final`** is written only after the **E2** scoring job (`server/contests/contest-scoring-job.js`).
 - **Active** contests (`status: open`) have **no** `results/final` yet. A “live contest leaderboard” must therefore **recompute** the same slate + ordering rules as scoring (or maintain a **materialized** cache — see Phase 4).
 
@@ -13,7 +13,7 @@
 
 ## Phase 0 — Product and UX lock-in
 
-**Shipped (Angular):** `leaderboard-panel` exposes **All-time** vs **Weekly contest** (when `environment.weeklyContestsUiEnabled && environment.leaderboardContestTabEnabled`). Weekly tab lists **`open`** contests only (Firestore query + Bio Ball filter); **`scoring`** / **`paid`** / **`scheduled`** are not listed (no frozen “last computed” copy in this panel until product asks for it). Scope copy states **Bio Ball v1** only for the contest path; all-time scopes unchanged. **Contest picker:** title + window end. **ADR helper copy** for the selected contest: first **`leagueGamesN`** Bio Ball games after join, within **`[windowStart, windowEnd)`**; placeholder states live rows are **not** wired yet (Phase 1). **Listing policy:** same Story F2 verified-email hint as all-time when the all-time source has set it. **Rollout:** `LEADERBOARD_CONTEST_TAB_ENABLED=false` at build hides only this tab (contests drawer still follows `WEEKLY_CONTESTS_UI_ENABLED`). See `scripts/generate-env-prod.mjs`.
+**Shipped (Angular):** `leaderboard-panel` exposes **All-time** vs **Weekly contest** (when `environment.weeklyContestsUiEnabled && environment.leaderboardContestTabEnabled`). Weekly tab lists **`open`** contests only (Firestore query + Bio Ball filter); **`scoring`** / **`paid`** / **`scheduled`** are not listed (no frozen “last computed” copy in this panel until product asks for it). Scope copy states **Bio Ball v1** only for the contest path; all-time scopes unchanged. **Contest picker:** title + window end. **ADR helper copy** for the selected contest: first **`leagueGamesN`** Bio Ball games after join, within **`[windowStart, windowEnd)`**. **Listing policy:** same Story F2 verified-email hint as all-time when the all-time source has set it. **Rollout:** `LEADERBOARD_CONTEST_TAB_ENABLED=false` at build hides only this tab (contests drawer still follows `WEEKLY_CONTESTS_UI_ENABLED`). See `scripts/generate-env-prod.mjs`.
 
 ---
 
@@ -44,12 +44,14 @@
 
 ## Phase 3 — Angular: leaderboard panel integration
 
-- **Contest list:** Phase 0 uses **Firestore** for open contests (works signed-out for `open` docs per rules). Revisit **authenticated** `GET /api/v1/contests` (or a narrowed query param) if the product wants one source of truth with server rate limits.
-- **State:** Toggle, picker, loading / error / empty are in place; add optional **poll** (e.g. 30s) when the contest tab is active once live data exists (WebSockets optional later).
-- **Table:** Contest-specific columns (wins, games played, losses, abandoned, tier); keep the current table for all-time scopes.
-- **Feature flag:** `leaderboardContestTabEnabled` / **`LEADERBOARD_CONTEST_TAB_ENABLED`** (build-time) augments **`WEEKLY_CONTESTS_UI_ENABLED`** for this tab only.
+**Shipped**
 
-**References:** `src/app/nav/leaderboard-panel/leaderboard-panel.component.ts`, `src/app/shared/services/weekly-contest-slate.service.ts` (and contests panel as applicable).
+- **Contest list:** Still **Firestore** for open contests (anonymous-friendly per rules). Optional later: authenticated list for rate-limit alignment only.
+- **State:** Weekly tab loads standings when the selected contest changes (and on first open-contest snapshot). **Poll:** `environment.contestLiveLeaderboardPollIntervalMs` — **`CONTEST_LIVE_LEADERBOARD_POLL_MS`** in `generate-env-prod.mjs` (default **30000** when unset; **`0`** / off / false / none disables).
+- **Table:** Columns **#**, **Player**, **W**, **GP**, **L**, **Ab**, **Tier**; “Standings as of …” from API `computedAt`. All-time table unchanged.
+- **Feature flag:** unchanged — `leaderboardContestTabEnabled` + `weeklyContestsUiEnabled`.
+
+**References:** `src/app/nav/leaderboard-panel/leaderboard-panel.component.ts`, `docs/weekly-contests/weekly-contests-api-contest-live-leaderboard.md`.
 
 ---
 
@@ -84,10 +86,10 @@ If API cost or latency is too high at scale:
 
 ## Suggested implementation order
 
-1. Extract / share **live standings computation** with the scoring job.  
-2. Implement **`GET /api/v1/contests/:contestId/leaderboard`** + server tests.  
-3. Wire **leaderboard panel** (mode switch, contest picker, polling).  
-4. Add **cache + rate limits** + runbook + feature flag rollout.  
+1. ~~Extract / share **live standings computation** with the scoring job.~~  
+2. ~~Implement **`GET /api/v1/contests/:contestId/leaderboard`** + server tests.~~  
+3. ~~Wire **leaderboard panel** (mode switch, contest picker, polling).~~  
+4. ~~Add **in-process cache** + rate limits; ops/runbook as needed.~~  
 5. (Later) **Materialized live doc** if metrics require it.
 
 ---

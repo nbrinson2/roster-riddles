@@ -73,6 +73,13 @@
   <p *ngIf="surfaceMode === 'alltime' && lastUpdatedLabel" class="lb-updated" aria-live="polite">
     Data as of {{ lastUpdatedLabel }}
   </p>
+  <p
+    *ngIf="surfaceMode === 'weeklyContest' && contestStandingsComputedAtLabel"
+    class="lb-updated"
+    aria-live="polite"
+  >
+    Standings as of {{ contestStandingsComputedAtLabel }}
+  </p>
 
   <div class="lb-body" *ngIf="surfaceMode === 'alltime'">
     <div *ngIf="loading" class="state state-loading">
@@ -188,9 +195,8 @@
       <p class="lb-empty-hint">Open contests appear here while join is active.</p>
     </div>
 
-    <div
+    <ng-container
       *ngIf="!contestListLoading && !contestListError && openContestRows.length > 0"
-      class="lb-weekly-placeholder"
     >
       <ng-container *ngIf="selectedContest as row">
         <p class="lb-weekly-lede">
@@ -200,11 +206,83 @@
           <strong>{{ row.windowStart.toLocaleString() }}</strong> up to (but not
           including) <strong>{{ row.windowEnd.toLocaleString() }}</strong>.
         </p>
-        <p class="lb-weekly-coming">
-          Live standings for this contest in the leaderboard panel are not
-          available yet. Final results are published when the contest closes.
-        </p>
       </ng-container>
-    </div>
+
+      <div
+        *ngIf="contestStandingsLoading && contestStandingsRows.length === 0"
+        class="state state-loading"
+      >
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Loading standings…</span>
+      </div>
+
+      <div
+        *ngIf="contestStandingsError"
+        class="state state-error"
+        role="alert"
+      >
+        {{ contestStandingsError }}
+      </div>
+
+      <div
+        *ngIf="
+          !contestStandingsLoading &&
+          !contestStandingsError &&
+          contestStandingsRows.length === 0 &&
+          selectedContestId
+        "
+        class="state state-empty"
+      >
+        <span class="material-symbols-outlined state-empty-icon">group_off</span>
+        <p>No standings yet — be the first to join this contest.</p>
+      </div>
+
+      <div
+        *ngIf="!contestStandingsError && contestStandingsRows.length > 0"
+        class="table-card table-card--contest"
+      >
+        <div class="lb-table-head row row--contest">
+          <span class="col-rank">#</span>
+          <span class="col-name">Player</span>
+          <span class="col-cstat">W</span>
+          <span class="col-cstat">GP</span>
+          <span class="col-cstat">L</span>
+          <span class="col-cstat">Ab</span>
+          <span class="col-tier">Tier</span>
+        </div>
+        <div class="lb-table-body">
+          <div
+            class="lb-row row row--contest"
+            *ngFor="let s of contestStandingsRows; trackBy: trackByContestStanding"
+            [class.lb-row--gold]="s.rank === 1"
+            [class.lb-row--silver]="s.rank === 2"
+            [class.lb-row--bronze]="s.rank === 3"
+          >
+            <span class="col-rank">
+              <span
+                *ngIf="isTopThree(s.rank)"
+                class="material-symbols-outlined lb-medal"
+                [class.lb-medal--1]="s.rank === 1"
+                [class.lb-medal--2]="s.rank === 2"
+                [class.lb-medal--3]="s.rank === 3"
+                aria-hidden="true"
+                >military_tech</span
+              >
+              <span class="lb-rank-num">{{ s.rank }}</span>
+            </span>
+            <span class="col-name" [title]="s.displayName || s.uid">{{
+              s.displayName || s.uid
+            }}</span>
+            <span class="col-cstat">{{ s.wins }}</span>
+            <span class="col-cstat">{{ s.gamesPlayed }}</span>
+            <span class="col-cstat">{{ s.losses }}</span>
+            <span class="col-cstat">{{ s.abandoned }}</span>
+            <span class="col-tier">{{ formatContestTier(s.tier) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <p *ngIf="contestLivePollHint" class="lb-weekly-poll-hint">{{ contestLivePollHint }}</p>
+    </ng-container>
   </div>
 </div>

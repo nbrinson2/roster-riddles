@@ -76,6 +76,54 @@ $lb-muted: rgba(255, 255, 255, 0.55);
   font-size: 0.82rem;
 }
 
+.lb-weekly-poll-hint {
+  margin: 8px 0 0;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: $lb-muted;
+  letter-spacing: 0.02em;
+}
+
+.table-card--contest {
+  margin-top: 4px;
+}
+
+.lb-row.row--contest,
+.lb-table-head.row--contest {
+  grid-template-columns:
+    44px minmax(0, 1fr) 32px 32px 32px 32px 52px;
+  gap: 6px;
+  padding: 9px 8px;
+}
+
+.lb-table-head.row--contest {
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+}
+
+.col-cstat,
+.col-tier {
+  font-variant-numeric: tabular-nums;
+  font-family: constants.$font-family-secondary;
+  font-size: 0.82rem;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.col-tier {
+  text-align: center;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+.lb-row.row--contest .col-name {
+  font-size: 0.85rem;
+}
+
+.lb-row.row--contest .col-rank {
+  font-size: 0.82rem;
+}
+
 /* —— Hero —— */
 .lb-hero {
   display: flex;
