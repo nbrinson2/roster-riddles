@@ -40,7 +40,7 @@
 | `gamesPlayed` | `number` | Yes | Games in slate (≤ `leagueGamesN`). |
 | `losses` | `number` | Yes | Losses in slate. |
 | `abandoned` | `number` | Yes | Abandoned games in slate. |
-| `displayName` | `string` \| `null` | No | Optional snapshot for UI. |
+| `displayName` | `string` \| `null` | No | Join-time snapshot when set; otherwise E2 / live API may fill **Auth email local part** (same rule as `resolvedUserDisplayName` in the SPA) so the UI need not fall back to raw `uid`. |
 | `tieBreakKey` | `string` | Yes | Deterministic key for this row (e.g. uid used as final tie-break). |
 | `tier` | `string` | No | **`full`** \| **`partial`** — Tier A vs B per ADR (optional clarity). |
 

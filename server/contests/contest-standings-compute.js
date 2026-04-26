@@ -5,6 +5,10 @@
  */
 
 import { Timestamp } from 'firebase-admin/firestore';
+import {
+  contestStandingDisplayLabel,
+  fetchAuthFieldsForUids,
+} from '../lib/auth-display-names.js';
 import { assignDenseRanks, tallySlate } from './contest-scoring-core.js';
 
 const BIO_BALL = 'bio-ball';
@@ -94,17 +98,20 @@ export async function loadQualifyingSlate(
  *   leagueGamesN: number,
  * }} contestTiming
  * @param {import('firebase-admin/firestore').QueryDocumentSnapshot[]} entryDocs
- * @param {{ onSkipEntry?: (detail: { uid: string, reason: string }) => void }} [hooks]
+ * @param {{
+ *   onSkipEntry?: (detail: { uid: string, reason: string }) => void,
+ *   auth?: import('firebase-admin/auth').Auth,
+ * }} [opts]
  * @returns {Promise<ContestStandingRow[]>}
  */
 export async function computeStandingsForEntryDocs(
   db,
   contestTiming,
   entryDocs,
-  hooks = {},
+  opts = {},
 ) {
   const { windowStart: ws, windowEnd: we, leagueGamesN } = contestTiming;
-  const { onSkipEntry } = hooks;
+  const { onSkipEntry, auth } = opts;
 
   const rows = await Promise.all(
     entryDocs.map(async (entryDoc) => {
@@ -129,7 +136,7 @@ export async function computeStandingsForEntryDocs(
         leagueGamesN,
       );
       const tall = tallySlate(slateEvents, leagueGamesN);
-      const displayName =
+      const displayNameSnapshot =
         ed.displayNameSnapshot === null || typeof ed.displayNameSnapshot === 'string'
           ? ed.displayNameSnapshot
           : null;
@@ -142,7 +149,7 @@ export async function computeStandingsForEntryDocs(
         gamesPlayed: tall.gamesPlayed,
         losses: tall.losses,
         abandoned: tall.abandoned,
-        displayName,
+        displayNameSnapshot,
         tieBreakKey: `uid:${uid}`,
         tier,
       };
@@ -151,6 +158,27 @@ export async function computeStandingsForEntryDocs(
 
   /** @type {object[]} */
   const standingInputs = rows.filter((r) => r != null);
+
+  const needsEmailLabel = standingInputs.filter((r) => {
+    const s = r.displayNameSnapshot;
+    return !(typeof s === 'string' && s.trim());
+  });
+  const uidsForAuth = [...new Set(needsEmailLabel.map((r) => r.uid))];
+  /** @type {Map<string, { email: string | null }>} */
+  let authByUid = new Map();
+  if (auth && uidsForAuth.length > 0) {
+    authByUid = await fetchAuthFieldsForUids(uidsForAuth, auth);
+  }
+
+  for (const row of standingInputs) {
+    const authRow = authByUid.get(row.uid);
+    row.displayName = contestStandingDisplayLabel(
+      row.displayNameSnapshot,
+      authRow?.email,
+    );
+    delete row.displayNameSnapshot;
+  }
+
   assignDenseRanks(standingInputs, leagueGamesN);
 
   return standingInputs.map((row) => ({

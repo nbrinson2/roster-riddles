@@ -45,7 +45,7 @@ Standings use the same pipeline as E2 scoring: `loadQualifyingSlate` → `tallyS
 | `eventSource` | `string` | Same as `results/final` (e.g. `gameplayEvents_first_n_bio_ball_after_join`). |
 | `entrantsConsidered` | `number` | Entry docs read (≤ 500). |
 | `entrantsCapped` | `boolean` | `true` if `entrantsConsidered` hit the cap. |
-| `standings` | `array` | Same row shape as [weekly-contests-schema-results.md](weekly-contests-schema-results.md#standing-row) (`rank`, `uid`, `wins`, `gamesPlayed`, `losses`, `abandoned`, `displayName`, `tieBreakKey`, `tier`). |
+| `standings` | `array` | Same row shape as [weekly-contests-schema-results.md](weekly-contests-schema-results.md#standing-row) (`rank`, `uid`, `wins`, `gamesPlayed`, `losses`, `abandoned`, `displayName`, `tieBreakKey`, `tier`). **`displayName`:** join snapshot when present; otherwise **Firebase Auth email local part** (never full email); if still absent, clients may show `uid`. |
 | `cache` | `object` | **`{ hit: boolean }`** — `hit: true` when served from TTL cache. |
 
 ## Errors
