@@ -28,7 +28,8 @@ function maxTimestamp(a, b) {
 
 /**
  * First `leagueGamesN` Bio Ball gameplay events with `createdAt` in
- * `[max(windowStart, joinedAt), windowEnd)` — same query as E2 scoring.
+ * `[max(windowStart, joinedAt), windowEnd)` — **half-open** on `windowEnd`
+ * (`createdAt < windowEnd` in Firestore). Same query as E2 scoring.
  *
  * @param {import('firebase-admin/firestore').Firestore} db
  * @param {string} uid

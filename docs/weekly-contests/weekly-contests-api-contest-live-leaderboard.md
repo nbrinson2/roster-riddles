@@ -1,4 +1,4 @@
-# API — Live contest leaderboard (Phase 1)
+# API — Live contest leaderboard (Phases 1–2)
 
 **Route:** `GET /api/v1/contests/:contestId/leaderboard`  
 **Auth:** None (public read). **Rate limit:** per client IP — `CONTEST_LIVE_STANDINGS_RATE_LIMIT_MAX` / `CONTEST_LIVE_STANDINGS_RATE_LIMIT_WINDOW_MS` (defaults match global leaderboard scale; see [leaderboards-rate-limits-f1.md](../leaderboards/leaderboards-rate-limits-f1.md)).
@@ -15,7 +15,15 @@ Standings use the same pipeline as E2 scoring: `loadQualifyingSlate` → `tallyS
 
 ## Limits
 
-- At most **`500`** entry documents are read per request (`CONTEST_LIVE_LEADERBOARD_MAX_ENTRANTS` in `server/contests/contest-live-leaderboard.http.js`). If the slice is full, **`entrantsCapped`** is **`true`** in the JSON body.
+- At most **`500`** entry documents are read per request (`CONTEST_LIVE_LEADERBOARD_MAX_ENTRANTS` in `server/contests/contest-live-leaderboard.constants.js`). If the slice is full, **`entrantsCapped`** is **`true`** in the JSON body.
+
+## Caching (Phase 2)
+
+- **Process-local** in-memory cache (not shared across Cloud Run replicas).
+- **TTL:** `CONTEST_LIVE_LEADERBOARD_CACHE_TTL_MS` (default **30000**). Set **`0`** to disable caching.
+- **Eviction:** `CONTEST_LIVE_LEADERBOARD_CACHE_MAX_KEYS` (default **250**); oldest inserted key dropped when full.
+- **Fingerprint** invalidates on new/changed entries (`joinedAt` per uid), contest `updatedAt`, window, `leagueGamesN`, or entrant-cap boundary.
+- **JSON:** `cache: { hit: true | false }`. On **`hit: true`**, **`computedAt`** is from the first computation in the TTL window (not “now”).
 
 ## Success response (`200`)
 
@@ -34,6 +42,7 @@ Standings use the same pipeline as E2 scoring: `loadQualifyingSlate` → `tallyS
 | `entrantsConsidered` | `number` | Entry docs read (≤ 500). |
 | `entrantsCapped` | `boolean` | `true` if `entrantsConsidered` hit the cap. |
 | `standings` | `array` | Same row shape as [weekly-contests-schema-results.md](weekly-contests-schema-results.md#standing-row) (`rank`, `uid`, `wins`, `gamesPlayed`, `losses`, `abandoned`, `displayName`, `tieBreakKey`, `tier`). |
+| `cache` | `object` | **`{ hit: boolean }`** — `hit: true` when served from TTL cache. |
 
 ## Errors
 

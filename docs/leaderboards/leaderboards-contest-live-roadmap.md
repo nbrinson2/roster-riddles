@@ -1,6 +1,6 @@
 # Roadmap: active contest leaderboards in the leaderboard panel
 
-**Status:** Phase 0 UX + Phase 1 **live standings HTTP** shipped; Phases 2–5 (cache, full Angular table wiring, optional materialized doc, ops polish) remain.  
+**Status:** Phases 0–2 shipped (UX, live HTTP, in-process cache + parity tests); Phases 3–5 (Angular table wiring, optional materialized doc, ops polish) remain.  
 **Goal:** Surface **live** weekly-contest standings (while a contest is **`open`**) inside the nav **leaderboard panel**, alongside today’s **all-time** boards.
 
 **Context today**
@@ -34,9 +34,11 @@
 
 ## Phase 2 — Performance, caching, and correctness
 
-- **Cost:** Per-request, per-entrant reads of `gameplayEvents` can be expensive. Add a **short TTL server cache** (in-memory or Redis) keyed by `(contestId, entriesFingerprint)` or time-bucketed invalidation.
-- **Tests:** Golden fixtures (small event + entry sets) asserting **live API ordering** matches **post-scoring** ordering for the same frozen inputs. Add to `npm run test:server`.
-- **Edge cases:** No entries; one entrant; partial slates; ties; boundary `createdAt` vs `windowEnd` (half-open interval per ADR).
+**Shipped**
+
+- **Cache:** In-process **TTL** map (`server/contests/contest-live-leaderboard-cache.js`) keyed by SHA-256 of `contestId`, window bounds, `leagueGamesN`, `contests.updatedAt` (when set), entrant-cap flag, and sorted **`entries/{uid}`** `joinedAt` millis — recomputes after new joins or contest edits. **`CONTEST_LIVE_LEADERBOARD_CACHE_TTL_MS`** (default **30000**; **`0` = off**), **`CONTEST_LIVE_LEADERBOARD_CACHE_MAX_KEYS`** (default **250** eviction of oldest).
+- **Response:** `cache.hit` boolean; cache hits reuse stored **`computedAt`** and log `outcome: ok_cache_hit`.
+- **Tests:** `contest-live-leaderboard-cache.test.js` (fingerprint stability, TTL, eviction); `contest-standings-compute.test.js` extended with empty slate, single entrant, **uid tie-break** golden order, and **deterministic repeat** (E2 / live parity on frozen inputs). Half-open `windowEnd` is enforced by Firestore query shape (see `loadQualifyingSlate` comment).
 
 ---
 

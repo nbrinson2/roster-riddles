@@ -6,6 +6,11 @@ import { z } from 'zod';
 import { Timestamp } from 'firebase-admin/firestore';
 import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { firestoreTimestampToIso } from '../lib/firestore-timestamp-iso.js';
+import {
+  buildLiveLeaderboardCacheKey,
+  getContestLiveLeaderboardCache,
+} from './contest-live-leaderboard-cache.js';
+import { CONTEST_LIVE_LEADERBOARD_MAX_ENTRANTS } from './contest-live-leaderboard.constants.js';
 import { EVENT_SOURCE, TIE_BREAK_POLICY } from './contest-scoring-core.js';
 import { computeStandingsForEntryDocs } from './contest-standings-compute.js';
 import { logContestLiveLeaderboardLine } from './contest-live-leaderboard-log.js';
@@ -18,8 +23,8 @@ const contestIdParamSchema = z
 
 const BIO_BALL = 'bio-ball';
 
-/** Hard cap on entrants read per request (cost guard). */
-export const CONTEST_LIVE_LEADERBOARD_MAX_ENTRANTS = 500;
+/** Re-export for tests / call sites that imported from this module in Phase 1. */
+export { CONTEST_LIVE_LEADERBOARD_MAX_ENTRANTS } from './contest-live-leaderboard.constants.js';
 
 /**
  * @type {import('express').RequestHandler}
@@ -176,6 +181,40 @@ export async function getContestLiveLeaderboard(req, res) {
 
     const entrantsCapped = entriesSnap.size >= CONTEST_LIVE_LEADERBOARD_MAX_ENTRANTS;
 
+    const contestUpdated = contest.updatedAt;
+    const contestUpdatedMillis =
+      contestUpdated instanceof Timestamp ? contestUpdated.toMillis() : 0;
+
+    const fingerprint = buildLiveLeaderboardCacheKey(
+      contestId,
+      ws,
+      we,
+      leagueGamesN,
+      entriesSnap.docs,
+      entrantsCapped,
+      contestUpdatedMillis,
+    );
+
+    const cache = getContestLiveLeaderboardCache();
+    const cachedBody = cache.get(contestId, fingerprint);
+    if (cachedBody) {
+      logContestLiveLeaderboardLine({
+        requestId,
+        outcome: 'ok_cache_hit',
+        httpStatus: 200,
+        latencyMs: Date.now() - startMs,
+        contestId,
+        rowCount: Array.isArray(cachedBody.standings)
+          ? cachedBody.standings.length
+          : 0,
+        entrantsCapped,
+      });
+      return res.status(200).json({
+        ...cachedBody,
+        cache: { hit: true },
+      });
+    }
+
     const standings = await computeStandingsForEntryDocs(
       db,
       { windowStart: ws, windowEnd: we, leagueGamesN },
@@ -186,17 +225,8 @@ export async function getContestLiveLeaderboard(req, res) {
     const windowStartIso = firestoreTimestampToIso(ws);
     const windowEndIso = firestoreTimestampToIso(we);
 
-    logContestLiveLeaderboardLine({
-      requestId,
-      outcome: 'ok',
-      httpStatus: 200,
-      latencyMs: Date.now() - startMs,
-      contestId,
-      rowCount: standings.length,
-      entrantsCapped,
-    });
-
-    return res.status(200).json({
+    /** @type {Record<string, unknown>} */
+    const body = {
       schemaVersion: 1,
       contestId,
       status: 'open',
@@ -210,7 +240,23 @@ export async function getContestLiveLeaderboard(req, res) {
       entrantsConsidered: entriesSnap.size,
       entrantsCapped,
       standings,
+      cache: { hit: false },
+    };
+
+    const { cache: _omitCache, ...bodyForCache } = body;
+    cache.set(contestId, fingerprint, bodyForCache);
+
+    logContestLiveLeaderboardLine({
+      requestId,
+      outcome: 'ok',
+      httpStatus: 200,
+      latencyMs: Date.now() - startMs,
+      contestId,
+      rowCount: standings.length,
+      entrantsCapped,
     });
+
+    return res.status(200).json(body);
   } catch (e) {
     const msg = e instanceof Error ? e.message.slice(0, 500) : String(e);
     logContestLiveLeaderboardLine({

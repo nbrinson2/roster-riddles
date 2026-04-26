@@ -135,4 +135,77 @@ describe('computeStandingsForEntryDocs', () => {
     assert.equal(skipped.length, 1);
     assert.equal(skipped[0].uid, 'bad');
   });
+
+  it('returns empty standings when there are no entries', async () => {
+    const ws = ts(0);
+    const we = ts(10_000_000);
+    const db = mockDb({});
+    const standings = await computeStandingsForEntryDocs(
+      /** @type {import('firebase-admin/firestore').Firestore} */ (db),
+      { windowStart: ws, windowEnd: we, leagueGamesN: 3 },
+      [],
+    );
+    assert.deepEqual(standings, []);
+  });
+
+  it('handles a single entrant', async () => {
+    const ws = ts(0);
+    const we = ts(10_000_000);
+    const leagueGamesN = 2;
+    const db = mockDb({
+      solo: [{ result: 'won' }, { result: 'lost' }],
+    });
+    const standings = await computeStandingsForEntryDocs(
+      /** @type {import('firebase-admin/firestore').Firestore} */ (db),
+      { windowStart: ws, windowEnd: we, leagueGamesN },
+      [entryDoc('solo', 0, 'Solo')],
+    );
+    assert.equal(standings.length, 1);
+    assert.equal(standings[0].rank, 1);
+    assert.equal(standings[0].uid, 'solo');
+    assert.equal(standings[0].wins, 1);
+    assert.equal(standings[0].gamesPlayed, 2);
+    assert.equal(standings[0].tier, 'full');
+  });
+
+  it('breaks full-slate ties by uid ascending (ADR / E2 parity)', async () => {
+    const ws = ts(0);
+    const we = ts(10_000_000);
+    const leagueGamesN = 3;
+    const won3 = [{ result: 'won' }, { result: 'won' }, { result: 'won' }];
+    const db = mockDb({
+      mmm: won3,
+      nnn: won3,
+      aaa: won3,
+    });
+    const standings = await computeStandingsForEntryDocs(
+      /** @type {import('firebase-admin/firestore').Firestore} */ (db),
+      { windowStart: ws, windowEnd: we, leagueGamesN },
+      [entryDoc('mmm', 0), entryDoc('nnn', 0), entryDoc('aaa', 0)],
+    );
+    assert.deepEqual(
+      standings.map((s) => s.uid),
+      ['aaa', 'mmm', 'nnn'],
+    );
+    assert.deepEqual(
+      standings.map((s) => s.rank),
+      [1, 2, 3],
+    );
+  });
+
+  it('is deterministic for identical frozen inputs (live vs E2)', async () => {
+    const ws = ts(100);
+    const we = ts(9_000_000);
+    const leagueGamesN = 2;
+    const entries = [entryDoc('p1', 50), entryDoc('p2', 60)];
+    const db = mockDb({
+      p1: [{ result: 'won' }, { result: 'won' }],
+      p2: [{ result: 'won' }, { result: 'lost' }],
+    });
+    const firestore = /** @type {import('firebase-admin/firestore').Firestore} */ (db);
+    const timing = { windowStart: ws, windowEnd: we, leagueGamesN };
+    const a = await computeStandingsForEntryDocs(firestore, timing, entries);
+    const b = await computeStandingsForEntryDocs(firestore, timing, entries);
+    assert.deepEqual(a, b);
+  });
 });
