@@ -4,13 +4,8 @@
  */
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { randomBytes } from 'node:crypto';
-import {
-  assignDenseRanks,
-  buildDryRunPayoutLines,
-  EVENT_SOURCE,
-  tallySlate,
-  TIE_BREAK_POLICY,
-} from './contest-scoring-core.js';
+import { buildDryRunPayoutLines, EVENT_SOURCE, TIE_BREAK_POLICY } from './contest-scoring-core.js';
+import { computeStandingsForEntryDocs } from './contest-standings-compute.js';
 import { buildTieResolutionAudit } from './contest-scoring-tie-audit.js';
 import { evaluateTransitionGuards, isContestStatus } from './contest-transitions.js';
 import { logContestScoringLine } from './contest-scoring-log.js';
@@ -23,55 +18,6 @@ const BIO_BALL = 'bio-ball';
  */
 function isRecord(c) {
   return c != null && typeof c === 'object' && !Array.isArray(c);
-}
-
-/**
- * @param {import('firebase-admin/firestore').Timestamp} a
- * @param {import('firebase-admin/firestore').Timestamp} b
- * @returns {import('firebase-admin/firestore').Timestamp}
- */
-function maxTimestamp(a, b) {
-  return a.toMillis() >= b.toMillis() ? a : b;
-}
-
-/**
- * @param {import('firebase-admin/firestore').Firestore} db
- * @param {string} uid
- * @param {import('firebase-admin/firestore').Timestamp} windowStart
- * @param {import('firebase-admin/firestore').Timestamp} windowEnd
- * @param {import('firebase-admin/firestore').Timestamp} joinedAt
- * @param {number} leagueGamesN
- * @returns {Promise<{ result: 'won'|'lost'|'abandoned' }[]>}
- */
-async function loadQualifyingSlate(
-  db,
-  uid,
-  windowStart,
-  windowEnd,
-  joinedAt,
-  leagueGamesN,
-) {
-  const lower = maxTimestamp(windowStart, joinedAt);
-  const snap = await db
-    .collection('users')
-    .doc(uid)
-    .collection('gameplayEvents')
-    .where('gameMode', '==', BIO_BALL)
-    .where('createdAt', '>=', lower)
-    .where('createdAt', '<', windowEnd)
-    .orderBy('createdAt', 'asc')
-    .limit(leagueGamesN)
-    .get();
-
-  const out = [];
-  snap.forEach((doc) => {
-    const d = doc.data();
-    const r = d.result;
-    if (r === 'won' || r === 'lost' || r === 'abandoned') {
-      out.push({ result: r });
-    }
-  });
-  return out;
 }
 
 function generateScoringJobId() {
@@ -185,68 +131,22 @@ export async function runContestScoringJob({ db, contestId, scoringJobId, reques
 
   const entriesSnap = await db.collection(`contests/${contestId}/entries`).get();
 
-  /** @type {object[]} */
-  const standingInputs = [];
-
-  for (const entryDoc of entriesSnap.docs) {
-    const uid = entryDoc.id;
-    const ed = entryDoc.data();
-    if (!isRecord(ed)) {
-      continue;
-    }
-    const joinedAt = ed.joinedAt;
-    if (!(joinedAt instanceof Timestamp)) {
-      logContestScoringLine({
-        requestId,
-        contestId,
-        phase: 'score',
-        outcome: 'skip_entry_bad_joined_at',
-        uid,
-      });
-      continue;
-    }
-
-    const slateEvents = await loadQualifyingSlate(
-      db,
-      uid,
-      ws,
-      we,
-      joinedAt,
-      leagueGamesN,
-    );
-    const tall = tallySlate(slateEvents, leagueGamesN);
-    const displayName =
-      ed.displayNameSnapshot === null || typeof ed.displayNameSnapshot === 'string'
-        ? ed.displayNameSnapshot
-        : null;
-
-    const tier = tall.gamesPlayed >= leagueGamesN ? 'full' : 'partial';
-
-    standingInputs.push({
-      uid,
-      wins: tall.wins,
-      gamesPlayed: tall.gamesPlayed,
-      losses: tall.losses,
-      abandoned: tall.abandoned,
-      displayName,
-      tieBreakKey: `uid:${uid}`,
-      tier,
-    });
-  }
-
-  assignDenseRanks(standingInputs, leagueGamesN);
-
-  const standings = standingInputs.map((row) => ({
-    rank: row.rank,
-    uid: row.uid,
-    wins: row.wins,
-    gamesPlayed: row.gamesPlayed,
-    losses: row.losses,
-    abandoned: row.abandoned,
-    displayName: row.displayName ?? null,
-    tieBreakKey: row.tieBreakKey,
-    tier: row.tier,
-  }));
+  const standings = await computeStandingsForEntryDocs(
+    db,
+    { windowStart: ws, windowEnd: we, leagueGamesN },
+    entriesSnap.docs,
+    {
+      onSkipEntry: ({ uid, reason }) => {
+        logContestScoringLine({
+          requestId,
+          contestId,
+          phase: 'score',
+          outcome: reason,
+          uid,
+        });
+      },
+    },
+  );
 
   const tieResolution = buildTieResolutionAudit({
     tieBreakPolicy: TIE_BREAK_POLICY,

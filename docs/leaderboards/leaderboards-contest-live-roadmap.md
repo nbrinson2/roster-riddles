@@ -1,11 +1,11 @@
 # Roadmap: active contest leaderboards in the leaderboard panel
 
-**Status:** Phase 0 UX shipped; Phases 1–5 (live API, cache, full Angular table, optional materialized doc, ops) remain.  
+**Status:** Phase 0 UX + Phase 1 **live standings HTTP** shipped; Phases 2–5 (cache, full Angular table wiring, optional materialized doc, ops polish) remain.  
 **Goal:** Surface **live** weekly-contest standings (while a contest is **`open`**) inside the nav **leaderboard panel**, alongside today’s **all-time** boards.
 
 **Context today**
 
-- **Leaderboard panel** (`src/app/nav/leaderboard-panel/`): **All-time** — scopes `global`, `bio-ball`, `career-path`, `nickname-streak`; data from Firestore snapshots `leaderboards/snapshots/boards/{scope}` or HTTP `/api/v1/leaderboards` (see `docs/leaderboards/`). **Weekly contest** (Phase 0) — segment + open-contest picker + ADR copy + placeholder for live rows; contest list from client Firestore (`status === 'open'`, Bio Ball only). Build flags: `weeklyContestsUiEnabled` **and** `leaderboardContestTabEnabled` (`LEADERBOARD_CONTEST_TAB_ENABLED` at bundle generation).
+- **Leaderboard panel** (`src/app/nav/leaderboard-panel/`): **All-time** — scopes `global`, `bio-ball`, `career-path`, `nickname-streak`; data from Firestore snapshots `leaderboards/snapshots/boards/{scope}` or HTTP `/api/v1/leaderboards` (see `docs/leaderboards/`). **Weekly contest** (Phase 0) — segment + open-contest picker + ADR copy + placeholder for live rows; contest list from client Firestore (`status === 'open'`, Bio Ball only). Build flags: `weeklyContestsUiEnabled` **and** `leaderboardContestTabEnabled` (`LEADERBOARD_CONTEST_TAB_ENABLED` at bundle generation). **Live rows:** `GET /api/v1/contests/:contestId/leaderboard` (Phase 1) — wire in Angular per Phase 3.
 - **Weekly contests** (`docs/weekly-contests/weekly-contests-phase4-adr.md`): mini-league score is derived from **`users/{uid}/gameplayEvents`**, not from `stats/summary`. Immutable **`contests/{contestId}/results/final`** is written only after the **E2** scoring job (`server/contests/contest-scoring-job.js`).
 - **Active** contests (`status: open`) have **no** `results/final` yet. A “live contest leaderboard” must therefore **recompute** the same slate + ordering rules as scoring (or maintain a **materialized** cache — see Phase 4).
 
@@ -19,12 +19,14 @@
 
 ## Phase 1 — Authoritative server API (live standings)
 
-- **New route (example):** `GET /api/v1/contests/:contestId/leaderboard` (or `…/live-standings`), read-only.
-- **Preconditions:** Contest exists and is **`open`** (and optionally `now < windowEnd` if product wants “only while window open”).
-- **Response:** Rows aligned with `results/final` standing shape where possible: `rank`, `uid`, `wins`, `gamesPlayed`, `losses`, `abandoned`, `tier`, `displayName` (from entry snapshot), plus **meta**: `leagueGamesN`, `windowStart` / `windowEnd`, server **`computedAt`**, `tieBreakPolicy` for transparency.
-- **Implementation:** Reuse the same pipeline as scoring: **`loadQualifyingSlate`**, **`tallySlate`**, tier + **`compareStandingRows`** / **`assignDenseRanks`** from `server/contests/` (see `contest-scoring-job.js`, `contest-scoring-core.js`). **Refactor** into a shared module so **live** and **E2 final** cannot drift.
-- **Auth:** Prefer Firebase Auth on the route; decide if unauthenticated clients may read standings (likely yes for engagement, with rate limits).
-- **Limits:** Cap work per request (entrant count, timeouts); add **rate limiting** analogous to `server/leaderboards/leaderboards.http.js`.
+**Shipped**
+
+- **Route:** `GET /api/v1/contests/:contestId/leaderboard` — public, read-only. Registered **before** `GET /api/v1/contests/:contestId` in `index.js`.
+- **Preconditions:** Contest exists; **`status === 'open'`**; **`gameMode === 'bio-ball'`**. No `now < windowEnd` gate (join window edge cases handled by contest lifecycle).
+- **Response:** `standings[]` matches `results/final` row shape; **meta:** `leagueGamesN`, `windowStart` / `windowEnd` (ISO), **`computedAt`** (ISO wall clock), **`tieBreakPolicy`**, **`eventSource`**, `entrantsConsidered`, **`entrantsCapped`** (500-entrant read cap).
+- **Implementation:** `server/contests/contest-standings-compute.js` — **`loadQualifyingSlate`** (exported) + **`computeStandingsForEntryDocs`** shared with **`contest-scoring-job.js`** (E2).
+- **Auth:** None (engagement); **IP rate limit** via `contestLiveStandingsRateLimitHookMiddleware` (`CONTEST_LIVE_STANDINGS_RATE_LIMIT_*`).
+- **Docs:** [weekly-contests-api-contest-live-leaderboard.md](../weekly-contests/weekly-contests-api-contest-live-leaderboard.md)
 
 **References:** `docs/weekly-contests/weekly-contests-phase4-adr.md`, `docs/weekly-contests/weekly-contests-schema-results.md`, `server/contests/contest-scoring-job.js`.
 

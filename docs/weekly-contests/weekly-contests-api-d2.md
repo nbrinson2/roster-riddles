@@ -110,4 +110,5 @@ Structured lines: `component: contest_read`, `route` (`list` \| `detail`), `outc
 ## References
 
 - [weekly-contests-api-c1.md](weekly-contests-api-c1.md) — join API  
+- [weekly-contests-api-contest-live-leaderboard.md](weekly-contests-api-contest-live-leaderboard.md) — public live standings (`GET …/leaderboard`, no auth)  
 - [weekly-contests-phase4-jira.md](weekly-contests-phase4-jira.md) — Story D2  
