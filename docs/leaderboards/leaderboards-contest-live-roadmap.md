@@ -1,6 +1,6 @@
 # Roadmap: active contest leaderboards in the leaderboard panel
 
-**Status:** Phases 0–3 shipped (UX, live HTTP + cache, Angular weekly standings table + poll); Phases 4–5 remain optional / ops polish.  
+**Status:** Phases 0–3 shipped (UX, live HTTP + cache, Angular weekly standings table + poll). Phase 4 optional materialized path: **rules + lifecycle** shipped; worker projection not built. **Phase 5 (docs, ops, rollout)** shipped — see [leaderboards-runbook.md](leaderboards-runbook.md#8-live-contest-leaderboard-phase-5) and [weekly-contests-api-contest-live-leaderboard.md](../weekly-contests/weekly-contests-api-contest-live-leaderboard.md#operations--monitoring-phase-5).  
 **Goal:** Surface **live** weekly-contest standings (while a contest is **`open`**) inside the nav **leaderboard panel**, alongside today’s **all-time** boards.
 
 **Context today**
@@ -67,9 +67,11 @@ If API cost or latency is too high at scale:
 
 ## Phase 5 — Docs, ops, rollout
 
-- **Docs:** This file + short API note under `docs/weekly-contests/` (contract, rate limits, cache).
-- **Runbook:** Staging verification — open contest + synthetic events; compare live response to a **closed** clone run through E2 for parity.
-- **Monitoring:** Structured logs per request: `contestId`, duration, entrant count; alert on p95 latency or error rate.
+**Shipped**
+
+- **Docs:** This roadmap + [weekly-contests-api-contest-live-leaderboard.md](../weekly-contests/weekly-contests-api-contest-live-leaderboard.md) (contract, rate limits, cache, **ops / monitoring**).
+- **Runbook:** [leaderboards-runbook.md §8](leaderboards-runbook.md#8-live-contest-leaderboard-phase-5) — staging smoke, **E2 parity** procedure (mirrored contest + `results/final` vs last live GET), log queries, rollout flags.
+- **Monitoring:** `jsonPayload.component="contest_live_leaderboard"` lines include `contestId`, `latencyMs`, `rowCount`, `entrantsConsidered`, `entrantsCapped`, `cacheHit`, `outcome`, `httpStatus`; derive **log-based metrics** (p95 `latencyMs`, error share on `outcome` ∉ `ok` / `ok_cache_hit`) in Cloud Monitoring.
 
 ---
 
@@ -90,7 +92,8 @@ If API cost or latency is too high at scale:
 2. ~~Implement **`GET /api/v1/contests/:contestId/leaderboard`** + server tests.~~  
 3. ~~Wire **leaderboard panel** (mode switch, contest picker, polling).~~  
 4. ~~Add **in-process cache** + rate limits; ops/runbook as needed.~~  
-5. (Later) **Materialized live doc** if metrics require it.
+5. ~~**Phase 5** — docs, staging runbook, structured logs + monitoring guidance.~~  
+6. (Later) **Materialized live doc** if metrics require it.
 
 ---
 

@@ -1,4 +1,4 @@
-# API — Live contest leaderboard (Phases 1–2)
+# API — Live contest leaderboard (Phases 1–2, 5 ops)
 
 **Route:** `GET /api/v1/contests/:contestId/leaderboard`  
 **Auth:** None (public read). **Rate limit:** per client IP — `CONTEST_LIVE_STANDINGS_RATE_LIMIT_MAX` / `CONTEST_LIVE_STANDINGS_RATE_LIMIT_WINDOW_MS` (defaults match global leaderboard scale; see [leaderboards-rate-limits-f1.md](../leaderboards/leaderboards-rate-limits-f1.md)).
@@ -63,6 +63,48 @@ Standings use the same pipeline as E2 scoring: `loadQualifyingSlate` → `tallyS
 ## Angular (Phase 3)
 
 The nav **leaderboard panel** weekly tab calls this route using `environment.baseUrl` (same-origin in prod). Polling interval: **`contestLiveLeaderboardPollIntervalMs`** / build env above.
+
+## Operations & monitoring (Phase 5)
+
+### Server / build environment
+
+| Variable | Where | Effect |
+|----------|--------|--------|
+| `CONTEST_LIVE_STANDINGS_RATE_LIMIT_MAX` | Cloud Run / `.env` | Max requests per IP per window (default **90**). |
+| `CONTEST_LIVE_STANDINGS_RATE_LIMIT_WINDOW_MS` | Cloud Run / `.env` | Window length in ms (default **60000**). |
+| `CONTEST_LIVE_LEADERBOARD_CACHE_TTL_MS` | Cloud Run / `.env` | In-process cache TTL; **`0`** disables. |
+| `CONTEST_LIVE_LEADERBOARD_CACHE_MAX_KEYS` | Cloud Run / `.env` | Max cached fingerprints per replica. |
+| `CONTEST_LIVE_LEADERBOARD_POLL_MS` | **Cloud Build** / `generate-env-prod.mjs` | Angular poll interval; **`0`** / off / none disables client polling. |
+| `LEADERBOARD_CONTEST_TAB_ENABLED` | **Cloud Build** | **`false`** hides the weekly-contest segment in the leaderboard panel. |
+
+See [.env.example](../../.env.example) and [leaderboards-rate-limits-f1.md](../leaderboards/leaderboards-rate-limits-f1.md).
+
+### Structured logs
+
+Each request emits one JSON line to stdout with **`component`: `contest_live_leaderboard`** (`server/contests/contest-live-leaderboard-log.js`). Typical fields:
+
+| Field | Meaning |
+|-------|---------|
+| `outcome` | e.g. `ok`, `ok_cache_hit`, `contest_not_open`, `rate_limited`, `query_failed`, … |
+| `httpStatus` | Response status. |
+| `latencyMs` | Wall time for the handler. |
+| `contestId` | Contest id (may be null on validation / rate-limit paths). |
+| `rowCount` | Length of `standings` returned. |
+| `entrantsConsidered` | Entry documents read from Firestore (≤ 500). |
+| `entrantsCapped` | `true` if read hit the cap. |
+| `cacheHit` | `true` / `false` on success paths (cache served vs recomputed). |
+| `requestId` | Correlate with HTTP middleware. |
+
+**Severity:** **`ERROR`** for `httpStatus >= 500`, **`WARNING`** for **429**, else **INFO** (unless overridden).
+
+### Alerts (GCP)
+
+Use **Logs Explorer** filters on `jsonPayload.component="contest_live_leaderboard"`, then **log-based metrics**:
+
+- **Latency:** distribution metric on `jsonPayload.latencyMs` with a Logs filter such as `jsonPayload.outcome="ok" OR jsonPayload.outcome="ok_cache_hit"`; alert on **p95** or **p99** above a threshold for your tier.  
+- **Errors:** count lines where `jsonPayload.httpStatus >= 500` or `jsonPayload.outcome` is `query_failed`, `firestore_init_failed`, `invalid_contest_document`, etc.
+
+**Runbook:** [leaderboards-runbook.md §8](../leaderboards/leaderboards-runbook.md#8-live-contest-leaderboard-phase-5) — staging smoke, E2 parity procedure, rollout table.
 
 ## Related
 

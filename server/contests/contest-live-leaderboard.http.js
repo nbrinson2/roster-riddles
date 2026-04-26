@@ -117,6 +117,14 @@ export async function getContestLiveLeaderboard(req, res) {
 
     const contest = contestSnap.data();
     if (contest == null || typeof contest !== 'object' || Array.isArray(contest)) {
+      logContestLiveLeaderboardLine({
+        requestId,
+        outcome: 'invalid_contest_document',
+        httpStatus: 500,
+        latencyMs: Date.now() - startMs,
+        contestId,
+        rowCount: 0,
+      });
       return res.status(500).json({
         error: { code: 'internal_error', message: 'Invalid contest document.' },
       });
@@ -161,6 +169,14 @@ export async function getContestLiveLeaderboard(req, res) {
 
     const leagueGamesN = contest.leagueGamesN;
     if (typeof leagueGamesN !== 'number' || !Number.isFinite(leagueGamesN) || leagueGamesN < 1) {
+      logContestLiveLeaderboardLine({
+        requestId,
+        outcome: 'invalid_league_games_n',
+        httpStatus: 500,
+        latencyMs: Date.now() - startMs,
+        contestId,
+        rowCount: 0,
+      });
       return res.status(500).json({
         error: { code: 'internal_error', message: 'Invalid leagueGamesN.' },
       });
@@ -169,6 +185,14 @@ export async function getContestLiveLeaderboard(req, res) {
     const ws = contest.windowStart;
     const we = contest.windowEnd;
     if (!(ws instanceof Timestamp) || !(we instanceof Timestamp)) {
+      logContestLiveLeaderboardLine({
+        requestId,
+        outcome: 'invalid_contest_window',
+        httpStatus: 500,
+        latencyMs: Date.now() - startMs,
+        contestId,
+        rowCount: 0,
+      });
       return res.status(500).json({
         error: { code: 'internal_error', message: 'Invalid contest window timestamps.' },
       });
@@ -198,16 +222,23 @@ export async function getContestLiveLeaderboard(req, res) {
     const cache = getContestLiveLeaderboardCache();
     const cachedBody = cache.get(contestId, fingerprint);
     if (cachedBody) {
+      const rowCount = Array.isArray(cachedBody.standings)
+        ? cachedBody.standings.length
+        : 0;
+      const entrantsConsidered =
+        typeof cachedBody.entrantsConsidered === 'number'
+          ? cachedBody.entrantsConsidered
+          : rowCount;
       logContestLiveLeaderboardLine({
         requestId,
         outcome: 'ok_cache_hit',
         httpStatus: 200,
         latencyMs: Date.now() - startMs,
         contestId,
-        rowCount: Array.isArray(cachedBody.standings)
-          ? cachedBody.standings.length
-          : 0,
+        rowCount,
+        entrantsConsidered,
         entrantsCapped,
+        cacheHit: true,
       });
       return res.status(200).json({
         ...cachedBody,
@@ -253,7 +284,9 @@ export async function getContestLiveLeaderboard(req, res) {
       latencyMs: Date.now() - startMs,
       contestId,
       rowCount: standings.length,
+      entrantsConsidered: entriesSnap.size,
       entrantsCapped,
+      cacheHit: false,
     });
 
     return res.status(200).json(body);
