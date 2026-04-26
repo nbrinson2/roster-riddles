@@ -59,9 +59,9 @@
 
 If API cost or latency is too high at scale:
 
-- On qualifying **`gameplayEvents`** writes for users entered in **`open`** contests, a **Cloud Function** (or trusted worker) updates **`contests/{contestId}/liveStandings`** (or a paginated subcollection) with a **read-only public projection**.
-- **Tighten `firestore.rules`** if clients read this path directly; prefer keeping **HTTP** as the only client surface if rules would otherwise widen too much.
-- **Lifecycle:** Stop updating (or delete) live artifacts when the contest leaves **`open`**, to avoid conflicting with **`results/final`**.
+- On qualifying **`gameplayEvents`** writes for users entered in **`open`** contests, a **Cloud Function** (or trusted worker) may update **`contests/{contestId}/liveStandings/{docId}`** (or a paginated subcollection) with a **read-only public projection** — **not** implemented in-repo yet.
+- **`firestore.rules`:** explicit **`liveStandings/{docId}`** match with **`allow read, write: if false`** — clients must use **`GET /api/v1/contests/:contestId/leaderboard`** (rate limits, cache, single policy surface). Do not widen to signed-in reads without product + security review.
+- **Lifecycle (implemented):** `deleteContestLiveStandingsSubtree` in `server/contests/contest-live-standings-artifacts.js` runs after any transition **`open` → not `open`** via `runContestStatusTransition`, and after **E1** `open` → `scoring` in `contest-close-due-windows.http.js`, so materialized rows cannot linger past **`results/final`**.
 
 ---
 

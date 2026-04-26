@@ -17,6 +17,10 @@ Standings use the same pipeline as E2 scoring: `loadQualifyingSlate` → `tallyS
 
 - At most **`500`** entry documents are read per request (`CONTEST_LIVE_LEADERBOARD_MAX_ENTRANTS` in `server/contests/contest-live-leaderboard.constants.js`). If the slice is full, **`entrantsCapped`** is **`true`** in the JSON body.
 
+## Firestore (Phase 4 rules posture)
+
+`contests/{contestId}/liveStandings/{docId}` is **denied** for all client reads and writes in `firestore.rules`. If you add a worker-written projection later, keep the SPA on **this HTTP route** unless rules and abuse controls are explicitly designed for direct reads.
+
 ## Caching (Phase 2)
 
 - **Process-local** in-memory cache (not shared across Cloud Run replicas).

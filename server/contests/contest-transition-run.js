@@ -7,6 +7,7 @@ import {
   evaluateTransitionGuards,
   isContestStatus,
 } from './contest-transitions.js';
+import { deleteContestLiveStandingsSubtree } from './contest-live-standings-artifacts.js';
 
 /**
  * @param {unknown} c
@@ -28,7 +29,7 @@ export async function runContestStatusTransition(db, opts) {
   const { contestId, targetTo, force = false, nowMs } = opts;
   const ref = db.doc(`contests/${contestId}`);
 
-  return db.runTransaction(async (t) => {
+  const out = await db.runTransaction(async (t) => {
     const snap = await t.get(ref);
     if (!snap.exists) {
       return { type: 'missing' };
@@ -88,4 +89,14 @@ export async function runContestStatusTransition(db, opts) {
       dryRunArtifactsCleared: clearDryRunArtifacts,
     };
   });
+
+  if (out.type === 'updated' && out.from === 'open' && out.to !== 'open') {
+    try {
+      await deleteContestLiveStandingsSubtree(db, contestId);
+    } catch {
+      // Transition already committed; cleanup is best-effort (logged by callers if needed).
+    }
+  }
+
+  return out;
 }
