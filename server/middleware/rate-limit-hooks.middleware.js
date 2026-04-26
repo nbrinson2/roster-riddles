@@ -75,6 +75,20 @@ const contestReadConsume = createFixedWindowLimiter({
   windowMs: contestReadWindowMs,
 });
 
+const contestLiveStandingsWindowMs = parsePositiveInt(
+  process.env.CONTEST_LIVE_STANDINGS_RATE_LIMIT_WINDOW_MS,
+  60_000,
+);
+const contestLiveStandingsMax = parsePositiveInt(
+  process.env.CONTEST_LIVE_STANDINGS_RATE_LIMIT_MAX,
+  90,
+);
+
+const contestLiveStandingsConsume = createFixedWindowLimiter({
+  maxRequests: contestLiveStandingsMax,
+  windowMs: contestLiveStandingsWindowMs,
+});
+
 /**
  * @type {import('express').RequestHandler}
  */
@@ -151,6 +165,24 @@ export function contestReadRateLimitHookMiddleware(req, res, next) {
       return { allowed: true, retryAfterSec: null };
     }
     return contestReadConsume(`cr:${uid}`);
+  };
+  next();
+}
+
+/**
+ * Public GET contest live standings — per-IP fixed window (Phase 1).
+ * @type {import('express').RequestHandler}
+ */
+export function contestLiveStandingsRateLimitHookMiddleware(req, res, next) {
+  /**
+   * @returns {Promise<RateLimitResult>}
+   */
+  req.consumeContestLiveLeaderboardRateLimit = async () => {
+    if (rateLimitsGloballyDisabled()) {
+      return { allowed: true, retryAfterSec: null };
+    }
+    const ip = getClientIpForRateLimit(req);
+    return contestLiveStandingsConsume(`csl:${ip}`);
   };
   next();
 }

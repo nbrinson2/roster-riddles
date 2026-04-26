@@ -25,6 +25,9 @@ Separate **Firebase projects** (or at minimum separate web apps + Admin credenti
 - **Staging / prod** bundles must **not** embed production config in git: run `scripts/generate-env-prod.mjs` before `ng build`, which writes gitignored `environment.prod.ts` or `environment.staging.ts`.
 - **Leaderboard realtime (E1):** `leaderboardUseFirestoreSnapshot` is **false** in dev and **staging** builds, **true** in **production** builds (`scripts/generate-env-prod.mjs` — listener on precomputed snapshot docs; requires batch job E2 in prod).
 - **Leaderboard listing (F2):** Express omits **`emailVerified: false`** users from rankings by default; set **`LEADERBOARD_REQUIRE_EMAIL_VERIFIED=false`** on the **server** for QA (see [leaderboards-duplicate-accounts-f2.md](../leaderboards/leaderboards-duplicate-accounts-f2.md)).
+- **Leaderboard weekly-contest tab (Phase 0):** `leaderboardContestTabEnabled` in the bundle; staging/prod from **`LEADERBOARD_CONTEST_TAB_ENABLED`** in `generate-env-prod.mjs` (omit or not `false` = show tab when `weeklyContestsUiEnabled` is also on). Local dev: `src/environment.ts`.
+- **Contest live standings poll (Phase 3):** `contestLiveLeaderboardPollIntervalMs`; staging/prod from **`CONTEST_LIVE_LEADERBOARD_POLL_MS`** in `generate-env-prod.mjs` (omit = 30s; `0` / off / false / none = no client poll).
+- **Contest live API cache (Phase 2 / ops):** Express only — **`CONTEST_LIVE_LEADERBOARD_CACHE_TTL_MS`**, **`CONTEST_LIVE_LEADERBOARD_CACHE_MAX_KEYS`** on Cloud Run (per replica; not shared). See [weekly-contests-api-contest-live-leaderboard.md](../weekly-contests/weekly-contests-api-contest-live-leaderboard.md).
 
 ## Stripe (future payments)
 

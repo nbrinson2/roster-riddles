@@ -2,7 +2,8 @@
 
 **Status:** Implemented  
 **Depends on:** [leaderboards-indexes-pagination.md](leaderboards-indexes-pagination.md) (B3), [leaderboards-batch-e2.md](leaderboards-batch-e2.md) (E2), [leaderboards-api-d1.md](leaderboards-api-d1.md) (D1), [leaderboards-realtime-e1.md](leaderboards-realtime-e1.md) (E1)  
-**Related QA:** [leaderboards-test-cohort-g1.md](leaderboards-test-cohort-g1.md) (G1)
+**Related QA:** [leaderboards-test-cohort-g1.md](leaderboards-test-cohort-g1.md) (G1)  
+**Contest live (Phase 5):** [weekly-contests-api-contest-live-leaderboard.md](../weekly-contests/weekly-contests-api-contest-live-leaderboard.md) — §8 in this file
 
 ## Purpose
 
@@ -19,6 +20,7 @@ General hosting, Cloud Run revisions, and Firebase project layout stay in [envir
 | **`GET /api/v1/leaderboards` 500** / Firestore “index” errors in logs | Composite indexes missing or **building** — [Index deploy](#1-firestore-composite-index-deploy-b3). |
 | **Stale ranks** / old **“Data as of”** | Run [snapshot rebuild](#3-job-replay--manual-refresh-e2); confirm [Scheduler](#scheduler-health). |
 | **429** on leaderboard GET | [Rate limits](leaderboards-rate-limits-f1.md); IP / proxy trust. |
+| **`GET /api/v1/contests/:contestId/leaderboard` 4xx/5xx** / slow live tab | [§8 Live contest leaderboard](#8-live-contest-leaderboard-phase-5); [weekly API doc](../weekly-contests/weekly-contests-api-contest-live-leaderboard.md). |
 | **Need to stop public leaderboard traffic** | Set **`LEADERBOARDS_DISABLED=true`** on the API service ([Kill switch](#5-emergency-disable-public-reads--ui)). |
 | **Verify data for a known cohort** | [G1 checklist](leaderboards-test-cohort-g1.md) + `npm run verify:leaderboard-cohort`. |
 
@@ -115,6 +117,8 @@ jsonPayload.outcome="service_disabled"
 
 **Correlate with HTTP:** filter on `httpRequest.requestUrl` containing `leaderboards` or `leaderboard-snapshots`, or trace via **`requestId`** in JSON body / logs if your log sink maps it.
 
+**Contest live leaderboard** logs use **`jsonPayload.component="contest_live_leaderboard"`** — filters in [§8](#8-live-contest-leaderboard-phase-5).
+
 **Related:** [leaderboards-rate-limits-f1.md](leaderboards-rate-limits-f1.md) (429, `TRUST_PROXY_FOR_RATE_LIMIT`), [leaderboards-duplicate-accounts-f2.md](leaderboards-duplicate-accounts-f2.md) (verified-email filtering).
 
 ---
@@ -140,6 +144,9 @@ New builds read **`LEADERBOARDS_UI_ENABLED`** at **bundle generation** time (`sc
 | **`LEADERBOARDS_UI_ENABLED=false`** | Toolbar **leaderboard** icon and sidenav **leaderboard** panel are not rendered (`environment.leaderboardsUiEnabled === false`). |
 | Unset or not `false` | Panel shown as usual. |
 
+| **`LEADERBOARD_CONTEST_TAB_ENABLED=false`** | Hides only the **Weekly contest** segment inside the leaderboard panel (`environment.leaderboardContestTabEnabled === false`). Does **not** hide the weekly contests drawer (`WEEKLY_CONTESTS_UI_ENABLED`). |
+| Unset or not `false` | Weekly contest tab shown when `weeklyContestsUiEnabled` is also on. |
+
 **Local dev:** `src/environment.ts` keeps the panel **on** unless you change it manually (no `.env` hook for Angular in the default dev flow).
 
 **Operational note:** Disabling **API** does not stop clients already in **Firestore snapshot listener** mode ([E1](leaderboards-realtime-e1.md)) from receiving snapshot updates. For a full “silent” prod UI, set **both** `LEADERBOARDS_DISABLED=true` and ship a build with **`LEADERBOARDS_UI_ENABLED=false`**, or roll back to a revision that omits the panel.
@@ -159,11 +166,62 @@ New builds read **`LEADERBOARDS_UI_ENABLED`** at **bundle generation** time (`sc
 ## 7. Escalation checklist
 
 1. Confirm **project** (staging vs prod) and **`FIRESTORE_DATABASE_ID`** match the incident environment.  
-2. **Logs** — `leaderboards` / `leaderboard_snapshot_job` outcomes; Firestore error messages.  
+2. **Logs** — `leaderboards` / `leaderboard_snapshot_job` / **`contest_live_leaderboard`** outcomes; Firestore error messages.  
 3. **Indexes** — Enabled in console.  
 4. **Rebuild** — `npm run rebuild:leaderboard-snapshots` or Scheduler force-run.  
 5. **Kill switch** — only if limiting blast radius; document in the incident ticket.  
 6. **Post-incident** — update composite indexes in git if anything was created ad hoc in console.
+
+---
+
+## 8. Live contest leaderboard (Phase 5)
+
+**Route:** `GET /api/v1/contests/:contestId/leaderboard` — public, **open** Bio Ball contests only. Contract, cache, and rate limits: [weekly-contests-api-contest-live-leaderboard.md](../weekly-contests/weekly-contests-api-contest-live-leaderboard.md).
+
+### Staging smoke
+
+1. Ensure an **`open`** contest with **`gameMode: bio-ball`** exists in **staging** Firestore (`contests/{id}`).  
+2. `curl -sS "https://<staging-api>/api/v1/contests/<contestId>/leaderboard"` → **200**, `standings` array, `cache.hit` boolean.  
+3. After transition to **`scoring`** / **`paid`**, the same URL → **400** `contest_not_open` (clients must use **`results/final`** or product UI for finished contests).
+
+### E2 parity check (live vs frozen `results/final`)
+
+Ranking is shared with E2 (`contest-standings-compute.js` + `contest-scoring-job.js`). To validate **staging** data end-to-end:
+
+1. Prepare **two** contests (or the same id at two points in time) with **identical** `leagueGamesN`, `windowStart` / `windowEnd`, and the same **`entries`** + per-user **`gameplayEvents`** slate the ADR cares about ([weekly-contests-phase4-adr.md](../weekly-contests/weekly-contests-phase4-adr.md)).  
+2. While contest **A** is **`open`**, record **`GET .../leaderboard`** → `standings` (ranks, `wins`, `gamesPlayed`, `losses`, `abandoned`, `tier`).  
+3. Close contest **B** (or A after rename/copy in a test project): **`open` → `scoring` → …**, run the **E2** scoring job so **`contests/{id}/results/final`** exists.  
+4. Compare **`results/final.standings`** to the saved live JSON: order and per-row stats should **match** for the same entrant set (golden tests in `contest-standings-compute.test.js` already assert deterministic parity on frozen fixtures).
+
+### Cloud Logging
+
+Structured lines: **`component: contest_live_leaderboard`**. Useful fields: `outcome`, `httpStatus`, `latencyMs`, `contestId`, `rowCount`, `entrantsConsidered`, `entrantsCapped`, `cacheHit`, `requestId`.
+
+```text
+jsonPayload.component="contest_live_leaderboard"
+```
+
+```text
+jsonPayload.component="contest_live_leaderboard"
+jsonPayload.outcome="query_failed"
+```
+
+```text
+jsonPayload.component="contest_live_leaderboard"
+(jsonPayload.outcome="ok" OR jsonPayload.outcome="ok_cache_hit")
+```
+
+**Monitoring:** In **GCP → Logging → Log-based metrics**, create a distribution on `jsonPayload.latencyMs` (filter to `outcome` in `ok`, `ok_cache_hit`) for **p95 latency**, and a counter on `httpStatus >= 500` or `outcome` ∉ `ok` / `ok_cache_hit` for **error rate**. Tune alerts per traffic (this route is poll-driven from the leaderboard panel when enabled).
+
+### Rollout flags
+
+| Layer | Control |
+|-------|---------|
+| **UI — weekly contest tab** | Build-time **`LEADERBOARD_CONTEST_TAB_ENABLED=false`** ([§5](#5-emergency-disable-public-reads--ui)); requires **`WEEKLY_CONTESTS_UI_ENABLED`** for the drawer. |
+| **Client poll interval** | **`CONTEST_LIVE_LEADERBOARD_POLL_MS`** in `generate-env-prod.mjs` — **`0`** / off disables SPA polling ([environment-matrix.md](../platform/environment-matrix.md)). |
+| **Server cache / rate limit** | **`CONTEST_LIVE_LEADERBOARD_CACHE_TTL_MS`**, **`CONTEST_LIVE_LEADERBOARD_CACHE_MAX_KEYS`**, **`CONTEST_LIVE_STANDINGS_RATE_LIMIT_*`** on Cloud Run (see [.env.example](../../.env.example)). |
+
+There is **no** separate kill switch for this route; to reduce load, tighten **rate limits**, set **cache TTL** > 0, disable **polling** in the bundle, or hide the tab.
 
 ---
 

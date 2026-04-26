@@ -61,6 +61,13 @@ const leaderboardsUiEnabled = process.env.LEADERBOARDS_UI_ENABLED !== 'false';
 /** Story C2 — omit weekly contests drawer when WEEKLY_CONTESTS_UI_ENABLED=false */
 const weeklyContestsUiEnabled = process.env.WEEKLY_CONTESTS_UI_ENABLED !== 'false';
 
+/**
+ * Phase 0 — omit “Weekly contest” tab inside the leaderboard panel when LEADERBOARD_CONTEST_TAB_ENABLED=false.
+ * Independent of the contests drawer (`WEEKLY_CONTESTS_UI_ENABLED`).
+ */
+const leaderboardContestTabEnabled =
+  process.env.LEADERBOARD_CONTEST_TAB_ENABLED !== 'false';
+
 /** Story AD-4 — omit admin dashboard affordance when ADMIN_DASHBOARD_UI_ENABLED=false */
 const adminDashboardUiEnabled = process.env.ADMIN_DASHBOARD_UI_ENABLED !== 'false';
 
@@ -92,6 +99,26 @@ if (
   authSessionMaxMs = Math.round(3 * 86400000);
 }
 
+/** Phase 3 — Angular poll of contest live leaderboard HTTP (ms). Unset → 30s; `0` / off / false / none → off. */
+const contestLivePollRaw = (process.env.CONTEST_LIVE_LEADERBOARD_POLL_MS ?? '').trim();
+const contestLivePollLower = contestLivePollRaw.toLowerCase();
+let contestLiveLeaderboardPollIntervalMs = 30_000;
+if (contestLivePollRaw !== '') {
+  if (
+    contestLivePollLower === '0' ||
+    contestLivePollLower === 'off' ||
+    contestLivePollLower === 'false' ||
+    contestLivePollLower === 'none'
+  ) {
+    contestLiveLeaderboardPollIntervalMs = 0;
+  } else if (Number.isFinite(Number(contestLivePollRaw))) {
+    contestLiveLeaderboardPollIntervalMs = Math.max(
+      0,
+      Math.round(Number(contestLivePollRaw)),
+    );
+  }
+}
+
 const content = `import { FeatureFlags } from './app/shared/feature-flag/feature-flag.service';
 import type { DeploymentEnvironment } from './environment.types';
 
@@ -111,6 +138,8 @@ export const environment = {
   leaderboardUseFirestoreSnapshot: ${leaderboardUseFirestoreSnapshot},
   leaderboardsUiEnabled: ${leaderboardsUiEnabled},
   weeklyContestsUiEnabled: ${weeklyContestsUiEnabled},
+  leaderboardContestTabEnabled: ${leaderboardContestTabEnabled},
+  contestLiveLeaderboardPollIntervalMs: ${contestLiveLeaderboardPollIntervalMs},
   adminDashboardUiEnabled: ${adminDashboardUiEnabled},
   contestsPaymentsEnabled: ${contestsPaymentsEnabled},
   authSessionMaxMs: ${authSessionMaxMs},

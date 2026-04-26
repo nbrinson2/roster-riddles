@@ -58,6 +58,14 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // Phase 4 optional materialized live standings — **no client access**. Prefer HTTP
+    // `GET /api/v1/contests/:contestId/leaderboard` only; widening reads here would duplicate
+    // policy and bypass server rate limits / cache. Admin SDK / workers may write; lifecycle
+    // deletes this subtree when the contest leaves `open` (see contest-live-standings-artifacts.js).
+    match /contests/{contestId}/liveStandings/{docId} {
+      allow read, write: if false;
+    }
+
     // Phase 5 P5-E1 / P5-G1: per-contest Stripe PI settlement markers (webhook idempotency aid) — Admin SDK only.
     match /contests/{contestId}/stripePiSettlements/{paymentIntentId} {
       allow read, write: if false;

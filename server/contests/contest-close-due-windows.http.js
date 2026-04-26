@@ -10,6 +10,7 @@ import {
   getContestsOperatorOrCronSecret,
   resolveSecretFromEnv,
 } from '../lib/contest-internal-auth.js';
+import { deleteContestLiveStandingsSubtree } from './contest-live-standings-artifacts.js';
 import { evaluateTransitionGuards, isContestStatus } from './contest-transitions.js';
 import { logContestScoringLine } from './contest-scoring-log.js';
 
@@ -241,6 +242,12 @@ export async function postContestCloseDueWindows(req, res) {
           phase: 'transition',
           outcome: 'open_to_scoring',
         });
+
+        try {
+          await deleteContestLiveStandingsSubtree(db, contestId);
+        } catch {
+          // Best-effort cleanup after leaving `open` (same as operator transition path).
+        }
 
         const wh = await postScoringWebhook(contestId, requestId);
         if (!wh.ok && !wh.skipped) {

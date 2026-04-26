@@ -8,6 +8,7 @@
 | Surface | Limit key | Default (60s window) | Env |
 |---------|-----------|----------------------|-----|
 | **`GET /api/v1/leaderboards`** | Client IP | **90** requests / window | `LEADERBOARD_RATE_LIMIT_MAX`, `LEADERBOARD_RATE_LIMIT_WINDOW_MS` |
+| **`GET /api/v1/contests/:contestId/leaderboard`** (Phase 1 live standings) | Client IP | **90** requests / window | `CONTEST_LIVE_STANDINGS_RATE_LIMIT_MAX`, `CONTEST_LIVE_STANDINGS_RATE_LIMIT_WINDOW_MS` |
 | **`POST /api/v1/me/gameplay-events`** | Authenticated **uid** | **30** requests / window | `GAMEPLAY_EVENT_RATE_LIMIT_MAX`, `GAMEPLAY_EVENT_RATE_LIMIT_WINDOW_MS` |
 
 **Not rate-limited here:** `POST /api/internal/v1/leaderboard-snapshots/rebuild` (protected by cron secret only).

@@ -42,6 +42,16 @@ export const environment = {
    */
   weeklyContestsUiEnabled: true,
   /**
+   * Phase 0 — “Weekly contest” segment in the leaderboard sidenav panel (live table comes in Phase 1).
+   * Requires `weeklyContestsUiEnabled`. Staging/prod: `LEADERBOARD_CONTEST_TAB_ENABLED` via `generate-env-prod.mjs` (omit or not `false` = on).
+   */
+  leaderboardContestTabEnabled: true,
+  /**
+   * Phase 3 — optional HTTP poll of `GET /api/v1/contests/:contestId/leaderboard` while the weekly
+   * contest tab is open (ms). `0` = off. Staging/prod: `CONTEST_LIVE_LEADERBOARD_POLL_MS` via `generate-env-prod.mjs` (default 30s when unset).
+   */
+  contestLiveLeaderboardPollIntervalMs: 30_000,
+  /**
    * Story P5-D2 — paid entry via Stripe Checkout. When true, contests with `entryFeeCents > 0` use
    * `POST .../checkout-session` + redirect; requires server `CONTESTS_PAYMENTS_ENABLED=true`.
    * Staging CI: `CONTESTS_PAYMENTS_ENABLED` at build. Production bundle: always off from `generate-env-prod.mjs`.

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 import { postContestCheckoutSession } from './server/contests/contest-checkout.http.js';
 import { postContestJoin } from './server/contests/contest-join.http.js';
+import { getContestLiveLeaderboard } from './server/contests/contest-live-leaderboard.http.js';
 import { getContestDetail, getContestList } from './server/contests/contest-read.http.js';
 import { postContestCloseDueWindows } from './server/contests/contest-close-due-windows.http.js';
 import { postContestRunScoring } from './server/contests/contest-scoring.http.js';
@@ -14,6 +15,7 @@ import { getLeaderboardPage } from './server/leaderboards/leaderboards.http.js';
 import { postRebuildLeaderboardSnapshots } from './server/leaderboards/leaderboards-snapshot-rebuild.http.js';
 import {
   contestJoinRateLimitHookMiddleware,
+  contestLiveStandingsRateLimitHookMiddleware,
   contestReadRateLimitHookMiddleware,
   gameplayEventRateLimitHookMiddleware,
   leaderboardRateLimitHookMiddleware,
@@ -183,6 +185,15 @@ app.get(
   requireFirebaseAuth,
   contestReadRateLimitHookMiddleware,
   getContestList,
+);
+/**
+ * Live mini-league standings — public; same ranking as E2 scoring. Register before `/:contestId` detail.
+ * @see docs/weekly-contests/weekly-contests-api-contest-live-leaderboard.md
+ */
+app.get(
+  '/api/v1/contests/:contestId/leaderboard',
+  contestLiveStandingsRateLimitHookMiddleware,
+  getContestLiveLeaderboard,
 );
 app.get(
   '/api/v1/contests/:contestId',

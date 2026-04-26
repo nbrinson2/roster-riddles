@@ -1,0 +1,17 @@
+# REST Client (VS Code / Cursor extension: "REST Client" by Huachao Mao)
+#
+# 1. Put LEADERBOARD_SNAPSHOT_CRON_SECRET in repo-root `.env` (gitignored), OR
+# 2. Replace {{cronSecret}} below with a literal (never commit real secrets).
+#
+# Click "Send Request" above each ### block.
+
+@baseUrl = https://rosterriddles.com
+@cronSecret = {{$dotenv LEADERBOARD_SNAPSHOT_CRON_SECRET}}
+
+### Rebuild leaderboard snapshots — Bearer (preferred)
+POST {{baseUrl}}/api/internal/v1/leaderboard-snapshots/rebuild
+Authorization: Bearer {{cronSecret}}
+
+### Rebuild leaderboard snapshots — X-Cron-Secret (same auth as Bearer)
+POST {{baseUrl}}/api/internal/v1/leaderboard-snapshots/rebuild
+X-Cron-Secret: {{cronSecret}}
