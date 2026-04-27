@@ -39,6 +39,8 @@ Optional body (strict JSON):
 
 Admin manual run (no operator secret): **`POST /api/v1/admin/contests/:contestId/payout-execute`** with Firebase **`admin: true`** — see [weekly-contests-phase6-ops.md](weekly-contests-phase6-ops.md).
 
+**Scheduler batch (dynamic contests):** **`POST /api/internal/v1/contests/payout-automation/run`** — scans recent **`paid`** contests and runs this job for each candidate; see [weekly-contests-phase6-ops.md](weekly-contests-phase6-ops.md) § **3a**.
+
 ---
 
 ## Behavior summary
