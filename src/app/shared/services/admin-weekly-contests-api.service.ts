@@ -71,6 +71,24 @@ export interface AdminContestRunScoringResponse {
   standingsCount: number;
 }
 
+/** Optional body for POST /api/v1/admin/contests/:contestId/payout-execute (Phase 6). */
+export interface AdminContestPayoutExecuteBody {
+  payoutJobId?: string;
+}
+
+/**
+ * Success JSON from POST /api/v1/admin/contests/:contestId/payout-execute.
+ * Shape varies (fresh run vs idempotent `payout_final_already_succeeded`).
+ */
+export interface AdminContestPayoutExecuteResponse {
+  schemaVersion: number;
+  contestId: string;
+  payoutJobId?: string;
+  aggregateStatus?: string;
+  outcome?: string;
+  lines?: unknown[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminWeeklyContestsApiService {
   private readonly http = inject(HttpClient);
@@ -112,6 +130,21 @@ export class AdminWeeklyContestsApiService {
     return this.http.post<AdminContestRunScoringResponse>(
       this.apiUrl(`/api/v1/admin/contests/${id}/run-scoring`),
       {},
+    );
+  }
+
+  /**
+   * Phase 6 — Stripe prize transfers + `payouts/final` for a `paid` contest (same engine as internal execute).
+   * Requires `CONTESTS_PAYMENTS_ENABLED` and Stripe; may move real money.
+   */
+  payoutExecute(
+    contestId: string,
+    body: AdminContestPayoutExecuteBody = {},
+  ): Observable<AdminContestPayoutExecuteResponse> {
+    const id = encodeURIComponent(contestId);
+    return this.http.post<AdminContestPayoutExecuteResponse>(
+      this.apiUrl(`/api/v1/admin/contests/${id}/payout-execute`),
+      body,
     );
   }
 }

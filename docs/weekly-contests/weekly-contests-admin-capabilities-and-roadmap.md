@@ -44,7 +44,7 @@ When **`ADMIN_DASHBOARD_UI_ENABLED`** is on and the user has **`isAdmin`** from 
 
 | Section | What admins can do |
 |---------|---------------------|
-| **Weekly contests** (`app-admin-weekly-contests-widget`) | **Create** a contest (scheduled or open, windows, `leagueGamesN`, rules version, optional display economics). **List** contests. **Change status** via transition form. **Run scoring job** when status is **`scoring`**. |
+| **Weekly contests** (`app-admin-weekly-contests-widget`) | **Create** a contest (scheduled or open, windows, `leagueGamesN`, rules version, optional display economics). **List** contests. **Change status** via transition form. **Run scoring job** when status is **`scoring`**. **Execute prize payout** when status is **`paid`** (`POST …/payout-execute` — real Stripe transfers when payments are enabled). |
 | **Admin users** (`app-admin-user-claims-widget`) | **Grant/revoke** `admin` on **other** users (not self-service lockout). |
 | **Docs in repo** | Static pointers to markdown paths in the clone — not served by the app. |
 

@@ -147,7 +147,7 @@
             *ngIf="row.status === 'scoring'"
             type="button"
             class="awc-btn awc-btn-primary"
-            [disabled]="runScoringBusyId !== null"
+            [disabled]="runScoringBusyId !== null || payoutExecuteBusyId !== null"
             (click)="submitRunScoring(row.contestId)"
           >
             {{
@@ -155,14 +155,31 @@
             }}
           </button>
           <button
+            *ngIf="row.status === 'paid'"
+            type="button"
+            class="awc-btn awc-btn-primary"
+            [disabled]="runScoringBusyId !== null || payoutExecuteBusyId !== null"
+            (click)="submitPayoutExecute(row.contestId)"
+          >
+            {{
+              payoutExecuteBusyId === row.contestId
+                ? 'Running payout…'
+                : 'Execute prize payout'
+            }}
+          </button>
+          <button
             type="button"
             class="awc-btn"
+            [disabled]="runScoringBusyId !== null || payoutExecuteBusyId !== null"
             (click)="toggleManage(row)"
             [attr.aria-expanded]="managingId === row.contestId"
           >
             {{ managingId === row.contestId ? 'Close' : 'Change status' }}
           </button>
         </div>
+        <p *ngIf="row.status === 'paid'" class="awc-muted awc-payout-hint">
+          Executes Stripe transfers when payments are enabled — same as internal payout execute.
+        </p>
         <p
           *ngIf="runScoringOk?.contestId === row.contestId"
           class="awc-muted awc-card-footnote"
@@ -174,6 +191,18 @@
           class="awc-error awc-card-footnote"
         >
           {{ runScoringError }}
+        </p>
+        <p
+          *ngIf="payoutExecuteOk?.contestId === row.contestId"
+          class="awc-muted awc-card-footnote"
+        >
+          {{ payoutExecuteOk?.text }}
+        </p>
+        <p
+          *ngIf="payoutExecuteError && payoutExecuteErrorContestId === row.contestId"
+          class="awc-error awc-card-footnote"
+        >
+          {{ payoutExecuteError }}
         </p>
 
         <div *ngIf="managingId === row.contestId" class="awc-form">
