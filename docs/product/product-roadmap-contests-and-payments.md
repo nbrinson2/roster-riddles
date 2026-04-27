@@ -85,6 +85,8 @@
 
 **Jira-style backlog (detailed stories):** [weekly-contests-phase6-payouts-jira.md](../weekly-contests/weekly-contests-phase6-payouts-jira.md).
 
+**ADR (who / when / how much):** [weekly-contests-phase6-payouts-adr.md](../weekly-contests/weekly-contests-phase6-payouts-adr.md) (Story P6-A1).
+
 ---
 
 ## Phase 7 — Hardening and operations

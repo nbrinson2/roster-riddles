@@ -4,7 +4,7 @@
 |-------|--------|
 | **Status** | Accepted (engineering draft — legal/commerce review required before **live** Stripe keys) |
 | **Date** | 2026-04-21 |
-| **Scope** | **Paid entry** for existing weekly contests (`contests/{contestId}` / `entries/{uid}`) using **Stripe**; **single currency USD**; **no** winner payouts, **no** Stripe Connect — those are [Phase 6](../product/product-roadmap-contests-and-payments.md). |
+| **Scope** | **Paid entry** for existing weekly contests (`contests/{contestId}` / `entries/{uid}`) using **Stripe**; **single currency USD**; **no** winner payouts, **no** Stripe Connect — those are [Phase 6](../product/product-roadmap-contests-and-payments.md) ([payouts ADR](weekly-contests-phase6-payouts-adr.md)). |
 | **Depends on** | [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md), [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md), [stripe.md](../payments/stripe.md) |
 | **Implements (backlog)** | [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) Story P5-A1 |
 
@@ -38,7 +38,7 @@ Phase 5 adds **real entry fees** (test mode in staging, live only after **Phase 
 
 | Topic | Stance |
 |--------|--------|
-| **Stripe Connect**, **transfers** to winners, **KYC** for recipients | **Out of scope** — [Phase 6](../product/product-roadmap-contests-and-payments.md). |
+| **Stripe Connect**, **transfers** to winners, **KYC** for recipients | **Out of scope** — [Phase 6](../product/product-roadmap-contests-and-payments.md) ([payouts ADR](weekly-contests-phase6-payouts-adr.md)). |
 | **Tax**, **1099**, **withholding** | **Out of scope** — requires product + finance; not blocking test-mode entry fees. |
 | **Refunds** | **Hooks only** in Phase 5 (webhook handlers for `charge.refunded` / similar); **policy** (when operator may refund) remains **Phase 0** / legal. |
 | **Non-USD currency** | **Deferred** — v1 USD cents only. |

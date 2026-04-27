@@ -49,9 +49,9 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] ADR merged with **state machine** for contest-level payout status (`none` \| `scheduled` \| `in_progress` \| `completed` \| `failed` \| `held`).
-- [ ] Explicit **link** to Phase 0 legal sign-off for real-money prizes.
-- [ ] Table: **event** → **Stripe API** → **Firestore writes** → **ledger line type** (new `lineType` values enumerated).
+- [x] ADR merged with **state machine** for contest-level payout status (`none` \| `scheduled` \| `in_progress` \| `completed` \| `failed` \| `held`).
+- [x] Explicit **link** to Phase 0 legal sign-off for real-money prizes.
+- [x] Table: **event** → **Stripe API** → **Firestore writes** → **ledger line type** (new `lineType` values enumerated).
 
 **Dependencies**
 
@@ -59,7 +59,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `docs/weekly-contests/weekly-contests-phase6-payouts-adr.md`
+- [`docs/weekly-contests/weekly-contests-phase6-payouts-adr.md`](weekly-contests-phase6-payouts-adr.md) ✅
 
 ---
 
@@ -609,8 +609,9 @@ P6-*   ─► P6-H1 / P6-H2 / P6-I*
 
 ## References
 
-- [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) — Phase 6 bullets  
-- [weekly-contests-schema-results.md](weekly-contests-schema-results.md) — `results/final`, `payouts/dryRun`  
+- [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md) — Story P6-A1 (decisions)
+- [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) — Phase 6 bullets
+- [weekly-contests-schema-results.md](weekly-contests-schema-results.md) — `results/final`, `payouts/dryRun`
 - [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — Phase 5 patterns  
 - [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) — append-only ledger  
 - [stripe.md](../payments/stripe.md) — keys, env vars  
