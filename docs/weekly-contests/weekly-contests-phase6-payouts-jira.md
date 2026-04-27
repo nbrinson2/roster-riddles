@@ -249,8 +249,8 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Ledger ADR updated; server validators reject unknown `lineType`.
-- [ ] Indexes if new query patterns (e.g. by `stripeObjectId`).
+- [x] Ledger ADR updated; server validators reject unknown `lineType`.
+- [x] Indexes if new query patterns (e.g. by `stripeObjectId`).
 
 **Dependencies**
 
@@ -258,7 +258,8 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- Doc + `server/...` validation + optional migration note (no backfill required if new types only)
+- Doc + `server/payments/contest-ledger-entry-validate.js` + tests + `firestore.indexes.json` composite on `stripeObjectId` + `createdAt` ✅  
+- **Migration:** none — new `lineType` values apply to **new** ledger rows only; existing Phase 5 docs unchanged.
 
 ---
 

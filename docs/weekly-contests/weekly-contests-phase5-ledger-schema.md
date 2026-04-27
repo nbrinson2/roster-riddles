@@ -1,7 +1,7 @@
 # Weekly contests — payment ledger (Phase 5 Story P5-B2)
 
-**Status:** Schema defined (writes via Admin SDK / server only)  
-**Depends on:** [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md)  
+**Status:** Schema defined (writes via Admin SDK / server only); **Phase 6 P6-C3** prize `lineType` values + server validation.  
+**Depends on:** [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md), [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md) (prize direction glossary)  
 **Physical path:** Top-level collection **`ledgerEntries`**, document id **`{ledgerEntryId}`** (see [Document ids](#document-ids-and-idempotency)).
 
 ## Purpose
@@ -20,8 +20,8 @@
 | `uid` | `string` | Yes | Firebase Auth uid affected by this line (payer / recipient context). |
 | `contestId` | `string` | Yes | Contest id; ties line to `contests/{contestId}`. |
 | `entryPathHint` | `string` | No | Denormalized hint, e.g. `contests/{contestId}/entries/{uid}` for support (not a Firestore reference type). |
-| `lineType` | `string` | Yes | `contest_entry_charge` \| `contest_entry_refund` \| `contest_entry_adjustment` \| `other` — extend in code with validation. |
-| `direction` | `string` | Yes | `credit` (money in to platform / fee captured) or `debit` (refund out / reversal) — **accounting sense** for your ledger convention; document consistently in webhook handlers. |
+| `lineType` | `string` | Yes | See [Line types](#line-types-including-phase-6-prize-payouts-p6-c3). |
+| `direction` | `string` | Yes | `credit` \| `debit` — **platform-centric** convention; must pair with `lineType` as in [Direction by `lineType`](#direction-by-linetype-p6-c3). |
 | `amountCents` | `number` (int) | Yes | Non-negative magnitude in **USD cents** (v1 single currency). |
 | `currency` | `string` | Yes | ISO-like code; v1 use **`usd`**. |
 | `stripeEventId` | `string` \| `null` | No | Stripe **`evt_...`** when this line is derived from a webhook; **`null`** for manual/admin lines. |
@@ -32,6 +32,34 @@
 | `metadata` | `map` | No | Small debug map; **no PII**, no secrets. |
 
 **Never store** card numbers, CVC, or API secret keys.
+
+---
+
+## Line types (including Phase 6 prize payouts, P6-C3)
+
+| `lineType` | When used |
+|------------|-----------|
+| **`contest_entry_charge`** | Entry fee captured (Phase 5 success webhook). |
+| **`contest_entry_refund`** | Entry fee refunded (Phase 5 refund webhook). |
+| **`contest_entry_adjustment`** | Manual / support correction (rare). |
+| **`other`** | Escape hatch — use sparingly with `metadata` rationale. |
+| **`prize_transfer_out`** | Outbound **Stripe Transfer** to a winner’s connected account (prize execution). |
+| **`prize_transfer_reversal`** | Reversal / return of prize funds to the platform balance (e.g. `transfer.reversed`). |
+| **`platform_fee_retained`** | Optional line when recording **platform-retained** fee or subsidy (net-of-fee flows), if product enables it. |
+
+**Server validation:** `server/payments/contest-ledger-entry-validate.js` — **`assertValidContestLedgerEntryPayload`** rejects unknown `lineType` and invalid `(lineType, direction)` pairs before webhook / job writes.
+
+### Direction by `lineType` (P6-C3)
+
+| `lineType` | Allowed `direction` | Meaning (platform ledger) |
+|------------|---------------------|----------------------------|
+| `contest_entry_charge` | **`credit`** | Entry fee arrives on the platform. |
+| `contest_entry_refund` | **`debit`** | Refund reduces platform-collected fee balance. |
+| `contest_entry_adjustment` | **`credit`** or **`debit`** | Manual correction either way. |
+| `other` | **`credit`** or **`debit`** | Document intent in `metadata`. |
+| **`prize_transfer_out`** | **`debit`** | Funds **leave** the platform to the winner (`tr_…`). |
+| **`prize_transfer_reversal`** | **`credit`** | Funds **return** to the platform when a prize transfer is reversed. |
+| **`platform_fee_retained`** | **`credit`** | Platform **keeps** / recognizes retained fee (positive to platform in this convention). |
 
 ---
 
@@ -53,6 +81,7 @@ If a single Stripe event must produce **multiple** ledger lines (rare), either u
 | Lines for a user (newest first) | `ledgerEntries.where('uid','==', uid).orderBy('createdAt','desc')` | `uid` ↑, `createdAt` ↓ |
 | Lines for a contest (newest first) | `ledgerEntries.where('contestId','==', id).orderBy('createdAt','desc')` | `contestId` ↑, `createdAt` ↓ |
 | Lookup by Stripe event | `ledgerEntries.doc(stripeEventId)` | Single-field `stripeEventId` optional if querying by field; **prefer id = `evt_...`**. |
+| Prize / transfer reconciliation (Phase 6) | `ledgerEntries.where('stripeObjectId','==', 'tr_...').orderBy('createdAt','desc')` | `stripeObjectId` ↑, `createdAt` ↓ (see `firestore.indexes.json`) |
 
 ---
 
@@ -65,7 +94,7 @@ If a single Stripe event must produce **multiple** ledger lines (rare), either u
 
 ## TypeScript
 
-See **`src/app/shared/models/contest-ledger-entry.model.ts`**.
+See **`src/app/shared/models/contest-ledger-entry.model.ts`** (`ContestLedgerLineType` includes P6-C3 values).
 
 ## References
 

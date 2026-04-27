@@ -1,5 +1,6 @@
 /**
- * Firestore `ledgerEntries/{ledgerEntryId}` — Phase 5 Story P5-B2 (append-only payment ledger).
+ * Firestore `ledgerEntries/{ledgerEntryId}` — Phase 5 Story P5-B2 (append-only payment ledger);
+ * Phase 6 Story P6-C3 adds prize payout line types (validated server-side).
  * Server / Admin SDK writes only; clients have no access.
  * @see docs/weekly-contests/weekly-contests-phase5-ledger-schema.md
  */
@@ -11,7 +12,13 @@ export type ContestLedgerLineType =
   | 'contest_entry_charge'
   | 'contest_entry_refund'
   | 'contest_entry_adjustment'
-  | 'other';
+  | 'other'
+  /** Prize pool outbound to a winner’s Connect account (`transfers.create`). */
+  | 'prize_transfer_out'
+  /** Transfer reversal / clawback putting funds back on the platform balance. */
+  | 'prize_transfer_reversal'
+  /** Platform-retained fee or subsidy line (net-of-fee accounting), if used. */
+  | 'platform_fee_retained';
 
 /**
  * Credit vs debit in **ledger convention** (must match webhook writers):

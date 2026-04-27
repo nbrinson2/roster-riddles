@@ -109,5 +109,5 @@ Same **`lines`** shape as `final` (or a subset while in-flight). Typical fields:
 
 ## References
 
-- [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) — ledger lines (P6-C3 prize types).  
+- [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) — **`ledgerEntries`** prize `lineType` + `direction` (P6-C3) and entry-fee lines.  
 - [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) — Story P6-C2 backlog.
