@@ -1,6 +1,6 @@
 # Weekly contests API — Phase 6 (payouts / Connect)
 
-**Status:** Story **P6-B2** (`POST .../me/stripe/connect/onboarding`) implemented. Webhook-driven Connect state sync is **P6-B3**.  
+**Status:** Stories **P6-B2** (Connect onboarding URL) and **P6-B3** (`account.updated` webhook → `users/{uid}`) implemented.  
 **Related:** [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md), [stripe.md](../payments/stripe.md) (Connect appendix), [weekly-contests-phase6-payouts-ux.md](weekly-contests-phase6-payouts-ux.md)
 
 ---
@@ -67,7 +67,11 @@ Global disable: `RATE_LIMITS_DISABLED=true` (same as other Express rate limits).
 
 ### Firestore
 
-Connect ids on **`users/{uid}`** are **not client-writable** — see `firestore.rules` (P6-B2).
+Connect payout snapshot fields on **`users/{uid}`** are **not client-writable** — see `firestore.rules` (P6-B2 / P6-B3).
+
+### Webhooks (P6-B3)
+
+Stripe **`account.updated`** for connected accounts is handled on the same endpoint as Phase 5 — **`POST /api/v1/webhooks/stripe`** — when **`CONTESTS_PAYMENTS_ENABLED=true`**. Idempotency uses **`processedStripeEvents/{event.id}`** (shared collection). Event list and outcomes: [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md) (Phase 6 Connect section).
 
 ---
 

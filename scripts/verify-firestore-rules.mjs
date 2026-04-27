@@ -53,6 +53,13 @@ try {
       { merge: true },
     ),
   );
+  await assertFails(
+    setDoc(
+      doc(alice, 'users', 'alice'),
+      { stripeConnectChargesEnabled: true },
+      { merge: true },
+    ),
+  );
 
   await assertFails(
     setDoc(doc(bob, 'users', 'bob'), {

@@ -165,7 +165,7 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Documented event list in [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md) or Phase 6 webhook appendix.
+- [x] Documented event list in [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md) or Phase 6 webhook appendix.
 - [ ] Staging: toggle test Connect account through Dashboard → Firestore reflects state within one webhook delivery.
 
 **Dependencies**
@@ -174,7 +174,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `server/payments/stripe-webhook-connect.js`, tests, docs update
+- `server/payments/stripe-webhook-connect.js`, tests, docs update ✅
 
 ---
 

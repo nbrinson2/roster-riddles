@@ -61,7 +61,7 @@ When you add server-side Stripe calls, set **`STRIPE_SECRET_KEY`** on the **stag
 
 - **Connect** enabled on the **platform** Stripe account (same account as **`STRIPE_SECRET_KEY`**).
 - **Branding** and **Express** settings configured per Stripe Connect onboarding docs.
-- **Webhooks** for Connect lifecycle events (e.g. `account.updated`) must hit the same verified endpoint family as Phase 5 (`POST /api/v1/webhooks/stripe`) — exact event list in implementation story **P6-B3**.
+- **Webhooks** for Connect lifecycle events must hit the same verified endpoint as Phase 5 (`POST /api/v1/webhooks/stripe`). Subscribe to **`account.updated`** on your Connect webhook (see [weekly-contests-phase5-webhooks.md](../weekly-contests/weekly-contests-phase5-webhooks.md) Phase 6 section — Story **P6-B3**).
 
 ### Keys and permissions
 

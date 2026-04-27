@@ -1,6 +1,6 @@
 # Weekly contests — Stripe webhooks (Phase 5 Story P5-C2+)
 
-**Status:** Signature verification (P5-C2); **success** (P5-E1), **failure / expired** (P5-E2), **refunds** (P5-E3).  
+**Status:** Signature verification (P5-C2); **success** (P5-E1), **failure / expired** (P5-E2), **refunds** (P5-E3); **Connect** `account.updated` (P6-B3).  
 **Endpoint:** `POST /api/v1/webhooks/stripe`  
 **Implementation:** [`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js), registered in [`index.js`](../index.js) **before** `express.json()` so the raw body is available for `stripe.webhooks.constructEvent`.  
 **Structured logs / metrics (P5-H1):** [`weekly-contests-phase5-observability.md`](weekly-contests-phase5-observability.md), [`contest-payments-observability.js`](../../server/payments/contest-payments-observability.js).
@@ -109,6 +109,48 @@
 | `refund_skip_entry_not_paid` | Entry not in a refundable payment state |
 | `refund_pi_mismatch` | Entry’s `stripePaymentIntentId` does not match refund PI |
 | `charge_refunded_skip_partial_or_non_usd` | Partial charge refund (handled via `refund.updated`) or non-USD |
+
+---
+
+## Phase 6 Story P6-B3 — Connect `account.updated` (`CONTESTS_PAYMENTS_ENABLED=true`)
+
+**Implementation:** [`stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js) → [`stripe-webhook-connect.js`](../server/payments/stripe-webhook-connect.js).
+
+### Stripe Dashboard — subscribe to this event
+
+| Stripe `type` | When handled |
+|---------------|--------------|
+| **`account.updated`** | Connected account object includes `metadata.firebase_uid` (set by P6-B2 onboarding); updates **`users/{uid}`** snapshot fields only when the user doc exists and any stored **`stripeConnectAccountId`** matches the event’s `acct_…` (or is absent, in which case the id is healed from the event). |
+
+**Not v1-handled (optional later):** `capability.updated`, `person.updated` — rely on Stripe emitting **`account.updated`** after capability / person changes for Express accounts.
+
+### Firestore writes (Admin SDK, one transaction per delivery)
+
+1. **`processedStripeEvents/{event.id}`** — idempotency for Stripe **event id** redelivery (same collection as P5-E1; `outcome` values prefixed with `connect_`).
+2. **`users/{uid}`** — merge-only snapshot (no full Stripe account JSON):
+
+| Field | Meaning |
+|-------|---------|
+| `stripeConnectChargesEnabled` | boolean |
+| `stripeConnectPayoutsEnabled` | boolean |
+| `stripeConnectDetailsSubmitted` | boolean |
+| `stripeConnectRequirementsCurrentlyDueCount` | length of `requirements.currently_due` |
+| `stripeConnectRequirementsCurrentlyDueSummary` | comma-joined requirement strings, truncated (~500 chars) |
+| `stripeConnectLastWebhookEventId` | Stripe `evt_…` |
+| `stripeConnectLastAccountUpdatedAt` | server timestamp |
+| `stripeConnectAccountType` | from Stripe Account `type` when present |
+| `stripeConnectAccountId` | set only when missing on the user doc (**self-heal**) |
+
+### Skip / reject outcomes (representative)
+
+| `processedStripeEvents.outcome` | Meaning |
+|----------------------------------|---------|
+| `connect_rejected_missing_firebase_uid_metadata` | Connected account has no usable `metadata.firebase_uid` |
+| `connect_rejected_user_doc_missing` | No `users/{uid}` document |
+| `connect_rejected_stored_account_mismatch` | User doc has a different `stripeConnectAccountId` than this `acct_…` |
+| `connect_duplicate_stripe_event` | Same `evt_…` replayed |
+
+**Payments disabled:** When `CONTESTS_PAYMENTS_ENABLED` is not `true`, Connect events are **not** applied; the handler still returns **200** after logging (`connectWebhookSkipped: payments_disabled`).
 
 ---
 
