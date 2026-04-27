@@ -73,11 +73,10 @@ const adminDashboardUiEnabled = process.env.ADMIN_DASHBOARD_UI_ENABLED !== 'fals
 
 /**
  * Story P5-D2 — paid entry UX in the SPA (Stripe Checkout redirect).
- * Production: always false (no live paid checkout in the prod bundle).
- * Staging: true only when build receives `CONTESTS_PAYMENTS_ENABLED=true` (match server QA).
+ * Enabled only when the build explicitly sets `CONTESTS_PAYMENTS_ENABLED=true`
+ * (applies to staging and production builds).
  */
-const contestsPaymentsEnabled =
-  isStaging && process.env.CONTESTS_PAYMENTS_ENABLED === 'true';
+const contestsPaymentsEnabled = process.env.CONTESTS_PAYMENTS_ENABLED === 'true';
 
 /** Max session from last auth (`authTime`). 0 = disabled. Prod defaults to 3d if unset; staging defaults to 0. */
 const authSessionMaxDaysRaw = (process.env.AUTH_SESSION_MAX_DAYS ?? '').trim();
