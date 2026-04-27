@@ -83,6 +83,12 @@
 
 **Repository:** Not implemented. Phase 4 uses **dry-run** payout docs only ([weekly-contests-schema-results.md](weekly-contests-schema-results.md)).
 
+**Jira-style backlog (detailed stories):** [weekly-contests-phase6-payouts-jira.md](../weekly-contests/weekly-contests-phase6-payouts-jira.md).
+
+**ADR (who / when / how much):** [weekly-contests-phase6-payouts-adr.md](../weekly-contests/weekly-contests-phase6-payouts-adr.md) (Story P6-A1).
+
+**UX (winner onboarding + status copy):** [weekly-contests-phase6-payouts-ux.md](../weekly-contests/weekly-contests-phase6-payouts-ux.md) (Story P6-A2).
+
 ---
 
 ## Phase 7 — Hardening and operations

@@ -89,6 +89,20 @@ const contestLiveStandingsConsume = createFixedWindowLimiter({
   windowMs: contestLiveStandingsWindowMs,
 });
 
+const stripeConnectOnboardingWindowMs = parsePositiveInt(
+  process.env.STRIPE_CONNECT_ONBOARDING_RATE_LIMIT_WINDOW_MS,
+  60_000,
+);
+const stripeConnectOnboardingMax = parsePositiveInt(
+  process.env.STRIPE_CONNECT_ONBOARDING_RATE_LIMIT_MAX,
+  15,
+);
+
+const stripeConnectOnboardingConsume = createFixedWindowLimiter({
+  maxRequests: stripeConnectOnboardingMax,
+  windowMs: stripeConnectOnboardingWindowMs,
+});
+
 /**
  * @type {import('express').RequestHandler}
  */
@@ -183,6 +197,27 @@ export function contestLiveStandingsRateLimitHookMiddleware(req, res, next) {
     }
     const ip = getClientIpForRateLimit(req);
     return contestLiveStandingsConsume(`csl:${ip}`);
+  };
+  next();
+}
+
+/**
+ * After `requireFirebaseAuth` — per-uid fixed window (Phase 6 P6-B2 Connect onboarding).
+ * @type {import('express').RequestHandler}
+ */
+export function stripeConnectOnboardingRateLimitHookMiddleware(req, res, next) {
+  /**
+   * @returns {Promise<RateLimitResult>}
+   */
+  req.consumeStripeConnectOnboardingRateLimit = async () => {
+    if (rateLimitsGloballyDisabled()) {
+      return { allowed: true, retryAfterSec: null };
+    }
+    const uid = req.user?.uid;
+    if (!uid) {
+      return { allowed: true, retryAfterSec: null };
+    }
+    return stripeConnectOnboardingConsume(`sco:${uid}`);
   };
   next();
 }

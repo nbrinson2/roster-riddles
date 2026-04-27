@@ -29,6 +29,24 @@
       ]
     },
     {
+      "collectionGroup": "contests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "prizePayoutStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "windowEnd",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "gameplayEvents",
       "queryScope": "COLLECTION",
       "fields": [
@@ -116,6 +134,38 @@
       "fields": [
         {
           "fieldPath": "contestId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "ledgerEntries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "stripeObjectId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "ledgerEntries",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "contestId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "uid",
           "order": "ASCENDING"
         },
         {

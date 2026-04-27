@@ -6,6 +6,7 @@
 
 - **`contests/{contestId}/results/final`** — single write-once artifact for ordered standings + tie policy + job idempotency fields.
 - **`contests/{contestId}/payouts/dryRun`** — dry-run payout lines (numeric only; no Stripe). May be merged into `results/final` in a later story; separate doc keeps payouts easy to permission separately.
+- **`contests/{contestId}/payouts/final`** — Phase 6 Story **P6-C2** — immutable **execution** snapshot (Stripe transfer ids + per-line status). See [weekly-contests-schema-contest-payouts-final.md](weekly-contests-schema-contest-payouts-final.md). Optional sibling **`payouts/run_{opaqueId}`** for retry audit.
 
 ## Immutability & idempotency
 
@@ -150,12 +151,15 @@ Populated by the scoring job (**Story E3**) so support can explain ordering when
 
 ## Security rules
 
-- **`results/*`** and **`payouts/*`:** **Read** if **signed-in**; **writes denied** to clients (see `firestore.rules`).
+- **`results/*`**: **Read** if **signed-in**; **writes denied** to clients (see `firestore.rules`).
+- **`payouts/dryRun`**: **Read** if **signed-in**; **writes denied** (Story B3).
+- **`payouts/final`** and optional **`payouts/run_*`**: **No client read** (Phase 6 **P6-H1**); **writes denied** — Admin SDK / admin HTTP only.
 
 ## TypeScript
 
 - **`src/app/shared/models/contest-results-final.model.ts`** — `ContestFinalResultsDocument`, `ContestStandingRow`, tie policy literal type.
 - **`src/app/shared/models/contest-payouts-dry-run.model.ts`** — `ContestDryRunPayoutsDocument`, `ContestPayoutLine`.
+- **`src/app/shared/models/contest-payout-final.model.ts`** — `ContestPayoutFinalDocument`, `ContestPayoutFinalLine`, optional `ContestPayoutRunAttemptDocument` (P6-C2).
 
 ## References
 

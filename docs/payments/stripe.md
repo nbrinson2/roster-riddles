@@ -2,7 +2,7 @@
 
 **Broader roadmap:** entry fees, webhooks, and payouts sit in [product-roadmap-contests-and-payments.md](product-roadmap-contests-and-payments.md) (Phases 5–6).
 
-Payment integration is not wired yet. Use this doc so **non-production** never uses **live** Stripe keys by mistake.
+**Phase 5** (contest entry fees) uses Checkout + webhooks in-repo; **Phase 6** (winner payouts via **Connect**) is specified in docs and ADR — see [Connect appendix](#stripe-connect-phase-6--winner-payouts) below. Use this doc so **non-production** never uses **live** Stripe keys by mistake.
 
 ## Rules
 
@@ -23,6 +23,7 @@ Never commit keys. Never put **secret** keys in the Angular app — only **publi
 | `STRIPE_PUBLISHABLE_KEY` | Angular build (`environment.*` via `generate-env-prod.mjs`) | **Cloud Build:** substitution `_STRIPE_PUBLISHABLE_KEY` → Docker `--build-arg STRIPE_PUBLISHABLE_KEY` → `generate-env-prod.mjs`. Use **test** publishable key for staging triggers; **live** only on the production trigger. |
 | `STRIPE_WEBHOOK_SECRET` | Express — `POST /api/v1/webhooks/stripe` ([`server/payments/stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js); see [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md)) | Same file-path pattern as `STRIPE_SECRET_KEY` when local. **test** `whsec_…` from Stripe CLI or Dashboard. |
 | `CONTESTS_PAYMENTS_METRIC_COUNTERS` | Optional — set to **`1`** to emit extra **`contest_payments_metrics`** JSON lines (failure counters) alongside webhook logs; see [weekly-contests-phase5-observability.md](../weekly-contests/weekly-contests-phase5-observability.md) (P5-H1). | Omit in dev unless testing sinks. |
+| `CONTESTS_PAYOUT_METRIC_COUNTERS` | Optional — set to **`1`** to emit extra **`contest_payout_metrics`** JSON lines for Phase 6 **prize payout job** and **`transfer.*` / `payout.*`** webhook failures; see [weekly-contests-phase6-observability.md](../weekly-contests/weekly-contests-phase6-observability.md) (P6-H2). | Omit in dev unless testing sinks. |
 
 ## Server module (Phase 5 — P5-C1, P5-C2)
 
@@ -44,6 +45,44 @@ Never commit keys. Never put **secret** keys in the Angular app — only **publi
 ## Cloud Run (runtime)
 
 When you add server-side Stripe calls, set **`STRIPE_SECRET_KEY`** on the **staging** and **production** services separately (staging = test key, prod = live key). Do not bake secret keys into the Docker image; use **secrets** or **environment variables** configured in the Cloud Run console / Terraform.
+
+---
+
+## Stripe Connect (Phase 6 — winner payouts)
+
+**Product / architecture ADR:** [weekly-contests-phase6-payouts-adr.md](../weekly-contests/weekly-contests-phase6-payouts-adr.md) § *Stripe Connect account model* (Story **P6-B1**).  
+**Firestore field names on `users/{uid}`:** [weekly-contests-schema-users-payouts.md](../weekly-contests/weekly-contests-schema-users-payouts.md) (Story **P6-C1**).
+
+### Account type chosen for v1
+
+| v1 choice | Notes |
+|-----------|--------|
+| **Express** connected accounts | Stripe-hosted **onboarding** and **KYC**; platform uses **`stripe.transfers.create`** to move funds to `destination: acct_…`. **Standard** and **Custom** are documented as **not v1** unless ADR is revised. |
+
+### Platform prerequisites (Stripe Dashboard)
+
+- **Connect** enabled on the **platform** Stripe account (same account as **`STRIPE_SECRET_KEY`**).
+- **Branding** and **Express** settings configured per Stripe Connect onboarding docs.
+- **Webhooks** for Connect lifecycle events must hit the same verified endpoint as Phase 5 (`POST /api/v1/webhooks/stripe`). Subscribe to **`account.updated`** on your Connect webhook (see [weekly-contests-phase5-webhooks.md](../weekly-contests/weekly-contests-phase5-webhooks.md) Phase 6 section — Story **P6-B3**).
+
+### Keys and permissions
+
+- The platform **secret key** (`sk_test_…` / `sk_live_…`) must be able to call **Connect** APIs (`accounts.create`, `accountLinks.create`, `transfers.create`, etc.). Restricted keys are **allowed** only if every required capability is included — for early development, a **standard secret key** in a locked-down runtime is simpler.
+- **Never** send the platform secret key to the browser. Connect **Account Links** are created **server-side**; the client only receives a **one-time URL** (P6-B2).
+
+### Test vs live (same rule as above)
+
+| Environment | Connect |
+|-------------|---------|
+| **Staging / local** | **Test mode** Connect accounts only — create and onboard test connected accounts in the Stripe test Dashboard. |
+| **Production** | **Live mode** Connect + live transfers — **only** after Phase 0 legal sign-off on prizes ([product-roadmap](../product/product-roadmap-contests-and-payments.md) Phase 6). |
+
+### Operational links
+
+- Stripe docs: **Connect onboarding** (Express), **Transfers**, **Account Links**.
+- Support runbook (copy / UX): [weekly-contests-phase6-payouts-ux.md](../weekly-contests/weekly-contests-phase6-payouts-ux.md).
+- Staging QA (Connect + transfer E2E): [weekly-contests-phase6-staging-qa.md](../weekly-contests/weekly-contests-phase6-staging-qa.md) (Story **P6-I1**).
+- Disputes / chargebacks (entry fee vs prize): [weekly-contests-phase6-disputes-runbook.md](../weekly-contests/weekly-contests-phase6-disputes-runbook.md) (Story **P6-F2**).
 
 ## Sanity check
 

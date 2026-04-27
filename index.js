@@ -9,6 +9,7 @@ import { getContestLiveLeaderboard } from './server/contests/contest-live-leader
 import { getContestDetail, getContestList } from './server/contests/contest-read.http.js';
 import { postContestCloseDueWindows } from './server/contests/contest-close-due-windows.http.js';
 import { postContestRunScoring } from './server/contests/contest-scoring.http.js';
+import { postContestPayoutExecute } from './server/contests/contest-payout-execute.http.js';
 import { postContestTransition } from './server/contests/contest-transition.http.js';
 import { postGameplayEvent } from './server/gameplay/gameplay-events.js';
 import { getLeaderboardPage } from './server/leaderboards/leaderboards.http.js';
@@ -19,13 +20,23 @@ import {
   contestReadRateLimitHookMiddleware,
   gameplayEventRateLimitHookMiddleware,
   leaderboardRateLimitHookMiddleware,
+  stripeConnectOnboardingRateLimitHookMiddleware,
 } from './server/middleware/rate-limit-hooks.middleware.js';
 import {
   getAdminContestList,
   postAdminContestCreate,
+  postAdminContestPayoutExecute,
   postAdminContestRunScoring,
   postAdminContestTransition,
+  postAdminContestVoidAfterPrize,
 } from './server/admin/admin-contests.http.js';
+import {
+  getAdminContestPayoutStatus,
+  getAdminContestUserPayoutStatus,
+  postAdminContestPayoutHold,
+  postAdminContestPayoutResume,
+  postAdminContestPayoutRetryFailed,
+} from './server/admin/admin-payouts.http.js';
 import {
   getAdminUser,
   listAdminUsers,
@@ -36,6 +47,7 @@ import { requireFirebaseAuth } from './server/middleware/require-auth.js';
 import { requireAdmin } from './server/middleware/require-admin.js';
 import { requestIdMiddleware } from './server/middleware/request-id.middleware.js';
 import { validateStripeConfigAtStartup } from './server/payments/stripe-server.js';
+import { postStripeConnectOnboarding } from './server/payments/stripe-connect-onboarding.http.js';
 import { postStripeWebhook } from './server/payments/stripe-webhook.http.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -90,6 +102,14 @@ app.get('/api/v1/me', requireFirebaseAuth, (req, res) => {
   });
 });
 
+/** Stripe Connect Express — hosted Account Link for onboarding / updates (Phase 6 P6-B2). */
+app.post(
+  '/api/v1/me/stripe/connect/onboarding',
+  requireFirebaseAuth,
+  stripeConnectOnboardingRateLimitHookMiddleware,
+  postStripeConnectOnboarding,
+);
+
 /**
  * Admin — weekly contests (Firebase `admin: true` claim). List all statuses; transition without operator secret.
  * @see docs/admin/admin-dashboard-security.md
@@ -121,6 +141,59 @@ app.post(
   requireAdmin,
   contestReadRateLimitHookMiddleware,
   postAdminContestRunScoring,
+);
+/** Phase 6 P6-D3 — admin manual prize execute (same engine as internal payouts/execute). */
+app.post(
+  '/api/v1/admin/contests/:contestId/payout-execute',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestPayoutExecute,
+);
+/** Phase 6 P6-F1 — reverse prize transfers, ledger, cancel contest (admin only). */
+app.post(
+  '/api/v1/admin/contests/:contestId/void-after-prize',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestVoidAfterPrize,
+);
+/** Phase 6 P6-G1 — read payout artifacts + masked Connect (per contest / per user). */
+app.get(
+  '/api/v1/admin/contests/:contestId/users/:targetUid/payout-status',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  getAdminContestUserPayoutStatus,
+);
+app.get(
+  '/api/v1/admin/contests/:contestId/payout-status',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  getAdminContestPayoutStatus,
+);
+/** Phase 6 P6-G2 — hold / resume / retry failed prize payout lines (admin + ledger audit). */
+app.post(
+  '/api/v1/admin/contests/:contestId/payout-hold',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestPayoutHold,
+);
+app.post(
+  '/api/v1/admin/contests/:contestId/payout-resume',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestPayoutResume,
+);
+app.post(
+  '/api/v1/admin/contests/:contestId/payout-retry-failed',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestPayoutRetryFailed,
 );
 
 app.get(
@@ -229,6 +302,17 @@ app.post(
 app.post(
   '/api/internal/v1/contests/:contestId/transition',
   postContestTransition,
+);
+
+/**
+ * Phase 6 P6-D2 / P6-D3 — operator or Scheduler: execute Stripe prize transfers + `payouts/final` + ledger.
+ * Bearer `PAYOUT_OPERATOR_SECRET` (preferred) or `CONTESTS_OPERATOR_SECRET`; optional `x-payout-operator-secret`.
+ * Scheduler must send JSON `{ "trigger": "scheduler" }` and `PAYOUTS_AUTOMATION_ENABLED=true`.
+ * @see docs/weekly-contests/weekly-contests-ops-p6-payout-execute.md, docs/weekly-contests/weekly-contests-phase6-ops.md
+ */
+app.post(
+  '/api/internal/v1/contests/:contestId/payouts/execute',
+  postContestPayoutExecute,
 );
 
 /**

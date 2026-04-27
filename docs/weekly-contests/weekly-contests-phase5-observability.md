@@ -68,3 +68,4 @@ Route or query these lines separately from normal app logs to drive alerts (e.g.
 - [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md) — event types and Firestore writes  
 - [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md) — manual staging checklist; links **`npm run test:server:phase5-payments`** (Story P5-H3)  
 - [stripe.md](../payments/stripe.md) — environment variables  
+- [weekly-contests-phase6-observability.md](weekly-contests-phase6-observability.md) — Phase 6 prize payout job + `transfer.*` / `payout.*` webhook logs (P6-H2)  

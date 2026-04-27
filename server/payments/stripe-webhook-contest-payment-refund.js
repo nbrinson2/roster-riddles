@@ -11,6 +11,7 @@ import {
   emitContestWebhookFailureMetric,
   logStripeWebhookLine,
 } from './contest-payments-observability.js';
+import { assertValidContestLedgerEntryPayload } from './contest-ledger-entry-validate.js';
 import {
   PROCESSED_STRIPE_EVENTS,
   stripeContestMetadataToRecord,
@@ -322,7 +323,8 @@ async function processRefundUpdated(db, stripe, event, requestId) {
     const nextRefunded = Math.min(snapshot, prevRefunded + amountCents);
     const paymentStatus = nextRefunded >= snapshot ? 'refunded' : 'paid';
 
-    tx.set(ledgerRef, {
+    /** @type {Record<string, unknown>} */
+    const ledgerPayload = {
       schemaVersion: LEDGER_SCHEMA_VERSION,
       uid,
       contestId,
@@ -340,7 +342,9 @@ async function processRefundUpdated(db, stripe, event, requestId) {
         paymentIntentId: piId,
         refundId: typeof refund.id === 'string' ? refund.id : undefined,
       },
-    });
+    };
+    assertValidContestLedgerEntryPayload(ledgerPayload);
+    tx.set(ledgerRef, ledgerPayload);
     ledgerWritten = true;
 
     tx.set(

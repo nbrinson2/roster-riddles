@@ -38,6 +38,43 @@ try {
     }),
   );
 
+  // P6-B2: Stripe Connect fields on `users/{uid}` are server-only (Admin SDK)
+  await assertSucceeds(
+    setDoc(
+      doc(alice, 'users', 'alice'),
+      { displayName: 'Alice' },
+      { merge: true },
+    ),
+  );
+  await assertFails(
+    setDoc(
+      doc(alice, 'users', 'alice'),
+      { stripeConnectAccountId: 'acct_fake' },
+      { merge: true },
+    ),
+  );
+  await assertFails(
+    setDoc(
+      doc(alice, 'users', 'alice'),
+      { stripeConnectChargesEnabled: true },
+      { merge: true },
+    ),
+  );
+
+  await assertFails(
+    setDoc(doc(bob, 'users', 'bob'), {
+      email: 'b@test.com',
+      emailVerified: true,
+      stripeConnectAccountType: 'express',
+    }),
+  );
+  await assertSucceeds(
+    setDoc(doc(bob, 'users', 'bob'), {
+      email: 'b@test.com',
+      emailVerified: true,
+    }),
+  );
+
   // cannot write another user's doc
   await assertFails(setDoc(doc(alice, 'users', 'bob'), { x: 1 }));
 
@@ -92,7 +129,7 @@ try {
     }),
   );
 
-  // contests/.../results/* and payouts/*: signed-in read; no client writes (Story B3)
+  // contests/.../results/*: signed-in read; no client writes (Story B3)
   await assertSucceeds(
     getDoc(doc(alice, 'contests', 'c1', 'results', 'final')),
   );
@@ -102,11 +139,41 @@ try {
   await assertFails(
     setDoc(doc(alice, 'contests', 'c1', 'results', 'final'), { schemaVersion: 1 }),
   );
+  // P6-H1: `payouts/dryRun` only — client-readable for signed-in users; writes denied
   await assertSucceeds(
     getDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun')),
   );
   await assertFails(
+    getDoc(doc(unauth, 'contests', 'c1', 'payouts', 'dryRun')),
+  );
+  await assertFails(
     setDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun'), { x: 1 }),
+  );
+
+  // P6-H1: `payouts/final` + `payouts/run_*` — no client read (Stripe ids / execution state); Admin SDK only
+  await assertFails(
+    getDoc(doc(alice, 'contests', 'c1', 'payouts', 'final')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'payouts', 'final'), { schemaVersion: 1 }),
+  );
+  await assertFails(
+    getDoc(doc(alice, 'contests', 'c1', 'payouts', 'run_smoke1')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'payouts', 'run_smoke1'), {
+      schemaVersion: 1,
+    }),
+  );
+
+  // P6-F1 audit path under contest — deny all client access (Admin SDK only)
+  await assertFails(
+    getDoc(doc(alice, 'contests', 'c1', 'voidPrizeAttempts', 'void_job_1')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'voidPrizeAttempts', 'void_job_1'), {
+      schemaVersion: 1,
+    }),
   );
 
   // unknown contest subpath: deny

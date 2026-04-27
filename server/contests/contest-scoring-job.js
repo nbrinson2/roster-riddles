@@ -7,7 +7,8 @@ import { getAuth } from 'firebase-admin/auth';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { randomBytes } from 'node:crypto';
 import { ensureFirebaseAdminInitialized } from '../lib/firebase-admin-init.js';
-import { buildDryRunPayoutLines, EVENT_SOURCE, TIE_BREAK_POLICY } from './contest-scoring-core.js';
+import { buildPayoutLinesFromFinal } from './contest-payout-compute.js';
+import { EVENT_SOURCE, TIE_BREAK_POLICY } from './contest-scoring-core.js';
 import { computeStandingsForEntryDocs } from './contest-standings-compute.js';
 import { buildTieResolutionAudit } from './contest-scoring-tie-audit.js';
 import { evaluateTransitionGuards, isContestStatus } from './contest-transitions.js';
@@ -181,7 +182,7 @@ export async function runContestScoringJob({ db, contestId, scoringJobId, reques
     tieResolution,
   };
 
-  const dryRunLines = buildDryRunPayoutLines(standings);
+  const dryRunLines = buildPayoutLinesFromFinal(finalDoc, undefined, contest);
 
   const dryRunDoc = {
     schemaVersion: 1,

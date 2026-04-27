@@ -4,7 +4,7 @@
 
 **Scope:** Stripe **test mode** only; **Express** webhook + Checkout + Firestore (`entries`, `ledgerEntries`, `processedStripeEvents`). Not a substitute for legal/product sign-off on live keys.
 
-**Related:** [stripe.md](../payments/stripe.md), [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md), [weekly-contests-phase5-observability.md](weekly-contests-phase5-observability.md), [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md), [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md), UI Walk **C** in [weekly-contests-ui-walkthrough-check.md](weekly-contests-ui-walkthrough-check.md).
+**Related:** [stripe.md](../payments/stripe.md), [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md), [weekly-contests-phase5-observability.md](weekly-contests-phase5-observability.md), [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md), [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md), UI Walk **C** in [weekly-contests-ui-walkthrough-check.md](weekly-contests-ui-walkthrough-check.md). **Phase 6 (prizes):** [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md).
 
 **Automated (Story P5-H3):** `npm run test:server:phase5-payments` exercises mock Stripe payloads, success-webhook idempotency, and the paid vs free join matrix (the same files are also run by **`npm run test:server`**).
 

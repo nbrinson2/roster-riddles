@@ -13,6 +13,7 @@ import {
   emitContestWebhookFailureMetric,
   logStripeWebhookLine,
 } from './contest-payments-observability.js';
+import { assertValidContestLedgerEntryPayload } from './contest-ledger-entry-validate.js';
 
 /** Top-level idempotency marker (Stripe `evt_...` redelivery). */
 export const PROCESSED_STRIPE_EVENTS = 'processedStripeEvents';
@@ -477,7 +478,8 @@ export async function processContestPaymentSuccessWebhook(db, event, requestId) 
         currency: 'usd',
         createdAt: FieldValue.serverTimestamp(),
       });
-      tx.set(ledgerRef, {
+      /** @type {Record<string, unknown>} */
+      const ledgerPayload = {
         schemaVersion: LEDGER_SCHEMA_VERSION,
         uid,
         contestId,
@@ -503,7 +505,9 @@ export async function processContestPaymentSuccessWebhook(db, event, requestId) 
             ? { checkoutSessionId: payload.checkoutSessionId }
             : {}),
         },
-      });
+      };
+      assertValidContestLedgerEntryPayload(ledgerPayload);
+      tx.set(ledgerRef, ledgerPayload);
       ledgerWritten = true;
     }
 

@@ -35,6 +35,17 @@ export function getContestsOperatorOrCronSecret() {
 }
 
 /**
+ * Phase 6 P6-D2 — prize payout execute hook. Dedicated secret wins; else operator secret.
+ */
+export function getPayoutExecuteSecret() {
+  return (
+    resolveSecretFromEnv('PAYOUT_OPERATOR_SECRET') ||
+    resolveSecretFromEnv('CONTESTS_OPERATOR_SECRET') ||
+    ''
+  );
+}
+
+/**
  * @param {import('express').Request} req
  */
 export function extractBearerOrHeaderSecret(req) {
