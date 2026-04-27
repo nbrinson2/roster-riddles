@@ -1,6 +1,7 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest } from 'rxjs';
-import { map, shareReplay } from 'rxjs/operators';
+import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
 import { AuthService } from 'src/app/auth/auth.service';
 import { GameType } from '../game/shared/constants/game.constants';
 import { Difficulty } from '../nav/difficulty-toggle/difficulty-toggle.component';
@@ -30,10 +31,17 @@ export class GameComponent {
   private readonly rosterSelectionService = inject(RosterSelectionService);
   private readonly weeklyContestSlate = inject(WeeklyContestSlateService);
   private readonly auth = inject(AuthService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  /** False when there are no `open` Bio Ball contests — hides the strip (see {@link WeeklyContestSlateService.hasOpenBioBallContests$}). */
-  protected readonly hasOpenBioBallContests$ =
-    this.weeklyContestSlate.hasOpenBioBallContests$;
+  /**
+   * Show the weekly strip when any open Bio Ball contest exists or the user has slate data
+   * (including post-open scoring / paid); see {@link WeeklyContestSlateService.showBioBallContestStrip$}.
+   */
+  protected readonly showBioBallContestStrip$ =
+    this.weeklyContestSlate.showBioBallContestStrip$;
+
+  /** Mobile-only: expanded “details” panel for the contest strip. */
+  protected contestStripMobileExpanded = false;
 
   /**
    * Bio Ball contest strip: signed-out CTA, signed-in but no active entry, or active slate stats.
@@ -64,6 +72,26 @@ export class GameComponent {
     ),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  constructor() {
+    this.bioBallContestStrip$
+      .pipe(
+        map((strip) =>
+          strip.variant === 'active'
+            ? `active:${strip.slate.contestId}`
+            : strip.variant,
+        ),
+        distinctUntilChanged(),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.contestStripMobileExpanded = false;
+      });
+  }
+
+  protected toggleContestStripMobileExpanded(): void {
+    this.contestStripMobileExpanded = !this.contestStripMobileExpanded;
+  }
 
   readonly currentGameType = computed(() => this.gameService.currentGame());
   readonly currentGameMode = computed(() => this.gameService.currentGameMode());
