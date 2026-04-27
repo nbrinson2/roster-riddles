@@ -54,7 +54,7 @@ Admin manual run (no operator secret): **`POST /api/v1/admin/contests/:contestId
 
 ## Logs
 
-Structured JSON lines: `component: contest_payout_execute`, `requestId`, `contestId`, optional `uid`, `rank`, `amountCents`, `outcome` (e.g. `transfer_succeeded`, `transfer_failed`, `payout_execute_committed`, **`insufficient_platform_balance`** (with **`availableUsdCents`**, **`requiredUsdCents`**, **`plannedMoneyLineCount`** only)), `latencyMs`, optional `stripeTransferId` / `stripeErrorCode`.
+Structured JSON lines: **`domain: contest_payouts`**, **`component: payout_job`**, `requestId`, `contestId`, optional `uid`, `rank`, `amountCents`, `outcome` (e.g. `transfer_succeeded`, `transfer_failed`, `payout_execute_committed`, **`insufficient_platform_balance`** (with **`availableUsdCents`**, **`requiredUsdCents`**, **`plannedMoneyLineCount`** only)), `latencyMs`, optional `stripeTransferId` / `stripeErrorCode`. See [weekly-contests-phase6-observability.md](weekly-contests-phase6-observability.md).
 
 ---
 

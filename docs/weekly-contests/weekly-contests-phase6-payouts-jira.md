@@ -538,7 +538,7 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Log-based alert examples in doc (p95 latency, error rate, stuck `in_progress`).
+- [x] Log-based alert examples in doc (p95 latency, error rate, stuck `in_progress`).
 
 **Dependencies**
 
@@ -546,7 +546,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `docs/weekly-contests/weekly-contests-phase6-observability.md`, small server helpers
+- [`weekly-contests-phase6-observability.md`](weekly-contests-phase6-observability.md), [`server/payments/contest-payouts-observability.js`](../../server/payments/contest-payouts-observability.js) ✅
 
 ---
 

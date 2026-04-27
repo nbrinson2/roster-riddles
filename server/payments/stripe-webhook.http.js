@@ -10,6 +10,7 @@ import {
   emitContestWebhookFailureMetric,
   logStripeWebhookLine,
 } from './contest-payments-observability.js';
+import { logStripeWebhookPayoutLine } from './contest-payouts-observability.js';
 import { processStripeConnectAccountWebhook } from './stripe-webhook-connect.js';
 import {
   isPrizePayoutStripeWebhookEventType,
@@ -204,7 +205,7 @@ export async function postStripeWebhook(req, res) {
       await processStripePayoutLifecycleWebhook(db, event, requestId);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      logStripeWebhookLine({
+      logStripeWebhookPayoutLine({
         severity: 'ERROR',
         requestId,
         eventId: event.id,
@@ -212,12 +213,6 @@ export async function postStripeWebhook(req, res) {
         outcome: 'prize_payout_webhook_handler_failed',
         httpStatus: 500,
         message: msg,
-      });
-      emitContestWebhookFailureMetric({
-        outcome: 'prize_payout_webhook_handler_failed',
-        requestId,
-        eventId: event.id,
-        eventType: event.type,
       });
       return res.status(500).json({
         error: {

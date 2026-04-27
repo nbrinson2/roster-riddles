@@ -12,6 +12,7 @@ import {
   isContestsPaymentsEnabled,
   sendStripeServiceUnavailable,
 } from '../payments/stripe-server.js';
+import { logPayoutJobLine } from '../payments/contest-payouts-observability.js';
 import { runContestPayoutExecuteJob } from './contest-payout-execute.job.js';
 import { isPayoutsAutomationEnabled } from './payouts-automation.js';
 
@@ -48,27 +49,6 @@ function extractPayoutExecuteCredential(req) {
 }
 
 /**
- * @param {Record<string, unknown>} payload
- */
-function logContestPayoutExecuteLine(payload) {
-  const httpStatus = /** @type {number | undefined} */ (payload.httpStatus);
-  const severity =
-    httpStatus != null && httpStatus >= 500
-      ? 'ERROR'
-      : httpStatus != null && httpStatus >= 400
-        ? 'WARNING'
-        : 'INFO';
-  const line = {
-    component: 'contest_payout_execute',
-    severity,
-    timestamp: new Date().toISOString(),
-    ...payload,
-  };
-  const sink = severity === 'ERROR' ? console.error : console.log;
-  sink(JSON.stringify(line));
-}
-
-/**
  * @type {import('express').RequestHandler}
  */
 export async function postContestPayoutExecute(req, res) {
@@ -77,7 +57,7 @@ export async function postContestPayoutExecute(req, res) {
 
   const secret = getPayoutExecuteSecret();
   if (!secret) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       outcome: 'not_configured',
       httpStatus: 503,
@@ -94,7 +74,7 @@ export async function postContestPayoutExecute(req, res) {
 
   const provided = extractPayoutExecuteCredential(req);
   if (provided !== secret) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       outcome: 'unauthorized',
       httpStatus: 401,
@@ -115,7 +95,7 @@ export async function postContestPayoutExecute(req, res) {
   contestIdRaw = decodeURIComponent(contestIdRaw.trim());
   const parsedId = contestIdParamSchema.safeParse(contestIdRaw);
   if (!parsedId.success) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       outcome: 'invalid_contest_id',
       httpStatus: 400,
@@ -129,7 +109,7 @@ export async function postContestPayoutExecute(req, res) {
 
   const bodyParse = bodySchema.safeParse(req.body ?? {});
   if (!bodyParse.success) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'validation_error',
@@ -147,7 +127,7 @@ export async function postContestPayoutExecute(req, res) {
 
   const trigger = bodyParse.data.trigger ?? 'operator';
   if (trigger === 'scheduler' && !isPayoutsAutomationEnabled()) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'payouts_automation_disabled',
@@ -164,7 +144,7 @@ export async function postContestPayoutExecute(req, res) {
   }
 
   if (!isContestsPaymentsEnabled()) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'payments_disabled',
@@ -184,7 +164,7 @@ export async function postContestPayoutExecute(req, res) {
   try {
     stripe = getStripeClient();
   } catch (e) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'stripe_key_error',
@@ -195,7 +175,7 @@ export async function postContestPayoutExecute(req, res) {
     return sendStripeServiceUnavailable(res);
   }
   if (!stripe) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'stripe_unavailable',
@@ -209,7 +189,7 @@ export async function postContestPayoutExecute(req, res) {
   try {
     db = getAdminFirestore();
   } catch (e) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'firestore_init_failed',

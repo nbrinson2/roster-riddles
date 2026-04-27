@@ -5,10 +5,7 @@
  */
 import { FieldValue } from 'firebase-admin/firestore';
 import { computeContestPayoutFinalAggregateStatus } from '../contests/contest-payout-execute.job.js';
-import {
-  emitContestWebhookFailureMetric,
-  logStripeWebhookLine,
-} from './contest-payments-observability.js';
+import { logStripeWebhookPayoutLine } from './contest-payouts-observability.js';
 import { assertValidContestLedgerEntryPayload } from './contest-ledger-entry-validate.js';
 import { PROCESSED_STRIPE_EVENTS } from './stripe-webhook-contest-payment.js';
 
@@ -210,7 +207,7 @@ export async function processStripePrizeTransferWebhook(db, event, requestId) {
       },
       { merge: true },
     );
-    logStripeWebhookLine({
+    logStripeWebhookPayoutLine({
       requestId,
       eventId: event.id,
       eventType: event.type,
@@ -223,7 +220,7 @@ export async function processStripePrizeTransferWebhook(db, event, requestId) {
   const processedRef = db.doc(`${PROCESSED_STRIPE_EVENTS}/${event.id}`);
   const pre = await processedRef.get();
   if (pre.exists) {
-    logStripeWebhookLine({
+    logStripeWebhookPayoutLine({
       requestId,
       eventId: event.id,
       eventType: event.type,
@@ -494,7 +491,7 @@ export async function processStripePrizeTransferWebhook(db, event, requestId) {
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    logStripeWebhookLine({
+    logStripeWebhookPayoutLine({
       severity: 'ERROR',
       requestId,
       eventId: event.id,
@@ -504,16 +501,10 @@ export async function processStripePrizeTransferWebhook(db, event, requestId) {
       outcome: 'prize_transfer_transaction_failed',
       message: msg,
     });
-    emitContestWebhookFailureMetric({
-      outcome: 'prize_transfer_transaction_failed',
-      requestId,
-      eventId: event.id,
-      eventType: event.type,
-    });
     throw e;
   }
 
-  logStripeWebhookLine({
+  logStripeWebhookPayoutLine({
     requestId,
     eventId: event.id,
     eventType: event.type,
@@ -538,7 +529,7 @@ export async function processStripePrizeTransferWebhook(db, event, requestId) {
 export async function processStripeConnectBankPayoutWebhook(db, event, requestId) {
   const obj = event.data?.object;
   if (!obj || typeof obj !== 'object') {
-    logStripeWebhookLine({
+    logStripeWebhookPayoutLine({
       requestId,
       eventId: event.id,
       eventType: event.type,
@@ -548,7 +539,7 @@ export async function processStripeConnectBankPayoutWebhook(db, event, requestId
   }
   const payout = /** @type {import('stripe').Stripe.Payout} */ (obj);
   if (typeof payout.id !== 'string' || !payout.id.startsWith('po_')) {
-    logStripeWebhookLine({
+    logStripeWebhookPayoutLine({
       requestId,
       eventId: event.id,
       eventType: event.type,
@@ -567,7 +558,7 @@ export async function processStripeConnectBankPayoutWebhook(db, event, requestId
   const processedRef = db.doc(`${PROCESSED_STRIPE_EVENTS}/${event.id}`);
   const pre = await processedRef.get();
   if (pre.exists) {
-    logStripeWebhookLine({
+    logStripeWebhookPayoutLine({
       requestId,
       eventId: event.id,
       eventType: event.type,
@@ -630,7 +621,7 @@ export async function processStripeConnectBankPayoutWebhook(db, event, requestId
         await userRef.set(patch, { merge: true });
       }
     } catch (e) {
-      logStripeWebhookLine({
+      logStripeWebhookPayoutLine({
         severity: 'WARNING',
         requestId,
         eventId: event.id,
@@ -641,7 +632,7 @@ export async function processStripeConnectBankPayoutWebhook(db, event, requestId
     }
   }
 
-  logStripeWebhookLine({
+  logStripeWebhookPayoutLine({
     requestId,
     eventId: event.id,
     eventType: event.type,

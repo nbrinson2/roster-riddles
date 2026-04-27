@@ -18,6 +18,7 @@ import {
   isContestPayoutBalanceGuardEnabled,
 } from './contest-payout-platform-balance.js';
 import { isContestStatus } from './contest-transitions.js';
+import { logPayoutJobLine } from '../payments/contest-payouts-observability.js';
 
 const LEDGER_SCHEMA_VERSION = 1;
 const PAYOUT_FINAL_SCHEMA_VERSION = 1;
@@ -28,27 +29,6 @@ const PAYOUT_FINAL_SCHEMA_VERSION = 1;
  */
 function isRecord(c) {
   return c != null && typeof c === 'object' && !Array.isArray(c);
-}
-
-/**
- * @param {Record<string, unknown>} payload
- */
-function logContestPayoutExecuteLine(payload) {
-  const httpStatus = /** @type {number | undefined} */ (payload.httpStatus);
-  const severity =
-    httpStatus != null && httpStatus >= 500
-      ? 'ERROR'
-      : httpStatus != null && httpStatus >= 400
-        ? 'WARNING'
-        : 'INFO';
-  const line = {
-    component: 'contest_payout_execute',
-    severity,
-    timestamp: new Date().toISOString(),
-    ...payload,
-  };
-  const sink = severity === 'ERROR' ? console.error : console.log;
-  sink(JSON.stringify(line));
 }
 
 /**
@@ -110,7 +90,7 @@ export async function runContestPayoutExecuteJob({
       finalRef.get(),
     ]);
   } catch (e) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'firestore_read_failed',
@@ -127,7 +107,7 @@ export async function runContestPayoutExecuteJob({
   }
 
   if (!contestSnap.exists) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'contest_not_found',
@@ -150,7 +130,7 @@ export async function runContestPayoutExecuteJob({
 
   const status = contest.status;
   if (!isContestStatus(status) || status !== 'paid') {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'contest_not_paid',
@@ -170,7 +150,7 @@ export async function runContestPayoutExecuteJob({
   }
 
   if (contest.prizePayoutStatus === 'held') {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'payout_held',
@@ -196,7 +176,7 @@ export async function runContestPayoutExecuteJob({
         ? /** @type {Record<string, unknown>} */ (prev).aggregateStatus
         : undefined;
     if (agg === 'succeeded') {
-      logContestPayoutExecuteLine({
+      logPayoutJobLine({
         requestId,
         contestId,
         outcome: 'idempotent_final_exists',
@@ -212,7 +192,7 @@ export async function runContestPayoutExecuteJob({
         },
       };
     }
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'payout_final_exists_incomplete',
@@ -233,7 +213,7 @@ export async function runContestPayoutExecuteJob({
   }
 
   if (!resultsSnap.exists) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'results_final_missing',
@@ -252,7 +232,7 @@ export async function runContestPayoutExecuteJob({
   }
 
   if (!dryRunSnap.exists) {
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'dry_run_missing',
@@ -287,7 +267,7 @@ export async function runContestPayoutExecuteJob({
     baseLines = buildPayoutLinesFromFinal(resultsFinal, dryRun, contest);
   } catch (e) {
     const code = e instanceof Error ? e.message : String(e);
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'payout_lines_build_failed',
@@ -339,7 +319,7 @@ export async function runContestPayoutExecuteJob({
         balance = await stripe.balance.retrieve();
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
-        logContestPayoutExecuteLine({
+        logPayoutJobLine({
           requestId,
           contestId,
           outcome: 'stripe_balance_retrieve_failed',
@@ -359,7 +339,7 @@ export async function runContestPayoutExecuteJob({
       }
       const availableUsdCents = extractUsdAvailableCentsFromBalance(balance);
       if (availableUsdCents < requiredUsdCents) {
-        logContestPayoutExecuteLine({
+        logPayoutJobLine({
           requestId,
           contestId,
           outcome: 'insufficient_platform_balance',
@@ -420,7 +400,7 @@ export async function runContestPayoutExecuteJob({
         failureCode: 'entry_not_eligible_for_payout',
         lastStripeEventId: null,
       });
-      logContestPayoutExecuteLine({
+      logPayoutJobLine({
         requestId,
         contestId,
         uid: line.uid,
@@ -442,7 +422,7 @@ export async function runContestPayoutExecuteJob({
         failureCode: 'connect_not_ready_for_transfer',
         lastStripeEventId: null,
       });
-      logContestPayoutExecuteLine({
+      logPayoutJobLine({
         requestId,
         contestId,
         uid: line.uid,
@@ -488,7 +468,7 @@ export async function runContestPayoutExecuteJob({
         failureCode: null,
         lastStripeEventId: null,
       });
-      logContestPayoutExecuteLine({
+      logPayoutJobLine({
         requestId,
         contestId,
         uid: line.uid,
@@ -511,7 +491,7 @@ export async function runContestPayoutExecuteJob({
         failureCode: stripeCode != null ? String(stripeCode) : 'stripe_transfer_failed',
         lastStripeEventId: null,
       });
-      logContestPayoutExecuteLine({
+      logPayoutJobLine({
         requestId,
         contestId,
         uid: line.uid,
@@ -588,7 +568,7 @@ export async function runContestPayoutExecuteJob({
     await batch.commit();
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    logContestPayoutExecuteLine({
+    logPayoutJobLine({
       requestId,
       contestId,
       outcome: 'firestore_batch_failed_after_transfers',
@@ -610,7 +590,7 @@ export async function runContestPayoutExecuteJob({
     };
   }
 
-  logContestPayoutExecuteLine({
+  logPayoutJobLine({
     requestId,
     contestId,
     outcome: 'payout_execute_committed',

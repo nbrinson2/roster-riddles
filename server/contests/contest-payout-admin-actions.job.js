@@ -21,6 +21,7 @@ import {
   isContestPayoutBalanceGuardEnabled,
 } from './contest-payout-platform-balance.js';
 import { isContestStatus } from './contest-transitions.js';
+import { logPayoutAdminActionLine } from '../payments/contest-payouts-observability.js';
 
 const LEDGER_SCHEMA_VERSION = 1;
 
@@ -30,20 +31,6 @@ const LEDGER_SCHEMA_VERSION = 1;
  */
 function isRecord(v) {
   return v != null && typeof v === 'object' && !Array.isArray(v);
-}
-
-/**
- * @param {Record<string, unknown>} payload
- */
-function logPayoutAdminAction(payload) {
-  console.log(
-    JSON.stringify({
-      component: 'contest_payout_admin_actions',
-      severity: 'INFO',
-      timestamp: new Date().toISOString(),
-      ...payload,
-    }),
-  );
 }
 
 /**
@@ -156,7 +143,7 @@ export async function runContestPayoutHoldAuthorized({
   }
 
   if (contest.prizePayoutStatus === 'held') {
-    logPayoutAdminAction({
+    logPayoutAdminActionLine({
       requestId,
       contestId,
       outcome: 'payout_hold_idempotent',
@@ -193,7 +180,7 @@ export async function runContestPayoutHoldAuthorized({
   batch.set(db.doc(`ledgerEntries/${auditId}`), ledgerPayload);
   await batch.commit();
 
-  logPayoutAdminAction({
+  logPayoutAdminActionLine({
     requestId,
     contestId,
     outcome: 'payout_hold_ok',
@@ -294,7 +281,7 @@ export async function runContestPayoutResumeAuthorized({
   batch.set(db.doc(`ledgerEntries/${auditId}`), ledgerPayload);
   await batch.commit();
 
-  logPayoutAdminAction({
+  logPayoutAdminActionLine({
     requestId,
     contestId,
     outcome: 'payout_resume_ok',
@@ -651,7 +638,7 @@ export async function runContestPayoutRetryFailedLinesAuthorized({
         failureCode: stripeCode != null ? String(stripeCode) : 'stripe_transfer_failed',
         lastStripeEventId: null,
       };
-      logPayoutAdminAction({
+      logPayoutAdminActionLine({
         requestId,
         contestId,
         outcome: 'payout_retry_line_still_failed',
@@ -735,7 +722,7 @@ export async function runContestPayoutRetryFailedLinesAuthorized({
     await batch.commit();
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    logPayoutAdminAction({
+    logPayoutAdminActionLine({
       requestId,
       contestId,
       outcome: 'payout_retry_batch_failed',
@@ -754,7 +741,7 @@ export async function runContestPayoutRetryFailedLinesAuthorized({
     };
   }
 
-  logPayoutAdminAction({
+  logPayoutAdminActionLine({
     requestId,
     contestId,
     outcome: 'payout_retry_ok',

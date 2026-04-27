@@ -100,7 +100,7 @@ gcloud scheduler jobs create http "$JOB_NAME" \
 
 ## 4. Logging
 
-Filter **`jsonPayload.component="contest_payout_execute"`** (or text search `contest_payout_execute`) in Cloud Logging. Admin-triggered runs also emit **`route":"admin_payout_execute"`** on contest read lines where applicable.
+Filter **`jsonPayload.domain="contest_payouts"`** and **`jsonPayload.component="payout_job"`** in Cloud Logging (see [weekly-contests-phase6-observability.md](weekly-contests-phase6-observability.md)). Admin-triggered runs also emit **`route":"admin_payout_execute"`** on contest read lines where applicable.
 
 ---
 
