@@ -72,7 +72,7 @@ Same **`lines`** shape as `final` (or a subset while in-flight). Typical fields:
 ## Access control (rules)
 
 - **Writes:** denied to clients for all `contests/{contestId}/payouts/{payoutDocId}` (including **`final`** and **`run_*`**).
-- **Reads (v1):** any **signed-in** user may read `payouts/*` (same as `dryRun` / Story B3). A future hardening story may restrict **`payouts/final`** (e.g. entrants + admins only) if prize amounts must not be widely visible.
+- **Reads (Phase 6 P6-H1):** Clients (**Firebase rules**): **`payouts/dryRun`** — **signed-in read** (numeric lines only). **`payouts/final`** and **`payouts/run_*`** — **no client read** (Stripe **`tr_…`** ids and execution metadata); use **Admin SDK** or **`GET /api/v1/admin/contests/:contestId/payout-status`** (masked ids).
 
 ## Example `payouts/final` payload (QA)
 

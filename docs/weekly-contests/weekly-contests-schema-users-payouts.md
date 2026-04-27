@@ -8,7 +8,7 @@
 
 | Actor | Read | Write |
 |-------|------|-------|
-| **Signed-in owner** (`auth.uid == userId`) | Yes — full document (include payout fields needed for UX only). | Profile fields **except** payout / Connect keys (see [`firestore.rules`](../../firestore.rules) — server-only keys blocked on create/update). |
+| **Signed-in owner** (`auth.uid == userId`) | Yes — **full** document (Firestore rules cannot hide fields per key). **P6-H1:** treat **`acct_…`** and webhook mirrors as sensitive; prefer **server** responses that mask ids (e.g. admin payout status APIs) for support tooling — do not log or forward raw Connect payloads to untrusted clients. | Profile fields **except** payout / Connect keys (see [`firestore.rules`](../../firestore.rules) — server-only keys blocked on create/update). |
 | **Other users** | No | No |
 | **Admin SDK / server** | Yes | Yes — onboarding API (P6-B2), Stripe webhooks (P6-B3). |
 

@@ -82,6 +82,7 @@ If a single Stripe event must produce **multiple** ledger lines (rare), either u
 |----------|-------|--------------------------------------|
 | Lines for a user (newest first) | `ledgerEntries.where('uid','==', uid).orderBy('createdAt','desc')` | `uid` ↑, `createdAt` ↓ |
 | Lines for a contest (newest first) | `ledgerEntries.where('contestId','==', id).orderBy('createdAt','desc')` | `contestId` ↑, `createdAt` ↓ |
+| Lines for a contest **and** user (newest first) | `ledgerEntries.where('contestId','==', id).where('uid','==', uid).orderBy('createdAt','desc')` | `contestId` ↑, `uid` ↑, `createdAt` ↓ (P6-H1; see `firestore.indexes.json`) |
 | Lookup by Stripe event | `ledgerEntries.doc(stripeEventId)` | Single-field `stripeEventId` optional if querying by field; **prefer id = `evt_...`**. |
 | Prize / transfer reconciliation (Phase 6) | `ledgerEntries.where('stripeObjectId','==', 'tr_...').orderBy('createdAt','desc')` | `stripeObjectId` ↑, `createdAt` ↓ (see `firestore.indexes.json`) |
 

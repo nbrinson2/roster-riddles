@@ -15,7 +15,8 @@
     "singleProjectMode": true,
     "firestore": {
       "host": "127.0.0.1",
-      "port": 9460
+      "port": 9460,
+      "rules": "firestore.rules"
     }
   }
 }

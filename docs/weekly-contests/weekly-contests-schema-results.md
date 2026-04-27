@@ -151,7 +151,9 @@ Populated by the scoring job (**Story E3**) so support can explain ordering when
 
 ## Security rules
 
-- **`results/*`** and **`payouts/*`** (including **`payouts/final`** and optional **`payouts/run_*`**): **Read** if **signed-in**; **writes denied** to clients (see `firestore.rules`). P6-C2 payout execution docs reuse the same `payouts/{payoutDocId}` rule block as Story B3.
+- **`results/*`**: **Read** if **signed-in**; **writes denied** to clients (see `firestore.rules`).
+- **`payouts/dryRun`**: **Read** if **signed-in**; **writes denied** (Story B3).
+- **`payouts/final`** and optional **`payouts/run_*`**: **No client read** (Phase 6 **P6-H1**); **writes denied** — Admin SDK / admin HTTP only.
 
 ## TypeScript
 

@@ -223,7 +223,7 @@ Lock **product + engineering** before Connect work:
 **Acceptance criteria**
 
 - [x] Doc idempotency: second job with same logical inputs **no-op** or creates new `run` with explicit `supersedesRunId`.
-- [x] `firestore.rules`: **no client write**; client read optional behind feature flag / admin only (v1: same signed-in read as `payouts/dryRun`; tightening documented in schema).
+- [x] `firestore.rules`: **no client write**; **P6-H1:** `payouts/dryRun` signed-in read only; **`payouts/final`** / **`run_*`** no client read (see schema + `verify-firestore-rules.mjs`).
 
 **Dependencies**
 
@@ -516,8 +516,8 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] `npm run test:firestore-rules` green with new match blocks.
-- [ ] No client read of full bank/Connect payload.
+- [x] `npm run test:firestore-rules` green with new match blocks.
+- [x] No client read of full bank/Connect payload.
 
 **Dependencies**
 
@@ -525,7 +525,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `firestore.rules`, `firestore.indexes.json`, rules test fixtures
+- [`firestore.rules`](../../firestore.rules), [`firestore.indexes.json`](../../firestore.indexes.json), [`scripts/verify-firestore-rules.mjs`](../../scripts/verify-firestore-rules.mjs) (inline fixtures + assertions) ✅
 
 ---
 

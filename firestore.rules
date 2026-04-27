@@ -16,6 +16,8 @@ service cloud.firestore {
 
     // Profiles: only the signed-in user may access `users/{uid}` (equivalent to auth.uid == path uid).
     // Stripe Connect payout fields (P6-B2+): server / Admin SDK only — see docs/weekly-contests/weekly-contests-schema-users-payouts.md (P6-C1).
+    // P6-H1: Rules cannot strip fields on read; sensitive Connect mirrors remain server-written only.
+    // Prefer `GET /api/v1/me/...` or admin HTTP for payout summaries — do not ship `acct_…` to other clients.
     match /users/{userId} {
       allow read: if signedIn() && request.auth.uid == userId;
       allow create: if signedIn() && request.auth.uid == userId
@@ -82,13 +84,16 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Phase 4 B3 + Phase 6 P6-C2: immutable `results/*` and `payouts/*` (`dryRun`, `final`, optional `run_*`) — signed-in read; Admin SDK writes only.
+    // Phase 4 B3 + Phase 6 P6-C2: immutable `results/*` — signed-in read; Admin SDK writes only.
     match /contests/{contestId}/results/{resultDocId} {
       allow read: if signedIn();
       allow create, update, delete: if false;
     }
+    // Phase 6 P6-H1: `payouts/dryRun` stays client-readable (numeric transparency). `payouts/final` and
+    // `payouts/run_*` contain Stripe transfer ids + failure codes — **no client read** (Admin SDK / HTTP admin only).
+    // Connect / bank payloads are never stored here; still restrict ids from broad client exposure.
     match /contests/{contestId}/payouts/{payoutDocId} {
-      allow read: if signedIn();
+      allow read: if signedIn() && payoutDocId == 'dryRun';
       allow create, update, delete: if false;
     }
 

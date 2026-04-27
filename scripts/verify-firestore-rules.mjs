@@ -129,7 +129,7 @@ try {
     }),
   );
 
-  // contests/.../results/* and payouts/*: signed-in read; no client writes (Story B3)
+  // contests/.../results/*: signed-in read; no client writes (Story B3)
   await assertSucceeds(
     getDoc(doc(alice, 'contests', 'c1', 'results', 'final')),
   );
@@ -139,25 +139,39 @@ try {
   await assertFails(
     setDoc(doc(alice, 'contests', 'c1', 'results', 'final'), { schemaVersion: 1 }),
   );
+  // P6-H1: `payouts/dryRun` only — client-readable for signed-in users; writes denied
   await assertSucceeds(
     getDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun')),
+  );
+  await assertFails(
+    getDoc(doc(unauth, 'contests', 'c1', 'payouts', 'dryRun')),
   );
   await assertFails(
     setDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun'), { x: 1 }),
   );
 
-  // P6-C2: `payouts/final` and optional `payouts/run_*` — same read/write policy as dryRun
-  await assertSucceeds(
+  // P6-H1: `payouts/final` + `payouts/run_*` — no client read (Stripe ids / execution state); Admin SDK only
+  await assertFails(
     getDoc(doc(alice, 'contests', 'c1', 'payouts', 'final')),
   );
   await assertFails(
     setDoc(doc(alice, 'contests', 'c1', 'payouts', 'final'), { schemaVersion: 1 }),
   );
-  await assertSucceeds(
+  await assertFails(
     getDoc(doc(alice, 'contests', 'c1', 'payouts', 'run_smoke1')),
   );
   await assertFails(
     setDoc(doc(alice, 'contests', 'c1', 'payouts', 'run_smoke1'), {
+      schemaVersion: 1,
+    }),
+  );
+
+  // P6-F1 audit path under contest — deny all client access (Admin SDK only)
+  await assertFails(
+    getDoc(doc(alice, 'contests', 'c1', 'voidPrizeAttempts', 'void_job_1')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'voidPrizeAttempts', 'void_job_1'), {
       schemaVersion: 1,
     }),
   );
