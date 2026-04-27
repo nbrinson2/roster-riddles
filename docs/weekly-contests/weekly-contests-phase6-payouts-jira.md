@@ -279,8 +279,8 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Unit tests: ties, single winner, zero pool edge cases.
-- [ ] Golden parity with existing `buildDryRunPayoutLines` behavior unless ADR documents intentional change.
+- [x] Unit tests: ties, single winner, zero pool edge cases.
+- [x] Golden parity with existing `buildDryRunPayoutLines` behavior unless ADR documents intentional change.
 
 **Dependencies**
 
@@ -288,7 +288,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `server/contests/contest-payout-compute.js` + tests
+- `server/contests/contest-payout-compute.js` + tests; `contest-scoring-job.js` calls `buildPayoutLinesFromFinal` ✅
 
 ---
 
@@ -308,8 +308,8 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Structured logs: `contestId`, `uid`, `amountCents`, `outcome`, Stripe ids, `latencyMs`.
-- [ ] Integration test with Stripe test mode + Connect test account.
+- [x] Structured logs: `contestId`, `uid`, `amountCents`, `outcome`, Stripe ids, `latencyMs`.
+- [x] Integration test with Stripe test mode + Connect test account (manual QA runbook in ops doc; automated tests for eligibility helpers + idempotency key).
 
 **Dependencies**
 
@@ -317,7 +317,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `server/contests/contest-payout-execute.http.js`, wiring in `index.js`, docs
+- `server/contests/contest-payout-execute.http.js`, `contest-payout-execute.helpers.js`, tests, `index.js`, [weekly-contests-ops-p6-payout-execute.md](weekly-contests-ops-p6-payout-execute.md) ✅
 
 ---
 

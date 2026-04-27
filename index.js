@@ -9,6 +9,7 @@ import { getContestLiveLeaderboard } from './server/contests/contest-live-leader
 import { getContestDetail, getContestList } from './server/contests/contest-read.http.js';
 import { postContestCloseDueWindows } from './server/contests/contest-close-due-windows.http.js';
 import { postContestRunScoring } from './server/contests/contest-scoring.http.js';
+import { postContestPayoutExecute } from './server/contests/contest-payout-execute.http.js';
 import { postContestTransition } from './server/contests/contest-transition.http.js';
 import { postGameplayEvent } from './server/gameplay/gameplay-events.js';
 import { getLeaderboardPage } from './server/leaderboards/leaderboards.http.js';
@@ -239,6 +240,16 @@ app.post(
 app.post(
   '/api/internal/v1/contests/:contestId/transition',
   postContestTransition,
+);
+
+/**
+ * Phase 6 P6-D2 — operator/cron: execute Stripe prize transfers + `payouts/final` + ledger.
+ * Bearer `PAYOUT_OPERATOR_SECRET` (preferred) or `CONTESTS_OPERATOR_SECRET`; optional `x-payout-operator-secret`.
+ * @see docs/weekly-contests/weekly-contests-ops-p6-payout-execute.md
+ */
+app.post(
+  '/api/internal/v1/contests/:contestId/payouts/execute',
+  postContestPayoutExecute,
 );
 
 /**

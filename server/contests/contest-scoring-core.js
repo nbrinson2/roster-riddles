@@ -96,6 +96,7 @@ export const DRY_RUN_WINNER_AMOUNT_CENTS = 10_000;
 
 /**
  * Dry-run payout lines: **numbers only** (`rank`, `uid`, `amountCents`) — no freeform labels (Story F1).
+ * Also used by `buildPayoutLinesFromFinal` (`contest-payout-compute.js`, P6-D1) for the same payout math.
  * @param {{ rank: number, uid: string }[]} standings — ordered standings with dense ranks
  * @param {{ winnerAmountCents?: number }} [opts]
  */

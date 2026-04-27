@@ -9,7 +9,9 @@
 | **`contests/{contestId}/payouts/run_{opaqueId}`** | **Option B (light)** — optional **per-attempt** documents as **sibling docs** under the same `payouts` collection (same Firestore rules as `dryRun` / `final`). Use when retries need an audit trail without nested subcollections. |
 
 **Depends on:** [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md), [weekly-contests-schema-results.md](weekly-contests-schema-results.md) (`results/final`, `payouts/dryRun`), [weekly-contests-schema-users-payouts.md](weekly-contests-schema-users-payouts.md)  
-**TypeScript:** [`contest-payout-final.model.ts`](../../src/app/shared/models/contest-payout-final.model.ts)
+**TypeScript:** [`contest-payout-final.model.ts`](../../src/app/shared/models/contest-payout-final.model.ts)  
+**Payout line computation (Story P6-D1):** [`server/contests/contest-payout-compute.js`](../../server/contests/contest-payout-compute.js) — `buildPayoutLinesFromFinal(resultsFinal, dryRun?, contest?)` produces the same `{ rank, uid, amountCents }[]` as scoring dry-run when inputs align.  
+**Execution (Story P6-D2):** [weekly-contests-ops-p6-payout-execute.md](weekly-contests-ops-p6-payout-execute.md) — internal HTTP route writes this document after Stripe Transfers.
 
 ## Immutability & idempotency (executor contract)
 
