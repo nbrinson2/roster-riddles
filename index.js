@@ -9,6 +9,7 @@ import { getContestLiveLeaderboard } from './server/contests/contest-live-leader
 import { getContestDetail, getContestList } from './server/contests/contest-read.http.js';
 import { postContestCloseDueWindows } from './server/contests/contest-close-due-windows.http.js';
 import { postContestRunScoring } from './server/contests/contest-scoring.http.js';
+import { postContestPayoutAutomationRun } from './server/contests/contest-payout-automation.http.js';
 import { postContestPayoutExecute } from './server/contests/contest-payout-execute.http.js';
 import { postContestTransition } from './server/contests/contest-transition.http.js';
 import { postGameplayEvent } from './server/gameplay/gameplay-events.js';
@@ -302,6 +303,17 @@ app.post(
 app.post(
   '/api/internal/v1/contests/:contestId/transition',
   postContestTransition,
+);
+
+/**
+ * Phase 6 — Scheduler batch: scan recent `paid` contests and run prize execute for each candidate.
+ * Same auth + `PAYOUTS_AUTOMATION_ENABLED` gate as per-contest scheduler execute.
+ * Body: `{ "trigger": "scheduler", "batchSize"?: 1-50, "scanLimit"?: 1-200, "gameMode"?: string }`.
+ * @see docs/weekly-contests/weekly-contests-phase6-ops.md
+ */
+app.post(
+  '/api/internal/v1/contests/payout-automation/run',
+  postContestPayoutAutomationRun,
 );
 
 /**

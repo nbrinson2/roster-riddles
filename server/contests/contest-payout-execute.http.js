@@ -33,7 +33,7 @@ const bodySchema = z
 /**
  * @param {import('express').Request} req
  */
-function extractPayoutExecuteCredential(req) {
+export function extractPayoutExecuteCredential(req) {
   const h = req.headers.authorization;
   if (typeof h === 'string' && h.startsWith('Bearer ')) {
     return h.slice('Bearer '.length).trim();

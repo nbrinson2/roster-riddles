@@ -58,6 +58,12 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
   protected runScoringErrorContestId: string | null = null;
   protected runScoringOk: { contestId: string; text: string } | null = null;
 
+  /** Phase 6 prize payout execute (contest must be `paid`). */
+  protected payoutExecuteBusyId: string | null = null;
+  protected payoutExecuteError: string | null = null;
+  protected payoutExecuteErrorContestId: string | null = null;
+  protected payoutExecuteOk: { contestId: string; text: string } | null = null;
+
   /** Shown after a successful create (server-assigned id). */
   protected lastCreatedContestId: string | null = null;
 
@@ -216,6 +222,41 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
           this.runScoringBusyId = null;
           this.runScoringErrorContestId = contestId;
           this.runScoringError = this.mapRunScoringError(err);
+        },
+      });
+  }
+
+  protected submitPayoutExecute(contestId: string): void {
+    this.payoutExecuteBusyId = contestId;
+    this.payoutExecuteError = null;
+    this.payoutExecuteErrorContestId = null;
+    this.payoutExecuteOk = null;
+    this.api
+      .payoutExecute(contestId, {})
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.payoutExecuteBusyId = null;
+          const idempotent =
+            res.outcome === 'payout_final_already_succeeded'
+              ? ' Payout final was already complete (no new transfers).'
+              : '';
+          const agg =
+            typeof res.aggregateStatus === 'string'
+              ? ` Aggregate: ${res.aggregateStatus}.`
+              : '';
+          const job =
+            typeof res.payoutJobId === 'string' ? ` Job id ${res.payoutJobId}.` : '';
+          this.payoutExecuteOk = {
+            contestId,
+            text: `Prize payout execute finished.${job}${agg}${idempotent}`.trim(),
+          };
+          this.loadList(false);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.payoutExecuteBusyId = null;
+          this.payoutExecuteErrorContestId = contestId;
+          this.payoutExecuteError = this.mapPayoutExecuteError(err);
         },
       });
   }
@@ -386,5 +427,40 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
         : 'Contest must be in Scoring state (move it from Open first).';
     }
     return typeof msg === 'string' ? msg : 'Scoring job failed.';
+  }
+
+  private mapPayoutExecuteError(err: HttpErrorResponse): string {
+    if (err.status === 403) {
+      return 'Admin access required.';
+    }
+    if (err.status === 401) {
+      return 'Sign in required.';
+    }
+    if (err.status === 503) {
+      const body = err.error as { error?: { message?: string; code?: string } } | null;
+      const msg = body?.error?.message;
+      return typeof msg === 'string'
+        ? msg
+        : 'Payments or Stripe unavailable (check CONTESTS_PAYMENTS_ENABLED and keys).';
+    }
+    const body = err.error as { error?: { message?: string; code?: string } } | null;
+    const code = body?.error?.code;
+    const msg = body?.error?.message;
+    if (code === 'payout_held') {
+      return typeof msg === 'string'
+        ? msg
+        : 'Payouts are on hold for this contest — resume hold first.';
+    }
+    if (code === 'insufficient_platform_balance') {
+      return typeof msg === 'string'
+        ? msg
+        : 'Platform Stripe balance is too low for planned transfers.';
+    }
+    if (code === 'payout_final_exists_incomplete') {
+      return typeof msg === 'string'
+        ? msg
+        : 'A non-success payout final already exists — resolve before re-running.';
+    }
+    return typeof msg === 'string' ? msg : 'Prize payout execute failed.';
   }
 }

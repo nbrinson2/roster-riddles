@@ -12,6 +12,7 @@
 | Goal | What to do |
 |------|------------|
 | **Run payout once (manual)** | Operator `curl` to internal execute (below) **without** `trigger`, or Admin API with Firebase admin user. |
+| **Run payout for all pending contests (Scheduler)** | **`POST /api/internal/v1/contests/payout-automation/run`** with **`{ "trigger":"scheduler", … }`** — see § **3a** (requires **`PAYOUTS_AUTOMATION_ENABLED=true`**). |
 | **Turn off Scheduler-only automation** | Unset or set anything other than `true` for **`PAYOUTS_AUTOMATION_ENABLED`** on the API service. Operator `curl` and Admin **`payout-execute`** still work. |
 | **Scheduler returns 403 `payouts_automation_disabled`** | Set **`PAYOUTS_AUTOMATION_ENABLED=true`** when you intend Scheduler to call with **`trigger: scheduler`**. |
 | **Double-submit / retry safety** | Same contest + Stripe idempotency keys → safe replays; **`payouts/final`** with **`aggregateStatus: succeeded`** → **200** idempotent no-op. See [weekly-contests-schema-contest-payouts-final.md](weekly-contests-schema-contest-payouts-final.md). |
@@ -56,27 +57,56 @@ Use this from a trusted admin dashboard or ops tooling that already holds an adm
 
 ---
 
-## 3. Cloud Scheduler (per contest)
+## 3. Cloud Scheduler — batch vs per-contest
 
-Prize execute is **per `contestId`** (unlike leaderboard rebuild). Typical pattern: **one job per contest** you intend to pay on a schedule, or a thin wrapper service that iterates contests and POSTs here.
+### 3a. Recommended — one job for all pending payouts (dynamic contests)
 
-**Auth:** `Authorization: Bearer <PAYOUT_OPERATOR_SECRET or CONTESTS_OPERATOR_SECRET>` (same as internal execute).
+**`POST /api/internal/v1/contests/payout-automation/run`** scans the **`scanLimit`** most recent contests with **`status: paid`** (by **`windowStart` desc**), keeps those that are **not** `prizePayoutStatus` **`held` \| `completed` \| `failed`**, optionally filters by **`gameMode`**, then runs the same **`runContestPayoutExecuteJob`** on up to **`batchSize`** ids. Each contest still hits the normal idempotency rules (e.g. skip if `payouts/final` already succeeded).
 
-**Body:** Must include **`"trigger":"scheduler"`** so automation is explicitly gated by **`PAYOUTS_AUTOMATION_ENABLED`**.
+| Body field | Default | Notes |
+|------------|---------|--------|
+| **`trigger`** | (required) | Must be **`"scheduler"`** (same automation gate as single-contest execute). |
+| **`batchSize`** | `10` | Max **50** — how many execute runs per invocation. |
+| **`scanLimit`** | `50` | Max **200** — how many **`paid`** docs to read before filtering. If many contests are already terminal, raise **`scanLimit`** so older unpaid contests are reached. |
+| **`gameMode`** | omit | e.g. **`"bio-ball"`** to only consider that mode. |
+
+**Auth:** `Authorization: Bearer <PAYOUT_OPERATOR_SECRET or CONTESTS_OPERATOR_SECRET>` (same as internal execute). **`PAYOUTS_AUTOMATION_ENABLED=true`** on Cloud Run.
 
 ```json
-{ "trigger": "scheduler" }
+{ "trigger": "scheduler", "batchSize": 10, "scanLimit": 50, "gameMode": "bio-ball" }
 ```
 
-### Example: `gcloud` (replace placeholders)
+#### Example: `gcloud` (batch — no `contestId` in URL)
 
 ```bash
-export PROJECT_ID=your-gcp-project
+export PROJECT_ID=roster-riddles-457600
 export REGION=us-central1
-export SERVICE_URL="https://YOUR-SERVICE-XXXX-uc.a.run.app"
+export SERVICE_URL="https://rosterriddles.com"
+export JOB_NAME="contest-payout-automation"
+export CRON="0 12 * * *"
+export PAYOUT_OPERATOR_SECRET="$(tr -d '\n' < /path/to/payout-operator-secret.txt)"
+
+gcloud scheduler jobs create http "$JOB_NAME" \
+  --project="$PROJECT_ID" \
+  --location="$REGION" \
+  --schedule="$CRON" \
+  --time-zone="Etc/UTC" \
+  --uri="${SERVICE_URL}/api/internal/v1/contests/payout-automation/run" \
+  --http-method=POST \
+  --headers="Content-Type=application/json,Authorization=Bearer ${PAYOUT_OPERATOR_SECRET}" \
+  --message-body='{"trigger":"scheduler","batchSize":10,"scanLimit":50,"gameMode":"bio-ball"}' \
+  --attempt-deadline=540s
+```
+
+**Response (200):** JSON includes **`candidatesRun`**, **`paidContestsScanned`**, and **`results`** (`contestId`, `httpStatus`, `outcome` per contest). Inspect logs with **`outcome":"payout_automation_run_*"`** and per-contest **`payout_job`** lines.
+
+### 3b. Alternative — one Scheduler job per `contestId`
+
+**`POST /api/internal/v1/contests/:contestId/payouts/execute`** with body **`{ "trigger": "scheduler" }`** when you prefer a fixed contest id per job.
+
+```bash
 export CONTEST_ID=bb-your-contest-id
 export JOB_NAME="contest-payout-${CONTEST_ID}"
-export CRON="0 12 * * *"   # e.g. daily noon UTC — tune per product
 
 gcloud scheduler jobs create http "$JOB_NAME" \
   --project="$PROJECT_ID" \

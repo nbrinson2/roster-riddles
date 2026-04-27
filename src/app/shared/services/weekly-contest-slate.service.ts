@@ -14,7 +14,13 @@ import {
   type QuerySnapshot,
   type Unsubscribe,
 } from 'firebase/firestore';
-import { BehaviorSubject, Observable, Subscription } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  Subscription,
+  combineLatest,
+} from 'rxjs';
+import { distinctUntilChanged, map } from 'rxjs/operators';
 import { AuthService } from 'src/app/auth/auth.service';
 import { getConfiguredFirestore } from 'src/app/config/firestore-instance';
 import {
@@ -24,6 +30,12 @@ import {
 import type { ContestEntryDocument } from 'src/app/shared/models/contest-entry.model';
 import { buildContestValuePropLine } from 'src/app/shared/contest/contest-value-prop';
 
+/** Full-width phase line on the Bio Ball weekly contest strip. */
+export const WEEKLY_CONTEST_STRIP_PHASE_OPEN = 'Open · play counts';
+export const WEEKLY_CONTEST_STRIP_PHASE_WINDOW_CLOSED =
+  'Window closed · ranking soon';
+export const WEEKLY_CONTEST_STRIP_PHASE_FINAL = 'Final results';
+
 /** Live mini-league progress for the active open contest the user joined (Bio Ball). */
 export interface WeeklyContestSlateUi {
   contestId: string;
@@ -31,6 +43,15 @@ export interface WeeklyContestSlateUi {
   leagueGamesN: number;
   gamesUsed: number;
   gamesRemaining: number;
+  /** Short lifecycle label (full phrase). */
+  phaseStripLabel: string;
+  /** Narrow-screen summary (single word / token). */
+  phaseStripLabelAbbrev: string;
+  /**
+   * True when the contest is no longer `open` (scoring / paid / cancelled) — hide slate counters
+   * in compact layouts.
+   */
+  postContestPhase?: boolean;
   /** Prize / entry / lock line for the strip (from contest doc + window end). */
   valuePropLine: string;
   /** True when gameplayEvents query failed (e.g. missing index); user may still be entered. */
@@ -114,6 +135,63 @@ function parseLeagueGamesN(raw: unknown): number {
   return 10;
 }
 
+function phaseLabelForFirestoreStatus(statusRaw: unknown): string {
+  const s = normStatus(statusRaw);
+  if (s === 'paid') {
+    return WEEKLY_CONTEST_STRIP_PHASE_FINAL;
+  }
+  if (s === 'scoring') {
+    return WEEKLY_CONTEST_STRIP_PHASE_WINDOW_CLOSED;
+  }
+  if (s === 'cancelled') {
+    return 'Contest cancelled';
+  }
+  return WEEKLY_CONTEST_STRIP_PHASE_WINDOW_CLOSED;
+}
+
+function abbrevForPhaseLabel(full: string): string {
+  if (full === WEEKLY_CONTEST_STRIP_PHASE_OPEN) {
+    return 'Open';
+  }
+  if (full === WEEKLY_CONTEST_STRIP_PHASE_WINDOW_CLOSED) {
+    return 'Closed';
+  }
+  if (full === WEEKLY_CONTEST_STRIP_PHASE_FINAL) {
+    return 'Final';
+  }
+  if (full === 'Contest cancelled') {
+    return 'Off';
+  }
+  const t = full.trim();
+  return t.length <= 10 ? t : `${t.slice(0, 9)}…`;
+}
+
+function buildPostContestStripSlate(
+  contestId: string,
+  contest: ContestDocument,
+  phaseStripLabel: string,
+): WeeklyContestSlateUi {
+  const we = toTimestamp(contest.windowEnd);
+  const titleRaw =
+    typeof contest.title === 'string' ? contest.title.trim() : '';
+  const contestTitle = titleRaw || 'Bio Ball week';
+  const leagueGamesN = parseLeagueGamesN(contest.leagueGamesN);
+  const abbrev = abbrevForPhaseLabel(phaseStripLabel);
+  return {
+    contestId,
+    contestTitle,
+    leagueGamesN,
+    gamesUsed: 0,
+    gamesRemaining: 0,
+    phaseStripLabel,
+    phaseStripLabelAbbrev: abbrev,
+    postContestPhase: true,
+    valuePropLine: we ? slateValuePropLine(contest, we) : '',
+    progressUnavailable: true,
+    windowEnded: true,
+  };
+}
+
 /**
  * User is entered in an open Bio Ball contest, but `now` is past `windowEnd` (status not yet advanced).
  */
@@ -195,9 +273,23 @@ export class WeeklyContestSlateService {
   readonly hasOpenBioBallContests$: Observable<boolean> =
     this.hasOpenBioBallSubject.asObservable();
 
+  /**
+   * Show the Bio Ball weekly strip when any open Bio Ball contest exists, or when the signed-in
+   * user has a non-null slate (including post-open scoring / paid recovery).
+   */
+  readonly showBioBallContestStrip$: Observable<boolean> = combineLatest([
+    this.hasOpenBioBallContests$,
+    this.slate$,
+  ]).pipe(
+    map(([hasOpen, slate]) => hasOpen || slate != null),
+    distinctUntilChanged(),
+  );
+
   private authSub: Subscription | null = null;
   private openContestsUnsub: Unsubscribe | null = null;
   private gameplayUnsub: Unsubscribe | null = null;
+  /** Watches `contests/{id}` for lifecycle updates (open → scoring → paid, etc.). */
+  private activeContestUnsub: Unsubscribe | null = null;
   private currentUid: string | null = null;
   private lastOpenContestsSnap: QuerySnapshot | null = null;
 
@@ -205,7 +297,7 @@ export class WeeklyContestSlateService {
     this.attachOpenContestsListener();
     this.authSub = this.auth.user$.subscribe((user) => {
       this.currentUid = user?.uid ?? null;
-      this.clearGameplayOnly();
+      this.clearSlateListeners();
       this.slateSubject.next(null);
       const db = getConfiguredFirestore();
       if (this.currentUid && this.lastOpenContestsSnap) {
@@ -256,7 +348,7 @@ export class WeeklyContestSlateService {
         if (uid) {
           void this.onOpenContestsSnapshot(db, uid, snap);
         } else {
-          this.clearGameplayOnly();
+          this.clearSlateListeners();
           this.slateSubject.next(null);
         }
       },
@@ -266,7 +358,7 @@ export class WeeklyContestSlateService {
           err,
         );
         this.hasOpenBioBallSubject.next(false);
-        this.clearGameplayOnly();
+        this.clearSlateListeners();
         this.slateSubject.next(null);
       },
     );
@@ -279,15 +371,102 @@ export class WeeklyContestSlateService {
     }
   }
 
+  private detachContestWatchOnly(): void {
+    if (this.activeContestUnsub) {
+      this.activeContestUnsub();
+      this.activeContestUnsub = null;
+    }
+  }
+
+  private clearSlateListeners(): void {
+    this.clearGameplayOnly();
+    this.detachContestWatchOnly();
+  }
+
+  private attachContestLifecycleWatch(db: Firestore, contestId: string): void {
+    if (this.activeContestUnsub) {
+      this.activeContestUnsub();
+      this.activeContestUnsub = null;
+    }
+    const ref = doc(db, 'contests', contestId);
+    this.activeContestUnsub = onSnapshot(
+      ref,
+      (snap) => {
+        if (!snap.exists()) {
+          this.clearSlateListeners();
+          this.slateSubject.next(null);
+          return;
+        }
+        const data = snap.data() as ContestDocument;
+        const st = normStatus(data.status);
+        if (st === 'open') {
+          return;
+        }
+        this.clearGameplayOnly();
+        const label = phaseLabelForFirestoreStatus(st);
+        this.slateSubject.next(
+          buildPostContestStripSlate(contestId, data, label),
+        );
+      },
+      (err) => {
+        console.error(
+          '[WeeklyContestSlateService] contest status listener failed',
+          err,
+        );
+      },
+    );
+  }
+
+  private async tryPostContestRecover(
+    db: Firestore,
+    uid: string,
+    contestId: string,
+  ): Promise<boolean> {
+    const entryRef = doc(db, 'contests', contestId, 'entries', uid);
+    const entrySnap = await getDoc(entryRef);
+    if (!entrySnap.exists()) {
+      return false;
+    }
+    const cSnap = await getDoc(doc(db, 'contests', contestId));
+    if (!cSnap.exists()) {
+      return false;
+    }
+    const c = cSnap.data() as ContestDocument;
+    if (normGameMode(c.gameMode) !== CONTEST_GAME_MODE_BIO_BALL) {
+      return false;
+    }
+    const st = normStatus(c.status);
+    if (st !== 'scoring' && st !== 'paid' && st !== 'cancelled') {
+      return false;
+    }
+    const label = phaseLabelForFirestoreStatus(st);
+    this.slateSubject.next(buildPostContestStripSlate(contestId, c, label));
+    this.attachContestLifecycleWatch(db, contestId);
+    return true;
+  }
+
   private async onOpenContestsSnapshot(
     db: Firestore,
     uid: string,
     contestSnap: QuerySnapshot,
   ): Promise<void> {
+    const priorContestId = this.slateSubject.value?.contestId ?? null;
     this.clearGameplayOnly();
+    this.detachContestWatchOnly();
+    this.slateSubject.next(null);
+
+    const recoverOrNull = async (): Promise<void> => {
+      if (
+        priorContestId &&
+        (await this.tryPostContestRecover(db, uid, priorContestId))
+      ) {
+        return;
+      }
+      this.slateSubject.next(null);
+    };
 
     if (contestSnap.empty) {
-      this.slateSubject.next(null);
+      await recoverOrNull();
       return;
     }
 
@@ -312,7 +491,7 @@ export class WeeklyContestSlateService {
     );
 
     if (rows.length === 0) {
-      this.slateSubject.next(null);
+      await recoverOrNull();
       return;
     }
 
@@ -360,22 +539,26 @@ export class WeeklyContestSlateService {
       if (ended) {
         const weEnded = toTimestamp(ended.contest.windowEnd);
         if (!weEnded) {
-          this.slateSubject.next(null);
+          await recoverOrNull();
           return;
         }
+        const phase = WEEKLY_CONTEST_STRIP_PHASE_WINDOW_CLOSED;
         this.slateSubject.next({
           contestId: ended.contestId,
           contestTitle: ended.contestTitle,
           leagueGamesN: ended.leagueGamesN,
           gamesUsed: 0,
           gamesRemaining: 0,
+          phaseStripLabel: phase,
+          phaseStripLabelAbbrev: abbrevForPhaseLabel(phase),
           valuePropLine: slateValuePropLine(ended.contest, weEnded),
           progressUnavailable: true,
           windowEnded: true,
         });
+        this.attachContestLifecycleWatch(db, ended.contestId);
         return;
       }
-      this.slateSubject.next(null);
+      await recoverOrNull();
       return;
     }
 
@@ -384,14 +567,14 @@ export class WeeklyContestSlateService {
     const entryData = picked.entrySnap.data() as ContestEntryDocument;
     const joinedAtTs = toTimestamp(entryData.joinedAt);
     if (!joinedAtTs) {
-      this.slateSubject.next(null);
+      await recoverOrNull();
       return;
     }
 
     const ws = toTimestamp(picked.contest.windowStart);
     const we = toTimestamp(picked.contest.windowEnd);
     if (!ws || !we) {
-      this.slateSubject.next(null);
+      await recoverOrNull();
       return;
     }
 
@@ -403,6 +586,8 @@ export class WeeklyContestSlateService {
         ? picked.contest.title.trim()
         : '';
     const contestTitle = titleRaw || 'Bio Ball week';
+    const openPhase = WEEKLY_CONTEST_STRIP_PHASE_OPEN;
+    const openAbbrev = abbrevForPhaseLabel(openPhase);
 
     const eventsRef = collection(db, 'users', uid, 'gameplayEvents');
     const qGames = query(
@@ -424,6 +609,8 @@ export class WeeklyContestSlateService {
           leagueGamesN: n,
           gamesUsed: used,
           gamesRemaining: n - used,
+          phaseStripLabel: openPhase,
+          phaseStripLabelAbbrev: openAbbrev,
           valuePropLine: slateValuePropLine(picked.contest, we),
           progressUnavailable: false,
         });
@@ -439,10 +626,13 @@ export class WeeklyContestSlateService {
           leagueGamesN: n,
           gamesUsed: 0,
           gamesRemaining: n,
+          phaseStripLabel: openPhase,
+          phaseStripLabelAbbrev: openAbbrev,
           valuePropLine: slateValuePropLine(picked.contest, we),
           progressUnavailable: true,
         });
       },
     );
+    this.attachContestLifecycleWatch(db, picked.contestId);
   }
 }

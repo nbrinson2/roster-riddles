@@ -13,7 +13,7 @@
     </div>
     <ng-container
       *ngIf="
-        currentGameType() === GameType.BIO_BALL && (hasOpenBioBallContests$ | async)
+        currentGameType() === GameType.BIO_BALL && (showBioBallContestStrip$ | async)
       "
     >
       <ng-container *ngIf="bioBallContestStrip$ | async as strip">
@@ -21,18 +21,84 @@
           <div
             *ngIf="strip.variant === 'active'"
             class="game-contest-banner"
+            [class.game-contest-banner--mobile-expanded]="contestStripMobileExpanded"
             role="region"
-            aria-label="Weekly contest mini-league progress"
+            [attr.aria-label]="
+              'Slate for this board only; calendar tab has every contest. ' +
+              strip.slate.phaseStripLabel +
+              '. ' +
+              strip.slate.contestTitle
+            "
           >
-            <div class="game-contest-banner__stack">
-              <div class="game-contest-banner__inner">
+            <div class="game-contest-banner__desktop">
+              <div class="game-contest-banner__stack">
+                <div class="game-contest-banner__inner">
+                  <div class="game-contest-banner__badge">
+                    <span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>
+                    <span>Contest</span>
+                  </div>
+                  <p class="game-contest-banner__title">{{ strip.slate.contestTitle }}</p>
+                  <div
+                    *ngIf="
+                      !strip.slate.postContestPhase &&
+                      !strip.slate.progressUnavailable &&
+                      !strip.slate.windowEnded
+                    "
+                    class="game-contest-banner__stats"
+                  >
+                    <span class="game-contest-banner__emph"
+                      >{{ strip.slate.gamesUsed }}/{{ strip.slate.leagueGamesN }}</span
+                    >
+                    <span class="game-contest-banner__dot" aria-hidden="true">·</span>
+                    <span class="game-contest-banner__emph">{{ strip.slate.gamesRemaining }}</span>
+                    left<span *ngIf="strip.slate.gamesRemaining === 0"> · slate full</span>
+                  </div>
+                  <div
+                    *ngIf="strip.slate.windowEnded && !strip.slate.postContestPhase"
+                    class="game-contest-banner__pill"
+                  >
+                    Window ended
+                  </div>
+                  <div
+                    *ngIf="
+                      strip.slate.progressUnavailable &&
+                      !strip.slate.windowEnded &&
+                      !strip.slate.postContestPhase
+                    "
+                    class="game-contest-banner__pill game-contest-banner__pill--warn"
+                  >
+                    Count unavailable
+                  </div>
+                </div>
+                <p class="game-contest-banner__phase">{{ strip.slate.phaseStripLabel }}</p>
+                <p
+                  class="game-contest-banner__value"
+                  [title]="strip.slate.valuePropLine"
+                  [attr.aria-label]="'Contest summary: ' + strip.slate.valuePropLine"
+                >
+                  {{ strip.slate.valuePropLine }}
+                </p>
+                <p class="game-contest-banner__context">
+                  {{ contestStripCalendarContextLine }}
+                </p>
+              </div>
+            </div>
+            <div class="game-contest-banner__mobile">
+              <div class="game-contest-banner__mobile-bar">
                 <div class="game-contest-banner__badge">
                   <span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>
                   <span>Contest</span>
                 </div>
-                <p class="game-contest-banner__title">{{ strip.slate.contestTitle }}</p>
+                <span class="game-contest-banner__title">{{ strip.slate.contestTitle }}</span>
+                <span class="game-contest-banner__phase-abbr" aria-hidden="true">{{
+                  strip.slate.phaseStripLabelAbbrev
+                }}</span>
                 <div
-                  *ngIf="!strip.slate.progressUnavailable && !strip.slate.windowEnded"
+                  *ngIf="
+                    !strip.slate.postContestPhase &&
+                    !strip.slate.progressUnavailable &&
+                    !strip.slate.windowEnded
+                  "
                   class="game-contest-banner__stats"
                 >
                   <span class="game-contest-banner__emph"
@@ -40,57 +106,146 @@
                   >
                   <span class="game-contest-banner__dot" aria-hidden="true">·</span>
                   <span class="game-contest-banner__emph">{{ strip.slate.gamesRemaining }}</span>
-                  left<span *ngIf="strip.slate.gamesRemaining === 0"> · slate full</span>
                 </div>
-                <div *ngIf="strip.slate.windowEnded" class="game-contest-banner__pill">Window ended</div>
                 <div
-                  *ngIf="strip.slate.progressUnavailable && !strip.slate.windowEnded"
+                  *ngIf="strip.slate.windowEnded && !strip.slate.postContestPhase"
+                  class="game-contest-banner__pill"
+                >
+                  Ended
+                </div>
+                <div
+                  *ngIf="
+                    strip.slate.progressUnavailable &&
+                    !strip.slate.windowEnded &&
+                    !strip.slate.postContestPhase
+                  "
                   class="game-contest-banner__pill game-contest-banner__pill--warn"
                 >
-                  Count unavailable
+                  No count
                 </div>
+                <button
+                  type="button"
+                  class="game-contest-banner__expand-btn"
+                  (click)="toggleContestStripMobileExpanded()"
+                  [attr.aria-expanded]="contestStripMobileExpanded"
+                  [attr.aria-label]="
+                    contestStripMobileExpanded
+                      ? 'Hide contest details'
+                      : 'Show contest details'
+                  "
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">{{
+                    contestStripMobileExpanded ? 'expand_less' : 'expand_more'
+                  }}</span>
+                </button>
               </div>
-              <p
-                class="game-contest-banner__value"
-                [title]="strip.slate.valuePropLine"
-                [attr.aria-label]="'Contest summary: ' + strip.slate.valuePropLine"
+              <div
+                *ngIf="contestStripMobileExpanded"
+                class="game-contest-banner__mobile-detail"
               >
-                {{ strip.slate.valuePropLine }}
-              </p>
+                <p class="game-contest-banner__phase">{{ strip.slate.phaseStripLabel }}</p>
+                <p
+                  class="game-contest-banner__value"
+                  [title]="strip.slate.valuePropLine"
+                  [attr.aria-label]="'Contest summary: ' + strip.slate.valuePropLine"
+                >
+                  {{ strip.slate.valuePropLine }}
+                </p>
+                <p class="game-contest-banner__context">
+                  {{ contestStripCalendarContextLine }}
+                </p>
+              </div>
             </div>
-            <p *ngIf="strip.slate.windowEnded" class="game-contest-banner__sr-only">
+            <p
+              *ngIf="strip.slate.windowEnded && !strip.slate.postContestPhase"
+              class="game-contest-banner__sr-only"
+            >
               This contest’s play window has ended. You’re still entered — final rank will use only
               games played during that window (see scoring run).
             </p>
             <p
-              *ngIf="strip.slate.progressUnavailable && !strip.slate.windowEnded"
+              *ngIf="
+                strip.slate.progressUnavailable &&
+                !strip.slate.windowEnded &&
+                !strip.slate.postContestPhase
+              "
               class="game-contest-banner__sr-only"
             >
               Couldn’t load your game count from the server (often a missing Firestore index in dev).
               You’re still entered — check the browser console, or deploy indexes from
               firestore.indexes.json.
             </p>
-            <p *ngIf="!strip.slate.windowEnded" class="game-contest-banner__sr-only">
+            <p
+              *ngIf="!strip.slate.windowEnded && !strip.slate.postContestPhase"
+              class="game-contest-banner__sr-only"
+            >
               Each finished round (win, loss, or abandon after a guess) uses one slate slot, in
               order, while this contest is open.
+            </p>
+            <p *ngIf="strip.slate.postContestPhase" class="game-contest-banner__sr-only">
+              This contest is no longer open for play. Check the calendar for standings and
+              results.
             </p>
           </div>
           <div
             *ngIf="strip.variant === 'no_entry'"
             class="game-contest-banner game-contest-banner--muted"
+            [class.game-contest-banner--mobile-expanded]="contestStripMobileExpanded"
             role="region"
-            aria-label="Weekly contests"
+            aria-label="Weekly contests — open the calendar tab for your full contest list"
           >
-            <div class="game-contest-banner__stack">
-              <div class="game-contest-banner__inner">
-                <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-                <p class="game-contest-banner__muted-line">
-                  Not in an open contest — join from the calendar.
+            <div class="game-contest-banner__desktop">
+              <div class="game-contest-banner__stack">
+                <div class="game-contest-banner__inner">
+                  <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                  <p class="game-contest-banner__muted-line">
+                    Not in an open contest — join from the calendar.
+                  </p>
+                </div>
+                <p class="game-contest-banner__value game-contest-banner__value--muted">
+                  Simulated prizes · No entry fee · See prize and lock times on each contest card
+                </p>
+                <p class="game-contest-banner__context">
+                  {{ contestStripCalendarContextLine }}
                 </p>
               </div>
-              <p class="game-contest-banner__value game-contest-banner__value--muted">
-                Simulated prizes · No entry fee · See prize and lock times on each contest card
-              </p>
+            </div>
+            <div class="game-contest-banner__mobile">
+              <div class="game-contest-banner__mobile-bar">
+                <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
+                <span class="game-contest-banner__muted-line game-contest-banner__muted-line--compact"
+                  >Not in an open contest</span
+                >
+                <button
+                  type="button"
+                  class="game-contest-banner__expand-btn"
+                  (click)="toggleContestStripMobileExpanded()"
+                  [attr.aria-expanded]="contestStripMobileExpanded"
+                  [attr.aria-label]="
+                    contestStripMobileExpanded
+                      ? 'Hide weekly contest details'
+                      : 'Show weekly contest details'
+                  "
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">{{
+                    contestStripMobileExpanded ? 'expand_less' : 'expand_more'
+                  }}</span>
+                </button>
+              </div>
+              <div
+                *ngIf="contestStripMobileExpanded"
+                class="game-contest-banner__mobile-detail"
+              >
+                <p class="game-contest-banner__muted-line">
+                  Join from the calendar tab, accept the rules, then tap Join contest.
+                </p>
+                <p class="game-contest-banner__value game-contest-banner__value--muted">
+                  Simulated prizes · No entry fee · See prize and lock times on each contest card
+                </p>
+                <p class="game-contest-banner__context">
+                  {{ contestStripCalendarContextLine }}
+                </p>
+              </div>
             </div>
             <p class="game-contest-banner__sr-only">
               You are not entered in an open weekly contest right now. Open the calendar tab in the
@@ -101,12 +256,15 @@
             *ngIf="strip.variant === 'sign_in'"
             class="game-contest-banner game-contest-banner--muted"
             role="region"
-            aria-label="Sign in for weekly contests"
+            aria-label="Sign in for weekly contests — calendar lists contests after you sign in"
           >
             <div class="game-contest-banner__inner">
               <span class="material-symbols-outlined" aria-hidden="true">login</span>
               <p class="game-contest-banner__muted-line">Sign in to join weekly contests.</p>
             </div>
+            <p class="game-contest-banner__context">
+              {{ contestStripCalendarContextLine }}
+            </p>
             <p class="game-contest-banner__sr-only">
               Sign in to join weekly Bio Ball contests and track your mini-league games from the
               calendar tab.
@@ -115,14 +273,54 @@
           <div
             *ngIf="strip.variant === 'verify_email'"
             class="game-contest-banner game-contest-banner--muted"
+            [class.game-contest-banner--mobile-expanded]="contestStripMobileExpanded"
             role="region"
-            aria-label="Verify email for weekly contests"
+            aria-label="Verify email for weekly contests — calendar lists contests after verification"
           >
-            <div class="game-contest-banner__inner">
-              <span class="material-symbols-outlined" aria-hidden="true">mark_email_unread</span>
-              <p class="game-contest-banner__muted-line">
-                Verify your email to join weekly contests — open Profile to resend the link.
+            <div class="game-contest-banner__desktop">
+              <div class="game-contest-banner__inner">
+                <span class="material-symbols-outlined" aria-hidden="true">mark_email_unread</span>
+                <p class="game-contest-banner__muted-line">
+                  Verify your email to join weekly contests — open Profile to resend the link.
+                </p>
+              </div>
+              <p class="game-contest-banner__context">
+                {{ contestStripCalendarContextLine }}
               </p>
+            </div>
+            <div class="game-contest-banner__mobile">
+              <div class="game-contest-banner__mobile-bar">
+                <span class="material-symbols-outlined" aria-hidden="true">mark_email_unread</span>
+                <span class="game-contest-banner__muted-line game-contest-banner__muted-line--compact"
+                  >Verify email to join contests</span
+                >
+                <button
+                  type="button"
+                  class="game-contest-banner__expand-btn"
+                  (click)="toggleContestStripMobileExpanded()"
+                  [attr.aria-expanded]="contestStripMobileExpanded"
+                  [attr.aria-label]="
+                    contestStripMobileExpanded
+                      ? 'Hide email verification details'
+                      : 'Show email verification details'
+                  "
+                >
+                  <span class="material-symbols-outlined" aria-hidden="true">{{
+                    contestStripMobileExpanded ? 'expand_less' : 'expand_more'
+                  }}</span>
+                </button>
+              </div>
+              <div
+                *ngIf="contestStripMobileExpanded"
+                class="game-contest-banner__mobile-detail"
+              >
+                <p class="game-contest-banner__muted-line">
+                  Open Profile to resend the verification link or complete email verification.
+                </p>
+                <p class="game-contest-banner__context">
+                  {{ contestStripCalendarContextLine }}
+                </p>
+              </div>
             </div>
             <p class="game-contest-banner__sr-only">
               Your account needs a verified email before you can enter a contest. Use the person
