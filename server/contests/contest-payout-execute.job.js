@@ -12,6 +12,11 @@ import {
   stripePayoutTransferIdempotencyKey,
   userConnectReadyForPayoutTransfer,
 } from './contest-payout-execute.helpers.js';
+import {
+  computePlannedPrizeTransferTotalCents,
+  extractUsdAvailableCentsFromBalance,
+  isContestPayoutBalanceGuardEnabled,
+} from './contest-payout-platform-balance.js';
 import { isContestStatus } from './contest-transitions.js';
 
 const LEDGER_SCHEMA_VERSION = 1;
@@ -299,6 +304,65 @@ export async function runContestPayoutExecuteJob({
   const userSnaps = await Promise.all(
     baseLines.map((l) => db.doc(`users/${l.uid}`).get()),
   );
+
+  if (isContestPayoutBalanceGuardEnabled()) {
+    const requiredUsdCents = computePlannedPrizeTransferTotalCents(
+      baseLines,
+      entrySnaps,
+      userSnaps,
+    );
+    if (requiredUsdCents > 0) {
+      /** @type {import('stripe').Stripe.Balance} */
+      let balance;
+      try {
+        balance = await stripe.balance.retrieve();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        logContestPayoutExecuteLine({
+          requestId,
+          contestId,
+          outcome: 'stripe_balance_retrieve_failed',
+          httpStatus: 503,
+          latencyMs: Date.now() - startMs,
+          message: msg,
+        });
+        return {
+          httpStatus: 503,
+          json: {
+            error: {
+              code: 'stripe_balance_unavailable',
+              message: 'Could not verify platform balance before payout; try again later.',
+            },
+          },
+        };
+      }
+      const availableUsdCents = extractUsdAvailableCentsFromBalance(balance);
+      if (availableUsdCents < requiredUsdCents) {
+        logContestPayoutExecuteLine({
+          requestId,
+          contestId,
+          outcome: 'insufficient_platform_balance',
+          httpStatus: 409,
+          latencyMs: Date.now() - startMs,
+          availableUsdCents,
+          requiredUsdCents,
+          plannedMoneyLineCount: baseLines.filter((l) => l.amountCents > 0).length,
+        });
+        return {
+          httpStatus: 409,
+          json: {
+            error: {
+              code: 'insufficient_platform_balance',
+              message:
+                'Stripe platform USD available balance is below the sum of planned prize transfers. Add funds or reduce scope, then retry.',
+              availableUsdCents,
+              requiredUsdCents,
+            },
+          },
+        };
+      }
+    }
+  }
 
   /** @type {import('stripe').Stripe.Transfer[]} */
   const transfersCreated = [];

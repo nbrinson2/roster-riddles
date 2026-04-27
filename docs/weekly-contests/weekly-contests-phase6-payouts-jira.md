@@ -362,7 +362,7 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Logged outcome `insufficient_platform_balance` with amounts **aggregated** only (no secrets).
+- [x] Logged outcome `insufficient_platform_balance` with amounts **aggregated** only (no secrets).
 
 **Dependencies**
 
@@ -370,7 +370,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- Server helper + tests (mocked balance)
+- [`server/contests/contest-payout-platform-balance.js`](../../server/contests/contest-payout-platform-balance.js), [`contest-payout-platform-balance.test.js`](../../server/contests/contest-payout-platform-balance.test.js), wired in [`contest-payout-execute.job.js`](../../server/contests/contest-payout-execute.job.js); ops notes in [weekly-contests-ops-p6-payout-execute.md](weekly-contests-ops-p6-payout-execute.md) ✅
 
 ---
 

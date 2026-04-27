@@ -2,7 +2,7 @@
 
 **Purpose:** After a contest is **`paid`** with **`results/final`** and **`payouts/dryRun`**, an operator (or **Cloud Scheduler** with automation enabled) calls this hook to create **Stripe Transfers** to winners’ **Connect** accounts, then writes **`payouts/final`** and append-only **`ledgerEntries`** (`prize_transfer_out`).
 
-**Implementation:** [`server/contests/contest-payout-execute.http.js`](../../server/contests/contest-payout-execute.http.js), job [`contest-payout-execute.job.js`](../../server/contests/contest-payout-execute.job.js), helpers [`contest-payout-execute.helpers.js`](../../server/contests/contest-payout-execute.helpers.js). **Scheduler + kill switch:** [weekly-contests-phase6-ops.md](weekly-contests-phase6-ops.md) (Story P6-D3).
+**Implementation:** [`server/contests/contest-payout-execute.http.js`](../../server/contests/contest-payout-execute.http.js), job [`contest-payout-execute.job.js`](../../server/contests/contest-payout-execute.job.js), helpers [`contest-payout-execute.helpers.js`](../../server/contests/contest-payout-execute.helpers.js), platform balance [`contest-payout-platform-balance.js`](../../server/contests/contest-payout-platform-balance.js) (Story P6-E1). **Scheduler + kill switch:** [weekly-contests-phase6-ops.md](weekly-contests-phase6-ops.md) (Story P6-D3).
 
 ---
 
@@ -43,17 +43,18 @@ Admin manual run (no operator secret): **`POST /api/v1/admin/contests/:contestId
 
 ## Behavior summary
 
-1. Builds payout lines with **`buildPayoutLinesFromFinal`** (P6-D1) — must match **`payouts/dryRun`** when present.
-2. **Idempotency:** If **`payouts/final`** exists with **`aggregateStatus: succeeded`**, returns **200** `{ outcome: "payout_final_already_succeeded" }` and **does not** call Stripe again. If `final` exists in **`partial_failure`** / **`failed`**, returns **409** — operator must fix data / Stripe state before a future retry story.
-3. For each line with **`amountCents > 0`**: skips ineligible entry or Connect-not-ready user; otherwise **`stripe.transfers.create`** with **idempotency key** `rr_payout_{contestId}_{uid}_{rank}` (sanitized, max 255 chars).
-4. **Partial failure:** one transfer can **fail** while others **succeed**; **`aggregateStatus`** becomes **`partial_failure`**.
-5. **Firestore batch:** writes **`payouts/final`** and one **`ledgerEntries/{tr_...}`** per successful transfer (`prize_transfer_out`, `direction: debit`).
+1. **Optional balance guard (P6-E1):** When **`CONTEST_PAYOUT_BALANCE_GUARD_ENABLED=true`**, after resolving entry + user docs the job calls **`stripe.balance.retrieve()`**, sums **`available`** rows with **`currency: usd`**, and **blocks** (HTTP **409** `insufficient_platform_balance`) if that total is **strictly less** than the sum of **planned** prize transfers (only lines with **`amountCents > 0`** that pass entry eligibility and Connect readiness — same gates as actual `transfers.create`). Structured log: **`outcome: insufficient_platform_balance`**, **`availableUsdCents`**, **`requiredUsdCents`**, **`plannedMoneyLineCount`** (aggregates only). If Balance cannot be read, **503** `stripe_balance_unavailable`. There is still a small **race** between check and transfers; Stripe remains authoritative if a transfer fails for funds.
+2. Builds payout lines with **`buildPayoutLinesFromFinal`** (P6-D1) — must match **`payouts/dryRun`** when present.
+3. **Idempotency:** If **`payouts/final`** exists with **`aggregateStatus: succeeded`**, returns **200** `{ outcome: "payout_final_already_succeeded" }` and **does not** call Stripe again. If `final` exists in **`partial_failure`** / **`failed`**, returns **409** — operator must fix data / Stripe state before a future retry story.
+4. For each line with **`amountCents > 0`**: skips ineligible entry or Connect-not-ready user; otherwise **`stripe.transfers.create`** with **idempotency key** `rr_payout_{contestId}_{uid}_{rank}` (sanitized, max 255 chars).
+5. **Partial failure:** one transfer can **fail** while others **succeed**; **`aggregateStatus`** becomes **`partial_failure`**.
+6. **Firestore batch:** writes **`payouts/final`** and one **`ledgerEntries/{tr_...}`** per successful transfer (`prize_transfer_out`, `direction: debit`).
 
 ---
 
 ## Logs
 
-Structured JSON lines: `component: contest_payout_execute`, `requestId`, `contestId`, optional `uid`, `rank`, `amountCents`, `outcome` (e.g. `transfer_succeeded`, `transfer_failed`, `payout_execute_committed`), `latencyMs`, optional `stripeTransferId` / `stripeErrorCode`.
+Structured JSON lines: `component: contest_payout_execute`, `requestId`, `contestId`, optional `uid`, `rank`, `amountCents`, `outcome` (e.g. `transfer_succeeded`, `transfer_failed`, `payout_execute_committed`, **`insufficient_platform_balance`** (with **`availableUsdCents`**, **`requiredUsdCents`**, **`plannedMoneyLineCount`** only)), `latencyMs`, optional `stripeTransferId` / `stripeErrorCode`.
 
 ---
 
