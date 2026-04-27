@@ -15,10 +15,22 @@ service cloud.firestore {
     }
 
     // Profiles: only the signed-in user may access `users/{uid}` (equivalent to auth.uid == path uid).
+    // Stripe Connect payout fields (P6-B2+) are written only by Admin SDK / server — never client-writable.
     match /users/{userId} {
       allow read: if signedIn() && request.auth.uid == userId;
-      allow create: if signedIn() && request.auth.uid == userId;
-      allow update, delete: if signedIn() && request.auth.uid == userId;
+      allow create: if signedIn() && request.auth.uid == userId
+        && !request.resource.data.keys().hasAny([
+          'stripeConnectAccountId',
+          'stripeConnectAccountType',
+          'stripeConnectCreatedAt',
+        ]);
+      allow update: if signedIn() && request.auth.uid == userId
+        && !request.resource.data.diff(resource.data).changedKeys().hasAny([
+          'stripeConnectAccountId',
+          'stripeConnectAccountType',
+          'stripeConnectCreatedAt',
+        ]);
+      allow delete: if signedIn() && request.auth.uid == userId;
     }
 
     // Gameplay events: append-only via Admin SDK / Express — clients may read own events only.

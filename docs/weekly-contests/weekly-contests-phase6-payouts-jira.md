@@ -136,9 +136,9 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] OpenAPI-style table in new or existing API doc; errors: `401`, `409` (already onboarded), `503` (Stripe down).
-- [ ] Rate limit per uid.
-- [ ] Server tests with Stripe mock / fixture.
+- [x] OpenAPI-style table in new or existing API doc; errors: `401`, `409` (already onboarded), `503` (Stripe down).
+- [x] Rate limit per uid.
+- [x] Server tests with Stripe mock / fixture.
 
 **Dependencies**
 
@@ -146,7 +146,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `server/payments/stripe-connect-onboarding.http.js` (or contests namespace), tests, `docs/weekly-contests/weekly-contests-api-phase6.md`
+- `server/payments/stripe-connect-onboarding.http.js` (or contests namespace), tests, `docs/weekly-contests/weekly-contests-api-phase6.md` ✅
 
 ---
 

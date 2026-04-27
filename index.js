@@ -19,6 +19,7 @@ import {
   contestReadRateLimitHookMiddleware,
   gameplayEventRateLimitHookMiddleware,
   leaderboardRateLimitHookMiddleware,
+  stripeConnectOnboardingRateLimitHookMiddleware,
 } from './server/middleware/rate-limit-hooks.middleware.js';
 import {
   getAdminContestList,
@@ -36,6 +37,7 @@ import { requireFirebaseAuth } from './server/middleware/require-auth.js';
 import { requireAdmin } from './server/middleware/require-admin.js';
 import { requestIdMiddleware } from './server/middleware/request-id.middleware.js';
 import { validateStripeConfigAtStartup } from './server/payments/stripe-server.js';
+import { postStripeConnectOnboarding } from './server/payments/stripe-connect-onboarding.http.js';
 import { postStripeWebhook } from './server/payments/stripe-webhook.http.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -89,6 +91,14 @@ app.get('/api/v1/me', requireFirebaseAuth, (req, res) => {
     isAdmin: req.user.isAdmin,
   });
 });
+
+/** Stripe Connect Express — hosted Account Link for onboarding / updates (Phase 6 P6-B2). */
+app.post(
+  '/api/v1/me/stripe/connect/onboarding',
+  requireFirebaseAuth,
+  stripeConnectOnboardingRateLimitHookMiddleware,
+  postStripeConnectOnboarding,
+);
 
 /**
  * Admin — weekly contests (Firebase `admin: true` claim). List all statuses; transition without operator secret.

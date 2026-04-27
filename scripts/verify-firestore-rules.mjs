@@ -38,6 +38,36 @@ try {
     }),
   );
 
+  // P6-B2: Stripe Connect fields on `users/{uid}` are server-only (Admin SDK)
+  await assertSucceeds(
+    setDoc(
+      doc(alice, 'users', 'alice'),
+      { displayName: 'Alice' },
+      { merge: true },
+    ),
+  );
+  await assertFails(
+    setDoc(
+      doc(alice, 'users', 'alice'),
+      { stripeConnectAccountId: 'acct_fake' },
+      { merge: true },
+    ),
+  );
+
+  await assertFails(
+    setDoc(doc(bob, 'users', 'bob'), {
+      email: 'b@test.com',
+      emailVerified: true,
+      stripeConnectAccountType: 'express',
+    }),
+  );
+  await assertSucceeds(
+    setDoc(doc(bob, 'users', 'bob'), {
+      email: 'b@test.com',
+      emailVerified: true,
+    }),
+  );
+
   // cannot write another user's doc
   await assertFails(setDoc(doc(alice, 'users', 'bob'), { x: 1 }));
 
