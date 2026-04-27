@@ -198,6 +198,8 @@ export class WeeklyContestSlateService {
   private authSub: Subscription | null = null;
   private openContestsUnsub: Unsubscribe | null = null;
   private gameplayUnsub: Unsubscribe | null = null;
+  /** Drops slate as soon as `contests/{id}` is no longer `open` (e.g. scoring), even if the open-contests query is briefly stale. */
+  private activeContestUnsub: Unsubscribe | null = null;
   private currentUid: string | null = null;
   private lastOpenContestsSnap: QuerySnapshot | null = null;
 
@@ -205,7 +207,7 @@ export class WeeklyContestSlateService {
     this.attachOpenContestsListener();
     this.authSub = this.auth.user$.subscribe((user) => {
       this.currentUid = user?.uid ?? null;
-      this.clearGameplayOnly();
+      this.clearSlateListeners();
       this.slateSubject.next(null);
       const db = getConfiguredFirestore();
       if (this.currentUid && this.lastOpenContestsSnap) {
@@ -256,7 +258,7 @@ export class WeeklyContestSlateService {
         if (uid) {
           void this.onOpenContestsSnapshot(db, uid, snap);
         } else {
-          this.clearGameplayOnly();
+          this.clearSlateListeners();
           this.slateSubject.next(null);
         }
       },
@@ -266,17 +268,50 @@ export class WeeklyContestSlateService {
           err,
         );
         this.hasOpenBioBallSubject.next(false);
-        this.clearGameplayOnly();
+        this.clearSlateListeners();
         this.slateSubject.next(null);
       },
     );
   }
 
-  private clearGameplayOnly(): void {
+  private clearSlateListeners(): void {
     if (this.gameplayUnsub) {
       this.gameplayUnsub();
       this.gameplayUnsub = null;
     }
+    if (this.activeContestUnsub) {
+      this.activeContestUnsub();
+      this.activeContestUnsub = null;
+    }
+  }
+
+  private attachContestOpenGuard(db: Firestore, contestId: string): void {
+    if (this.activeContestUnsub) {
+      this.activeContestUnsub();
+      this.activeContestUnsub = null;
+    }
+    const ref = doc(db, 'contests', contestId);
+    this.activeContestUnsub = onSnapshot(
+      ref,
+      (snap) => {
+        if (!snap.exists()) {
+          this.clearSlateListeners();
+          this.slateSubject.next(null);
+          return;
+        }
+        const data = snap.data() as ContestDocument;
+        if (normStatus(data.status) !== 'open') {
+          this.clearSlateListeners();
+          this.slateSubject.next(null);
+        }
+      },
+      (err) => {
+        console.error(
+          '[WeeklyContestSlateService] contest status listener failed',
+          err,
+        );
+      },
+    );
   }
 
   private async onOpenContestsSnapshot(
@@ -284,7 +319,8 @@ export class WeeklyContestSlateService {
     uid: string,
     contestSnap: QuerySnapshot,
   ): Promise<void> {
-    this.clearGameplayOnly();
+    this.clearSlateListeners();
+    this.slateSubject.next(null);
 
     if (contestSnap.empty) {
       this.slateSubject.next(null);
@@ -373,6 +409,7 @@ export class WeeklyContestSlateService {
           progressUnavailable: true,
           windowEnded: true,
         });
+        this.attachContestOpenGuard(db, ended.contestId);
         return;
       }
       this.slateSubject.next(null);
@@ -444,5 +481,6 @@ export class WeeklyContestSlateService {
         });
       },
     );
+    this.attachContestOpenGuard(db, picked.contestId);
   }
 }
