@@ -52,9 +52,10 @@ function logContestPayoutExecuteLine(payload) {
 }
 
 /**
+ * Recompute roll-up status from execution lines (same rules as payout execute).
  * @param {{ rank: number; uid: string; amountCents: number; status: string }[]} lines
  */
-function computeAggregateStatus(lines) {
+export function computeContestPayoutFinalAggregateStatus(lines) {
   const money = lines.filter((l) => l.amountCents > 0);
   if (money.length === 0) {
     return 'succeeded';
@@ -504,7 +505,7 @@ export async function runContestPayoutExecuteJob({
     }
   }
 
-  const aggregateStatus = computeAggregateStatus(executionLines);
+  const aggregateStatus = computeContestPayoutFinalAggregateStatus(executionLines);
 
   const lockedAt = FieldValue.serverTimestamp();
   /** @type {Record<string, unknown>} */

@@ -48,7 +48,8 @@ Each element of **`lines`**:
 | `amountCents` | `number` (int) | Yes | Non-negative integer cents for this line. |
 | `status` | `string` | Yes | Per-line lifecycle: e.g. **`pending`**, **`processing`**, **`succeeded`**, **`failed`**, **`skipped`**. |
 | `stripeTransferId` | `string` \| `null` | No | Stripe Transfer id **`tr_…`** when created. |
-| `failureCode` | `string` \| `null` | No | Stripe or app error code when **`status === failed`**. |
+| `failureCode` | `string` \| `null` | No | Stripe or app error code when **`status === failed`** (executor may set Stripe codes; P6-E2 webhooks prefer enums). |
+| `failurePublicCode` | `string` \| `null` | No | P6-E2 — **safe enum** for UI (`prize_payout_transfer_*`, …) from webhook mappers; avoids raw Stripe strings on clients. |
 | `lastStripeEventId` | `string` \| `null` | No | Last Stripe **`evt_…`** applied to this line (debug / idempotency). |
 
 **Never store** full bank details, full tax ids, or unrelated PII — Stripe holds sensitive data.

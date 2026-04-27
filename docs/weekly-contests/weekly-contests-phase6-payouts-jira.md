@@ -388,8 +388,8 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Duplicate webhook delivery does not duplicate ledger lines.
-- [ ] Docs list new subscribed events for Stripe Dashboard.
+- [x] Duplicate webhook delivery does not duplicate ledger lines.
+- [x] Docs list new subscribed events for Stripe Dashboard.
 
 **Dependencies**
 
@@ -397,7 +397,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `server/payments/stripe-webhook-payouts.js`, tests, webhook doc update
+- [`server/payments/stripe-webhook-payouts.js`](../../server/payments/stripe-webhook-payouts.js), [`stripe-webhook-payouts.test.js`](../../server/payments/stripe-webhook-payouts.test.js), [`stripe-webhook.http.js`](../../server/payments/stripe-webhook.http.js) routing, [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md) P6-E2 section ✅
 
 ---
 

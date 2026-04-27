@@ -33,6 +33,12 @@ export interface ContestPayoutFinalLine extends ContestPayoutLine {
   /** Stripe or app error code when `status === 'failed'`. */
   failureCode?: string | null;
 
+  /**
+   * P6-E2 — safe enum for UI (from webhook mappers), not raw Stripe strings.
+   * @see server/payments/stripe-webhook-payouts.js
+   */
+  failurePublicCode?: string | null;
+
   lastStripeEventId?: string | null;
 }
 

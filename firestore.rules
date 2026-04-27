@@ -30,6 +30,10 @@ service cloud.firestore {
           'stripeConnectRequirementsCurrentlyDueSummary',
           'stripeConnectLastWebhookEventId',
           'stripeConnectLastAccountUpdatedAt',
+          'stripePayoutLastWebhookEventId',
+          'stripePayoutLastWebhookType',
+          'stripePayoutLastWebhookAt',
+          'stripePayoutLastFailurePublicCode',
         ]);
       allow update: if signedIn() && request.auth.uid == userId
         && !request.resource.data.diff(resource.data).changedKeys().hasAny([
@@ -43,6 +47,10 @@ service cloud.firestore {
           'stripeConnectRequirementsCurrentlyDueSummary',
           'stripeConnectLastWebhookEventId',
           'stripeConnectLastAccountUpdatedAt',
+          'stripePayoutLastWebhookEventId',
+          'stripePayoutLastWebhookType',
+          'stripePayoutLastWebhookAt',
+          'stripePayoutLastFailurePublicCode',
         ]);
       allow delete: if signedIn() && request.auth.uid == userId;
     }

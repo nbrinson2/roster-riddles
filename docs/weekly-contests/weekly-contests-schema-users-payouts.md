@@ -16,7 +16,7 @@
 
 ## Field reference — Connect & payout readiness
 
-**Writes:** Express (onboarding) and Stripe webhook handler only — **not** client-writable.
+**Writes:** Express (onboarding), Stripe Connect webhook (P6-B3), and Stripe payout webhooks (P6-E2) only — **not** client-writable.
 
 ### Account identity & creation (P6-B2)
 
@@ -37,6 +37,17 @@
 | `stripeConnectRequirementsCurrentlyDueSummary` | `string` | No | Comma-joined requirement keys; truncated (~500 chars + `…`). |
 | `stripeConnectLastWebhookEventId` | `string` | No | Last applied Stripe event id (`evt_...`) for Connect. |
 | `stripeConnectLastAccountUpdatedAt` | `Timestamp` | No | Server time when the webhook merge ran. |
+
+### Bank payout mirror (P6-E2 — Connect `payout.*`)
+
+When **exactly one** `users/{uid}` row matches `stripeConnectAccountId === event.account`, optional fields below are merged for support / lightweight UX. If **0** or **>1** match, the webhook is still acknowledged and **`processedStripeEvents/{event.id}`** is written, but user docs are unchanged.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `stripePayoutLastWebhookEventId` | `string` | No | Last applied Stripe `evt_…` for a **`payout.*`** event on this connected account. |
+| `stripePayoutLastWebhookType` | `string` | No | Stripe event `type` (e.g. `payout.paid`, `payout.failed`). |
+| `stripePayoutLastWebhookAt` | `Timestamp` | No | Server time when the merge ran. |
+| `stripePayoutLastFailurePublicCode` | `string` | No | Mapped enum when the event was a failure/cancel (see [`stripe-webhook-payouts.js`](../../server/payments/stripe-webhook-payouts.js)); cleared on **`payout.paid`**. |
 
 ## UX-oriented status (not stored in v1)
 

@@ -45,4 +45,15 @@ export interface UserPayoutProfileFields {
 
   /** Server time when Connect webhook state was last merged. */
   stripeConnectLastAccountUpdatedAt?: unknown;
+
+  // --- P6-E2 — Connect bank payout webhooks (`payout.*`) mirror (optional) ---
+
+  stripePayoutLastWebhookEventId?: string;
+
+  stripePayoutLastWebhookType?: string;
+
+  stripePayoutLastWebhookAt?: unknown;
+
+  /** Mapped public enum when last relevant payout event was a failure/cancel. */
+  stripePayoutLastFailurePublicCode?: string;
 }

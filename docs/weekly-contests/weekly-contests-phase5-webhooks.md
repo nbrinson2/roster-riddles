@@ -155,6 +155,32 @@
 
 ---
 
+## Phase 6 Story P6-E2 — Prize `transfer.*` + Connect bank `payout.*`
+
+**Implementation:** [`stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js) → [`stripe-webhook-payouts.js`](../server/payments/stripe-webhook-payouts.js).
+
+### Stripe Dashboard — subscribe to these events
+
+| Stripe `type` | When handled |
+|---------------|----------------|
+| **`transfer.created`**, **`transfer.paid`**, **`transfer.updated`** | When Transfer **`metadata`** includes **`contest_id`**, **`firebase_uid`**, and (optionally) **`rank`** (same keys as [payout execute](../server/contests/contest-payout-execute.job.js) metadata): merge **`lastStripeEventId`** on the matching row in **`contests/{contestId}/payouts/final`**, set line **`status`** to **`succeeded`** for positive money lines when Stripe shows no failure/reversal, or **`failed`** with a **`failurePublicCode`** enum when appropriate; recompute **`aggregateStatus`**. |
+| **`transfer.failed`** | Same metadata gate: mark matching **`payouts/final`** line **`failed`** with mapped **`failurePublicCode`** / **`failureCode`** (enum strings only). |
+| **`transfer.reversed`** | Same metadata gate: mark line **`failed`**, append **`ledgerEntries/prize_reversal_{tr_…}`** with **`prize_transfer_reversal`** (**`credit`**) for the reversed cents **once per Transfer** (so `transfer.updated` with `reversed` does not double-credit; duplicate `evt_…` still idempotent via **`processedStripeEvents`**). |
+| **`payout.paid`**, **`payout.failed`**, **`payout.canceled`**, **`payout.updated`** | Always write **`processedStripeEvents/{event.id}`** (idempotency). When **exactly one** `users/{uid}` has **`stripeConnectAccountId === event.account`**, merge optional **`stripePayoutLast*`** fields ([schema](weekly-contests-schema-users-payouts.md)). |
+
+**Non-contest transfers:** Transfers **without** contest metadata still write **`processedStripeEvents/{event.id}`** with `outcome: transfer_not_contest_metadata` so Stripe redeliveries do not spam work.
+
+### Idempotency & ledger
+
+- **`processedStripeEvents/{event.id}`** — same collection as P5-E1 / P6-B3; one document per Stripe event id.
+- **`ledgerEntries/prize_reversal_{tr_…}`** for prize reversals — **not** the same doc id as **`prize_transfer_out`** (`ledgerEntries/{tr_…}` from the execute job).
+
+### Mapped failure enums (no raw Stripe strings on `payouts/final`)
+
+Server maps Stripe `failure_code` / types to stable **`failurePublicCode`** / **`stripePayoutLastFailurePublicCode`** strings (see `mapTransferStripeFailureToPublicCode` / `mapPayoutStripeFailureToPublicCode` in code). Clients should display **copy keyed off these enums**, not raw Stripe text.
+
+---
+
 ## Local development
 
 ```bash
