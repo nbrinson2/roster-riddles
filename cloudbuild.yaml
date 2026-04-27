@@ -4,7 +4,7 @@
 #   _FIREBASE_API_KEY, _FIREBASE_AUTH_DOMAIN, _FIREBASE_PROJECT_ID,
 #   _FIREBASE_STORAGE_BUCKET, _FIREBASE_MESSAGING_SENDER_ID, _FIREBASE_APP_ID
 # Optional: _FIREBASE_MEASUREMENT_ID, _API_BASE_URL, _DEPLOYMENT (default production; use `staging` + staging Firebase subs for a staging service)
-# Optional: _CONTESTS_PAYMENTS_ENABLED (default `false`) — Express + staging Angular paid entry; production SPA ignores this (always off). Staging QA: set `true`.
+# Optional: _CONTESTS_PAYMENTS_ENABLED (default `true`) — Express + Angular paid entry toggle for the built/deployed target.
 # Optional: _AUTH_SESSION_MAX_DAYS — Angular `authSessionMaxMs` (see generate-env-prod.mjs). `0`/`off` = no forced logout. Prod default 3d if unset; staging default 0 if unset.
 # Optional Stripe (Phase 1): _STRIPE_PUBLISHABLE_KEY — test (`pk_test_`) for staging trigger, live (`pk_live_`) for prod only (see docs/stripe.md)
 #
@@ -102,8 +102,8 @@ substitutions:
   _FIREBASE_MEASUREMENT_ID: ''
   # Story AD-4 — optional; omit or empty = admin UI enabled (same as LEADERBOARDS_UI_ENABLED pattern)
   _ADMIN_DASHBOARD_UI_ENABLED: ''
-  # Story P5 — server + staging build: live/test paid entry off unless trigger sets `true`
-  _CONTESTS_PAYMENTS_ENABLED: 'false'
+  # Story P5 — default on for production builds/deploys; override to `false` per trigger/environment if needed.
+  _CONTESTS_PAYMENTS_ENABLED: 'true'
   _AUTH_SESSION_MAX_DAYS: ''
 
 options:
