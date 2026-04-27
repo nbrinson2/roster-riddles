@@ -31,6 +31,10 @@ import {
   postAdminContestVoidAfterPrize,
 } from './server/admin/admin-contests.http.js';
 import {
+  getAdminContestPayoutStatus,
+  getAdminContestUserPayoutStatus,
+} from './server/admin/admin-payouts.http.js';
+import {
   getAdminUser,
   listAdminUsers,
   listRecentRegisteredUsers,
@@ -150,6 +154,21 @@ app.post(
   requireAdmin,
   contestReadRateLimitHookMiddleware,
   postAdminContestVoidAfterPrize,
+);
+/** Phase 6 P6-G1 — read payout artifacts + masked Connect (per contest / per user). */
+app.get(
+  '/api/v1/admin/contests/:contestId/users/:targetUid/payout-status',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  getAdminContestUserPayoutStatus,
+);
+app.get(
+  '/api/v1/admin/contests/:contestId/payout-status',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  getAdminContestPayoutStatus,
 );
 
 app.get(

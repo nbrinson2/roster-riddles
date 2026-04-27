@@ -467,7 +467,7 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] E2E: admin can answer “was user X paid for contest Y?” from API response alone.
+- [x] E2E: admin can answer “was user X paid for contest Y?” from API response alone.
 
 **Dependencies**
 
@@ -475,7 +475,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `server/admin/admin-payouts.http.js` (namespaced), tests, doc
+- [`server/admin/admin-payouts.http.js`](../../server/admin/admin-payouts.http.js), [`server/admin/admin-payouts.http.test.js`](../../server/admin/admin-payouts.http.test.js), routes in [`index.js`](../../index.js), [weekly-contests-api-phase6.md](weekly-contests-api-phase6.md) (P6-G1 section) ✅
 
 ---
 

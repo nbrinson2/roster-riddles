@@ -1,6 +1,6 @@
 # Weekly contests API — Phase 6 (payouts / Connect)
 
-**Status:** Stories **P6-B2** (Connect onboarding URL) and **P6-B3** (`account.updated` webhook → `users/{uid}`) implemented.  
+**Status:** Stories **P6-B2** (Connect onboarding URL), **P6-B3** (`account.updated` webhook → `users/{uid}`), and **P6-G1** (admin read payout status) implemented.  
 **Related:** [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md), [weekly-contests-schema-users-payouts.md](weekly-contests-schema-users-payouts.md) (P6-C1), [stripe.md](../payments/stripe.md) (Connect appendix), [weekly-contests-phase6-payouts-ux.md](weekly-contests-phase6-payouts-ux.md)
 
 ---
@@ -72,6 +72,36 @@ Connect payout snapshot fields on **`users/{uid}`** are **not client-writable** 
 ### Webhooks (P6-B3)
 
 Stripe **`account.updated`** for connected accounts is handled on the same endpoint as Phase 5 — **`POST /api/v1/webhooks/stripe`** — when **`CONTESTS_PAYMENTS_ENABLED=true`**. Idempotency uses **`processedStripeEvents/{event.id}`** (shared collection). Event list and outcomes: [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md) (Phase 6 Connect section).
+
+---
+
+## Admin read — payout status (Story P6-G1)
+
+**Auth:** Firebase ID token + **`admin: true`** custom claim (same as other **`/api/v1/admin/*`** routes). **Rate limit:** contest-read hook.
+
+**PII:** Responses omit Auth email. **`stripeConnectAccountId`** is never returned raw — use **`stripeConnectAccountIdMasked`** (prefix + last 4). Transfer / charge ids on ledger lines are masked the same way.
+
+### `GET /api/v1/admin/contests/:contestId/payout-status`
+
+Contest-level snapshot: **`contests.status`**, optional **`prizePayoutStatus`**, **`payouts/dryRun`** (numeric lines), **`payouts/final`** execution lines with **masked** `tr_…` ids.
+
+| HTTP | `error.code` | When |
+|------|----------------|------|
+| **400** | `validation_error` | Bad `contestId` path segment. |
+| **404** | `contest_not_found` | No `contests/{contestId}` doc. |
+| **429** | `rate_limited` | Too many reads. |
+
+### `GET /api/v1/admin/contests/:contestId/users/:targetUid/payout-status`
+
+Answers **“was user `targetUid` paid a prize for contest `contestId`?”** from **`prize.prizePaidOutViaStripeTransfer`** plus human-readable **`supportOneLiner`**. Includes **`entries/{targetUid}`** payment status (entry fee / free entry), matching **`payouts/dryRun`** line, masked **`payouts/final`** line for that uid, **Connect** mirror fields (masked account id), and **`recentLedgerLinesForContest`** (`ledgerEntries` filtered to this contest, newest first; uses existing **`uid` + `createdAt`** index).
+
+| HTTP | `error.code` | When |
+|------|----------------|------|
+| **400** | `validation_error` | Bad path params. |
+| **404** | `contest_not_found` | Contest missing (`targetUid` need not have an entry doc). |
+| **429** | `rate_limited` | Too many reads. |
+
+**Implementation:** [`server/admin/admin-payouts.http.js`](../../server/admin/admin-payouts.http.js), [`server/admin/admin-payouts.http.test.js`](../../server/admin/admin-payouts.http.test.js), routes in [`index.js`](../../index.js).
 
 ---
 
