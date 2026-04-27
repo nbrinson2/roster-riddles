@@ -25,6 +25,7 @@ import {
 import {
   getAdminContestList,
   postAdminContestCreate,
+  postAdminContestPayoutExecute,
   postAdminContestRunScoring,
   postAdminContestTransition,
 } from './server/admin/admin-contests.http.js';
@@ -132,6 +133,14 @@ app.post(
   requireAdmin,
   contestReadRateLimitHookMiddleware,
   postAdminContestRunScoring,
+);
+/** Phase 6 P6-D3 — admin manual prize execute (same engine as internal payouts/execute). */
+app.post(
+  '/api/v1/admin/contests/:contestId/payout-execute',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestPayoutExecute,
 );
 
 app.get(
@@ -243,9 +252,10 @@ app.post(
 );
 
 /**
- * Phase 6 P6-D2 — operator/cron: execute Stripe prize transfers + `payouts/final` + ledger.
+ * Phase 6 P6-D2 / P6-D3 — operator or Scheduler: execute Stripe prize transfers + `payouts/final` + ledger.
  * Bearer `PAYOUT_OPERATOR_SECRET` (preferred) or `CONTESTS_OPERATOR_SECRET`; optional `x-payout-operator-secret`.
- * @see docs/weekly-contests/weekly-contests-ops-p6-payout-execute.md
+ * Scheduler must send JSON `{ "trigger": "scheduler" }` and `PAYOUTS_AUTOMATION_ENABLED=true`.
+ * @see docs/weekly-contests/weekly-contests-ops-p6-payout-execute.md, docs/weekly-contests/weekly-contests-phase6-ops.md
  */
 app.post(
   '/api/internal/v1/contests/:contestId/payouts/execute',

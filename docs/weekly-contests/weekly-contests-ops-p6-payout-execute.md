@@ -1,8 +1,8 @@
 # Operations — `POST /api/internal/v1/contests/:contestId/payouts/execute` (Phase 6 Story P6-D2)
 
-**Purpose:** After a contest is **`paid`** with **`results/final`** and **`payouts/dryRun`**, an operator (or future Scheduler) calls this hook to create **Stripe Transfers** to winners’ **Connect** accounts, then writes **`payouts/final`** and append-only **`ledgerEntries`** (`prize_transfer_out`).
+**Purpose:** After a contest is **`paid`** with **`results/final`** and **`payouts/dryRun`**, an operator (or **Cloud Scheduler** with automation enabled) calls this hook to create **Stripe Transfers** to winners’ **Connect** accounts, then writes **`payouts/final`** and append-only **`ledgerEntries`** (`prize_transfer_out`).
 
-**Implementation:** [`server/contests/contest-payout-execute.http.js`](../../server/contests/contest-payout-execute.http.js), helpers [`contest-payout-execute.helpers.js`](../../server/contests/contest-payout-execute.helpers.js).
+**Implementation:** [`server/contests/contest-payout-execute.http.js`](../../server/contests/contest-payout-execute.http.js), job [`contest-payout-execute.job.js`](../../server/contests/contest-payout-execute.job.js), helpers [`contest-payout-execute.helpers.js`](../../server/contests/contest-payout-execute.helpers.js). **Scheduler + kill switch:** [weekly-contests-phase6-ops.md](weekly-contests-phase6-ops.md) (Story P6-D3).
 
 ---
 
@@ -31,8 +31,13 @@ Content-Type: application/json
 Optional body (strict JSON):
 
 ```json
-{ "payoutJobId": "opaque_optional_id" }
+{ "payoutJobId": "opaque_optional_id", "trigger": "operator" }
 ```
+
+- **`payoutJobId`** — optional trace id; server generates one if omitted.
+- **`trigger`** — omit or **`operator`** (default) for manual operator runs. **`scheduler`** requires **`PAYOUTS_AUTOMATION_ENABLED=true`** on the server, otherwise **403** `payouts_automation_disabled` (Cloud Scheduler should send this only when automation is intentionally on).
+
+Admin manual run (no operator secret): **`POST /api/v1/admin/contests/:contestId/payout-execute`** with Firebase **`admin: true`** — see [weekly-contests-phase6-ops.md](weekly-contests-phase6-ops.md).
 
 ---
 

@@ -8,12 +8,18 @@ import { z } from 'zod';
 import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { mapContestDocumentToPublic } from '../contests/contest-public.js';
 import { logContestReadLine } from '../contests/contest-read-log.js';
+import { runContestPayoutExecuteJob } from '../contests/contest-payout-execute.job.js';
 import { runContestScoringJob } from '../contests/contest-scoring-job.js';
 import { runContestStatusTransition } from '../contests/contest-transition-run.js';
 import {
   sendContestTransitionHttpResult,
   sendContestTransitionTransactionError,
 } from '../contests/contest-transition-http-shared.js';
+import {
+  getStripeClient,
+  isContestsPaymentsEnabled,
+  sendStripeServiceUnavailable,
+} from '../payments/stripe-server.js';
 
 const contestIdParamSchema = z
   .string()
@@ -600,4 +606,164 @@ export async function postAdminContestRunScoring(req, res) {
     transitioned: result.transitioned,
     standingsCount: result.standingsCount,
   });
+}
+
+const adminPayoutExecuteBodySchema = z
+  .object({
+    payoutJobId: z.string().min(8).max(200).optional(),
+  })
+  .strict();
+
+/**
+ * POST /api/v1/admin/contests/:contestId/payout-execute — Phase 6 P6-D3; Firebase `admin: true` only.
+ * Same work as internal `POST /api/internal/v1/contests/:contestId/payouts/execute` without operator secret.
+ */
+export async function postAdminContestPayoutExecute(req, res) {
+  const requestId = req.requestId ?? 'unknown';
+  const startMs = Date.now();
+  const uid = req.user?.uid ?? null;
+
+  const rl = await req.consumeContestReadRateLimit?.();
+  if (rl && rl.allowed === false) {
+    const retry = rl.retryAfterSec ?? null;
+    if (retry != null) {
+      res.setHeader('Retry-After', String(retry));
+    }
+    logContestReadLine({
+      requestId,
+      outcome: 'rate_limited',
+      httpStatus: 429,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_payout_execute',
+      uid,
+    });
+    return res.status(429).json({
+      error: {
+        code: 'rate_limited',
+        message: 'Too many requests.',
+        ...(retry != null ? { retryAfterSec: retry } : {}),
+      },
+    });
+  }
+
+  let contestIdRaw = req.params.contestId;
+  if (typeof contestIdRaw !== 'string') {
+    contestIdRaw = String(contestIdRaw ?? '');
+  }
+  contestIdRaw = decodeURIComponent(contestIdRaw.trim());
+  const parsedId = contestIdParamSchema.safeParse(contestIdRaw);
+  if (!parsedId.success) {
+    return res.status(400).json({
+      error: { code: 'validation_error', message: 'Invalid contest id.' },
+    });
+  }
+  const contestId = parsedId.data;
+
+  const bodyParse = adminPayoutExecuteBodySchema.safeParse(req.body ?? {});
+  if (!bodyParse.success) {
+    return res.status(400).json({
+      error: {
+        code: 'validation_error',
+        message: 'Invalid request body.',
+        details: bodyParse.error.flatten(),
+      },
+    });
+  }
+
+  if (!isContestsPaymentsEnabled()) {
+    logContestReadLine({
+      requestId,
+      outcome: 'payments_disabled',
+      httpStatus: 503,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_payout_execute',
+      contestId,
+      uid,
+    });
+    return res.status(503).json({
+      error: {
+        code: 'contest_payments_disabled',
+        message: 'CONTESTS_PAYMENTS_ENABLED is not true.',
+      },
+    });
+  }
+
+  let stripe;
+  try {
+    stripe = getStripeClient();
+  } catch (e) {
+    logContestReadLine({
+      requestId,
+      outcome: 'stripe_key_error',
+      httpStatus: 503,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_payout_execute',
+      contestId,
+      uid,
+      message: e instanceof Error ? e.message : String(e),
+    });
+    return sendStripeServiceUnavailable(res);
+  }
+  if (!stripe) {
+    logContestReadLine({
+      requestId,
+      outcome: 'stripe_unavailable',
+      httpStatus: 503,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_payout_execute',
+      contestId,
+      uid,
+    });
+    return sendStripeServiceUnavailable(res);
+  }
+
+  let db;
+  try {
+    db = getAdminFirestore();
+  } catch (e) {
+    logContestReadLine({
+      requestId,
+      outcome: 'firestore_init_failed',
+      httpStatus: 503,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_payout_execute',
+      contestId,
+      uid,
+      message: e instanceof Error ? e.message : String(e),
+    });
+    return res.status(503).json({
+      error: {
+        code: 'server_misconfigured',
+        message: 'Server is not configured for Firestore.',
+      },
+    });
+  }
+
+  const result = await runContestPayoutExecuteJob({
+    db,
+    stripe,
+    contestId,
+    requestId,
+    payoutJobId: bodyParse.data.payoutJobId,
+    startMs,
+  });
+
+  const ok = result.httpStatus >= 200 && result.httpStatus < 300;
+  const errPayload = 'error' in result.json ? result.json.error : undefined;
+  const errCode =
+    errPayload && typeof errPayload === 'object' && errPayload !== null && 'code' in errPayload
+      ? String(/** @type {Record<string, unknown>} */ (errPayload).code ?? '')
+      : '';
+  logContestReadLine({
+    requestId,
+    outcome: ok ? 'ok' : 'payout_execute_failed',
+    httpStatus: result.httpStatus,
+    latencyMs: Date.now() - startMs,
+    route: 'admin_payout_execute',
+    contestId,
+    uid,
+    ...(errCode !== '' ? { code: errCode } : {}),
+  });
+
+  return res.status(result.httpStatus).json(result.json);
 }

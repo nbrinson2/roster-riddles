@@ -25,6 +25,7 @@ Documented in [Admin API — weekly contests (browser)](admin-dashboard-security
 | `POST` | `/api/v1/admin/contests` | Create `contests/{contestId}` (server id optional). |
 | `POST` | `/api/v1/admin/contests/:contestId/transition` | Transition toward `open` \| `scoring` \| `paid` \| `cancelled` with optional `force` / `reason`. |
 | `POST` | `/api/v1/admin/contests/:contestId/run-scoring` | Run E2 scoring for a contest in **`scoring`** (may advance to **`paid`**). |
+| `POST` | `/api/v1/admin/contests/:contestId/payout-execute` | Phase 6 — run prize **Stripe Transfers** + **`payouts/final`** for a **`paid`** contest (same engine as internal execute; see [weekly-contests-phase6-ops.md](weekly-contests-phase6-ops.md)). |
 | `GET` | `/api/v1/admin/users/admins` | List users with `admin` claim. |
 | `GET` | `/api/v1/admin/users/:targetUid` | Read Auth user + `admin` claim. |
 | `PATCH` | `/api/v1/admin/users/:targetUid/admin-claim` | Grant or revoke **`admin`** (cannot target your own uid). |

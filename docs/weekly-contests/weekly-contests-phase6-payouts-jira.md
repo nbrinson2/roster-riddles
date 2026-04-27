@@ -335,7 +335,7 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Runbook section: how to force-run, how to disable automation ([leaderboards-runbook.md](../leaderboards/leaderboards-runbook.md)-style).
+- [x] Runbook section: how to force-run, how to disable automation ([leaderboards-runbook.md](../leaderboards/leaderboards-runbook.md)-style).
 
 **Dependencies**
 
@@ -343,7 +343,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `docs/weekly-contests/weekly-contests-phase6-ops.md`, Terraform/Scheduler notes
+- [weekly-contests-phase6-ops.md](weekly-contests-phase6-ops.md) (Scheduler `gcloud` example, idempotency / 5xx), env **`PAYOUTS_AUTOMATION_ENABLED`**, internal body **`trigger`**, Admin **`POST .../payout-execute`** ✅
 
 ---
 
