@@ -78,8 +78,8 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] UX doc linked from ADR; reviewed by product owner.
-- [ ] No PII in client-visible fields beyond what’s already policy for standings.
+- [x] UX doc linked from ADR; **product owner** sign-off table in UX doc *(pending names/dates)*.
+- [x] No PII in client-visible fields beyond standings policy — **§PII & client data boundaries** in UX doc.
 
 **Dependencies**
 
@@ -87,7 +87,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `docs/weekly-contests/weekly-contests-phase6-payouts-ux.md` (or section in ADR)
+- [`docs/weekly-contests/weekly-contests-phase6-payouts-ux.md`](weekly-contests-phase6-payouts-ux.md) ✅
 
 ---
 
@@ -108,7 +108,7 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Decision recorded; risks (account takeover, duplicate accounts) cross-link [leaderboards-duplicate-accounts-f2.md](../leaderboards/leaderboards-duplicate-accounts-f2.md) if winners must be email-verified.
+- [x] Decision recorded; risks (account takeover, duplicate accounts) cross-link [leaderboards-duplicate-accounts-f2.md](../leaderboards/leaderboards-duplicate-accounts-f2.md) if winners must be email-verified.
 
 **Dependencies**
 
@@ -116,7 +116,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- ADR update + `docs/payments/stripe.md` section **Connect**
+- [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md) § *Stripe Connect account model* + [stripe.md](../payments/stripe.md) **Stripe Connect** appendix ✅
 
 ---
 
@@ -610,8 +610,9 @@ P6-*   ─► P6-H1 / P6-H2 / P6-I*
 ## References
 
 - [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md) — Story P6-A1 (decisions)
+- [weekly-contests-phase6-payouts-ux.md](weekly-contests-phase6-payouts-ux.md) — Story P6-A2 (copy & UX)
 - [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) — Phase 6 bullets
 - [weekly-contests-schema-results.md](weekly-contests-schema-results.md) — `results/final`, `payouts/dryRun`
 - [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — Phase 5 patterns  
 - [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) — append-only ledger  
-- [stripe.md](../payments/stripe.md) — keys, env vars  
+- [stripe.md](../payments/stripe.md) — keys, env vars, **Connect appendix** (P6-B1)  

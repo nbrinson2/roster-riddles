@@ -6,7 +6,7 @@
 | **Date** | 2026-04-27 |
 | **Scope** | **Real-money prizes** for weekly contests after **`results/final`** and **`payouts/dryRun`** exist; **Stripe Connect** (or equivalent) for recipients; **transfers** from platform balance to connected accounts — **v1 USD integer cents**. **Does not** implement code in this ADR — only decisions for P6-B onward. |
 | **Depends on** | [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md), [weekly-contests-schema-results.md](weekly-contests-schema-results.md) (`results/final`, `payouts/dryRun`), [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md), [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md), [stripe.md](../payments/stripe.md) |
-| **Implements (backlog)** | [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Story **P6-A1** |
+| **Implements (backlog)** | [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Stories **P6-A1**, **P6-A2**, **P6-B1** |
 
 ---
 
@@ -45,6 +45,52 @@ Paid **prizes** (not just entry fees) typically implicate **sweepstakes / gambli
 | **Stripe surface (v1)** | **Connect** connected account per recipient + **`stripe.transfers.create`** from platform to **`destination`** account (details in P6-B / P6-D stories). **Payouts** to bank without Connect are **out of scope v1** unless ADR is revised. |
 | **Idempotency** | One successful **outbound movement** per **(contestId, uid, rank)** logical key unless **reversal**; use **Stripe idempotency keys** on create + **`ledgerEntries`** doc id strategy aligned with Phase 5 ([weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md)). |
 | **Authoritative settlement state** | Same discipline as Phase 5: **verified Stripe webhooks** (and internal job logs) update **`prizePayoutStatus`**, **`payouts/*` execution docs**, and **ledger** — not client callbacks. |
+
+---
+
+## Stripe Connect account model (Story P6-B1)
+
+### Decision: **Express** connected accounts (v1)
+
+| Choice | Decision |
+|--------|----------|
+| **Account type** | **Express** (`type: express` in Stripe API) for **individual** prize recipients in **v1**. |
+| **Rationale** | Stripe-hosted **onboarding** and **identity verification** reduce bespoke PCI/KYC UI; platform retains useful **dashboard** and **transfer** controls vs **Standard** (full Stripe Dashboard for user). **Custom** accounts are **rejected for v1** — highest build and compliance load. |
+| **Legal / product** | **Confirm before live prizes:** Express terms, branding, and **loss liability** vs Standard — engineering assumes **Legal + Product** sign off in Phase 0 gate ([Phase 0 — Legal / product gate](#phase-0--legal--product-gate-blocking-live-payouts)). |
+
+### Comparison (engineering reference)
+
+| Model | Who builds onboarding UI | User sees Stripe Dashboard? | Platform control | Typical use |
+|-------|---------------------------|----------------------------|------------------|-------------|
+| **Standard** | Minimal (Stripe-hosted account creation) | **Yes** — full Dashboard for connected user | Lower | SaaS where users are “merchants” |
+| **Express** | **Stripe-hosted** Account Links / onboarding | **Lite** Express Dashboard (Stripe-managed) | **Medium** — platform creates accounts, **Transfers** to `acct_` | Marketplaces, creator payouts, **contest prizes** |
+| **Custom** | **Platform-owned** KYC UI + API compliance | Custom / none | **Highest** | Large marketplaces with dedicated risk teams |
+
+**v1 posture:** Prefer **Express**. Revisit **Standard** only if product insists winners manage money entirely in Stripe’s Dashboard; revisit **Custom** only with a dedicated compliance + frontend program.
+
+### Mapping: Firebase `uid` → Stripe Connect account
+
+| Topic | Decision |
+|--------|----------|
+| **Canonical id** | Store **`stripeConnectAccountId`** = Stripe **`acct_…`** string on **`users/{uid}`** (top-level fields or a single nested `connectProfile` map — **exact shape** in [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Story **P6-C1**). **Server / Admin SDK writes only** — same discipline as contest entry payment fields. |
+| **Uniqueness** | **One** Connect account per **`uid`** for prize purposes in v1; **do not** create a second `acct_` for the same uid without an explicit **migration / support** story. |
+| **Metadata** | When creating the account, set Stripe **`metadata.uid`** = Firebase uid for support correlation (no secrets). |
+
+### State refresh: when is Connect state updated?
+
+| Source | Role |
+|--------|------|
+| **Webhooks** (`account.updated`, and related Connect events as listed in P6-B3) | **Primary** — update denormalized flags on `users/{uid}` (`chargesEnabled`, `payoutsEnabled`, `detailsSubmitted`, compact **`requirements`** summary). |
+| **On-demand** (e.g. `GET` self payout status after user returns from Account Link) | **Secondary** — optional **`accounts.retrieve`** to close race if webhook is delayed; **must** rate-limit per uid. |
+| **Periodic batch job** | **Not required v1** — add only if webhook delivery is unreliable in production metrics. |
+
+### Risks & mitigations
+
+| Risk | Mitigation |
+|------|------------|
+| **Account takeover** (attacker links **their** Connect account to victim uid) | All Connect writes **server-side** after **Firebase ID token** verification; **never** trust client-supplied `acct_`. On `accounts.create`, bind **only** to authenticated uid. |
+| **Duplicate identities / multi-account abuse** | If prizes require verified humans, align with [leaderboards-duplicate-accounts-f2.md](../leaderboards/leaderboards-duplicate-accounts-f2.md) (email verification, support policy). **Product** enables enforcement; engineering surfaces **`emailVerified`** gate in P6-B2/P6-D2 if chosen. |
+| **Express branding** | Users see **Stripe**-hosted flows; copy in [weekly-contests-phase6-payouts-ux.md](weekly-contests-phase6-payouts-ux.md) sets expectations. |
 
 ---
 
@@ -149,6 +195,8 @@ Stripe object ids and event types are **illustrative** — exact names must matc
 
 ## References
 
+- [stripe.md](../payments/stripe.md) — **Stripe Connect appendix** (ops + env notes)  
+- [weekly-contests-phase6-payouts-ux.md](weekly-contests-phase6-payouts-ux.md) — **Product copy & UX** (winner onboarding, banners, support scripts)  
 - [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) — Phase 6 overview  
 - [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) — implementation backlog  
 - [weekly-contests-schema-results.md](weekly-contests-schema-results.md) — `results/final`, `payouts/dryRun`  

@@ -87,6 +87,8 @@
 
 **ADR (who / when / how much):** [weekly-contests-phase6-payouts-adr.md](../weekly-contests/weekly-contests-phase6-payouts-adr.md) (Story P6-A1).
 
+**UX (winner onboarding + status copy):** [weekly-contests-phase6-payouts-ux.md](../weekly-contests/weekly-contests-phase6-payouts-ux.md) (Story P6-A2).
+
 ---
 
 ## Phase 7 — Hardening and operations
