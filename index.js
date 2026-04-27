@@ -28,6 +28,7 @@ import {
   postAdminContestPayoutExecute,
   postAdminContestRunScoring,
   postAdminContestTransition,
+  postAdminContestVoidAfterPrize,
 } from './server/admin/admin-contests.http.js';
 import {
   getAdminUser,
@@ -141,6 +142,14 @@ app.post(
   requireAdmin,
   contestReadRateLimitHookMiddleware,
   postAdminContestPayoutExecute,
+);
+/** Phase 6 P6-F1 — reverse prize transfers, ledger, cancel contest (admin only). */
+app.post(
+  '/api/v1/admin/contests/:contestId/void-after-prize',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestVoidAfterPrize,
 );
 
 app.get(

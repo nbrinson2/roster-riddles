@@ -7,7 +7,7 @@
 
 After a contest reaches **`paid`**, dry-run rows are normally final. For **staging** or operator mistakes, you may:
 
-1. **Void** the contest — `paid` → **`cancelled`** (clears `results/final` and `payouts/dryRun` in the same transaction).
+1. **Void** the contest — `paid` → **`cancelled`** (same transaction deletes **`results/final`**, **`payouts/dryRun`**, and **`payouts/final`** if present). If **`payouts/final`** reflects **real** prize Transfers (`notRealMoney` not true, succeeded **`tr_…`** lines), use Admin **[void-after-prize](weekly-contests-ops-p6-f1-void-prize.md)** first so Stripe + ledger match this cleanup.
 2. **Re-open scoring** — `paid` → **`scoring`** (clears those artifacts; then run **`POST /api/internal/v1/contests/run-scoring`** with the same `contestId` to recompute).
 
 Both require **`force: true`** and the same **`CONTESTS_OPERATOR_SECRET`** auth as D1.

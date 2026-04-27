@@ -18,6 +18,20 @@ function isRecord(c) {
 }
 
 /**
+ * Story F2 / P6-F1 — delete scoring + payout artifacts under `contests/{contestId}` (Admin transaction only).
+ * `payouts/final` delete is safe when the doc is absent.
+ *
+ * @param {import('firebase-admin/firestore').Transaction} t
+ * @param {import('firebase-admin/firestore').Firestore} db
+ * @param {string} contestId
+ */
+export function deletePaidContestScoringArtifactsInTransaction(t, db, contestId) {
+  t.delete(db.doc(`contests/${contestId}/results/final`));
+  t.delete(db.doc(`contests/${contestId}/payouts/dryRun`));
+  t.delete(db.doc(`contests/${contestId}/payouts/final`));
+}
+
+/**
  * @param {import('firebase-admin/firestore').Firestore} db
  * @param {object} opts
  * @param {string} opts.contestId
@@ -71,10 +85,7 @@ export async function runContestStatusTransition(db, opts) {
       force === true;
 
     if (clearDryRunArtifacts) {
-      const resultsRef = db.doc(`contests/${contestId}/results/final`);
-      const payoutsRef = db.doc(`contests/${contestId}/payouts/dryRun`);
-      t.delete(resultsRef);
-      t.delete(payoutsRef);
+      deletePaidContestScoringArtifactsInTransaction(t, db, contestId);
     }
 
     t.update(ref, {

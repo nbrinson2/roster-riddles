@@ -6,7 +6,7 @@
 | **Date** | 2026-04-27 |
 | **Scope** | **Real-money prizes** for weekly contests after **`results/final`** and **`payouts/dryRun`** exist; **Stripe Connect** (or equivalent) for recipients; **transfers** from platform balance to connected accounts — **v1 USD integer cents**. **Does not** implement code in this ADR — only decisions for P6-B onward. |
 | **Depends on** | [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md), [weekly-contests-schema-results.md](weekly-contests-schema-results.md) (`results/final`, `payouts/dryRun`), [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md), [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md), [stripe.md](../payments/stripe.md) |
-| **Implements (backlog)** | [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Stories **P6-A1**, **P6-A2**, **P6-B1**, **P6-C2** (schema), **P6-C3** (ledger line types + validation), **P6-D1** (payout line pure function), **P6-D2** (HTTP payout execute), **P6-D3** (automation flag + Scheduler + admin trigger), **P6-E1** (platform balance guard), **P6-E2** (transfer/payout webhooks) |
+| **Implements (backlog)** | [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Stories **P6-A1**, **P6-A2**, **P6-B1**, **P6-C2** (schema), **P6-C3** (ledger line types + validation), **P6-D1** (payout line pure function), **P6-D2** (HTTP payout execute), **P6-D3** (automation flag + Scheduler + admin trigger), **P6-E1** (platform balance guard), **P6-E2** (transfer/payout webhooks), **P6-F1** (void after prize) |
 
 ---
 
@@ -45,6 +45,15 @@ Paid **prizes** (not just entry fees) typically implicate **sweepstakes / gambli
 | **Stripe surface (v1)** | **Connect** connected account per recipient + **`stripe.transfers.create`** from platform to **`destination`** account (details in P6-B / P6-D stories). **Payouts** to bank without Connect are **out of scope v1** unless ADR is revised. |
 | **Idempotency** | One successful **outbound movement** per **(contestId, uid, rank)** logical key unless **reversal**; use **Stripe idempotency keys** on create + **`ledgerEntries`** doc id strategy aligned with Phase 5 ([weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md)). |
 | **Authoritative settlement state** | Same discipline as Phase 5: **verified Stripe webhooks** (and internal job logs) update **`prizePayoutStatus`**, **`payouts/final`** (and optional **`payouts/run_*`** — [weekly-contests-schema-contest-payouts-final.md](weekly-contests-schema-contest-payouts-final.md)), and **ledger** — not client callbacks. |
+
+### Contest × payout artifact matrix (Story P6-F1)
+
+| **`contests.status`** | **`payouts/final`** | **`notRealMoney`** on `final` | Allowed operator action (v1) |
+|----------------------|---------------------|-------------------------------|--------------------------------|
+| **`paid`** | Absent | — | F2 **`paid`→`cancelled`** (or **`scoring`**) with **`force: true`** — deletes `results/final` + `payouts/dryRun` only; **no** Stripe prize reversal. |
+| **`paid`** | Present | **`true`** | Same as row above (staging / dry); **do not** use Admin void-after-prize (API returns **`payout_not_real_money`**). |
+| **`paid`** | Present | absent / **`false`** | If **`lines`** contain **`succeeded`** rows with **`tr_…`**: Admin **[void-after-prize](weekly-contests-ops-p6-f1-void-prize.md)** (Stripe **`transfers.createReversal`**, **`prize_transfer_reversal`** ledger, audit, then **`paid`→`cancelled`** + artifact deletes). If **no** succeeded `tr_` rows: F2 void only (no-op Stripe). |
+| **`cancelled`** | Any | Any | **Terminal** — no transitions out; reconcile only via support / new ADR if product ever allows reopen. |
 
 ---
 

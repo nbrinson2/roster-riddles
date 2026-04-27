@@ -9,6 +9,7 @@ import { getAdminFirestore } from '../lib/admin-firestore.js';
 import { mapContestDocumentToPublic } from '../contests/contest-public.js';
 import { logContestReadLine } from '../contests/contest-read-log.js';
 import { runContestPayoutExecuteJob } from '../contests/contest-payout-execute.job.js';
+import { runContestVoidAfterPrizeAuthorized } from '../contests/contest-void-after-prize.job.js';
 import { runContestScoringJob } from '../contests/contest-scoring-job.js';
 import { runContestStatusTransition } from '../contests/contest-transition-run.js';
 import {
@@ -766,4 +767,182 @@ export async function postAdminContestPayoutExecute(req, res) {
   });
 
   return res.status(result.httpStatus).json(result.json);
+}
+
+const adminVoidAfterPrizeBodySchema = z
+  .object({
+    reason: z.string().min(8).max(500),
+    confirmPhrase: z.literal('VOID_PRIZES'),
+  })
+  .strict();
+
+/**
+ * POST /api/v1/admin/contests/:contestId/void-after-prize — Phase 6 P6-F1; Firebase `admin: true` only.
+ * Stripe Transfer reversals + ledger + `paid`→`cancelled` + scoring/payout artifact deletes.
+ */
+export async function postAdminContestVoidAfterPrize(req, res) {
+  const requestId = req.requestId ?? 'unknown';
+  const startMs = Date.now();
+  const uid = req.user?.uid ?? null;
+
+  const rl = await req.consumeContestReadRateLimit?.();
+  if (rl && rl.allowed === false) {
+    const retry = rl.retryAfterSec ?? null;
+    if (retry != null) {
+      res.setHeader('Retry-After', String(retry));
+    }
+    logContestReadLine({
+      requestId,
+      outcome: 'rate_limited',
+      httpStatus: 429,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_void_after_prize',
+      uid,
+    });
+    return res.status(429).json({
+      error: {
+        code: 'rate_limited',
+        message: 'Too many requests.',
+        ...(retry != null ? { retryAfterSec: retry } : {}),
+      },
+    });
+  }
+
+  let contestIdRaw = req.params.contestId;
+  if (typeof contestIdRaw !== 'string') {
+    contestIdRaw = String(contestIdRaw ?? '');
+  }
+  contestIdRaw = decodeURIComponent(contestIdRaw.trim());
+  const parsedId = contestIdParamSchema.safeParse(contestIdRaw);
+  if (!parsedId.success) {
+    return res.status(400).json({
+      error: { code: 'validation_error', message: 'Invalid contest id.' },
+    });
+  }
+  const contestId = parsedId.data;
+
+  const bodyParse = adminVoidAfterPrizeBodySchema.safeParse(req.body ?? {});
+  if (!bodyParse.success) {
+    return res.status(400).json({
+      error: {
+        code: 'validation_error',
+        message: 'Invalid body (require reason and confirmPhrase exactly VOID_PRIZES).',
+        details: bodyParse.error.flatten(),
+      },
+    });
+  }
+
+  if (!isContestsPaymentsEnabled()) {
+    logContestReadLine({
+      requestId,
+      outcome: 'payments_disabled',
+      httpStatus: 503,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_void_after_prize',
+      contestId,
+      uid,
+    });
+    return res.status(503).json({
+      error: {
+        code: 'contest_payments_disabled',
+        message: 'CONTESTS_PAYMENTS_ENABLED is not true.',
+      },
+    });
+  }
+
+  let stripe;
+  try {
+    stripe = getStripeClient();
+  } catch (e) {
+    logContestReadLine({
+      requestId,
+      outcome: 'stripe_key_error',
+      httpStatus: 503,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_void_after_prize',
+      contestId,
+      uid,
+      message: e instanceof Error ? e.message : String(e),
+    });
+    return sendStripeServiceUnavailable(res);
+  }
+  if (!stripe) {
+    logContestReadLine({
+      requestId,
+      outcome: 'stripe_unavailable',
+      httpStatus: 503,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_void_after_prize',
+      contestId,
+      uid,
+    });
+    return sendStripeServiceUnavailable(res);
+  }
+
+  let db;
+  try {
+    db = getAdminFirestore();
+  } catch (e) {
+    logContestReadLine({
+      requestId,
+      outcome: 'firestore_init_failed',
+      httpStatus: 503,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_void_after_prize',
+      contestId,
+      uid,
+      message: e instanceof Error ? e.message : String(e),
+    });
+    return res.status(503).json({
+      error: {
+        code: 'server_misconfigured',
+        message: 'Server is not configured for Firestore.',
+      },
+    });
+  }
+
+  const result = await runContestVoidAfterPrizeAuthorized({
+    db,
+    stripe,
+    contestId,
+    requestId,
+    actorUid: uid ?? 'unknown',
+    reason: bodyParse.data.reason,
+  });
+
+  if (!result.ok) {
+    logContestReadLine({
+      requestId,
+      outcome: 'void_after_prize_failed',
+      httpStatus: result.httpStatus,
+      latencyMs: Date.now() - startMs,
+      route: 'admin_void_after_prize',
+      contestId,
+      uid,
+      code: result.code,
+    });
+    return res.status(result.httpStatus).json({
+      error: { code: result.code, message: result.message },
+    });
+  }
+
+  logContestReadLine({
+    requestId,
+    outcome: 'ok',
+    httpStatus: 200,
+    latencyMs: Date.now() - startMs,
+    route: 'admin_void_after_prize',
+    contestId,
+    uid,
+    voidJobId: result.voidJobId,
+    reversalCount: result.reversalCount,
+  });
+
+  return res.status(200).json({
+    ok: true,
+    contestId,
+    voidJobId: result.voidJobId,
+    reversalCount: result.reversalCount,
+    ledgerEntryIds: result.ledgerEntryIds,
+  });
 }

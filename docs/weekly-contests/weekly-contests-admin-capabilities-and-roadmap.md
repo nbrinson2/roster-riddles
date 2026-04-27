@@ -26,6 +26,7 @@ Documented in [Admin API — weekly contests (browser)](admin-dashboard-security
 | `POST` | `/api/v1/admin/contests/:contestId/transition` | Transition toward `open` \| `scoring` \| `paid` \| `cancelled` with optional `force` / `reason`. |
 | `POST` | `/api/v1/admin/contests/:contestId/run-scoring` | Run E2 scoring for a contest in **`scoring`** (may advance to **`paid`**). |
 | `POST` | `/api/v1/admin/contests/:contestId/payout-execute` | Phase 6 — run prize **Stripe Transfers** + **`payouts/final`** for a **`paid`** contest (same engine as internal execute; see [weekly-contests-phase6-ops.md](weekly-contests-phase6-ops.md)). |
+| `POST` | `/api/v1/admin/contests/:contestId/void-after-prize` | Phase 6 P6-F1 — **reverse** succeeded prize Transfers, append **`prize_transfer_reversal`** ledger lines, audit, then **`paid`→`cancelled`** + artifact deletes ([weekly-contests-ops-p6-f1-void-prize.md](weekly-contests-ops-p6-f1-void-prize.md)). |
 | `GET` | `/api/v1/admin/users/admins` | List users with `admin` claim. |
 | `GET` | `/api/v1/admin/users/:targetUid` | Read Auth user + `admin` claim. |
 | `PATCH` | `/api/v1/admin/users/:targetUid/admin-claim` | Grant or revoke **`admin`** (cannot target your own uid). |

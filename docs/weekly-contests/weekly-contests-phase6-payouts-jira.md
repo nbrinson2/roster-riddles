@@ -417,8 +417,8 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] ADR matrix: contest status × payout status × allowed actions.
-- [ ] At least one automated test for “reversal succeeds” path in test mode.
+- [x] ADR matrix: contest status × payout status × allowed actions.
+- [x] At least one automated test for “reversal succeeds” path in test mode.
 
 **Dependencies**
 
@@ -426,7 +426,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- Admin HTTP handler + docs
+- [`POST /api/v1/admin/contests/:contestId/void-after-prize`](../../index.js), [`contest-void-after-prize.job.js`](../../server/contests/contest-void-after-prize.job.js), [`contest-void-after-prize.job.test.js`](../../server/contests/contest-void-after-prize.job.test.js), [weekly-contests-ops-p6-f1-void-prize.md](weekly-contests-ops-p6-f1-void-prize.md), ADR matrix in [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md) ✅
 
 ---
 
