@@ -146,6 +146,22 @@ try {
     setDoc(doc(alice, 'contests', 'c1', 'payouts', 'dryRun'), { x: 1 }),
   );
 
+  // P6-C2: `payouts/final` and optional `payouts/run_*` — same read/write policy as dryRun
+  await assertSucceeds(
+    getDoc(doc(alice, 'contests', 'c1', 'payouts', 'final')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'payouts', 'final'), { schemaVersion: 1 }),
+  );
+  await assertSucceeds(
+    getDoc(doc(alice, 'contests', 'c1', 'payouts', 'run_smoke1')),
+  );
+  await assertFails(
+    setDoc(doc(alice, 'contests', 'c1', 'payouts', 'run_smoke1'), {
+      schemaVersion: 1,
+    }),
+  );
+
   // unknown contest subpath: deny
   await assertFails(getDoc(doc(alice, 'contests', 'c1', 'scratch', 'x')));
   await assertFails(

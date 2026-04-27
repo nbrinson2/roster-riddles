@@ -222,8 +222,8 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Doc idempotency: second job with same logical inputs **no-op** or creates new `run` with explicit `supersedesRunId`.
-- [ ] `firestore.rules`: **no client write**; client read optional behind feature flag / admin only.
+- [x] Doc idempotency: second job with same logical inputs **no-op** or creates new `run` with explicit `supersedesRunId`.
+- [x] `firestore.rules`: **no client write**; client read optional behind feature flag / admin only (v1: same signed-in read as `payouts/dryRun`; tightening documented in schema).
 
 **Dependencies**
 
@@ -231,7 +231,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- Schema doc update to [weekly-contests-schema-results.md](weekly-contests-schema-results.md) or sibling; TS types
+- Schema doc [weekly-contests-schema-contest-payouts-final.md](weekly-contests-schema-contest-payouts-final.md) + cross-links in [weekly-contests-schema-results.md](weekly-contests-schema-results.md); TS [`contest-payout-final.model.ts`](../../src/app/shared/models/contest-payout-final.model.ts) ✅
 
 ---
 

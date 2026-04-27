@@ -74,7 +74,7 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
-    // Phase 4 B3: immutable `results/*` and `payouts/*` — signed-in read; Admin SDK writes only.
+    // Phase 4 B3 + Phase 6 P6-C2: immutable `results/*` and `payouts/*` (`dryRun`, `final`, optional `run_*`) — signed-in read; Admin SDK writes only.
     match /contests/{contestId}/results/{resultDocId} {
       allow read: if signedIn();
       allow create, update, delete: if false;

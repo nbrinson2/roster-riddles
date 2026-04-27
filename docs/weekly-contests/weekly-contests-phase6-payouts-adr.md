@@ -6,7 +6,7 @@
 | **Date** | 2026-04-27 |
 | **Scope** | **Real-money prizes** for weekly contests after **`results/final`** and **`payouts/dryRun`** exist; **Stripe Connect** (or equivalent) for recipients; **transfers** from platform balance to connected accounts — **v1 USD integer cents**. **Does not** implement code in this ADR — only decisions for P6-B onward. |
 | **Depends on** | [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md), [weekly-contests-schema-results.md](weekly-contests-schema-results.md) (`results/final`, `payouts/dryRun`), [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md), [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md), [stripe.md](../payments/stripe.md) |
-| **Implements (backlog)** | [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Stories **P6-A1**, **P6-A2**, **P6-B1** |
+| **Implements (backlog)** | [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Stories **P6-A1**, **P6-A2**, **P6-B1**, **P6-C2** (schema) |
 
 ---
 
@@ -44,7 +44,7 @@ Paid **prizes** (not just entry fees) typically implicate **sweepstakes / gambli
 | **Stripe fees on outbound prize** | **v1:** Platform **absorbs** Stripe **Connect transfer** fees (winner receives **full** `amountCents` from dry-run line). Product may later choose **gross-up** or **net-of-fee**; that would be an ADR amendment + ledger line `platform_subsidy_prize_fee` or similar. |
 | **Stripe surface (v1)** | **Connect** connected account per recipient + **`stripe.transfers.create`** from platform to **`destination`** account (details in P6-B / P6-D stories). **Payouts** to bank without Connect are **out of scope v1** unless ADR is revised. |
 | **Idempotency** | One successful **outbound movement** per **(contestId, uid, rank)** logical key unless **reversal**; use **Stripe idempotency keys** on create + **`ledgerEntries`** doc id strategy aligned with Phase 5 ([weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md)). |
-| **Authoritative settlement state** | Same discipline as Phase 5: **verified Stripe webhooks** (and internal job logs) update **`prizePayoutStatus`**, **`payouts/*` execution docs**, and **ledger** — not client callbacks. |
+| **Authoritative settlement state** | Same discipline as Phase 5: **verified Stripe webhooks** (and internal job logs) update **`prizePayoutStatus`**, **`payouts/final`** (and optional **`payouts/run_*`** — [weekly-contests-schema-contest-payouts-final.md](weekly-contests-schema-contest-payouts-final.md)), and **ledger** — not client callbacks. |
 
 ---
 
@@ -152,7 +152,7 @@ Stripe object ids and event types are **illustrative** — exact names must matc
 |---------|-------------------------|----------------------------|-------------------------------------|
 | Operator / job: start Connect onboarding | `accounts.create`, `accountLinks.create` | `users/{uid}` payout profile fields | — (no money movement) |
 | Stripe: Connect account state | *(webhook)* `account.updated` | `users/{uid}`: `chargesEnabled`, `payoutsEnabled`, requirements summary | — |
-| Operator / job: execute prize transfer | `transfers.create` | `contests/{id}/payouts/execution` (or `runs/{run}` — P6-C2) line: `stripeTransferId`, `status` | **`prize_transfer_out`**, `direction: debit` (funds leaving platform to winner — **confirm** accounting convention vs Phase 5 `direction` glossary and **standardize** in P6-C3) |
+| Operator / job: execute prize transfer | `transfers.create` | `contests/{id}/payouts/final` (or optional `payouts/run_*` attempts — P6-C2) line: `stripeTransferId`, `status` | **`prize_transfer_out`**, `direction: debit` (funds leaving platform to winner — **confirm** accounting convention vs Phase 5 `direction` glossary and **standardize** in P6-C3) |
 | Stripe: transfer succeeded | *(webhook)* `transfer.created` / `transfer.updated` (paid) | Update execution line **`succeeded`** | Optional duplicate-safe line or metadata-only update per idempotency design |
 | Stripe: transfer failed / reversed | *(webhook)* `transfer.reversed`, failed/canceled events | Execution line **`failed` / `reversed`** | **`prize_transfer_reversal`** (or `prize_transfer_adjustment`) |
 | Operator: platform fee subsidy (if ever net-of-fee) | *(optional)* balance transaction | Ledger only | **`platform_prize_fee_subsidy`** (future) |
@@ -199,6 +199,7 @@ Stripe object ids and event types are **illustrative** — exact names must matc
 - [weekly-contests-phase6-payouts-ux.md](weekly-contests-phase6-payouts-ux.md) — **Product copy & UX** (winner onboarding, banners, support scripts)  
 - [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) — Phase 6 overview  
 - [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) — implementation backlog  
-- [weekly-contests-schema-results.md](weekly-contests-schema-results.md) — `results/final`, `payouts/dryRun`  
+- [weekly-contests-schema-results.md](weekly-contests-schema-results.md) — `results/final`, `payouts/dryRun`
+- [weekly-contests-schema-contest-payouts-final.md](weekly-contests-schema-contest-payouts-final.md) — `payouts/final`, optional `payouts/run_*` (P6-C2)  
 - [weekly-contests-schema-contests.md](weekly-contests-schema-contests.md) — contest `status`  
 - [weekly-contests-schema-entries.md](weekly-contests-schema-entries.md) — `paymentStatus`  
