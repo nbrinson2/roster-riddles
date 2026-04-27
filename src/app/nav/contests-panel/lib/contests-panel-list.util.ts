@@ -1,5 +1,9 @@
 import { Timestamp, type QuerySnapshot } from 'firebase/firestore';
-import type { ContestDocument, ContestStatus } from 'src/app/shared/models/contest.model';
+import {
+  CONTEST_GAME_MODE_BIO_BALL,
+  type ContestDocument,
+  type ContestStatus,
+} from 'src/app/shared/models/contest.model';
 import type { ContestListRow } from './contests-panel.types';
 
 function parseOptionalNonNegInt(raw: unknown): number | undefined {
@@ -136,4 +140,44 @@ export function filterRowsForContestsPanel(
     (r) => r.status !== 'paid' || paidKeep.has(r.contestId),
   );
   return rowsFiltered.sort(sortContestsListRows);
+}
+
+/**
+ * When the contests panel list is empty, surface the earliest future scheduled Bio Ball contest
+ * (if Firestore returned any in the scheduled snapshot) so the empty state can show “next opens …”.
+ */
+export function computeEarliestScheduledBioBallOpensLine(
+  scheduledSnap: QuerySnapshot | null,
+  nowMs: number,
+): string | null {
+  if (!scheduledSnap?.size) {
+    return null;
+  }
+  let best: ContestListRow | null = null;
+  for (const d of scheduledSnap.docs) {
+    const row = parseContestFirestoreRow(d.id, d.data());
+    if (!row || row.status !== 'scheduled') {
+      continue;
+    }
+    if (row.gameMode !== CONTEST_GAME_MODE_BIO_BALL) {
+      continue;
+    }
+    if (row.windowStart.getTime() <= nowMs) {
+      continue;
+    }
+    if (!best || row.windowStart.getTime() < best.windowStart.getTime()) {
+      best = row;
+    }
+  }
+  if (!best) {
+    return null;
+  }
+  const fmt = new Intl.DateTimeFormat(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+  return `Next contest opens ${fmt.format(best.windowStart)} (${best.title}).`;
 }

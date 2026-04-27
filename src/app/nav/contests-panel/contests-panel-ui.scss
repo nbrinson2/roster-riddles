@@ -875,6 +875,40 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   color: #9e9e9e;
 }
 
+.cc-empty-next {
+  margin: 4px 0 0;
+  max-width: 320px;
+  font-size: 0.84rem;
+  line-height: 1.4;
+  color: rgba(255, 213, 160, 0.88);
+  text-align: center;
+}
+
+.cc-empty-actions {
+  margin-top: 8px;
+}
+
+.cc-empty-refresh {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  border-color: rgba(204, 31, 65, 0.55) !important;
+  color: $cc-red !important;
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+}
+
+.cc-empty-tip {
+  margin: 12px 0 0;
+  max-width: 300px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.42);
+  text-align: center;
+}
+
 .cc-pipeline {
   padding: 12px 14px;
   border-radius: $cc-radius;

@@ -10,6 +10,15 @@ import { formatOrdinalRank } from './contest-results-closure';
 export const CONTEST_HERO_TAGLINE =
   'Mini-league Bio Ball — same slate size, fair footing.';
 
+/** Contests panel — empty list (signed-in, no rows after load). */
+export const CONTEST_PANEL_EMPTY_TITLE = 'No weekly contests to show yet';
+
+export const CONTEST_PANEL_EMPTY_BODY =
+  'There are no open, upcoming, or recent completed Bio Ball contests in this list. If one was just published, refresh — otherwise check back after the next schedule.';
+
+export const CONTEST_PANEL_EMPTY_STRIP_TIP =
+  'Tip: choose Bio Ball, then look under the search box — the strip shows slate progress for the contest tied to play, even when this calendar is empty.';
+
 /**
  * Shown under the hero tagline — makes the drawer calendar the obvious “my contests” home so it
  * does not compete with the Bio Ball game strip (which is play-context only).

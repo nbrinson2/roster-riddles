@@ -25,6 +25,7 @@ import {
 import { formatDryRunCurrencyCaption, parseDryRunPayoutDocument } from '../lib/contests-panel-dry-run-payout';
 import { parseEntryPaymentStatus } from '../lib/contests-panel-entry.util';
 import {
+  computeEarliestScheduledBioBallOpensLine,
   contestRowsByIdFromSnapshots,
   filterRowsForContestsPanel,
 } from '../lib/contests-panel-list.util';
@@ -41,6 +42,8 @@ import {
  */
 export interface ContestsPanelFirestoreUiState {
   rows: ContestListRow[];
+  /** When the merged list is empty, optional line for the next scheduled Bio Ball contest (if any). */
+  emptyListNextPlayHint: string | null;
   loading: boolean;
   listError: string | null;
   entryInfoByContestId: Record<string, ContestEntryRowState>;
@@ -189,6 +192,11 @@ export class ContestsPanelFirestoreSyncService {
       gameMode: CONTEST_GAME_MODE_BIO_BALL,
       maxCompletedContests: MAX_COMPLETED_CONTESTS,
     });
+
+    ui.emptyListNextPlayHint =
+      ui.rows.length === 0
+        ? computeEarliestScheduledBioBallOpensLine(this.scheduledSnap, Date.now())
+        : null;
 
     this.syncPaidListExtras(ui, uid);
     this.syncFinalResultsListeners(ui, uid);

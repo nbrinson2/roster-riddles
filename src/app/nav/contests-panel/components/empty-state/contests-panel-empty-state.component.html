@@ -1,9 +1,18 @@
 <div class="state state-empty" role="status">
-  <span class="material-symbols-outlined state-empty-icon">event_busy</span>
-  <p class="cc-empty-title">No contests here yet</p>
-  <p class="cc-empty-desc">
-    There are no Bio Ball weekly contests to list right now. When your host
-    adds open or upcoming contests, they will appear here — check back after
-    the next schedule drops.
-  </p>
+  <span class="material-symbols-outlined state-empty-icon" aria-hidden="true">event_busy</span>
+  <p class="cc-empty-title">{{ emptyTitle }}</p>
+  <p class="cc-empty-desc">{{ emptyBody }}</p>
+  <p *ngIf="nextPlayHint as hint" class="cc-empty-next">{{ hint }}</p>
+  <div class="cc-empty-actions">
+    <button
+      mat-stroked-button
+      type="button"
+      class="cc-empty-refresh"
+      (click)="onRefreshList()"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
+      Refresh list
+    </button>
+  </div>
+  <p class="cc-empty-tip">{{ stripTip }}</p>
 </div>

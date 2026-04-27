@@ -35,6 +35,8 @@
 
     <contests-panel-empty-state
       *ngIf="!loading && !listError && rows.length === 0"
+      [nextPlayHint]="emptyListNextPlayHint"
+      (refreshList)="retryLoadContests()"
     ></contests-panel-empty-state>
 
     <div

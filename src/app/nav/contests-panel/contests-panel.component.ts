@@ -73,6 +73,8 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   protected loading = true;
   protected listError: string | null = null;
   protected rows: ContestListRow[] = [];
+  /** Filled by {@link ContestsPanelFirestoreSyncService} when the list is empty (optional “next opens” line). */
+  protected emptyListNextPlayHint: string | null = null;
 
   protected expandedContestId: string | null = null;
   protected rulesCheckbox = false;
@@ -146,6 +148,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
         this.stopContestClock();
         this.firestoreSync.stopAll(this.firestoreUi());
         this.rows = [];
+        this.emptyListNextPlayHint = null;
         this.loading = false;
         this.listError = null;
         this.expandedContestId = null;
