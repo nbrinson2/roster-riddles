@@ -114,7 +114,8 @@
 
 ## Phase 6 Story P6-B3 — Connect `account.updated` (`CONTESTS_PAYMENTS_ENABLED=true`)
 
-**Implementation:** [`stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js) → [`stripe-webhook-connect.js`](../server/payments/stripe-webhook-connect.js).
+**Implementation:** [`stripe-webhook.http.js`](../server/payments/stripe-webhook.http.js) → [`stripe-webhook-connect.js`](../server/payments/stripe-webhook-connect.js).  
+**User document field names:** [weekly-contests-schema-users-payouts.md](weekly-contests-schema-users-payouts.md) (Story P6-C1).
 
 ### Stripe Dashboard — subscribe to this event
 

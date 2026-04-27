@@ -49,7 +49,8 @@ When you add server-side Stripe calls, set **`STRIPE_SECRET_KEY`** on the **stag
 
 ## Stripe Connect (Phase 6 — winner payouts)
 
-**Product / architecture ADR:** [weekly-contests-phase6-payouts-adr.md](../weekly-contests/weekly-contests-phase6-payouts-adr.md) § *Stripe Connect account model* (Story **P6-B1**).
+**Product / architecture ADR:** [weekly-contests-phase6-payouts-adr.md](../weekly-contests/weekly-contests-phase6-payouts-adr.md) § *Stripe Connect account model* (Story **P6-B1**).  
+**Firestore field names on `users/{uid}`:** [weekly-contests-schema-users-payouts.md](../weekly-contests/weekly-contests-schema-users-payouts.md) (Story **P6-C1**).
 
 ### Account type chosen for v1
 

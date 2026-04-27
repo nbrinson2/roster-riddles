@@ -194,8 +194,8 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Schema doc + TS model.
-- [ ] Rules tests if any new paths.
+- [x] Schema doc + TS model.
+- [x] Rules tests if any new paths (none — existing `users/{uid}` deny-list tests cover payout keys).
 
 **Dependencies**
 
@@ -203,7 +203,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `docs/weekly-contests/weekly-contests-schema-users-payouts.md`, `src/app/shared/models/...`
+- `docs/weekly-contests/weekly-contests-schema-users-payouts.md`, `src/app/shared/models/user-payout-profile.model.ts` ✅
 
 ---
 

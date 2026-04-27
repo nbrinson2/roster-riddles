@@ -1,7 +1,7 @@
 # Weekly contests API — Phase 6 (payouts / Connect)
 
 **Status:** Stories **P6-B2** (Connect onboarding URL) and **P6-B3** (`account.updated` webhook → `users/{uid}`) implemented.  
-**Related:** [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md), [stripe.md](../payments/stripe.md) (Connect appendix), [weekly-contests-phase6-payouts-ux.md](weekly-contests-phase6-payouts-ux.md)
+**Related:** [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md), [weekly-contests-schema-users-payouts.md](weekly-contests-schema-users-payouts.md) (P6-C1), [stripe.md](../payments/stripe.md) (Connect appendix), [weekly-contests-phase6-payouts-ux.md](weekly-contests-phase6-payouts-ux.md)
 
 ---
 
@@ -67,7 +67,7 @@ Global disable: `RATE_LIMITS_DISABLED=true` (same as other Express rate limits).
 
 ### Firestore
 
-Connect payout snapshot fields on **`users/{uid}`** are **not client-writable** — see `firestore.rules` (P6-B2 / P6-B3).
+Connect payout snapshot fields on **`users/{uid}`** are **not client-writable** — see `firestore.rules` (P6-B2 / P6-B3) and the field reference [weekly-contests-schema-users-payouts.md](weekly-contests-schema-users-payouts.md).
 
 ### Webhooks (P6-B3)
 

@@ -1,6 +1,7 @@
 /**
  * Phase 6 Story P6-B3 — Stripe Connect `account.updated` → `users/{uid}` payout snapshot fields.
  * @see docs/weekly-contests/weekly-contests-phase5-webhooks.md (Phase 6 Connect section)
+ * @see docs/weekly-contests/weekly-contests-schema-users-payouts.md (P6-C1 field names)
  */
 import { FieldValue } from 'firebase-admin/firestore';
 import {

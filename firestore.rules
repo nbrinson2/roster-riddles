@@ -15,7 +15,7 @@ service cloud.firestore {
     }
 
     // Profiles: only the signed-in user may access `users/{uid}` (equivalent to auth.uid == path uid).
-    // Stripe Connect payout fields (P6-B2+) are written only by Admin SDK / server — never client-writable.
+    // Stripe Connect payout fields (P6-B2+): server / Admin SDK only — see docs/weekly-contests/weekly-contests-schema-users-payouts.md (P6-C1).
     match /users/{userId} {
       allow read: if signedIn() && request.auth.uid == userId;
       allow create: if signedIn() && request.auth.uid == userId

@@ -72,9 +72,9 @@ Paid **prizes** (not just entry fees) typically implicate **sweepstakes / gambli
 
 | Topic | Decision |
 |--------|----------|
-| **Canonical id** | Store **`stripeConnectAccountId`** = Stripe **`acct_…`** string on **`users/{uid}`** (top-level fields or a single nested `connectProfile` map — **exact shape** in [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Story **P6-C1**). **Server / Admin SDK writes only** — same discipline as contest entry payment fields. |
+| **Canonical id** | Store **`stripeConnectAccountId`** = Stripe **`acct_…`** string on **`users/{uid}`** as **top-level fields** (v1 — **exact field list:** [weekly-contests-schema-users-payouts.md](weekly-contests-schema-users-payouts.md), TS: `user-payout-profile.model.ts`). **Server / Admin SDK writes only** — same discipline as contest entry payment fields. |
 | **Uniqueness** | **One** Connect account per **`uid`** for prize purposes in v1; **do not** create a second `acct_` for the same uid without an explicit **migration / support** story. |
-| **Metadata** | When creating the account, set Stripe **`metadata.uid`** = Firebase uid for support correlation (no secrets). |
+| **Metadata** | When creating the account, set Stripe **`metadata.firebase_uid`** = Firebase uid for webhook routing and support correlation (no secrets). |
 
 ### State refresh: when is Connect state updated?
 

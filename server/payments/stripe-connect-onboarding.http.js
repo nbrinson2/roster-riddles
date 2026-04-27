@@ -2,6 +2,7 @@
  * POST /api/v1/me/stripe/connect/onboarding — Phase 6 Story P6-B2.
  * Creates or reuses a Stripe Express connected account and returns a hosted Account Link URL.
  * @see docs/weekly-contests/weekly-contests-api-phase6.md
+ * @see docs/weekly-contests/weekly-contests-schema-users-payouts.md (P6-C1 field names)
  */
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import Stripe from 'stripe';
