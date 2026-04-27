@@ -108,4 +108,5 @@ Filter **`jsonPayload.domain="contest_payouts"`** and **`jsonPayload.component="
 
 - [leaderboards-runbook.md](../leaderboards/leaderboards-runbook.md) — style reference for kill switches and Scheduler health.  
 - [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) — Story **P6-D3**.  
+- [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md) — Story **P6-I1** (staging Connect + transfer checklist).  
 - [admin-dashboard-security.md](../admin/admin-dashboard-security.md) — admin claim requirements.

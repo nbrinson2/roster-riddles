@@ -561,8 +561,8 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Includes: create Connect test account, run scoring, execute payout, verify balance on connected account, refund/reversal drill.
-- [ ] Sign-off table for product + eng + finance (optional rows).
+- [x] Includes: create Connect test account, run scoring, execute payout, verify balance on connected account, refund/reversal drill.
+- [x] Sign-off table for product + eng + finance (optional rows).
 
 **Dependencies**
 
@@ -570,7 +570,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- Staging QA doc
+- [`weekly-contests-phase6-staging-qa.md`](weekly-contests-phase6-staging-qa.md) ✅
 
 ---
 
@@ -617,3 +617,4 @@ P6-*   ─► P6-H1 / P6-H2 / P6-I*
 - [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — Phase 5 patterns  
 - [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) — append-only ledger  
 - [stripe.md](../payments/stripe.md) — keys, env vars, **Connect appendix** (P6-B1)  
+- [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md) — Story **P6-I1** (Connect + transfer E2E)  
