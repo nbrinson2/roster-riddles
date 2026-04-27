@@ -10,6 +10,20 @@ import { formatOrdinalRank } from './contest-results-closure';
 export const CONTEST_HERO_TAGLINE =
   'Mini-league Bio Ball — same slate size, fair footing.';
 
+/**
+ * Shown under the hero tagline — makes the drawer calendar the obvious “my contests” home so it
+ * does not compete with the Bio Ball game strip (which is play-context only).
+ */
+export const CONTEST_CALENDAR_CANONICAL_LINE =
+  'Contest calendar — browse, join, and follow every weekly contest here. This list is the source of truth.';
+
+/**
+ * Bio Ball game header strip — pairs with {@link CONTEST_CALENDAR_CANONICAL_LINE}: same data,
+ * different scope (slate shortcut vs full roster).
+ */
+export const BIO_GAME_CONTEST_STRIP_CONTEXT_LINE =
+  'This line only summarizes the contest tied to the board below; open the calendar tab for your full contest list and actions.';
+
 export type PaidDelightTier = 'winner' | 'podium' | 'played';
 
 export interface PaidDelightView {

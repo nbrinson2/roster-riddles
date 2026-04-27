@@ -24,7 +24,7 @@
             [class.game-contest-banner--mobile-expanded]="contestStripMobileExpanded"
             role="region"
             [attr.aria-label]="
-              'Weekly contest: ' +
+              'Slate for this board only; calendar tab has every contest. ' +
               strip.slate.phaseStripLabel +
               '. ' +
               strip.slate.contestTitle
@@ -77,6 +77,9 @@
                   [attr.aria-label]="'Contest summary: ' + strip.slate.valuePropLine"
                 >
                   {{ strip.slate.valuePropLine }}
+                </p>
+                <p class="game-contest-banner__context">
+                  {{ contestStripCalendarContextLine }}
                 </p>
               </div>
             </div>
@@ -148,6 +151,9 @@
                 >
                   {{ strip.slate.valuePropLine }}
                 </p>
+                <p class="game-contest-banner__context">
+                  {{ contestStripCalendarContextLine }}
+                </p>
               </div>
             </div>
             <p
@@ -186,7 +192,7 @@
             class="game-contest-banner game-contest-banner--muted"
             [class.game-contest-banner--mobile-expanded]="contestStripMobileExpanded"
             role="region"
-            aria-label="Weekly contests"
+            aria-label="Weekly contests — open the calendar tab for your full contest list"
           >
             <div class="game-contest-banner__desktop">
               <div class="game-contest-banner__stack">
@@ -198,6 +204,9 @@
                 </div>
                 <p class="game-contest-banner__value game-contest-banner__value--muted">
                   Simulated prizes · No entry fee · See prize and lock times on each contest card
+                </p>
+                <p class="game-contest-banner__context">
+                  {{ contestStripCalendarContextLine }}
                 </p>
               </div>
             </div>
@@ -233,6 +242,9 @@
                 <p class="game-contest-banner__value game-contest-banner__value--muted">
                   Simulated prizes · No entry fee · See prize and lock times on each contest card
                 </p>
+                <p class="game-contest-banner__context">
+                  {{ contestStripCalendarContextLine }}
+                </p>
               </div>
             </div>
             <p class="game-contest-banner__sr-only">
@@ -244,12 +256,15 @@
             *ngIf="strip.variant === 'sign_in'"
             class="game-contest-banner game-contest-banner--muted"
             role="region"
-            aria-label="Sign in for weekly contests"
+            aria-label="Sign in for weekly contests — calendar lists contests after you sign in"
           >
             <div class="game-contest-banner__inner">
               <span class="material-symbols-outlined" aria-hidden="true">login</span>
               <p class="game-contest-banner__muted-line">Sign in to join weekly contests.</p>
             </div>
+            <p class="game-contest-banner__context">
+              {{ contestStripCalendarContextLine }}
+            </p>
             <p class="game-contest-banner__sr-only">
               Sign in to join weekly Bio Ball contests and track your mini-league games from the
               calendar tab.
@@ -260,7 +275,7 @@
             class="game-contest-banner game-contest-banner--muted"
             [class.game-contest-banner--mobile-expanded]="contestStripMobileExpanded"
             role="region"
-            aria-label="Verify email for weekly contests"
+            aria-label="Verify email for weekly contests — calendar lists contests after verification"
           >
             <div class="game-contest-banner__desktop">
               <div class="game-contest-banner__inner">
@@ -269,6 +284,9 @@
                   Verify your email to join weekly contests — open Profile to resend the link.
                 </p>
               </div>
+              <p class="game-contest-banner__context">
+                {{ contestStripCalendarContextLine }}
+              </p>
             </div>
             <div class="game-contest-banner__mobile">
               <div class="game-contest-banner__mobile-bar">
@@ -298,6 +316,9 @@
               >
                 <p class="game-contest-banner__muted-line">
                   Open Profile to resend the verification link or complete email verification.
+                </p>
+                <p class="game-contest-banner__context">
+                  {{ contestStripCalendarContextLine }}
                 </p>
               </div>
             </div>

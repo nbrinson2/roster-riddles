@@ -65,6 +65,19 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   letter-spacing: 0.03em;
 }
 
+.cc-hero-canonical {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  font-weight: normal;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: 0.02em;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .cc-subtitle {
   margin: 6px 0 0;
   font-size: 0.95rem;

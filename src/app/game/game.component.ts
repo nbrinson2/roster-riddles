@@ -11,6 +11,7 @@ import { GAME_SERVICE, GameService } from '../shared/utils/game-service.token';
 import { RosterSelectionService } from './bio-ball/services/roster-selection/roster-selection.service';
 import { Header } from './shared/common-attribute-header/common-attribute-header.component';
 import { NicknameStreakPlayer } from './nickname-streak/models/nickname-streak.models';
+import { BIO_GAME_CONTEST_STRIP_CONTEXT_LINE } from '../nav/contests-panel/shared/contest-engagement-copy';
 import {
   WeeklyContestSlateService,
   type WeeklyContestSlateUi,
@@ -42,6 +43,10 @@ export class GameComponent {
 
   /** Mobile-only: expanded “details” panel for the contest strip. */
   protected contestStripMobileExpanded = false;
+
+  /** Pairs the strip with the nav calendar so users know where “my contests” lives. */
+  protected readonly contestStripCalendarContextLine =
+    BIO_GAME_CONTEST_STRIP_CONTEXT_LINE;
 
   /**
    * Bio Ball contest strip: signed-out CTA, signed-in but no active entry, or active slate stats.
