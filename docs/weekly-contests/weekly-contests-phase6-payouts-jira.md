@@ -439,7 +439,7 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Runbook: links to Stripe Dashboard sections, internal escalation, ledger annotation convention (`lineType: dispute_adjustment` future).
+- [x] Runbook: links to Stripe Dashboard sections, internal escalation, ledger annotation convention (`lineType: dispute_adjustment` future).
 
 **Dependencies**
 
@@ -447,7 +447,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- `docs/weekly-contests/weekly-contests-phase6-disputes-runbook.md`
+- [weekly-contests-phase6-disputes-runbook.md](weekly-contests-phase6-disputes-runbook.md) ✅
 
 ---
 

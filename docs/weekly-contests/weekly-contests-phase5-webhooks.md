@@ -197,3 +197,4 @@ The CLI prints a **webhook signing secret** (`whsec_...`) — set `STRIPE_WEBHOO
 - [stripe.md](../payments/stripe.md) — env vars  
 - [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) — backlog / exit criteria  
 - [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md) — staging QA & reconciliation (P5-H2)  
+- [weekly-contests-phase6-disputes-runbook.md](weekly-contests-phase6-disputes-runbook.md) — disputes / chargebacks: entry fee vs prize (P6-F2)  

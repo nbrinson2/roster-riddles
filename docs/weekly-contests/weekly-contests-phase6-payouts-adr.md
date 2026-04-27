@@ -6,7 +6,7 @@
 | **Date** | 2026-04-27 |
 | **Scope** | **Real-money prizes** for weekly contests after **`results/final`** and **`payouts/dryRun`** exist; **Stripe Connect** (or equivalent) for recipients; **transfers** from platform balance to connected accounts — **v1 USD integer cents**. **Does not** implement code in this ADR — only decisions for P6-B onward. |
 | **Depends on** | [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md), [weekly-contests-schema-results.md](weekly-contests-schema-results.md) (`results/final`, `payouts/dryRun`), [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md), [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md), [stripe.md](../payments/stripe.md) |
-| **Implements (backlog)** | [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Stories **P6-A1**, **P6-A2**, **P6-B1**, **P6-C2** (schema), **P6-C3** (ledger line types + validation), **P6-D1** (payout line pure function), **P6-D2** (HTTP payout execute), **P6-D3** (automation flag + Scheduler + admin trigger), **P6-E1** (platform balance guard), **P6-E2** (transfer/payout webhooks), **P6-F1** (void after prize) |
+| **Implements (backlog)** | [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Stories **P6-A1**, **P6-A2**, **P6-B1**, **P6-C2** (schema), **P6-C3** (ledger line types + validation), **P6-D1** (payout line pure function), **P6-D2** (HTTP payout execute), **P6-D3** (automation flag + Scheduler + admin trigger), **P6-E1** (platform balance guard), **P6-E2** (transfer/payout webhooks), **P6-F1** (void after prize), **P6-F2** ([disputes runbook](weekly-contests-phase6-disputes-runbook.md)) |
 
 ---
 
@@ -165,7 +165,7 @@ Stripe object ids and event types are **illustrative** — exact names must matc
 | Stripe: transfer succeeded | *(webhook)* `transfer.created` / `transfer.updated` (paid) | Update execution line **`succeeded`** | Optional duplicate-safe line or metadata-only update per idempotency design |
 | Stripe: transfer failed / reversed | *(webhook)* `transfer.reversed`, failed/canceled events | Execution line **`failed` / `reversed`** | **`prize_transfer_reversal`**, `direction: credit` |
 | Operator: platform fee subsidy (if ever net-of-fee) | *(optional)* balance transaction | Ledger only | **`platform_fee_retained`**, `direction: credit` (when used) |
-| Stripe: dispute on underlying charge | `charge.dispute.*` | **No automatic** prize correction | **`dispute_adjustment`** (future — see P6-F2) |
+| Stripe: dispute on underlying charge | `charge.dispute.*` | **No automatic** prize correction | **`dispute_adjustment`** (future — [P6-F2 runbook](weekly-contests-phase6-disputes-runbook.md)) |
 
 **Convention (P6-C3):** Prize **outbound** transfers use **`prize_transfer_out` + `debit`**; reversals use **`prize_transfer_reversal` + `credit`**. Glossary and server enforcement: [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md).
 

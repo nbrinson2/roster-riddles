@@ -138,7 +138,7 @@ If product enables email (Firebase Extension, SendGrid, etc.), keep **parity** w
 | “Why no payout yet?” | `contests.prizePayoutStatus`, user Connect summary | “The contest shows **processing / on hold**. If you haven’t finished **one-time setup**, open the app → **Profile → Prizes**.” |
 | “Is it stuck?” | `prizePayoutStatus === held` or execution doc `failed` | “I see a **pause** on our side. I’m escalating to **payouts** — you’ll get an update by **[SLA]**.” |
 
-**Escalate to Stripe / finance** when: reversal, dispute, wrong amount, or ledger mismatch — [Phase 6 ADR](weekly-contests-phase6-payouts-adr.md) void / correction section.
+**Escalate to Stripe / finance** when: reversal, dispute, wrong amount, or ledger mismatch — [Phase 6 ADR](weekly-contests-phase6-payouts-adr.md) void / correction section; disputes / chargebacks: [weekly-contests-phase6-disputes-runbook.md](weekly-contests-phase6-disputes-runbook.md) (P6-F2).
 
 ---
 

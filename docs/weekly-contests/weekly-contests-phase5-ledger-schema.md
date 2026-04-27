@@ -47,6 +47,8 @@
 | **`prize_transfer_reversal`** | Reversal / return of prize funds to the platform balance (e.g. `transfer.reversed`). |
 | **`platform_fee_retained`** | Optional line when recording **platform-retained** fee or subsidy (net-of-fee flows), if product enables it. |
 
+**Future (not in server validation yet):** **`dispute_adjustment`** — reserved for card **dispute** / chargeback outcomes tied to **`dp_…`**; convention and ops guidance in [weekly-contests-phase6-disputes-runbook.md](weekly-contests-phase6-disputes-runbook.md). Until implemented, use **`contest_entry_adjustment`** or **`other`** with documented `metadata`.
+
 **Server validation:** `server/payments/contest-ledger-entry-validate.js` — **`assertValidContestLedgerEntryPayload`** rejects unknown `lineType` and invalid `(lineType, direction)` pairs before webhook / job writes.
 
 ### Direction by `lineType` (P6-C3)
