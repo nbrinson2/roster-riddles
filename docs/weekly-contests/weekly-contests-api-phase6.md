@@ -1,6 +1,6 @@
 # Weekly contests API — Phase 6 (payouts / Connect)
 
-**Status:** Stories **P6-B2** (Connect onboarding URL), **P6-B3** (`account.updated` webhook → `users/{uid}`), and **P6-G1** (admin read payout status) implemented.  
+**Status:** Stories **P6-B2** (Connect onboarding URL), **P6-B3** (`account.updated` webhook → `users/{uid}`), **P6-G1** (admin read payout status), and **P6-G2** (admin hold / resume / retry) implemented.  
 **Related:** [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md), [weekly-contests-schema-users-payouts.md](weekly-contests-schema-users-payouts.md) (P6-C1), [stripe.md](../payments/stripe.md) (Connect appendix), [weekly-contests-phase6-payouts-ux.md](weekly-contests-phase6-payouts-ux.md)
 
 ---
@@ -102,6 +102,43 @@ Answers **“was user `targetUid` paid a prize for contest `contestId`?”** fro
 | **429** | `rate_limited` | Too many reads. |
 
 **Implementation:** [`server/admin/admin-payouts.http.js`](../../server/admin/admin-payouts.http.js), [`server/admin/admin-payouts.http.test.js`](../../server/admin/admin-payouts.http.test.js), routes in [`index.js`](../../index.js).
+
+---
+
+## Admin mutations — hold / resume / retry (Story P6-G2)
+
+**Auth:** Firebase ID token + **`admin: true`**. **Rate limit:** contest-read hook.
+
+**Contest fields:** **`payoutHoldReason`**, **`heldByAdminUid`**, **`heldAt`** (Timestamp) are set on **hold** and cleared on **resume**. **`prizePayoutStatus`** becomes **`held`** / **`scheduled`** per [ADR `prizePayoutStatus` table](weekly-contests-phase6-payouts-adr.md#contest-level-prize-payout-status-prizepayoutstatus). Prize **execute** (`POST …/payout-execute` and internal execute) returns **`409`** with **`payout_held`** while held.
+
+**Audit:** each mutation appends **`ledgerEntries/{id}`** with **`lineType: other`**, **`amountCents: 0`**, **`source: admin_adjustment`**, **`metadata.action`**, and the authenticated admin’s **`uid`** on the ledger row (see ADR).
+
+### `POST /api/v1/admin/contests/:contestId/payout-hold`
+
+| Field | Type | Required |
+|-------|------|----------|
+| `force` | literal **`true`** | Yes |
+| `reason` | string (4–500 chars) | Yes |
+
+### `POST /api/v1/admin/contests/:contestId/payout-resume`
+
+| Field | Type | Required |
+|-------|------|----------|
+| `force` | literal **`true`** | Yes |
+| `reason` | string (≤500) | No |
+
+### `POST /api/v1/admin/contests/:contestId/payout-retry-failed`
+
+Requires **`CONTESTS_PAYMENTS_ENABLED=true`** and Stripe (same as payout execute). Retries only **`payouts/final`** lines with **`status: failed`**, **`amountCents > 0`**, and **no** `stripeTransferId`, using the same Stripe **idempotency key** as initial execute. Optional **`rank`** / **`uid`** restrict to one line.
+
+| Field | Type | Required |
+|-------|------|----------|
+| `force` | literal **`true`** | Yes |
+| `reason` | string (4–500 chars) | Yes |
+| `rank` | positive int | No |
+| `uid` | string | No |
+
+**Implementation:** [`server/contests/contest-payout-admin-actions.job.js`](../../server/contests/contest-payout-admin-actions.job.js), [`contest-payout-admin-actions.job.test.js`](../../server/contests/contest-payout-admin-actions.job.test.js), POST handlers in [`server/admin/admin-payouts.http.js`](../../server/admin/admin-payouts.http.js), [`contest-payout-execute.job.js`](../../server/contests/contest-payout-execute.job.js) (hold gate + **`prizePayoutStatus`** on execute commit).
 
 ---
 

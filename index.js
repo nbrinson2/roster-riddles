@@ -33,6 +33,9 @@ import {
 import {
   getAdminContestPayoutStatus,
   getAdminContestUserPayoutStatus,
+  postAdminContestPayoutHold,
+  postAdminContestPayoutResume,
+  postAdminContestPayoutRetryFailed,
 } from './server/admin/admin-payouts.http.js';
 import {
   getAdminUser,
@@ -169,6 +172,28 @@ app.get(
   requireAdmin,
   contestReadRateLimitHookMiddleware,
   getAdminContestPayoutStatus,
+);
+/** Phase 6 P6-G2 — hold / resume / retry failed prize payout lines (admin + ledger audit). */
+app.post(
+  '/api/v1/admin/contests/:contestId/payout-hold',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestPayoutHold,
+);
+app.post(
+  '/api/v1/admin/contests/:contestId/payout-resume',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestPayoutResume,
+);
+app.post(
+  '/api/v1/admin/contests/:contestId/payout-retry-failed',
+  requireFirebaseAuth,
+  requireAdmin,
+  contestReadRateLimitHookMiddleware,
+  postAdminContestPayoutRetryFailed,
 );
 
 app.get(

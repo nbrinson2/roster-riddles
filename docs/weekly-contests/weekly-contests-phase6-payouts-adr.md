@@ -6,7 +6,7 @@
 | **Date** | 2026-04-27 |
 | **Scope** | **Real-money prizes** for weekly contests after **`results/final`** and **`payouts/dryRun`** exist; **Stripe Connect** (or equivalent) for recipients; **transfers** from platform balance to connected accounts — **v1 USD integer cents**. **Does not** implement code in this ADR — only decisions for P6-B onward. |
 | **Depends on** | [weekly-contests-phase4-adr.md](weekly-contests-phase4-adr.md), [weekly-contests-schema-results.md](weekly-contests-schema-results.md) (`results/final`, `payouts/dryRun`), [weekly-contests-phase5-entry-fees-adr.md](weekly-contests-phase5-entry-fees-adr.md), [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md), [stripe.md](../payments/stripe.md) |
-| **Implements (backlog)** | [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Stories **P6-A1**, **P6-A2**, **P6-B1**, **P6-C2** (schema), **P6-C3** (ledger line types + validation), **P6-D1** (payout line pure function), **P6-D2** (HTTP payout execute), **P6-D3** (automation flag + Scheduler + admin trigger), **P6-E1** (platform balance guard), **P6-E2** (transfer/payout webhooks), **P6-F1** (void after prize), **P6-F2** ([disputes runbook](weekly-contests-phase6-disputes-runbook.md)), **P6-G1** ([admin payout read APIs](../../server/admin/admin-payouts.http.js)) |
+| **Implements (backlog)** | [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) Stories **P6-A1**, **P6-A2**, **P6-B1**, **P6-C2** (schema), **P6-C3** (ledger line types + validation), **P6-D1** (payout line pure function), **P6-D2** (HTTP payout execute), **P6-D3** (automation flag + Scheduler + admin trigger), **P6-E1** (platform balance guard), **P6-E2** (transfer/payout webhooks), **P6-F1** (void after prize), **P6-F2** ([disputes runbook](weekly-contests-phase6-disputes-runbook.md)), **P6-G1** ([admin payout read APIs](../../server/admin/admin-payouts.http.js)), **P6-G2** ([admin payout hold / resume / retry](../../server/contests/contest-payout-admin-actions.job.js)) |
 
 ---
 
@@ -130,6 +130,8 @@ completed ────────► (terminal)
 ```
 
 **Contest `status`** remains the lifecycle from Phase 4 (`scheduled` … `cancelled`); **`prizePayoutStatus` is orthogonal** — e.g. contest can be **`paid`** while prizes are **`held`**.
+
+**P6-G2 audit trail (engineering choice):** each admin **hold**, **resume**, or **retry-failed** mutation appends one **`ledgerEntries`** document with **`lineType: other`**, **`amountCents: 0`**, **`direction: credit`**, **`source: admin_adjustment`**, and **`metadata.action`** (`payout_hold` \| `payout_resume` \| `payout_retry_failed`) plus operator **`uid`** (authenticated admin). A dedicated Firestore audit collection is **not** used in v1.
 
 ---
 

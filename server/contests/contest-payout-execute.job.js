@@ -169,6 +169,26 @@ export async function runContestPayoutExecuteJob({
     };
   }
 
+  if (contest.prizePayoutStatus === 'held') {
+    logContestPayoutExecuteLine({
+      requestId,
+      contestId,
+      outcome: 'payout_held',
+      httpStatus: 409,
+      latencyMs: Date.now() - startMs,
+    });
+    return {
+      httpStatus: 409,
+      json: {
+        error: {
+          code: 'payout_held',
+          message:
+            'Contest prize payouts are on administrative hold; resume hold before executing.',
+        },
+      },
+    };
+  }
+
   if (finalSnap.exists) {
     const prev = finalSnap.data();
     const agg =
@@ -560,6 +580,11 @@ export async function runContestPayoutExecuteJob({
     for (const lw of ledgerWrites) {
       batch.set(db.doc(`ledgerEntries/${lw.id}`), lw.data);
     }
+    batch.update(contestRef, {
+      prizePayoutStatus:
+        aggregateStatus === 'succeeded' ? 'completed' : 'failed',
+      updatedAt: FieldValue.serverTimestamp(),
+    });
     await batch.commit();
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);

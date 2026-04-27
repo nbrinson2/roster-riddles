@@ -493,7 +493,7 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Every mutation appends **ledger** `admin_adjustment` or dedicated **audit** collection (pick one in ADR).
+- [x] Every mutation appends **ledger** `admin_adjustment` or dedicated **audit** collection (pick one in ADR).
 
 **Dependencies**
 
@@ -501,7 +501,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- Admin handlers + Angular admin UI stubs (optional if API-only v1)
+- [`server/contests/contest-payout-admin-actions.job.js`](../../server/contests/contest-payout-admin-actions.job.js), [`contest-payout-admin-actions.job.test.js`](../../server/contests/contest-payout-admin-actions.job.test.js), [`server/admin/admin-payouts.http.js`](../../server/admin/admin-payouts.http.js) (POST handlers), [`contest-payout-execute.job.js`](../../server/contests/contest-payout-execute.job.js) (`prizePayoutStatus` + hold gate), routes in [`index.js`](../../index.js), [weekly-contests-api-phase6.md](weekly-contests-api-phase6.md) (P6-G2) ✅ — Angular UI stubs optional / not in this PR
 
 ---
 

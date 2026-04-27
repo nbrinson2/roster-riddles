@@ -1,9 +1,20 @@
 /**
  * Phase 6 Story P6-G1 — Admin read APIs: payout status per contest / per user (masked Connect ids).
+ * Phase 6 Story P6-G2 — Admin hold / resume / retry failed payout lines (+ ledger audit).
  * @see docs/admin/admin-dashboard-security.md
  */
 import { z } from 'zod';
+import {
+  runContestPayoutHoldAuthorized,
+  runContestPayoutResumeAuthorized,
+  runContestPayoutRetryFailedLinesAuthorized,
+} from '../contests/contest-payout-admin-actions.job.js';
 import { getAdminFirestore } from '../lib/admin-firestore.js';
+import {
+  getStripeClient,
+  isContestsPaymentsEnabled,
+  sendStripeServiceUnavailable,
+} from '../payments/stripe-server.js';
 import { logContestReadLine } from '../contests/contest-read-log.js';
 
 const contestIdParamSchema = z
@@ -19,6 +30,48 @@ const targetUidParamSchema = z
   .regex(/^[a-zA-Z0-9_-]+$/);
 
 const LEDGER_LINES_FOR_USER = 80;
+
+const adminPayoutHoldBodySchema = z
+  .object({
+    force: z.literal(true),
+    reason: z.string().min(4).max(500),
+  })
+  .strict();
+
+const adminPayoutResumeBodySchema = z
+  .object({
+    force: z.literal(true),
+    reason: z.string().max(500).optional(),
+  })
+  .strict();
+
+const adminPayoutRetryBodySchema = z
+  .object({
+    force: z.literal(true),
+    reason: z.string().min(4).max(500),
+    rank: z.number().int().positive().optional(),
+    uid: z
+      .string()
+      .min(1)
+      .max(128)
+      .regex(/^[a-zA-Z0-9_-]+$/)
+      .optional(),
+  })
+  .strict();
+
+/**
+ * @param {import('express').Request} req
+ * @returns {string | null}
+ */
+function parseAdminContestIdParam(req) {
+  let raw = req.params.contestId;
+  if (typeof raw !== 'string') {
+    raw = String(raw ?? '');
+  }
+  raw = decodeURIComponent(raw.trim());
+  const parsed = contestIdParamSchema.safeParse(raw);
+  return parsed.success ? parsed.data : null;
+}
 
 /**
  * Stripe-style ids (`acct_…`, `tr_…`, `ch_…`, `pi_…`) — show prefix + last 4 for admin support.
@@ -626,4 +679,231 @@ export async function getAdminContestUserPayoutStatus(req, res) {
     recentLedgerLinesForContest: recentLedgerLines,
     supportOneLiner,
   });
+}
+
+/**
+ * POST /api/v1/admin/contests/:contestId/payout-hold — P6-G2
+ * @type {import('express').RequestHandler}
+ */
+export async function postAdminContestPayoutHold(req, res) {
+  const requestId = req.requestId ?? 'unknown';
+  const startMs = Date.now();
+  const actorUid = req.user?.uid ?? null;
+  if (!actorUid) {
+    return res.status(401).json({
+      error: { code: 'unauthenticated', message: 'Authentication required.' },
+    });
+  }
+  if (!(await consumeContestReadRateLimit(req, res))) return;
+
+  const contestId = parseAdminContestIdParam(req);
+  if (!contestId) {
+    return res.status(400).json({
+      error: { code: 'validation_error', message: 'Invalid contest id.' },
+    });
+  }
+
+  const body = adminPayoutHoldBodySchema.safeParse(req.body ?? {});
+  if (!body.success) {
+    return res.status(400).json({
+      error: {
+        code: 'validation_error',
+        message: 'Invalid request body.',
+        details: body.error.flatten(),
+      },
+    });
+  }
+
+  let db;
+  try {
+    db = getAdminFirestore();
+  } catch (e) {
+    return res.status(503).json({
+      error: {
+        code: 'server_misconfigured',
+        message:
+          e instanceof Error ? e.message : 'Firestore is not configured.',
+      },
+    });
+  }
+
+  const result = await runContestPayoutHoldAuthorized({
+    db,
+    contestId,
+    requestId,
+    actorUid,
+    reason: body.data.reason,
+    force: body.data.force,
+  });
+
+  logContestReadLine({
+    requestId,
+    outcome: result.httpStatus < 400 ? 'ok' : 'admin_payout_hold_failed',
+    httpStatus: result.httpStatus,
+    latencyMs: Date.now() - startMs,
+    route: 'admin_payout_hold',
+    uid: actorUid,
+    contestId,
+  });
+
+  return res.status(result.httpStatus).json(result.json);
+}
+
+/**
+ * POST /api/v1/admin/contests/:contestId/payout-resume — P6-G2
+ * @type {import('express').RequestHandler}
+ */
+export async function postAdminContestPayoutResume(req, res) {
+  const requestId = req.requestId ?? 'unknown';
+  const startMs = Date.now();
+  const actorUid = req.user?.uid ?? null;
+  if (!actorUid) {
+    return res.status(401).json({
+      error: { code: 'unauthenticated', message: 'Authentication required.' },
+    });
+  }
+  if (!(await consumeContestReadRateLimit(req, res))) return;
+
+  const contestId = parseAdminContestIdParam(req);
+  if (!contestId) {
+    return res.status(400).json({
+      error: { code: 'validation_error', message: 'Invalid contest id.' },
+    });
+  }
+
+  const body = adminPayoutResumeBodySchema.safeParse(req.body ?? {});
+  if (!body.success) {
+    return res.status(400).json({
+      error: {
+        code: 'validation_error',
+        message: 'Invalid request body.',
+        details: body.error.flatten(),
+      },
+    });
+  }
+
+  let db;
+  try {
+    db = getAdminFirestore();
+  } catch (e) {
+    return res.status(503).json({
+      error: {
+        code: 'server_misconfigured',
+        message:
+          e instanceof Error ? e.message : 'Firestore is not configured.',
+      },
+    });
+  }
+
+  const result = await runContestPayoutResumeAuthorized({
+    db,
+    contestId,
+    requestId,
+    actorUid,
+    reason: body.data.reason,
+    force: body.data.force,
+  });
+
+  logContestReadLine({
+    requestId,
+    outcome: result.httpStatus < 400 ? 'ok' : 'admin_payout_resume_failed',
+    httpStatus: result.httpStatus,
+    latencyMs: Date.now() - startMs,
+    route: 'admin_payout_resume',
+    uid: actorUid,
+    contestId,
+  });
+
+  return res.status(result.httpStatus).json(result.json);
+}
+
+/**
+ * POST /api/v1/admin/contests/:contestId/payout-retry-failed — P6-G2
+ * @type {import('express').RequestHandler}
+ */
+export async function postAdminContestPayoutRetryFailed(req, res) {
+  const requestId = req.requestId ?? 'unknown';
+  const startMs = Date.now();
+  const actorUid = req.user?.uid ?? null;
+  if (!actorUid) {
+    return res.status(401).json({
+      error: { code: 'unauthenticated', message: 'Authentication required.' },
+    });
+  }
+  if (!(await consumeContestReadRateLimit(req, res))) return;
+
+  const contestId = parseAdminContestIdParam(req);
+  if (!contestId) {
+    return res.status(400).json({
+      error: { code: 'validation_error', message: 'Invalid contest id.' },
+    });
+  }
+
+  const body = adminPayoutRetryBodySchema.safeParse(req.body ?? {});
+  if (!body.success) {
+    return res.status(400).json({
+      error: {
+        code: 'validation_error',
+        message: 'Invalid request body.',
+        details: body.error.flatten(),
+      },
+    });
+  }
+
+  if (!isContestsPaymentsEnabled()) {
+    return res.status(503).json({
+      error: {
+        code: 'contest_payments_disabled',
+        message: 'CONTESTS_PAYMENTS_ENABLED is not true.',
+      },
+    });
+  }
+
+  let stripe;
+  try {
+    stripe = getStripeClient();
+  } catch {
+    return sendStripeServiceUnavailable(res);
+  }
+  if (!stripe) {
+    return sendStripeServiceUnavailable(res);
+  }
+
+  let db;
+  try {
+    db = getAdminFirestore();
+  } catch (e) {
+    return res.status(503).json({
+      error: {
+        code: 'server_misconfigured',
+        message:
+          e instanceof Error ? e.message : 'Firestore is not configured.',
+      },
+    });
+  }
+
+  const result = await runContestPayoutRetryFailedLinesAuthorized({
+    db,
+    stripe,
+    contestId,
+    requestId,
+    actorUid,
+    reason: body.data.reason,
+    force: body.data.force,
+    targetRank: body.data.rank,
+    targetUid: body.data.uid,
+    startMs,
+  });
+
+  logContestReadLine({
+    requestId,
+    outcome: result.httpStatus < 400 ? 'ok' : 'admin_payout_retry_failed',
+    httpStatus: result.httpStatus,
+    latencyMs: Date.now() - startMs,
+    route: 'admin_payout_retry_failed',
+    uid: actorUid,
+    contestId,
+  });
+
+  return res.status(result.httpStatus).json(result.json);
 }

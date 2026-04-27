@@ -29,6 +29,9 @@ Documented in [Admin API — weekly contests (browser)](admin-dashboard-security
 | `POST` | `/api/v1/admin/contests/:contestId/void-after-prize` | Phase 6 P6-F1 — **reverse** succeeded prize Transfers, append **`prize_transfer_reversal`** ledger lines, audit, then **`paid`→`cancelled`** + artifact deletes ([weekly-contests-ops-p6-f1-void-prize.md](weekly-contests-ops-p6-f1-void-prize.md)). |
 | `GET` | `/api/v1/admin/contests/:contestId/payout-status` | Phase 6 P6-G1 — contest payout artifacts + masked transfer ids ([weekly-contests-api-phase6.md](weekly-contests-api-phase6.md)). |
 | `GET` | `/api/v1/admin/contests/:contestId/users/:targetUid/payout-status` | Phase 6 P6-G1 — “was this user paid?” for that contest + Connect + ledger ([weekly-contests-api-phase6.md](weekly-contests-api-phase6.md)). |
+| `POST` | `/api/v1/admin/contests/:contestId/payout-hold` | Phase 6 P6-G2 — pause prize automation / execute ([weekly-contests-api-phase6.md](weekly-contests-api-phase6.md)). |
+| `POST` | `/api/v1/admin/contests/:contestId/payout-resume` | Phase 6 P6-G2 — clear hold ([weekly-contests-api-phase6.md](weekly-contests-api-phase6.md)). |
+| `POST` | `/api/v1/admin/contests/:contestId/payout-retry-failed` | Phase 6 P6-G2 — retry failed **`payouts/final`** lines ([weekly-contests-api-phase6.md](weekly-contests-api-phase6.md)). |
 | `GET` | `/api/v1/admin/users/admins` | List users with `admin` claim. |
 | `GET` | `/api/v1/admin/users/:targetUid` | Read Auth user + `admin` claim. |
 | `PATCH` | `/api/v1/admin/users/:targetUid/admin-claim` | Grant or revoke **`admin`** (cannot target your own uid). |
