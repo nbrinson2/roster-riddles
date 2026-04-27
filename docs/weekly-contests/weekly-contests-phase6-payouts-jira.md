@@ -583,7 +583,7 @@ Lock **product + engineering** before Connect work:
 
 **Acceptance criteria**
 
-- [ ] Table: N entrants → M transfers → API calls; Stripe rate limit mitigation.
+- [x] Table: N entrants → M transfers → API calls; Stripe rate limit mitigation.
 
 **Dependencies**
 
@@ -591,7 +591,7 @@ Lock **product + engineering** before Connect work:
 
 **Deliverable**
 
-- Section in ADR or ops doc
+- [Load and cost (P6-I2)](weekly-contests-ops-p6-payout-execute.md#load-and-cost-story-p6-i2) in [weekly-contests-ops-p6-payout-execute.md](weekly-contests-ops-p6-payout-execute.md) ✅
 
 ---
 
@@ -618,3 +618,4 @@ P6-*   ─► P6-H1 / P6-H2 / P6-I*
 - [weekly-contests-phase5-ledger-schema.md](weekly-contests-phase5-ledger-schema.md) — append-only ledger  
 - [stripe.md](../payments/stripe.md) — keys, env vars, **Connect appendix** (P6-B1)  
 - [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md) — Story **P6-I1** (Connect + transfer E2E)  
+- [weekly-contests-ops-p6-payout-execute.md](weekly-contests-ops-p6-payout-execute.md) — Story **P6-I2** (load / Firestore + Stripe)  

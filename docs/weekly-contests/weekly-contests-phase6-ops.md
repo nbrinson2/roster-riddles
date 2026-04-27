@@ -17,6 +17,7 @@
 | **Double-submit / retry safety** | Same contest + Stripe idempotency keys → safe replays; **`payouts/final`** with **`aggregateStatus: succeeded`** → **200** idempotent no-op. See [weekly-contests-schema-contest-payouts-final.md](weekly-contests-schema-contest-payouts-final.md). |
 | **5xx after some transfers** | Logs may show `firestore_batch_failed_after_transfers` — **reconcile** Stripe vs Firestore before retrying. Scheduler retry can repeat; Stripe idempotency reduces duplicate transfers for the same line. |
 | **409 `insufficient_platform_balance`** | Enable **`CONTEST_PAYOUT_BALANCE_GUARD_ENABLED=true`** (P6-E1); platform **USD `available`** from **`balance.retrieve()`** is below planned transfer total. Fund the platform balance or fix eligibility, then retry. Logs aggregate cents only. |
+| **Firestore / Stripe sizing** | [Load and cost (P6-I2)](weekly-contests-ops-p6-payout-execute.md#load-and-cost-story-p6-i2) — reads **4+2N**, batch writes **2+S**, sequential **`transfers.create`**. |
 
 ---
 

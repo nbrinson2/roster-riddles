@@ -69,6 +69,64 @@ Automated tests cover **eligibility helpers** and **idempotency key** only (`con
 
 ---
 
+## Load and cost (Story P6-I2)
+
+**Implementation reference:** [`server/contests/contest-payout-execute.job.js`](../../server/contests/contest-payout-execute.job.js) (`runContestPayoutExecuteJob`).
+
+Symbols (one successful run, no early exit):
+
+| Symbol | Meaning |
+|--------|---------|
+| **P** | Payout execution row count — length of **`baseLines`** after `buildPayoutLinesFromFinal` (typically one row per ranked entrant in **`results/final.standings`** that survives validation). |
+| **E** | Rows with **`amountCents > 0`** (intended money lines). |
+| **K** | **`stripe.transfers.create`** calls actually attempted (**≤ E**); skipped rows (zero cents, ineligible entry, Connect not ready) perform **no** Stripe transfer. |
+| **S** | Transfers that **succeed** (**S ≤ K**); each gets one **`ledgerEntries/{tr_…}`** `set` in the commit batch. |
+
+### Firestore reads
+
+| Phase | Count | Notes |
+|--------|------:|--------|
+| Initial load | **4** | Parallel **`get`**: `contests/{id}`, `results/final`, `payouts/dryRun`, `payouts/final`. |
+| Entry + user | **2P** | Two parallel fan-outs: **`contests/{id}/entries/{uid}`** and **`users/{uid}`** for each payout line (**P** reads each). |
+| **Total reads** | **4 + 2P** | Worst case before any Stripe work. |
+
+### Firestore writes (success path)
+
+Single **`batch.commit()`**: **`set`** `payouts/final`, **`set`** `ledgerEntries/{tr_id}` for each succeeded line, **`update`** `contests/{id}` (`prizePayoutStatus`, `updatedAt`).
+
+| Metric | Count |
+|--------|------:|
+| Document writes in batch | **2 + S** (one final doc + **S** ledger docs + one contest patch) |
+| Firestore **operation** budget | Must stay **≤ 500** per batch ([limit](https://firebase.google.com/docs/firestore/manage-data/transactions#batched-writes)); today **2 + S ≤ 2 + K**. If product ever allows **many** simultaneous prize lines, **S > ~498** requires splitting into multiple batches (not implemented in v1 — cap **P** / prize rows in product, or extend the job). |
+
+### Stripe API calls
+
+| Call | Count | When |
+|------|------:|------|
+| **`balance.retrieve`** | **0 or 1** | **1** only if **`CONTEST_PAYOUT_BALANCE_GUARD_ENABLED=true`** and planned prize total **> 0** cents. |
+| **`transfers.create`** | **K** | **Sequential** `await` in a loop — one HTTP round-trip per attempted line (success or Stripe error still one call). |
+
+### Table — N-style sizing (v1 mental model)
+
+Treat **N ≈ P** when every standing row becomes a payout line (typical). **M = K** = transfer attempts; **S** = successes.
+
+| Entrants **N** (≈ **P**) | Max transfer attempts **K** (≤ money lines **E**) | Stripe `transfers.create` | Stripe `balance.retrieve` (guard on) | Firestore reads | Firestore writes (batch) |
+|-------------------------|-----------------------------------------------------|---------------------------|----------------------------------------|------------------|---------------------------|
+| 50 | ≤ 50 (often **1** in v1 winner-only pools) | **K** | 0–1 | **4 + 2N** | **2 + S** |
+| 500 | ≤ 500 | **K** | 0–1 | **4 + 2N** | **2 + S** |
+| 2000 | ≤ 2000 | **K** | 0–1 | **4 + 2N** | **2 + S** (watch **2+S ≤ 500**) |
+
+**Wall clock:** dominated by **K** sequential Stripe calls (tens–hundreds of ms each plus network). Example: **K = 20** and ~150 ms per call ⇒ **~3 s** transfer phase alone; set Scheduler **attempt-deadline** and client timeouts accordingly ([weekly-contests-phase6-ops.md](weekly-contests-phase6-ops.md)).
+
+### Stripe rate limits — mitigation
+
+- **v1 behavior is already sequential** — no burst of parallel `transfers.create` from this job; easiest way to respect Stripe velocity limits for Transfers.
+- **Idempotency keys** (`rr_payout_{contestId}_{uid}_{rank}` pattern in [`contest-payout-execute.helpers.js`](../../server/contests/contest-payout-execute.helpers.js)) make safe retries after **5xx** or **`payout_persist_failed`** without double-charging the same logical line.
+- On **429** or **rate_limit** errors: **retry with exponential backoff and jitter** at the caller (Scheduler, operator script, or a future job wrapper); parse **`Retry-After`** when Stripe sends it ([Stripe errors](https://docs.stripe.com/api/errors)).
+- **Capacity planning:** use Dashboard **Developers →** request metrics in **test** before live; if multiple contests run payouts in parallel, aggregate **K** across jobs — Stripe limits are **per account**, not per contest.
+
+---
+
 ## References
 
 - [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md)  

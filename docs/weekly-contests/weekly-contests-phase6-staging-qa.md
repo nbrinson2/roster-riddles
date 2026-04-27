@@ -8,6 +8,8 @@
 
 **Automated:** There is no separate `npm` script for full Connect + Transfer E2E (Stripe + Firestore integration). **`npm run test:server`** covers helpers, webhook parsing, and payout logic with mocks — run it in CI before manual staging.
 
+**Capacity:** Firestore read/write and Stripe call counts per run are summarized in [weekly-contests-ops-p6-payout-execute.md — Load and cost (P6-I2)](weekly-contests-ops-p6-payout-execute.md#load-and-cost-story-p6-i2).
+
 ---
 
 ## Preconditions
