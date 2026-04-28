@@ -58,7 +58,8 @@ import {
   engagementCardIconName,
   formatContestWindowLocal,
   formatNonPaidContestCardMeta,
-  formatPaidContestCardMeta,
+  formatResultsEntryPrizeLine,
+  formatResultsEntryTieNote,
   payoutDryRunTransparencyLine,
 } from '../../lib/contests-panel-presenters';
 import type {
@@ -149,13 +150,6 @@ export class ContestCardComponent {
 
   protected formatNonPaidCardMeta(row: ContestListRow): string {
     return formatNonPaidContestCardMeta(row);
-  }
-
-  protected formatPaidCardMeta(
-    row: ContestListRow,
-    po: ContestPayoutView,
-  ): string {
-    return formatPaidContestCardMeta(row, po);
   }
 
   protected onToggleExpand(): void {
@@ -310,6 +304,45 @@ export class ContestCardComponent {
       return null;
     }
     return formatYourPlaceCardLine(v, this.entryCountsAsConfirmedEntrant(row));
+  }
+
+  /** Collapsed-card results entry: always show a rank line for paid contests (loading / edge cases). */
+  protected resultsEntryRankLine(row: ContestListRow): string {
+    const direct = this.yourPlaceCardLine(row);
+    if (direct) {
+      return direct;
+    }
+    const v = this.finalResults;
+    const entered = this.entryCountsAsConfirmedEntrant(row);
+    if (!v || v.loading) {
+      return 'Final standings loading…';
+    }
+    if (v.entrants === 0) {
+      return 'Standings not published yet.';
+    }
+    if (!entered) {
+      return 'You didn’t enter this contest.';
+    }
+    if (v.youMissingFromStandings || v.yourRank == null) {
+      return 'You’re not listed in the published standings for this contest.';
+    }
+    return '—';
+  }
+
+  protected resultsEntryTieNote(): string | null {
+    return formatResultsEntryTieNote(this.finalResults);
+  }
+
+  protected resultsEntryPrizeDt(): string {
+    return this.simulatedContestsUiEnabled ? 'Estimated payouts' : 'Payout';
+  }
+
+  protected resultsEntryPrizeLine(row: ContestListRow): string {
+    return formatResultsEntryPrizeLine(
+      row,
+      this.payout,
+      this.simulatedContestsUiEnabled,
+    );
   }
 
   protected slateSummaryLine(row: ContestListRow): string {

@@ -69,20 +69,34 @@
   <p class="cc-card-value-prop" [title]="contestScheduleLine(row)">
     {{ contestScheduleLine(row) }}
   </p>
-  <p class="cc-card-meta">
-    <ng-container *ngIf="row.status !== 'paid'">
-      {{ formatNonPaidCardMeta(row) }}
-    </ng-container>
-    <ng-container *ngIf="row.status === 'paid' && payout as po">
-      {{ formatPaidCardMeta(row, po) }}
-    </ng-container>
+  <p *ngIf="row.status !== 'paid'" class="cc-card-meta">
+    {{ formatNonPaidCardMeta(row) }}
   </p>
-  <p
-    *ngIf="row.status === 'paid' && yourPlaceCardLine(row) as ypl"
-    class="cc-card-your-place"
+
+  <div
+    *ngIf="row.status === 'paid'"
+    class="cc-results-entry"
+    role="region"
+    aria-label="Contest results summary"
   >
-    {{ ypl }}
-  </p>
+    <h3 class="cc-results-entry__title">Results</h3>
+    <dl class="cc-results-entry__list">
+      <div class="cc-results-entry__row">
+        <dt class="cc-results-entry__dt">Final rank</dt>
+        <dd class="cc-results-entry__dd">{{ resultsEntryRankLine(row) }}</dd>
+      </div>
+      <div *ngIf="resultsEntryTieNote() as tieNote" class="cc-results-entry__row">
+        <dt class="cc-results-entry__dt">Tie-break</dt>
+        <dd class="cc-results-entry__dd">{{ tieNote }}</dd>
+      </div>
+      <div class="cc-results-entry__row">
+        <dt class="cc-results-entry__dt">{{ resultsEntryPrizeDt() }}</dt>
+        <dd class="cc-results-entry__dd">
+          {{ resultsEntryPrizeLine(row) }}
+        </dd>
+      </div>
+    </dl>
+  </div>
 
   <div class="cc-card-actions">
     <button

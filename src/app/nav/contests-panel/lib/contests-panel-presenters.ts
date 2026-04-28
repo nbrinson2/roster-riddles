@@ -80,6 +80,57 @@ export function payoutDryRunTransparencyLine(
   return `${places}${curPart}`;
 }
 
+/** Tie-break copy for the collapsed paid-card results entry (summary or policy humanization). */
+export function formatResultsEntryTieNote(
+  v: ParsedFinalResultsView | undefined,
+): string | null {
+  if (!v || v.loading) {
+    return null;
+  }
+  const summary = v.tieSummary?.trim();
+  if (summary) {
+    return summary;
+  }
+  const pol = humanizeTiePolicyRef(v.tiePolicyRef);
+  return pol.trim() ? pol : null;
+}
+
+/**
+ * Collapsed paid card: prize / payout one-liner, including dry-run transparency when simulated.
+ */
+export function formatResultsEntryPrizeLine(
+  row: ContestListRow,
+  payout: ContestPayoutView | undefined,
+  simulatedDryRunCopy: boolean,
+): string {
+  const slate = `${row.leagueGamesN} games in slate`;
+  if (!payout) {
+    return simulatedDryRunCopy
+      ? `Estimated payouts loading… · ${slate}`
+      : `Payout loading… · ${slate}`;
+  }
+  if (payout.loading) {
+    return simulatedDryRunCopy
+      ? `Estimated payouts loading… · ${slate}`
+      : `Loading payouts… · ${slate}`;
+  }
+
+  const baseMeta = formatPaidContestCardMeta(row, payout);
+
+  if (!simulatedDryRunCopy) {
+    return baseMeta;
+  }
+
+  const t = payoutDryRunTransparencyLine(payout, true);
+  if (!t) {
+    return `${baseMeta} · Practice amounts`;
+  }
+  if (!payout.winnerText && payout.lineCount === 0) {
+    return `${slate} · ${t}`;
+  }
+  return `${baseMeta} · ${t}`;
+}
+
 export function contestSlateSummaryLine(row: ContestListRow): string {
   const n = row.leagueGamesN;
   return `Slate: first ${n} Bio Ball result${n === 1 ? '' : 's'} in the window (time order).`;
