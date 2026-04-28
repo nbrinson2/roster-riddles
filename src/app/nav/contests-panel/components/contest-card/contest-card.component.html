@@ -297,6 +297,41 @@
       <span>Verify your email (Profile → resend) before you can join this contest.</span>
     </div>
 
+    <section
+      *ngIf="canOfferJoin(row)"
+      class="cc-prejoin-summary"
+      [attr.aria-labelledby]="'cc-prejoin-h-' + row.contestId"
+    >
+      <h3
+        class="cc-prejoin-summary__title"
+        [id]="'cc-prejoin-h-' + row.contestId"
+      >
+        Before you join
+      </h3>
+      <dl class="cc-prejoin-summary__dl">
+        <div class="cc-prejoin-summary__row">
+          <dt>Entry fee</dt>
+          <dd>{{ preJoinEntryFeeLine(row) }}</dd>
+        </div>
+        <div class="cc-prejoin-summary__row">
+          <dt>Play window</dt>
+          <dd>{{ preJoinLockLine(row) }}</dd>
+        </div>
+        <div class="cc-prejoin-summary__row">
+          <dt>Slate size</dt>
+          <dd>{{ preJoinSlateLine(row) }}</dd>
+        </div>
+        <div class="cc-prejoin-summary__row">
+          <dt>Prize</dt>
+          <dd>{{ preJoinPrizeLine(row) }}</dd>
+        </div>
+        <div class="cc-prejoin-summary__row">
+          <dt>Rules version</dt>
+          <dd>{{ row.rulesVersion }}</dd>
+        </div>
+      </dl>
+    </section>
+
     <label
       class="cc-accept"
       *ngIf="canOfferJoin(row)"

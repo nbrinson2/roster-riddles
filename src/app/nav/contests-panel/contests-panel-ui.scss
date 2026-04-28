@@ -909,6 +909,58 @@ $cc-muted: rgba(255, 255, 255, 0.55);
   text-align: center;
 }
 
+.cc-prejoin-summary {
+  margin: 14px 0 12px;
+  padding: 12px 14px;
+  border-radius: $cc-radius;
+  border: 1px solid rgba(204, 31, 65, 0.38);
+  background: rgba(204, 31, 65, 0.09);
+  box-sizing: border-box;
+}
+
+.cc-prejoin-summary__title {
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #e8e8e8;
+}
+
+.cc-prejoin-summary__dl {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cc-prejoin-summary__row {
+  display: grid;
+  grid-template-columns: minmax(92px, 34%) 1fr;
+  gap: 10px 12px;
+  align-items: start;
+  font-size: 0.84rem;
+  line-height: 1.4;
+
+  dt {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.52);
+    font-weight: 500;
+  }
+
+  dd {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.88);
+    word-break: break-word;
+  }
+}
+
+@media only screen and (max-width: 360px) {
+  .cc-prejoin-summary__row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
+
 .cc-pipeline {
   padding: 12px 14px;
   border-radius: $cc-radius;

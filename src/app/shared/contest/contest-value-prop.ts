@@ -24,7 +24,8 @@ export function formatPayoutUsdLabel(amountCents: number): string {
   return `PAYOUT: ${s}`;
 }
 
-function formatEntrySegment(
+/** Same wording as the entry segment in {@link buildContestScheduleLine} — for pre-join summary rows. */
+export function formatContestEntryFeeSegment(
   entryFeeCents: number | null | undefined,
 ): string {
   if (entryFeeCents == null) {
@@ -69,7 +70,7 @@ export function buildContestScheduleLine(
 ): string {
   const parts: string[] = [];
 
-  parts.push(formatEntrySegment(input.entryFeeCents));
+  parts.push(formatContestEntryFeeSegment(input.entryFeeCents));
 
   parts.push(formatContestWindowBoundaryLabel(input.windowEnd, nowMs));
 

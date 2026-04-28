@@ -4,7 +4,12 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { buildContestScheduleLine } from 'src/app/shared/contest/contest-value-prop';
+import {
+  buildContestScheduleLine,
+  formatContestEntryFeeSegment,
+  formatContestWindowBoundaryLabel,
+  formatPayoutUsdLabel,
+} from 'src/app/shared/contest/contest-value-prop';
 import {
   CONTEST_FULL_RULES_HREF,
   getContestEligibilityBullets,
@@ -324,5 +329,29 @@ export class ContestCardComponent {
         : 'Joining…';
     }
     return this.contestRequiresPayment(this.row) ? 'Pay & enter' : 'Join contest';
+  }
+
+  /** Pre-join summary card (fee, lock, slate, prize, rules) — same cues as schedule/prize lines elsewhere. */
+  protected preJoinEntryFeeLine(row: ContestListRow): string {
+    return formatContestEntryFeeSegment(row.entryFeeCents);
+  }
+
+  protected preJoinLockLine(row: ContestListRow): string {
+    return formatContestWindowBoundaryLabel(row.windowEnd, this.nowMs);
+  }
+
+  protected preJoinSlateLine(row: ContestListRow): string {
+    return `${row.leagueGamesN} games in mini-league slate`;
+  }
+
+  protected preJoinPrizeLine(row: ContestListRow): string {
+    if (
+      row.prizePoolCents != null &&
+      Number.isFinite(row.prizePoolCents) &&
+      row.prizePoolCents >= 0
+    ) {
+      return formatPayoutUsdLabel(row.prizePoolCents);
+    }
+    return 'No published prize pool (simulated)';
   }
 }
