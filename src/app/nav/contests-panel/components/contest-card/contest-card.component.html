@@ -21,7 +21,7 @@
   </div>
   <p *ngIf="lockSoon(row)" class="cc-lock-soon" role="status">
     <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
-    Play window ends soon — finish your slate games before it closes.
+    Window closing soon — finish your slate.
   </p>
   <p *ngIf="countdownLine(row) as cd" class="cc-countdown" aria-live="polite">
     {{ cd }}
@@ -88,7 +88,7 @@
     <p *ngIf="formatEntryFeeUsd(row) as fee" class="cc-entry-fee">
       <strong>Entry fee:</strong> {{ fee }}
       <ng-container *ngIf="!contestRequiresPayment(row)">
-        — free join only in this build (paid Checkout disabled).</ng-container
+        — free join; paid checkout off in this build.</ng-container
       >
     </p>
 
@@ -116,7 +116,7 @@
       </ol>
     </div>
     <p *ngIf="row.status === 'cancelled'" class="cc-pipeline-cancelled">
-      This contest was cancelled — there is no final payout for entrants.
+      Cancelled — no final payout.
     </p>
 
     <p *ngIf="joinDisabledReason(row)" class="cc-hint">
@@ -245,7 +245,7 @@
           <li *ngFor="let line of px.otherLines">{{ line }}</li>
         </ul>
         <p *ngIf="!px.loading && !px.winnerText" class="cc-hint">
-          Payout lines are not available for this contest yet.
+          Payout lines aren’t ready yet.
         </p>
       </ng-container>
     </div>
@@ -259,8 +259,7 @@
       <mat-spinner diameter="22" aria-hidden="true"></mat-spinner>
       <div>
         <strong>Confirming payment…</strong>
-        Finishing your entry can take a few seconds after you return from
-        checkout. You can leave this panel open.
+        Entry can take a few seconds after checkout — this panel can stay open.
       </div>
     </div>
 
@@ -292,7 +291,7 @@
       role="status"
     >
       <span class="material-symbols-outlined" aria-hidden="true">mark_email_unread</span>
-      <span>Verify your email (Profile → resend) before you can join this contest.</span>
+      <span>Verify email (Profile → resend) to join.</span>
     </div>
 
     <section

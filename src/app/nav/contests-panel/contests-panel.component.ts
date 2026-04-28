@@ -13,12 +13,11 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { CONTEST_GAME_MODE_BIO_BALL } from 'src/app/shared/models/contest.model';
 import { environment } from 'src/environment';
 import { WeeklyContestSlateService } from 'src/app/shared/services/weekly-contest-slate.service';
+import { CONTEST_FULL_RULES_HREF } from './shared/contest-rules-copy';
 import {
-  CONTEST_DRY_RUN_PAYOUT_COPY,
-  CONTEST_FULL_RULES_HREF,
-  CONTEST_LIVE_WEEKLY_HERO_COPY,
-} from './shared/contest-rules-copy';
-import { CONTEST_HERO_TAGLINE } from './shared/contest-engagement-copy';
+  buildContestHeroUnifiedNote,
+  CONTEST_HERO_TAGLINE,
+} from './shared/contest-engagement-copy';
 import type { ParsedFinalResultsView } from './shared/contest-results-closure';
 import {
   mapContestCheckoutErrorMessage,
@@ -65,10 +64,11 @@ export type { ContestListRow } from './lib/contests-panel.types';
 export class ContestsPanelComponent implements OnInit, OnDestroy {
   @Output() readonly requestSignIn = new EventEmitter<void>();
 
-  protected get contestHeroSecondaryNote(): string {
-    return environment.simulatedContestsUiEnabled
-      ? CONTEST_DRY_RUN_PAYOUT_COPY
-      : CONTEST_LIVE_WEEKLY_HERO_COPY;
+  protected get contestHeroUnifiedNote(): string {
+    return buildContestHeroUnifiedNote({
+      simulatedContestsUiEnabled: environment.simulatedContestsUiEnabled,
+      contestsPaymentsEnabled: environment.contestsPaymentsEnabled,
+    });
   }
 
   protected readonly simulatedContestsUiEnabled =
@@ -108,12 +108,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     }
     const e = this.entryInfoByContestId[id];
     return e?.rulesAcceptedVersion ?? null;
-  }
-
-  protected get realMoneyPaymentsCopy(): string | null {
-    return environment.contestsPaymentsEnabled
-      ? 'Entry fees use live Stripe Checkout in this environment (test or live keys per server). Payouts shown above may still be dry-run — check contest details.'
-      : null;
   }
 
   protected get contestsPaymentsEnabled(): boolean {

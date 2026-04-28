@@ -28,11 +28,11 @@ export class GameComponent {
   /** Template: `GameType.CAREER_PATH` etc. */
   protected readonly GameType = GameType;
 
-  /** Muted strip line under “not in an open contest” — simulated vs neutral when contests are “live” UI. */
+  /** Muted strip — simulated vs live builds (`simulatedContestsUiEnabled`). */
   protected get contestStripNoEntryValueLine(): string {
     return environment.simulatedContestsUiEnabled
-      ? 'Simulated prizes · No entry fee · See prize and lock times on each contest card'
-      : 'See prizes, fees, and lock times on each contest card';
+      ? 'Simulated · free entry · check each card for prizes & lock times'
+      : 'Prizes & fees on each contest card';
   }
 
   private readonly gameService = inject<GameService<GamePlayer>>(GAME_SERVICE);

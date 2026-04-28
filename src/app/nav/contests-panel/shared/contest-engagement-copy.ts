@@ -1,37 +1,29 @@
 /**
- * P2 — Engagement & delight: short, honest copy + hooks for celebratory UI.
+ * Engagement lines: calendar vs strip, empty states, delight. Neutral unless noted.
  */
 
 import type { ContestStatus } from 'src/app/shared/models/contest.model';
 import type { ParsedFinalResultsView } from './contest-results-closure';
 import { formatOrdinalRank } from './contest-results-closure';
 
-/** Shown under the Weekly contests title. */
-export const CONTEST_HERO_TAGLINE =
-  'Mini-league Bio Ball — same slate size, fair footing.';
+/** Under the Weekly contests title. */
+export const CONTEST_HERO_TAGLINE = 'Bio Ball mini-leagues — fixed slate size.';
 
-/** Contests panel — empty list (signed-in, no rows after load). */
-export const CONTEST_PANEL_EMPTY_TITLE = 'No weekly contests to show yet';
+export const CONTEST_PANEL_EMPTY_TITLE = 'No contests yet';
 
 export const CONTEST_PANEL_EMPTY_BODY =
-  'There are no open, upcoming, or recent completed Bio Ball contests in this list. If one was just published, refresh — otherwise check back after the next schedule.';
+  'No open, upcoming, or recent Bio Ball contests. Refresh if one was just published.';
 
 export const CONTEST_PANEL_EMPTY_STRIP_TIP =
-  'Tip: choose Bio Ball, then look under the search box — the strip shows slate progress for the contest tied to play, even when this calendar is empty.';
+  'On Bio Ball, the strip under search shows slate progress for the active contest even when this list is empty.';
 
-/**
- * Shown under the hero tagline — makes the drawer calendar the obvious “my contests” home so it
- * does not compete with the Bio Ball game strip (which is play-context only).
- */
+/** Intent folded into {@link buildContestHeroUnifiedNote} (hero dashed panel). Kept for tests/docs. */
 export const CONTEST_CALENDAR_CANONICAL_LINE =
-  'Contest calendar — browse, join, and follow every weekly contest here. This list is the source of truth.';
+  'Calendar — browse, join, and track contests here (source of truth).';
 
-/**
- * Bio Ball game header strip — pairs with {@link CONTEST_CALENDAR_CANONICAL_LINE}: same data,
- * different scope (slate shortcut vs full roster).
- */
+/** Game strip: board-level summary only. */
 export const BIO_GAME_CONTEST_STRIP_CONTEXT_LINE =
-  'This line only summarizes the contest tied to the board below; open the calendar tab for your full contest list and actions.';
+  'Board-level summary only — open the calendar tab for your full list and actions.';
 
 export type PaidDelightTier = 'winner' | 'podium' | 'played';
 
@@ -41,7 +33,7 @@ export interface PaidDelightView {
   sub: string | null;
 }
 
-/** When the user is entered and the contest is open — nudge to finish the slate. */
+/** Entered + open — nudge to finish slate. */
 export function openEnteredEngagementLine(
   status: ContestStatus,
   entered: boolean,
@@ -57,12 +49,11 @@ export function openEnteredEngagementLine(
   }
   const hours = left / 3600000;
   if (hours < 36) {
-    return 'Window still open — finish your slate games before play locks.';
+    return 'Window closing soon — finish your slate.';
   }
-  return 'You’re in — stack contest wins on your Bio Ball slate before the window closes.';
+  return 'You’re in — stack wins before the window closes.';
 }
 
-/** Warm copy for upcoming contests. */
 export function scheduledWarmupLine(
   status: ContestStatus,
   windowStartMs: number,
@@ -76,13 +67,13 @@ export function scheduledWarmupLine(
   }
   const until = windowStartMs - nowMs;
   if (until < 86400000) {
-    return 'Starting soon — skim the rules so you’re ready to join.';
+    return 'Starting soon — skim rules before join opens.';
   }
-  return 'On deck — join once the play window opens.';
+  return 'On deck — join when the window opens.';
 }
 
 /**
- * Celebratory (but dry-run honest) strip for paid contests when the viewer has a standing row.
+ * Paid contest results strip. Simulated vs live controlled by `simulatedDelight`.
  */
 export function paidResultDelight(
   fr: ParsedFinalResultsView | undefined,
@@ -101,11 +92,9 @@ export function paidResultDelight(
     return {
       tier: 'winner',
       headline: sim
-        ? 'You finished 1st — this week’s simulated winner.'
-        : 'You finished 1st — top spot on this slate.',
-      sub: sim
-        ? 'Payouts here are dry-run only; your slate still took the top spot.'
-        : null,
+        ? '1st place — simulated contest'
+        : '1st place — top slate',
+      sub: sim ? 'Payout lines here are simulated (not real money).' : null,
     };
   }
   if (r <= 3) {
@@ -113,14 +102,40 @@ export function paidResultDelight(
       tier: 'podium',
       headline:
         r === 2
-          ? `Runner-up (${formatOrdinalRank(r)} of ${fr.entrants}) — strong slate.`
-          : `Top three (${formatOrdinalRank(r)} of ${fr.entrants}) — podium finish.`,
-      sub: 'Mini-league wins and tie-breaks decided the order.',
+          ? `Runner-up (${formatOrdinalRank(r)} of ${fr.entrants})`
+          : `Top three (${formatOrdinalRank(r)} of ${fr.entrants})`,
+      sub: 'Order from slate wins and tie-breaks.',
     };
   }
   return {
     tier: 'played',
-    headline: `Nice effort — ${formatOrdinalRank(r)} of ${fr.entrants}. Thanks for playing.`,
+    headline: `${formatOrdinalRank(r)} of ${fr.entrants} — thanks for playing.`,
     sub: null,
   };
+}
+
+/**
+ * Single hero note for the dashed yellow panel — combines calendar framing, sim/live disclaimer,
+ * and optional Stripe line (replaces separate canonical box + red Stripe row).
+ */
+export function buildContestHeroUnifiedNote(args: {
+  simulatedContestsUiEnabled: boolean;
+  contestsPaymentsEnabled: boolean;
+}): string {
+  const parts: string[] = [
+    'Browse & join in this calendar — your full contest list.',
+  ];
+  parts.push(
+    args.simulatedContestsUiEnabled
+      ? 'Simulated — not real money; fees, prizes, and rules on each card.'
+      : 'Fees, prizes, and rules on each card.',
+  );
+  if (args.contestsPaymentsEnabled) {
+    parts.push(
+      args.simulatedContestsUiEnabled
+        ? 'Paid entry: Stripe Checkout (test or live keys); payouts may be simulated previews.'
+        : 'Paid entry: Stripe Checkout (test or live keys per server).',
+    );
+  }
+  return parts.join(' ');
 }

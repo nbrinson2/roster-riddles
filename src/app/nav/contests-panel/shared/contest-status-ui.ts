@@ -1,5 +1,5 @@
 /**
- * P0 UX: countdowns, lock-soon, and plain-language status pipeline for weekly contests.
+ * Countdowns, lock-soon, status pipeline for weekly contests.
  */
 
 /** Warn when play window ends within this many ms. */
@@ -43,34 +43,34 @@ export function pipelineCaption(
 ): string {
   switch (status) {
     case 'scheduled':
-      return 'Not open for entry yet. Times on this card are when the contest is planned to run.';
+      return 'Not open for entry — times above are planned.';
     case 'open': {
       if (nowMs < windowStartMs) {
-        return 'Contest is open for entry; the play window has not started yet.';
+        return 'Open for entry — play hasn’t started.';
       }
       if (nowMs < windowEndMs) {
-        return 'Play window is active — your Bio Ball games in this period count toward the slate.';
+        return 'Play active — rounds in this window count on your slate.';
       }
-      return 'Play window has ended. The contest may move to scoring when the server processes results.';
+      return 'Play ended — moves to scoring when the server is ready.';
     }
     case 'scoring':
       return simulatedDryRunCopy
-        ? 'Standings and dry-run payouts are being calculated.'
-        : 'Standings and payouts are being calculated.';
+        ? 'Scoring — standings & simulated payout lines.'
+        : 'Scoring — standings & payouts.';
     case 'paid':
       return simulatedDryRunCopy
-        ? 'This contest is complete. Dry-run payout lines are final (not real money).'
-        : 'This contest is complete. Final standings and payout lines are published below.';
+        ? 'Final — simulated payout below (not real money).'
+        : 'Final — standings & payouts below.';
     case 'cancelled':
-      return 'This contest was cancelled.';
+      return 'Cancelled.';
     default:
       return '';
   }
 }
 
-/** Relative time until `targetMs`, for display (e.g. "2d 4h" or "45m"). */
+/** Relative time until `targetMs` (e.g. "2d 4h", "45m"). */
 export function formatTimeUntil(targetMs: number, nowMs: number): string {
-  let ms = Math.max(0, targetMs - nowMs);
+  const ms = Math.max(0, targetMs - nowMs);
   const sec = Math.floor(ms / 1000);
   const min = Math.floor(sec / 60);
   const hr = Math.floor(min / 60);
@@ -87,10 +87,6 @@ export function formatTimeUntil(targetMs: number, nowMs: number): string {
   return '<1m';
 }
 
-/**
- * Primary countdown line under the window (before / during play window).
- * Returns null when no countdown is useful.
- */
 export function primaryCountdownLine(
   status: string,
   windowStartMs: number,
@@ -108,12 +104,12 @@ export function primaryCountdownLine(
   }
   if (status === 'open') {
     if (nowMs < windowStartMs) {
-      return `Play opens in ${formatTimeUntil(windowStartMs, nowMs)}`;
+      return `Play starts in ${formatTimeUntil(windowStartMs, nowMs)}`;
     }
     if (nowMs < windowEndMs) {
-      return `Play window closes in ${formatTimeUntil(windowEndMs, nowMs)}`;
+      return `Play locks in ${formatTimeUntil(windowEndMs, nowMs)}`;
     }
-    return 'Play window ended — waiting for scoring';
+    return 'Play ended — awaiting scoring';
   }
   return null;
 }

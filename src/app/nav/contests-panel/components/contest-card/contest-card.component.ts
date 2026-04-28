@@ -416,7 +416,7 @@ export class ContestCardComponent {
       return formatPayoutUsdLabel(row.prizePoolCents);
     }
     return this.simulatedContestsUiEnabled
-      ? 'No published prize pool (simulated)'
-      : 'No published prize pool';
+      ? 'No prize pool listed · simulated'
+      : 'No prize pool listed';
   }
 }

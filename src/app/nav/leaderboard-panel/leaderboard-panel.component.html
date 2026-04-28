@@ -64,9 +64,7 @@
       </div>
     </ng-container>
     <p class="lb-contest-scope-note">
-      Weekly contest standings here are Bio Ball only in v1. Contests in
-      <strong>scoring</strong> or <strong>paid</strong> are not listed until a
-      new week opens.
+      Bio Ball only · <strong>Open</strong> contests only (not scoring/paid until the next cycle).
     </p>
   </div>
 
@@ -175,7 +173,7 @@
   <div class="lb-body lb-body--weekly" *ngIf="surfaceMode === 'weeklyContest'">
     <div *ngIf="contestListLoading" class="state state-loading">
       <mat-spinner diameter="40"></mat-spinner>
-      <span>Loading open contests…</span>
+      <span>Loading contests…</span>
     </div>
 
     <div
@@ -191,8 +189,8 @@
       class="state state-empty"
     >
       <span class="material-symbols-outlined state-empty-icon">event_busy</span>
-      <p>No open Bio Ball contests right now.</p>
-      <p class="lb-empty-hint">Open contests appear here while join is active.</p>
+      <p>No open contests.</p>
+      <p class="lb-empty-hint">Only contests open for join are listed.</p>
     </div>
 
     <ng-container
@@ -200,11 +198,9 @@
     >
       <ng-container *ngIf="selectedContest as row">
         <p class="lb-weekly-lede">
-          After you join, your first <strong>{{ row.leagueGamesN }}</strong> Bio
-          Ball games that <em>start</em> on or after your join time count toward
-          this mini-league, if they fall in the window
-          <strong>{{ row.windowStart.toLocaleString() }}</strong> up to (but not
-          including) <strong>{{ row.windowEnd.toLocaleString() }}</strong>.
+          Slate: up to <strong>{{ row.leagueGamesN }}</strong> Bio Ball games starting on or after join,
+          in <strong>{{ row.windowStart.toLocaleString() }}</strong> –
+          <strong>{{ row.windowEnd.toLocaleString() }}</strong> (window rules on the contest card).
         </p>
       </ng-container>
 
@@ -234,7 +230,7 @@
         class="state state-empty"
       >
         <span class="material-symbols-outlined state-empty-icon">group_off</span>
-        <p>No standings yet — be the first to join this contest.</p>
+        <p>No standings yet — join to get on the board.</p>
       </div>
 
       <div

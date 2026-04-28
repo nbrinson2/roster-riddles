@@ -70,21 +70,19 @@ export function payoutDryRunTransparencyLine(
   const places =
     n === 0
       ? simulatedDryRunCopy
-        ? 'No payout lines were published for this dry-run yet.'
-        : 'No payout lines were published yet.'
+        ? 'Simulated payout — no lines yet.'
+        : 'No payout lines yet.'
       : simulatedDryRunCopy
-        ? `This dry-run lists ${n} paid place${n === 1 ? '' : 's'}.`
-        : `This payout lists ${n} place${n === 1 ? '' : 's'}.`;
+        ? `Simulated payout — ${n} paid place${n === 1 ? '' : 's'}.`
+        : `Payout — ${n} place${n === 1 ? '' : 's'}.`;
   const cur = px.currencyLabel.trim();
-  const curPart = cur
-    ? ` Amounts use ${cur}; figures are rounded to whole cents.`
-    : ' Amounts are rounded to whole cents.';
+  const curPart = cur ? ` ${cur}; whole cents.` : ' Whole cents.';
   return `${places}${curPart}`;
 }
 
 export function contestSlateSummaryLine(row: ContestListRow): string {
   const n = row.leagueGamesN;
-  return `This contest’s slate is ${n} league game${n === 1 ? '' : 's'} (your first ${n} Bio Ball results in the play window, in time order).`;
+  return `Slate: first ${n} Bio Ball result${n === 1 ? '' : 's'} in the window (time order).`;
 }
 
 export function contestClosureWhyHeading(
@@ -113,13 +111,13 @@ export function contestClosureWhyLines(
   if (v.yourRank != null && v.yourRank > 1) {
     lines.push(
       simulatedPayoutCopy
-        ? 'Simulated payouts go to the top ranks only. Your finish reflects contest wins on this slate, then tie-breakers when wins tie.'
-        : 'Prizes go to the top ranks according to the published rules. Your finish reflects contest wins on this slate, then tie-breakers when wins tie.',
+        ? 'Simulated payouts: top ranks only — wins on this slate, then tie-breaks.'
+        : 'Prizes: top ranks per rules — wins on this slate, then tie-breaks.',
     );
   }
   if (v.youMissingFromStandings) {
     lines.push(
-      'If you entered, you may be missing because results are still processing, the slate was partial, or the published list excludes your row — see full rules.',
+      'Not listed? Scoring may lag, slate may be partial, or you’re excluded from the published table — see full rules.',
     );
   }
   if (v.tieSummary) {
