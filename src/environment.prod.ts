@@ -17,6 +17,8 @@ export const environment = {
   leaderboardUseFirestoreSnapshot: false,
   leaderboardsUiEnabled: true,
   weeklyContestsUiEnabled: true,
+  /** Overwritten by `generate-env-prod.mjs` — production defaults to false (live-oriented contest UX). */
+  simulatedContestsUiEnabled: false,
   adminDashboardUiEnabled: true,
   /** Production: always false in CI output (`generate-env-prod.mjs`). Paid entry UX stays off until policy changes. */
   contestsPaymentsEnabled: false,

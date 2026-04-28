@@ -61,9 +61,14 @@ const leaderboardsUiEnabled = process.env.LEADERBOARDS_UI_ENABLED !== 'false';
 /** Story C2 — omit weekly contests drawer when WEEKLY_CONTESTS_UI_ENABLED=false */
 const weeklyContestsUiEnabled = process.env.WEEKLY_CONTESTS_UI_ENABLED !== 'false';
 
-/** Simulated / dry-run messaging — omit when SIMULATED_CONTESTS_UI_ENABLED=false */
-const simulatedContestsUiEnabled =
-  process.env.SIMULATED_CONTESTS_UI_ENABLED !== 'false';
+/**
+ * Simulated / dry-run contest strip + card copy.
+ * - **Production:** off unless `SIMULATED_CONTESTS_UI_ENABLED=true` (explicit opt-in).
+ * - **Staging:** on unless `SIMULATED_CONTESTS_UI_ENABLED=false`.
+ */
+const simulatedContestsUiEnabled = isStaging
+  ? process.env.SIMULATED_CONTESTS_UI_ENABLED !== 'false'
+  : process.env.SIMULATED_CONTESTS_UI_ENABLED === 'true';
 
 /**
  * Phase 0 — omit “Weekly contest” tab inside the leaderboard panel when LEADERBOARD_CONTEST_TAB_ENABLED=false.
