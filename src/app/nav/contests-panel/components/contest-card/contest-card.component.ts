@@ -369,6 +369,16 @@ export class ContestCardComponent {
     return null;
   }
 
+  /**
+   * When the lock-soon strip is shown, skip engagement — both nudge “finish slate” and read as duplicate.
+   */
+  protected standaloneEngagementLine(row: ContestListRow): string | null {
+    if (this.lockSoon(row)) {
+      return null;
+    }
+    return this.engagementCardLine(row);
+  }
+
   protected paidDelight(row: ContestListRow): PaidDelightView | null {
     if (row.status !== 'paid') {
       return null;

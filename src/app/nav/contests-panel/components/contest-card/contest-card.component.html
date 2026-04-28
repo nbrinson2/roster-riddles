@@ -1,14 +1,16 @@
 <div class="cc-card" role="listitem">
   <div class="cc-card-head">
     <div class="cc-card-titles">
-      <span class="cc-card-title">{{ row.title }}</span>
+      <div class="cc-card-title-row">
+        <span class="cc-card-title">{{ row.title }}</span>
+        <span *ngIf="showYoureIn(row)" class="cc-badge-in" role="status">
+          <span class="material-symbols-outlined" aria-hidden="true"
+            >verified</span
+          >
+          You’re in
+        </span>
+      </div>
       <span class="cc-card-id" title="Contest id">{{ row.contestId }}</span>
-      <span *ngIf="showYoureIn(row)" class="cc-badge-in" role="status">
-        <span class="material-symbols-outlined" aria-hidden="true"
-          >verified</span
-        >
-        You’re in
-      </span>
     </div>
     <span
       class="cc-chip"
@@ -19,15 +21,40 @@
       >{{ statusLabel(row.status) }}</span
     >
   </div>
-  <p *ngIf="lockSoon(row)" class="cc-lock-soon" role="status">
-    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
-    Window closing soon — finish your slate.
-  </p>
-  <p *ngIf="countdownLine(row) as cd" class="cc-countdown" aria-live="polite">
+
+  <div
+    *ngIf="lockSoon(row)"
+    class="cc-card-urgent"
+    role="status"
+    aria-label="Play window closing soon"
+  >
+    <div class="cc-card-urgent__main">
+      <span class="material-symbols-outlined cc-card-urgent__icon" aria-hidden="true"
+        >timer</span
+      >
+      <div class="cc-card-urgent__copy">
+        <span class="cc-card-urgent__headline">Play window closing soon</span>
+        <span class="cc-card-urgent__hint">Finish your slate before it locks.</span>
+      </div>
+    </div>
+    <p
+      *ngIf="countdownLine(row) as cdUrgent"
+      class="cc-card-urgent__countdown"
+      aria-live="polite"
+    >
+      {{ cdUrgent }}
+    </p>
+  </div>
+
+  <p
+    *ngIf="!lockSoon(row) && countdownLine(row) as cd"
+    class="cc-countdown"
+    aria-live="polite"
+  >
     {{ cd }}
   </p>
   <p
-    *ngIf="engagementCardLine(row) as engage"
+    *ngIf="standaloneEngagementLine(row) as engage"
     class="cc-engage-line"
     role="note"
   >
