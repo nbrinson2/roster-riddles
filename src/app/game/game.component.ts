@@ -1,7 +1,11 @@
 import { Component, computed, inject, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { combineLatest } from 'rxjs';
-import { distinctUntilChanged, map, shareReplay } from 'rxjs/operators';
+import { combineLatest, timer } from 'rxjs';
+import {
+  distinctUntilChanged,
+  map,
+  shareReplay,
+} from 'rxjs/operators';
 import { AuthService } from 'src/app/auth/auth.service';
 import { GameType } from '../game/shared/constants/game.constants';
 import { Difficulty } from '../nav/difficulty-toggle/difficulty-toggle.component';
@@ -12,6 +16,8 @@ import { RosterSelectionService } from './bio-ball/services/roster-selection/ros
 import { Header } from './shared/common-attribute-header/common-attribute-header.component';
 import { NicknameStreakPlayer } from './nickname-streak/models/nickname-streak.models';
 import { BIO_GAME_CONTEST_STRIP_CONTEXT_LINE } from '../nav/contests-panel/shared/contest-engagement-copy';
+import { environment } from 'src/environment';
+import { contestStripNearLockLine } from '../nav/contests-panel/shared/contest-status-ui';
 import {
   WeeklyContestSlateService,
   type WeeklyContestSlateUi,
@@ -26,6 +32,16 @@ import {
 export class GameComponent {
   /** Template: `GameType.CAREER_PATH` etc. */
   protected readonly GameType = GameType;
+
+  /** Matches contests panel / hero when `simulatedContestsUiEnabled` (dashed accent on strip). */
+  protected readonly simulatedContestsUi = environment.simulatedContestsUiEnabled;
+
+  /** Muted strip — simulated vs live builds (`simulatedContestsUiEnabled`). */
+  protected get contestStripNoEntryValueLine(): string {
+    return environment.simulatedContestsUiEnabled
+      ? 'Simulated · free entry · check each card for prizes & lock times'
+      : 'Prizes & fees on each contest card';
+  }
 
   private readonly gameService = inject<GameService<GamePlayer>>(GAME_SERVICE);
   private readonly slideUpService = inject(SlideUpService);
@@ -47,6 +63,24 @@ export class GameComponent {
   /** Pairs the strip with the nav calendar so users know where “my contests” lives. */
   protected readonly contestStripCalendarContextLine =
     BIO_GAME_CONTEST_STRIP_CONTEXT_LINE;
+
+  /**
+   * Native tooltip on slate progress — what counts as one finished game for the counter.
+   */
+  protected readonly contestSlateProgressFinishedTooltip =
+    'What counts as a finished game: a win, a loss, or abandoning after you’ve made at least one guess.';
+
+  /**
+   * Gentle “near lock” line when few hours remain or few slate spots left (updates each minute).
+   */
+  protected readonly contestNearLockLine$ = combineLatest([
+    this.weeklyContestSlate.slate$,
+    timer(0, 60_000).pipe(map(() => Date.now())),
+  ]).pipe(
+    map(([slate, nowMs]) => contestStripNearLockLine(slate, nowMs)),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   /**
    * Bio Ball contest strip: signed-out CTA, signed-in but no active entry, or active slate stats.

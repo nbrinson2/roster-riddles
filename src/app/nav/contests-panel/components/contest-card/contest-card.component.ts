@@ -4,7 +4,13 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { buildContestScheduleLine } from 'src/app/shared/contest/contest-value-prop';
+import {
+  buildContestScheduleLine,
+  type ContestCopyOptions,
+  formatContestEntryFeeSegment,
+  formatContestWindowBoundaryLabel,
+  formatPayoutUsdLabel,
+} from 'src/app/shared/contest/contest-value-prop';
 import {
   CONTEST_FULL_RULES_HREF,
   getContestEligibilityBullets,
@@ -39,6 +45,11 @@ import {
   joinDisabledReasonForContest,
 } from '../../lib/contests-panel-join-window.util';
 import {
+  formatEnteredRulesAckLine,
+  POST_JOIN_SLATE_GAMES_LINE,
+  POST_JOIN_WHERE_PROGRESS_LINE,
+} from '../../lib/contests-panel-join-messages';
+import {
   contestClosureWhyBlockVisible,
   contestClosureWhyHeading,
   contestClosureWhyLines,
@@ -47,11 +58,17 @@ import {
   engagementCardIconName,
   formatContestWindowLocal,
   formatNonPaidContestCardMeta,
-  formatPaidContestCardMeta,
+  formatResultsEntryPrizeLine,
+  formatResultsEntryTieNote,
   payoutDryRunTransparencyLine,
 } from '../../lib/contests-panel-presenters';
+import {
+  stripePrizeRailCopy,
+  type StripePrizeRailCopy,
+} from '../../lib/contests-panel-stripe-prize-rail';
 import type {
   ContestEntryRowState,
+  ContestJoinSuccessView,
   ContestListRow,
   ContestPayoutView,
 } from '../../lib/contests-panel.types';
@@ -64,6 +81,9 @@ import type { ContestStatus } from 'src/app/shared/models/contest.model';
   standalone: false,
 })
 export class ContestCardComponent {
+  protected readonly postJoinSlateGamesLine = POST_JOIN_SLATE_GAMES_LINE;
+  protected readonly postJoinWhereProgressLine = POST_JOIN_WHERE_PROGRESS_LINE;
+
   @Input({ required: true }) row!: ContestListRow;
   @Input({ required: true }) expanded = false;
   @Input({ required: true }) nowMs!: number;
@@ -71,9 +91,11 @@ export class ContestCardComponent {
   @Input() finalResults: ParsedFinalResultsView | undefined;
   @Input() entryInfo: ContestEntryRowState | undefined;
   @Input({ required: true }) contestsPaymentsEnabled!: boolean;
+  /** Dry-run / “simulated” copy vs live-oriented wording (`environment.simulatedContestsUiEnabled`). */
+  @Input({ required: true }) simulatedContestsUiEnabled!: boolean;
   @Input() checkoutAwaitContestId: string | null = null;
   @Input() joinError: string | null = null;
-  @Input() joinSuccess: string | null = null;
+  @Input() joinSuccess: ContestJoinSuccessView | null = null;
   @Input() rulesCheckbox = false;
   @Input() joinSubmitting = false;
   @Input() loggedIn = false;
@@ -114,23 +136,24 @@ export class ContestCardComponent {
   }
 
   protected contestScheduleLine(row: ContestListRow): string {
-    return buildContestScheduleLine({
-      windowEnd: row.windowEnd,
-      prizePoolCents: row.prizePoolCents,
-      entryFeeCents: row.entryFeeCents,
-      maxEntries: row.maxEntries,
-    });
+    return buildContestScheduleLine(
+      {
+        windowEnd: row.windowEnd,
+        prizePoolCents: row.prizePoolCents,
+        entryFeeCents: row.entryFeeCents,
+        maxEntries: row.maxEntries,
+      },
+      this.nowMs,
+      this.cardContestCopyOpts(),
+    );
+  }
+
+  private cardContestCopyOpts(): ContestCopyOptions {
+    return { simulatedLabels: this.simulatedContestsUiEnabled };
   }
 
   protected formatNonPaidCardMeta(row: ContestListRow): string {
     return formatNonPaidContestCardMeta(row);
-  }
-
-  protected formatPaidCardMeta(
-    row: ContestListRow,
-    po: ContestPayoutView,
-  ): string {
-    return formatPaidContestCardMeta(row, po);
   }
 
   protected onToggleExpand(): void {
@@ -189,6 +212,39 @@ export class ContestCardComponent {
     );
   }
 
+  /** Entered, paid or free — rules ack + slate + where to track (not while checkout still confirming). */
+  protected showPostJoinBlock(row: ContestListRow): boolean {
+    return (
+      this.entryRulesVersion != null &&
+      this.entryCountsAsConfirmedEntrant(row) &&
+      !this.confirmingPayment(row)
+    );
+  }
+
+  protected postJoinHeadline(): string {
+    if (this.joinSuccess?.headline === 'already') {
+      return 'You’re already in';
+    }
+    return 'You’re in';
+  }
+
+  protected postJoinRulesLine(row: ContestListRow): string {
+    if (this.joinSuccess) {
+      return this.joinSuccess.rulesLine;
+    }
+    if (this.entryRulesVersion != null) {
+      return formatEnteredRulesAckLine(
+        this.entryRulesVersion,
+        row.rulesVersion,
+      );
+    }
+    return '';
+  }
+
+  protected postJoinIcon(): string {
+    return this.joinSuccess ? 'celebration' : 'check_circle';
+  }
+
   protected onJoinClick(): void {
     if (this.contestRequiresPayment(this.row)) {
       this.paidCheckoutSubmit.emit();
@@ -211,6 +267,7 @@ export class ContestCardComponent {
       row.windowStart.getTime(),
       row.windowEnd.getTime(),
       this.nowMs,
+      this.simulatedContestsUiEnabled,
     );
   }
 
@@ -253,12 +310,65 @@ export class ContestCardComponent {
     return formatYourPlaceCardLine(v, this.entryCountsAsConfirmedEntrant(row));
   }
 
+  /** Collapsed-card results entry: always show a rank line for paid contests (loading / edge cases). */
+  protected resultsEntryRankLine(row: ContestListRow): string {
+    const direct = this.yourPlaceCardLine(row);
+    if (direct) {
+      return direct;
+    }
+    const v = this.finalResults;
+    const entered = this.entryCountsAsConfirmedEntrant(row);
+    if (!v || v.loading) {
+      return 'Final standings loading…';
+    }
+    if (v.entrants === 0) {
+      return 'Standings not published yet.';
+    }
+    if (!entered) {
+      return 'You didn’t enter this contest.';
+    }
+    if (v.youMissingFromStandings || v.yourRank == null) {
+      return 'You’re not listed in the published standings for this contest.';
+    }
+    return '—';
+  }
+
+  protected resultsEntryTieNote(): string | null {
+    return formatResultsEntryTieNote(this.finalResults);
+  }
+
+  protected resultsEntryPrizeDt(): string {
+    return this.simulatedContestsUiEnabled ? 'Estimated payouts' : 'Payout';
+  }
+
+  protected resultsEntryPrizeLine(row: ContestListRow): string {
+    return formatResultsEntryPrizeLine(
+      row,
+      this.payout,
+      this.simulatedContestsUiEnabled,
+    );
+  }
+
+  /** Live Stripe Connect timing — “Prize processing” vs “Prizes paid”. */
+  protected stripePrizeRail(): StripePrizeRailCopy | null {
+    return stripePrizeRailCopy(
+      this.row,
+      this.payout,
+      this.contestsPaymentsEnabled,
+      this.simulatedContestsUiEnabled,
+    );
+  }
+
   protected slateSummaryLine(row: ContestListRow): string {
     return contestSlateSummaryLine(row);
   }
 
   protected payoutTransparencyLine(px: ContestPayoutView): string | null {
-    return payoutDryRunTransparencyLine(px);
+    return payoutDryRunTransparencyLine(px, this.simulatedContestsUiEnabled);
+  }
+
+  protected payoutSectionHeading(): string {
+    return this.simulatedContestsUiEnabled ? 'Estimated payouts' : 'Payouts';
   }
 
   protected closureWhyHeading(): string {
@@ -266,7 +376,10 @@ export class ContestCardComponent {
   }
 
   protected closureWhyLines(): string[] {
-    return contestClosureWhyLines(this.finalResults);
+    return contestClosureWhyLines(
+      this.finalResults,
+      this.simulatedContestsUiEnabled,
+    );
   }
 
   protected closureWhyBlockVisible(row: ContestListRow): boolean {
@@ -303,14 +416,23 @@ export class ContestCardComponent {
     return null;
   }
 
+  /**
+   * When the lock-soon strip is shown, skip engagement — both nudge “finish slate” and read as duplicate.
+   */
+  protected standaloneEngagementLine(row: ContestListRow): string | null {
+    if (this.lockSoon(row)) {
+      return null;
+    }
+    return this.engagementCardLine(row);
+  }
+
   protected paidDelight(row: ContestListRow): PaidDelightView | null {
     if (row.status !== 'paid') {
       return null;
     }
-    return paidResultDelight(
-      this.finalResults,
-      this.enteredContest(row),
-    );
+    return paidResultDelight(this.finalResults, this.enteredContest(row), {
+      simulatedDelight: this.simulatedContestsUiEnabled,
+    });
   }
 
   protected engagementCardIcon(row: ContestListRow): string {
@@ -324,5 +446,34 @@ export class ContestCardComponent {
         : 'Joining…';
     }
     return this.contestRequiresPayment(this.row) ? 'Pay & enter' : 'Join contest';
+  }
+
+  /** Pre-join summary card (fee, lock, slate, prize, rules) — same cues as schedule/prize lines elsewhere. */
+  protected preJoinEntryFeeLine(row: ContestListRow): string {
+    return formatContestEntryFeeSegment(
+      row.entryFeeCents,
+      this.cardContestCopyOpts(),
+    );
+  }
+
+  protected preJoinLockLine(row: ContestListRow): string {
+    return formatContestWindowBoundaryLabel(row.windowEnd, this.nowMs);
+  }
+
+  protected preJoinSlateLine(row: ContestListRow): string {
+    return `${row.leagueGamesN} games in mini-league slate`;
+  }
+
+  protected preJoinPrizeLine(row: ContestListRow): string {
+    if (
+      row.prizePoolCents != null &&
+      Number.isFinite(row.prizePoolCents) &&
+      row.prizePoolCents >= 0
+    ) {
+      return formatPayoutUsdLabel(row.prizePoolCents);
+    }
+    return this.simulatedContestsUiEnabled
+      ? 'No prize pool listed · simulated'
+      : 'No prize pool listed';
   }
 }

@@ -211,10 +211,10 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.runScoringBusyId = null;
-          const paid = res.transitioned ? ' Contest status is now Paid.' : '';
+          const paid = res.transitioned ? ' Status is now Paid.' : '';
           this.runScoringOk = {
             contestId,
-            text: `Scoring job finished (${res.standingsCount} ranked).${paid}`,
+            text: `Scoring finished (${res.standingsCount} players ranked).${paid}`,
           };
           this.loadList(false);
         },
@@ -239,17 +239,19 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
           this.payoutExecuteBusyId = null;
           const idempotent =
             res.outcome === 'payout_final_already_succeeded'
-              ? ' Payout final was already complete (no new transfers).'
+              ? ' Payouts were already complete (no new transfers).'
               : '';
           const agg =
             typeof res.aggregateStatus === 'string'
-              ? ` Aggregate: ${res.aggregateStatus}.`
+              ? ` Status: ${res.aggregateStatus}.`
               : '';
           const job =
-            typeof res.payoutJobId === 'string' ? ` Job id ${res.payoutJobId}.` : '';
+            typeof res.payoutJobId === 'string'
+              ? ` Reference: ${res.payoutJobId}.`
+              : '';
           this.payoutExecuteOk = {
             contestId,
-            text: `Prize payout execute finished.${job}${agg}${idempotent}`.trim(),
+            text: `Prize payouts finished.${job}${agg}${idempotent}`.trim(),
           };
           this.loadList(false);
         },
@@ -387,7 +389,7 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
     }
     const body = err.error as { error?: { message?: string } } | null;
     const msg = body?.error?.message;
-    return typeof msg === 'string' ? msg : 'Could not load contests.';
+    return typeof msg === 'string' ? msg : 'Couldn’t load contests.';
   }
 
   private mapTransitionError(err: HttpErrorResponse): string {
@@ -396,7 +398,7 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
     }
     const body = err.error as { error?: { message?: string; code?: string } } | null;
     const msg = body?.error?.message;
-    return typeof msg === 'string' ? msg : 'Transition failed.';
+    return typeof msg === 'string' ? msg : 'Status change failed.';
   }
 
   private mapCreateError(err: HttpErrorResponse): string {
@@ -408,7 +410,7 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
     }
     const body = err.error as { error?: { message?: string } } | null;
     const msg = body?.error?.message;
-    return typeof msg === 'string' ? msg : 'Could not create contest.';
+    return typeof msg === 'string' ? msg : 'Couldn’t create contest.';
   }
 
   private mapRunScoringError(err: HttpErrorResponse): string {
@@ -424,9 +426,9 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
     if (code === 'contest_not_scoring') {
       return typeof msg === 'string'
         ? msg
-        : 'Contest must be in Scoring state (move it from Open first).';
+        : 'Move the contest to Scoring before running this step.';
     }
-    return typeof msg === 'string' ? msg : 'Scoring job failed.';
+    return typeof msg === 'string' ? msg : 'Scoring didn’t finish. Try again or read the message above.';
   }
 
   private mapPayoutExecuteError(err: HttpErrorResponse): string {
@@ -441,7 +443,7 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
       const msg = body?.error?.message;
       return typeof msg === 'string'
         ? msg
-        : 'Payments or Stripe unavailable (check CONTESTS_PAYMENTS_ENABLED and keys).';
+        : 'Contest payments or Stripe aren’t available in this environment. Check payment settings and Stripe configuration.';
     }
     const body = err.error as { error?: { message?: string; code?: string } } | null;
     const code = body?.error?.code;
@@ -449,18 +451,18 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
     if (code === 'payout_held') {
       return typeof msg === 'string'
         ? msg
-        : 'Payouts are on hold for this contest — resume hold first.';
+        : 'Payouts are on hold for this contest — clear the hold before retrying.';
     }
     if (code === 'insufficient_platform_balance') {
       return typeof msg === 'string'
         ? msg
-        : 'Platform Stripe balance is too low for planned transfers.';
+        : 'Stripe balance is too low to cover these payouts.';
     }
     if (code === 'payout_final_exists_incomplete') {
       return typeof msg === 'string'
         ? msg
-        : 'A non-success payout final already exists — resolve before re-running.';
+        : 'A payout already ran or is stuck — resolve it before trying again.';
     }
-    return typeof msg === 'string' ? msg : 'Prize payout execute failed.';
+    return typeof msg === 'string' ? msg : 'Prize payouts didn’t complete. Try again or read the message above.';
   }
 }

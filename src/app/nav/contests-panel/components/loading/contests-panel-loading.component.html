@@ -4,11 +4,9 @@
   aria-busy="true"
   aria-live="polite"
 >
-  <p class="cc-loading-title">Loading your contests…</p>
+  <p class="cc-loading-title">Loading contests…</p>
   <mat-spinner diameter="36" aria-hidden="true"></mat-spinner>
-  <p class="cc-loading-hint">
-    Fetching open, upcoming, and recent completed contests.
-  </p>
+  <p class="cc-loading-hint">Open, upcoming, and recent.</p>
   <div class="cc-skeleton-list" aria-hidden="true">
     <div *ngFor="let _ of skeletonPlaceholders" class="cc-skeleton-card">
       <span class="cc-skeleton cc-skeleton--title"></span>

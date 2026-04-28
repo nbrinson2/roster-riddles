@@ -55,7 +55,7 @@ export function formatDryRunCurrencyCaption(
 ): string {
   const c = doc.currency.trim();
   if (doc.notRealMoney) {
-    return c ? `${c} (notional, dry-run)` : 'notional dry-run amounts';
+    return c ? `${c} (estimate, not real money)` : 'Estimated amounts (not real money)';
   }
   return c || 'USD';
 }

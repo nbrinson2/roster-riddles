@@ -13,11 +13,11 @@ import { AuthService } from 'src/app/auth/auth.service';
 import { CONTEST_GAME_MODE_BIO_BALL } from 'src/app/shared/models/contest.model';
 import { environment } from 'src/environment';
 import { WeeklyContestSlateService } from 'src/app/shared/services/weekly-contest-slate.service';
+import { CONTEST_FULL_RULES_HREF } from './shared/contest-rules-copy';
 import {
-  CONTEST_DRY_RUN_PAYOUT_COPY,
-  CONTEST_FULL_RULES_HREF,
-} from './shared/contest-rules-copy';
-import { CONTEST_HERO_TAGLINE } from './shared/contest-engagement-copy';
+  buildContestHeroUnifiedNote,
+  CONTEST_HERO_TAGLINE,
+} from './shared/contest-engagement-copy';
 import type { ParsedFinalResultsView } from './shared/contest-results-closure';
 import {
   mapContestCheckoutErrorMessage,
@@ -33,7 +33,7 @@ import {
 } from './services/contests-panel-firestore-sync.service';
 import {
   CONTEST_JOIN_USE_CHECKOUT_WHEN_FEE,
-  formatContestJoinSuccessMessage,
+  formatContestJoinSuccessView,
 } from './lib/contests-panel-join-messages';
 import {
   canAttemptJoinContest,
@@ -47,6 +47,7 @@ import {
   type ContestCheckoutSessionResponse,
   type ContestEntryRowState,
   type ContestJoinResponse,
+  type ContestJoinSuccessView,
   type ContestListRow,
   type ContestPayoutView,
 } from './lib/contests-panel.types';
@@ -63,7 +64,15 @@ export type { ContestListRow } from './lib/contests-panel.types';
 export class ContestsPanelComponent implements OnInit, OnDestroy {
   @Output() readonly requestSignIn = new EventEmitter<void>();
 
-  protected readonly dryRunCopy = CONTEST_DRY_RUN_PAYOUT_COPY;
+  protected get contestHeroUnifiedNote(): string {
+    return buildContestHeroUnifiedNote({
+      simulatedContestsUiEnabled: environment.simulatedContestsUiEnabled,
+      contestsPaymentsEnabled: environment.contestsPaymentsEnabled,
+    });
+  }
+
+  protected readonly simulatedContestsUiEnabled =
+    environment.simulatedContestsUiEnabled;
   protected readonly fullRulesHref = CONTEST_FULL_RULES_HREF;
   protected readonly heroTagline = CONTEST_HERO_TAGLINE;
 
@@ -80,7 +89,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   protected rulesCheckbox = false;
   protected joinSubmitting = false;
   protected joinError: string | null = null;
-  protected joinSuccess: string | null = null;
+  protected joinSuccess: ContestJoinSuccessView | null = null;
 
   /**
    * After Stripe Checkout success redirect; cleared when entry shows `paymentStatus === paid`
@@ -99,12 +108,6 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
     }
     const e = this.entryInfoByContestId[id];
     return e?.rulesAcceptedVersion ?? null;
-  }
-
-  protected get realMoneyPaymentsCopy(): string | null {
-    return environment.contestsPaymentsEnabled
-      ? 'Entry fees use live Stripe Checkout in this environment (test or live keys per server). Payouts shown above may still be dry-run — check contest details.'
-      : null;
   }
 
   protected get contestsPaymentsEnabled(): boolean {
@@ -238,7 +241,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.joinSubmitting = false;
-          this.joinSuccess = formatContestJoinSuccessMessage(res);
+          this.joinSuccess = formatContestJoinSuccessView(res);
           this.entryInfoByContestId[row.contestId] = {
             loaded: true,
             entered: true,

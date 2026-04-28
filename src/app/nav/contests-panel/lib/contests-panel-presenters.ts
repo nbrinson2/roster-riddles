@@ -58,6 +58,7 @@ export function formatPaidContestCardMeta(
 
 export function payoutDryRunTransparencyLine(
   px: ContestPayoutView,
+  simulatedDryRunCopy = true,
 ): string | null {
   if (px.loading) {
     return null;
@@ -68,18 +69,71 @@ export function payoutDryRunTransparencyLine(
   const n = px.lineCount;
   const places =
     n === 0
-      ? 'No payout lines were published for this dry-run yet.'
-      : `This dry-run lists ${n} paid place${n === 1 ? '' : 's'}.`;
+      ? simulatedDryRunCopy
+        ? 'Estimated payouts — nothing listed yet.'
+        : 'No payout lines yet.'
+      : simulatedDryRunCopy
+        ? `Estimated payouts — ${n} place${n === 1 ? '' : 's'}.`
+        : `Payout — ${n} place${n === 1 ? '' : 's'}.`;
   const cur = px.currencyLabel.trim();
-  const curPart = cur
-    ? ` Amounts use ${cur}; figures are rounded to whole cents.`
-    : ' Amounts are rounded to whole cents.';
+  const curPart = cur ? ` (${cur}, rounded to cents)` : ' Rounded to whole cents.';
   return `${places}${curPart}`;
+}
+
+/** Tie-break copy for the collapsed paid-card results entry (summary or policy humanization). */
+export function formatResultsEntryTieNote(
+  v: ParsedFinalResultsView | undefined,
+): string | null {
+  if (!v || v.loading) {
+    return null;
+  }
+  const summary = v.tieSummary?.trim();
+  if (summary) {
+    return summary;
+  }
+  const pol = humanizeTiePolicyRef(v.tiePolicyRef);
+  return pol.trim() ? pol : null;
+}
+
+/**
+ * Collapsed paid card: prize / payout one-liner, including dry-run transparency when simulated.
+ */
+export function formatResultsEntryPrizeLine(
+  row: ContestListRow,
+  payout: ContestPayoutView | undefined,
+  simulatedDryRunCopy: boolean,
+): string {
+  const slate = `${row.leagueGamesN} games in slate`;
+  if (!payout) {
+    return simulatedDryRunCopy
+      ? `Estimated payouts loading… · ${slate}`
+      : `Payout loading… · ${slate}`;
+  }
+  if (payout.loading) {
+    return simulatedDryRunCopy
+      ? `Estimated payouts loading… · ${slate}`
+      : `Loading payouts… · ${slate}`;
+  }
+
+  const baseMeta = formatPaidContestCardMeta(row, payout);
+
+  if (!simulatedDryRunCopy) {
+    return baseMeta;
+  }
+
+  const t = payoutDryRunTransparencyLine(payout, true);
+  if (!t) {
+    return `${baseMeta} · Practice amounts`;
+  }
+  if (!payout.winnerText && payout.lineCount === 0) {
+    return `${slate} · ${t}`;
+  }
+  return `${baseMeta} · ${t}`;
 }
 
 export function contestSlateSummaryLine(row: ContestListRow): string {
   const n = row.leagueGamesN;
-  return `This contest’s slate is ${n} league game${n === 1 ? '' : 's'} (your first ${n} Bio Ball results in the play window, in time order).`;
+  return `Slate: first ${n} Bio Ball result${n === 1 ? '' : 's'} in the window (time order).`;
 }
 
 export function contestClosureWhyHeading(
@@ -99,6 +153,7 @@ export function contestClosureWhyHeading(
 
 export function contestClosureWhyLines(
   v: ParsedFinalResultsView | undefined,
+  simulatedPayoutCopy = true,
 ): string[] {
   if (!v || v.loading) {
     return [];
@@ -106,12 +161,14 @@ export function contestClosureWhyLines(
   const lines: string[] = [];
   if (v.yourRank != null && v.yourRank > 1) {
     lines.push(
-      'Simulated payouts go to the top ranks only. Your finish reflects contest wins on this slate, then tie-breakers when wins tie.',
+      simulatedPayoutCopy
+        ? 'Estimated payouts (practice): top ranks only — slate wins, then tie-breaks.'
+        : 'Prizes go to top ranks per the rules — slate wins, then tie-breaks.',
     );
   }
   if (v.youMissingFromStandings) {
     lines.push(
-      'If you entered, you may be missing because results are still processing, the slate was partial, or the published list excludes your row — see full rules.',
+      'Not listed? Scoring may lag, slate may be partial, or you’re excluded from the published table — see full rules.',
     );
   }
   if (v.tieSummary) {

@@ -1,14 +1,16 @@
 <div class="cc-card" role="listitem">
   <div class="cc-card-head">
     <div class="cc-card-titles">
-      <span class="cc-card-title">{{ row.title }}</span>
+      <div class="cc-card-title-row">
+        <span class="cc-card-title">{{ row.title }}</span>
+        <span *ngIf="showYoureIn(row)" class="cc-badge-in" role="status">
+          <span class="material-symbols-outlined" aria-hidden="true"
+            >verified</span
+          >
+          You’re in
+        </span>
+      </div>
       <span class="cc-card-id" title="Contest id">{{ row.contestId }}</span>
-      <span *ngIf="showYoureIn(row)" class="cc-badge-in" role="status">
-        <span class="material-symbols-outlined" aria-hidden="true"
-          >verified</span
-        >
-        You’re in
-      </span>
     </div>
     <span
       class="cc-chip"
@@ -19,15 +21,40 @@
       >{{ statusLabel(row.status) }}</span
     >
   </div>
-  <p *ngIf="lockSoon(row)" class="cc-lock-soon" role="status">
-    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
-    Play window ends soon — finish your slate games before it closes.
-  </p>
-  <p *ngIf="countdownLine(row) as cd" class="cc-countdown" aria-live="polite">
+
+  <div
+    *ngIf="lockSoon(row)"
+    class="cc-card-urgent"
+    role="status"
+    aria-label="Play window closing soon"
+  >
+    <div class="cc-card-urgent__main">
+      <span class="material-symbols-outlined cc-card-urgent__icon" aria-hidden="true"
+        >timer</span
+      >
+      <div class="cc-card-urgent__copy">
+        <span class="cc-card-urgent__headline">Play window closing soon</span>
+        <span class="cc-card-urgent__hint">Finish your slate before it locks.</span>
+      </div>
+    </div>
+    <p
+      *ngIf="countdownLine(row) as cdUrgent"
+      class="cc-card-urgent__countdown"
+      aria-live="polite"
+    >
+      {{ cdUrgent }}
+    </p>
+  </div>
+
+  <p
+    *ngIf="!lockSoon(row) && countdownLine(row) as cd"
+    class="cc-countdown"
+    aria-live="polite"
+  >
     {{ cd }}
   </p>
   <p
-    *ngIf="engagementCardLine(row) as engage"
+    *ngIf="standaloneEngagementLine(row) as engage"
     class="cc-engage-line"
     role="note"
   >
@@ -42,20 +69,41 @@
   <p class="cc-card-value-prop" [title]="contestScheduleLine(row)">
     {{ contestScheduleLine(row) }}
   </p>
-  <p class="cc-card-meta">
-    <ng-container *ngIf="row.status !== 'paid'">
-      {{ formatNonPaidCardMeta(row) }}
-    </ng-container>
-    <ng-container *ngIf="row.status === 'paid' && payout as po">
-      {{ formatPaidCardMeta(row, po) }}
-    </ng-container>
+  <p *ngIf="row.status !== 'paid'" class="cc-card-meta">
+    {{ formatNonPaidCardMeta(row) }}
   </p>
-  <p
-    *ngIf="row.status === 'paid' && yourPlaceCardLine(row) as ypl"
-    class="cc-card-your-place"
+
+  <div
+    *ngIf="row.status === 'paid'"
+    class="cc-results-entry"
+    role="region"
+    aria-label="Contest results summary"
   >
-    {{ ypl }}
-  </p>
+    <h3 class="cc-results-entry__title">Results</h3>
+    <dl class="cc-results-entry__list">
+      <div class="cc-results-entry__row">
+        <dt class="cc-results-entry__dt">Final rank</dt>
+        <dd class="cc-results-entry__dd">{{ resultsEntryRankLine(row) }}</dd>
+      </div>
+      <div *ngIf="resultsEntryTieNote() as tieNote" class="cc-results-entry__row">
+        <dt class="cc-results-entry__dt">Tie-break</dt>
+        <dd class="cc-results-entry__dd">{{ tieNote }}</dd>
+      </div>
+      <div class="cc-results-entry__row">
+        <dt class="cc-results-entry__dt">{{ resultsEntryPrizeDt() }}</dt>
+        <dd class="cc-results-entry__dd">
+          {{ resultsEntryPrizeLine(row) }}
+        </dd>
+      </div>
+      <div *ngIf="stripePrizeRail() as rail" class="cc-results-entry__row">
+        <dt class="cc-results-entry__dt">Prize status</dt>
+        <dd class="cc-results-entry__dd cc-results-entry__dd--stripe">
+          <span class="cc-results-entry__stripe-line">{{ rail.headline }}</span>
+          <span class="cc-results-entry__stripe-detail">{{ rail.detail }}</span>
+        </dd>
+      </div>
+    </dl>
+  </div>
 
   <div class="cc-card-actions">
     <button
@@ -88,7 +136,7 @@
     <p *ngIf="formatEntryFeeUsd(row) as fee" class="cc-entry-fee">
       <strong>Entry fee:</strong> {{ fee }}
       <ng-container *ngIf="!contestRequiresPayment(row)">
-        — free join only in this build (paid Checkout disabled).</ng-container
+        — free join only; paid checkout isn’t available here.</ng-container
       >
     </p>
 
@@ -116,7 +164,7 @@
       </ol>
     </div>
     <p *ngIf="row.status === 'cancelled'" class="cc-pipeline-cancelled">
-      This contest was cancelled — there is no final payout for entrants.
+      Cancelled — no final payout.
     </p>
 
     <p *ngIf="joinDisabledReason(row)" class="cc-hint">
@@ -235,7 +283,11 @@
     </ng-container>
 
     <div *ngIf="row.status === 'paid'" class="cc-payout-block">
-      <h3 class="cc-rules-heading">Dry-run payout</h3>
+      <h3 class="cc-rules-heading">{{ payoutSectionHeading() }}</h3>
+      <div *ngIf="stripePrizeRail() as rail" class="cc-stripe-prize-rail" role="status">
+        <p class="cc-stripe-prize-rail__head">{{ rail.headline }}</p>
+        <p class="cc-stripe-prize-rail__detail">{{ rail.detail }}</p>
+      </div>
       <ng-container *ngIf="payout as px">
         <p *ngIf="px.loading" class="cc-payout-loading">Loading…</p>
         <p *ngIf="!px.loading && px.winnerText" class="cc-payout-winner">
@@ -245,23 +297,9 @@
           <li *ngFor="let line of px.otherLines">{{ line }}</li>
         </ul>
         <p *ngIf="!px.loading && !px.winnerText" class="cc-hint">
-          Payout lines are not available for this contest yet.
+          Payout lines aren’t ready yet.
         </p>
       </ng-container>
-    </div>
-
-    <div
-      *ngIf="entryRulesVersion != null"
-      class="cc-entry-banner"
-      role="status"
-    >
-      <span class="material-symbols-outlined" aria-hidden="true"
-        >check_circle</span
-      >
-      <div>
-        <strong>You are entered.</strong>
-        Rules accepted version {{ entryRulesVersion }} (stored on your entry).
-      </div>
     </div>
 
     <div
@@ -273,16 +311,27 @@
       <mat-spinner diameter="22" aria-hidden="true"></mat-spinner>
       <div>
         <strong>Confirming payment…</strong>
-        Finishing your entry can take a few seconds after you return from
-        checkout. You can leave this panel open.
+        Entry can take a few seconds after checkout — this panel can stay open.
       </div>
     </div>
 
-    <div *ngIf="joinSuccess" class="cc-success cc-success--delight" role="status">
-      <span class="material-symbols-outlined" aria-hidden="true"
-        >celebration</span
+    <div
+      *ngIf="showPostJoinBlock(row)"
+      class="cc-post-join"
+      [class.cc-post-join--delight]="joinSuccess"
+      role="status"
+    >
+      <span
+        class="material-symbols-outlined cc-post-join__icon"
+        aria-hidden="true"
+        >{{ postJoinIcon() }}</span
       >
-      <span class="cc-success-text">{{ joinSuccess }}</span>
+      <div class="cc-post-join__body">
+        <p class="cc-post-join__title">{{ postJoinHeadline() }}</p>
+        <p class="cc-post-join__rules">{{ postJoinRulesLine(row) }}</p>
+        <p class="cc-post-join__explainer">{{ postJoinSlateGamesLine }}</p>
+        <p class="cc-post-join__where">{{ postJoinWhereProgressLine }}</p>
+      </div>
     </div>
     <div *ngIf="joinError" class="cc-join-error" role="alert">
       {{ joinError }}
@@ -294,8 +343,43 @@
       role="status"
     >
       <span class="material-symbols-outlined" aria-hidden="true">mark_email_unread</span>
-      <span>Verify your email (Profile → resend) before you can join this contest.</span>
+      <span>Verify email (Profile → resend) to join.</span>
     </div>
+
+    <section
+      *ngIf="canOfferJoin(row)"
+      class="cc-prejoin-summary"
+      [attr.aria-labelledby]="'cc-prejoin-h-' + row.contestId"
+    >
+      <h3
+        class="cc-prejoin-summary__title"
+        [id]="'cc-prejoin-h-' + row.contestId"
+      >
+        Before you join
+      </h3>
+      <dl class="cc-prejoin-summary__dl">
+        <div class="cc-prejoin-summary__row">
+          <dt>Entry fee</dt>
+          <dd>{{ preJoinEntryFeeLine(row) }}</dd>
+        </div>
+        <div class="cc-prejoin-summary__row">
+          <dt>Play window</dt>
+          <dd>{{ preJoinLockLine(row) }}</dd>
+        </div>
+        <div class="cc-prejoin-summary__row">
+          <dt>Slate size</dt>
+          <dd>{{ preJoinSlateLine(row) }}</dd>
+        </div>
+        <div class="cc-prejoin-summary__row">
+          <dt>Prize</dt>
+          <dd>{{ preJoinPrizeLine(row) }}</dd>
+        </div>
+        <div class="cc-prejoin-summary__row">
+          <dt>Rules version</dt>
+          <dd>{{ row.rulesVersion }}</dd>
+        </div>
+      </dl>
+    </section>
 
     <label
       class="cc-accept"

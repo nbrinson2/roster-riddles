@@ -23,6 +23,7 @@ import {
   type ParsedFinalResultsView,
 } from '../shared/contest-results-closure';
 import { formatDryRunCurrencyCaption, parseDryRunPayoutDocument } from '../lib/contests-panel-dry-run-payout';
+import { parseStripePrizeFinalDocFields } from '../lib/contests-panel-stripe-prize-rail';
 import { parseEntryPaymentStatus } from '../lib/contests-panel-entry.util';
 import {
   computeEarliestScheduledBioBallOpensLine,
@@ -32,6 +33,7 @@ import {
 import {
   MAX_COMPLETED_CONTESTS,
   type ContestEntryRowState,
+  type ContestJoinSuccessView,
   type ContestListRow,
   type ContestPayoutView,
 } from '../lib/contests-panel.types';
@@ -52,7 +54,7 @@ export interface ContestsPanelFirestoreUiState {
   expandedContestId: string | null;
   rulesCheckbox: boolean;
   joinError: string | null;
-  joinSuccess: string | null;
+  joinSuccess: ContestJoinSuccessView | null;
   checkoutAwaitPaymentContestId: string | null;
 }
 
@@ -72,6 +74,8 @@ export class ContestsPanelFirestoreSyncService {
 
   private entryRowUnsubs = new Map<string, Unsubscribe>();
   private paidPayoutUnsubs = new Map<string, Unsubscribe>();
+  /** `contests/{id}/payouts/final` — Stripe prize execution (parallel to dry-run listener). */
+  private paidPayoutFinalUnsubs = new Map<string, Unsubscribe>();
   private finalResultsUnsubs = new Map<string, Unsubscribe>();
 
   constructor(
@@ -297,6 +301,10 @@ export class ContestsPanelFirestoreSyncService {
       unsub();
     }
     this.paidPayoutUnsubs.clear();
+    for (const unsub of this.paidPayoutFinalUnsubs.values()) {
+      unsub();
+    }
+    this.paidPayoutFinalUnsubs.clear();
     ui.paidPayoutByContestId = {};
   }
 
@@ -372,6 +380,11 @@ export class ContestsPanelFirestoreSyncService {
       if (!paidIds.has(id)) {
         unsub();
         this.paidPayoutUnsubs.delete(id);
+        const finUnsub = this.paidPayoutFinalUnsubs.get(id);
+        if (finUnsub) {
+          finUnsub();
+          this.paidPayoutFinalUnsubs.delete(id);
+        }
         delete ui.paidPayoutByContestId[id];
       }
     }
@@ -387,6 +400,7 @@ export class ContestsPanelFirestoreSyncService {
         otherLines: [],
         lineCount: 0,
         currencyLabel: '',
+        stripePrizeFinal: { loading: true },
       };
 
       const payoutRef = doc(db, 'contests', id, 'payouts', 'dryRun');
@@ -430,6 +444,44 @@ export class ContestsPanelFirestoreSyncService {
         },
       );
       this.paidPayoutUnsubs.set(id, unsub);
+
+      const finalRef = doc(db, 'contests', id, 'payouts', 'final');
+      const unsubFinal = onSnapshot(
+        finalRef,
+        (snap) => {
+          const st = ui.paidPayoutByContestId[id];
+          if (!st) {
+            return;
+          }
+          if (!snap.exists()) {
+            st.stripePrizeFinal = {
+              loading: false,
+              loaded: true,
+              docExists: false,
+            };
+            return;
+          }
+          const parsed = parseStripePrizeFinalDocFields(snap.data());
+          st.stripePrizeFinal = {
+            loading: false,
+            loaded: true,
+            docExists: true,
+            ...parsed,
+          };
+        },
+        () => {
+          const st = ui.paidPayoutByContestId[id];
+          if (!st) {
+            return;
+          }
+          st.stripePrizeFinal = {
+            loading: false,
+            loaded: true,
+            docExists: false,
+          };
+        },
+      );
+      this.paidPayoutFinalUnsubs.set(id, unsubFinal);
     }
   }
 }

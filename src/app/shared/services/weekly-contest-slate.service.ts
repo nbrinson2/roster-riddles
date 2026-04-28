@@ -4,11 +4,13 @@ import {
   collection,
   doc,
   getDoc,
+  getDocFromServer,
   limit,
   onSnapshot,
   orderBy,
   query,
   where,
+  type DocumentSnapshot,
   type Firestore,
   type QueryDocumentSnapshot,
   type QuerySnapshot,
@@ -28,13 +30,21 @@ import {
   type ContestDocument,
 } from 'src/app/shared/models/contest.model';
 import type { ContestEntryDocument } from 'src/app/shared/models/contest-entry.model';
-import { buildContestValuePropLine } from 'src/app/shared/contest/contest-value-prop';
+import {
+  buildContestValuePropLine,
+  type ContestCopyOptions,
+} from 'src/app/shared/contest/contest-value-prop';
+import { environment } from 'src/environment';
 
-/** Full-width phase line on the Bio Ball weekly contest strip. */
-export const WEEKLY_CONTEST_STRIP_PHASE_OPEN = 'Open · play counts';
+/**
+ * Full phase copy for tooltips / screen readers (strip shows abbrev in the title row).
+ */
+export const WEEKLY_CONTEST_STRIP_PHASE_OPEN =
+  'In play — each finished game counts in order (win, loss, or quit after a guess).';
 export const WEEKLY_CONTEST_STRIP_PHASE_WINDOW_CLOSED =
-  'Window closed · ranking soon';
-export const WEEKLY_CONTEST_STRIP_PHASE_FINAL = 'Final results';
+  'Play window ended — standings update next.';
+export const WEEKLY_CONTEST_STRIP_PHASE_FINAL =
+  'Contest finished — open Contests for results.';
 
 /** Live mini-league progress for the active open contest the user joined (Bio Ball). */
 export interface WeeklyContestSlateUi {
@@ -58,15 +68,25 @@ export interface WeeklyContestSlateUi {
   progressUnavailable?: boolean;
   /** Play window [windowStart, windowEnd) has ended; contest may still be `open` until scoring. */
   windowEnded?: boolean;
+  /** Play window end — used for near-lock timing on the game strip. */
+  windowEndMs?: number;
+}
+
+function slateContestCopyOpts(): ContestCopyOptions {
+  return { simulatedLabels: environment.simulatedContestsUiEnabled };
 }
 
 function slateValuePropLine(contest: ContestDocument, we: Timestamp): string {
-  return buildContestValuePropLine({
-    windowEnd: we.toDate(),
-    prizePoolCents: contest.prizePoolCents,
-    entryFeeCents: contest.entryFeeCents,
-    maxEntries: contest.maxEntries,
-  });
+  return buildContestValuePropLine(
+    {
+      windowEnd: we.toDate(),
+      prizePoolCents: contest.prizePoolCents,
+      entryFeeCents: contest.entryFeeCents,
+      maxEntries: contest.maxEntries,
+    },
+    Date.now(),
+    slateContestCopyOpts(),
+  );
 }
 
 function toTimestamp(value: unknown): Timestamp | null {
@@ -189,6 +209,7 @@ function buildPostContestStripSlate(
     valuePropLine: we ? slateValuePropLine(contest, we) : '',
     progressUnavailable: true,
     windowEnded: true,
+    windowEndMs: we ? we.toMillis() : undefined,
   };
 }
 
@@ -263,6 +284,12 @@ function maxTimestamp(a: Timestamp, b: Timestamp): Timestamp {
 
 @Injectable({ providedIn: 'root' })
 export class WeeklyContestSlateService {
+  /**
+   * Increments on each open-contests snapshot handling pass so async continuations and gameplay
+   * listeners cannot emit stale “open” slate after a contest leaves the `status === 'open'` query.
+   */
+  private slateRebuildGeneration = 0;
+
   private readonly slateSubject = new BehaviorSubject<WeeklyContestSlateUi | null>(
     null,
   );
@@ -292,6 +319,25 @@ export class WeeklyContestSlateService {
   private activeContestUnsub: Unsubscribe | null = null;
   private currentUid: string | null = null;
   private lastOpenContestsSnap: QuerySnapshot | null = null;
+
+  private isStaleSlateRebuild(gen: number): boolean {
+    return gen !== this.slateRebuildGeneration;
+  }
+
+  /** Prefer server read when recovering after status transitions (avoid cached `open`). */
+  private async fetchContestDocPreferServer(
+    db: Firestore,
+    contestId: string,
+  ): Promise<DocumentSnapshot | null> {
+    const ref = doc(db, 'contests', contestId);
+    try {
+      const s = await getDocFromServer(ref);
+      return s.exists() ? s : null;
+    } catch {
+      const s = await getDoc(ref);
+      return s.exists() ? s : null;
+    }
+  }
 
   constructor(private readonly auth: AuthService) {
     this.attachOpenContestsListener();
@@ -383,7 +429,11 @@ export class WeeklyContestSlateService {
     this.detachContestWatchOnly();
   }
 
-  private attachContestLifecycleWatch(db: Firestore, contestId: string): void {
+  private attachContestLifecycleWatch(
+    db: Firestore,
+    contestId: string,
+    rebuildGen: number,
+  ): void {
     if (this.activeContestUnsub) {
       this.activeContestUnsub();
       this.activeContestUnsub = null;
@@ -392,9 +442,14 @@ export class WeeklyContestSlateService {
     this.activeContestUnsub = onSnapshot(
       ref,
       (snap) => {
+        if (this.isStaleSlateRebuild(rebuildGen)) {
+          return;
+        }
         if (!snap.exists()) {
           this.clearSlateListeners();
-          this.slateSubject.next(null);
+          if (!this.isStaleSlateRebuild(rebuildGen)) {
+            this.slateSubject.next(null);
+          }
           return;
         }
         const data = snap.data() as ContestDocument;
@@ -404,6 +459,9 @@ export class WeeklyContestSlateService {
         }
         this.clearGameplayOnly();
         const label = phaseLabelForFirestoreStatus(st);
+        if (this.isStaleSlateRebuild(rebuildGen)) {
+          return;
+        }
         this.slateSubject.next(
           buildPostContestStripSlate(contestId, data, label),
         );
@@ -421,14 +479,21 @@ export class WeeklyContestSlateService {
     db: Firestore,
     uid: string,
     contestId: string,
+    rebuildGen: number,
   ): Promise<boolean> {
     const entryRef = doc(db, 'contests', contestId, 'entries', uid);
     const entrySnap = await getDoc(entryRef);
+    if (this.isStaleSlateRebuild(rebuildGen)) {
+      return false;
+    }
     if (!entrySnap.exists()) {
       return false;
     }
-    const cSnap = await getDoc(doc(db, 'contests', contestId));
-    if (!cSnap.exists()) {
+    const cSnap = await this.fetchContestDocPreferServer(db, contestId);
+    if (this.isStaleSlateRebuild(rebuildGen)) {
+      return false;
+    }
+    if (!cSnap?.exists()) {
       return false;
     }
     const c = cSnap.data() as ContestDocument;
@@ -440,8 +505,11 @@ export class WeeklyContestSlateService {
       return false;
     }
     const label = phaseLabelForFirestoreStatus(st);
+    if (this.isStaleSlateRebuild(rebuildGen)) {
+      return false;
+    }
     this.slateSubject.next(buildPostContestStripSlate(contestId, c, label));
-    this.attachContestLifecycleWatch(db, contestId);
+    this.attachContestLifecycleWatch(db, contestId, rebuildGen);
     return true;
   }
 
@@ -451,6 +519,7 @@ export class WeeklyContestSlateService {
     contestSnap: QuerySnapshot,
   ): Promise<void> {
     const priorContestId = this.slateSubject.value?.contestId ?? null;
+    const rebuildGen = ++this.slateRebuildGeneration;
     this.clearGameplayOnly();
     this.detachContestWatchOnly();
     this.slateSubject.next(null);
@@ -458,8 +527,11 @@ export class WeeklyContestSlateService {
     const recoverOrNull = async (): Promise<void> => {
       if (
         priorContestId &&
-        (await this.tryPostContestRecover(db, uid, priorContestId))
+        (await this.tryPostContestRecover(db, uid, priorContestId, rebuildGen))
       ) {
+        return;
+      }
+      if (this.isStaleSlateRebuild(rebuildGen)) {
         return;
       }
       this.slateSubject.next(null);
@@ -489,6 +561,10 @@ export class WeeklyContestSlateService {
     const rows = paired.filter(
       (x): x is NonNullable<(typeof paired)[number]> => x != null,
     );
+
+    if (this.isStaleSlateRebuild(rebuildGen)) {
+      return;
+    }
 
     if (rows.length === 0) {
       await recoverOrNull();
@@ -543,6 +619,9 @@ export class WeeklyContestSlateService {
           return;
         }
         const phase = WEEKLY_CONTEST_STRIP_PHASE_WINDOW_CLOSED;
+        if (this.isStaleSlateRebuild(rebuildGen)) {
+          return;
+        }
         this.slateSubject.next({
           contestId: ended.contestId,
           contestTitle: ended.contestTitle,
@@ -554,8 +633,9 @@ export class WeeklyContestSlateService {
           valuePropLine: slateValuePropLine(ended.contest, weEnded),
           progressUnavailable: true,
           windowEnded: true,
+          windowEndMs: weEnded.toMillis(),
         });
-        this.attachContestLifecycleWatch(db, ended.contestId);
+        this.attachContestLifecycleWatch(db, ended.contestId, rebuildGen);
         return;
       }
       await recoverOrNull();
@@ -589,6 +669,10 @@ export class WeeklyContestSlateService {
     const openPhase = WEEKLY_CONTEST_STRIP_PHASE_OPEN;
     const openAbbrev = abbrevForPhaseLabel(openPhase);
 
+    if (this.isStaleSlateRebuild(rebuildGen)) {
+      return;
+    }
+
     const eventsRef = collection(db, 'users', uid, 'gameplayEvents');
     const qGames = query(
       eventsRef,
@@ -602,6 +686,9 @@ export class WeeklyContestSlateService {
     this.gameplayUnsub = onSnapshot(
       qGames,
       (gSnap) => {
+        if (this.isStaleSlateRebuild(rebuildGen)) {
+          return;
+        }
         const used = Math.min(gSnap.size, n);
         this.slateSubject.next({
           contestId: picked.contestId,
@@ -613,6 +700,7 @@ export class WeeklyContestSlateService {
           phaseStripLabelAbbrev: openAbbrev,
           valuePropLine: slateValuePropLine(picked.contest, we),
           progressUnavailable: false,
+          windowEndMs: we.toMillis(),
         });
       },
       (err) => {
@@ -620,6 +708,9 @@ export class WeeklyContestSlateService {
           '[WeeklyContestSlateService] gameplayEvents listener failed',
           err,
         );
+        if (this.isStaleSlateRebuild(rebuildGen)) {
+          return;
+        }
         this.slateSubject.next({
           contestId: picked.contestId,
           contestTitle,
@@ -630,9 +721,10 @@ export class WeeklyContestSlateService {
           phaseStripLabelAbbrev: openAbbrev,
           valuePropLine: slateValuePropLine(picked.contest, we),
           progressUnavailable: true,
+          windowEndMs: we.toMillis(),
         });
       },
     );
-    this.attachContestLifecycleWatch(db, picked.contestId);
+    this.attachContestLifecycleWatch(db, picked.contestId, rebuildGen);
   }
 }

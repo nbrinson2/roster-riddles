@@ -1,9 +1,85 @@
 /**
- * P0 UX: countdowns, lock-soon, and plain-language status pipeline for weekly contests.
+ * Countdowns, lock-soon, status pipeline for weekly contests.
  */
 
 /** Warn when play window ends within this many ms. */
 export const LOCK_SOON_MS = 24 * 60 * 60 * 1000;
+
+/** Game strip “near lock” — gentle warning when few hours remain before window end. */
+export const NEAR_LOCK_GENTLE_WINDOW_MS = 6 * 60 * 60 * 1000;
+
+/** Game strip — warn when this many slate slots or fewer remain (still open). */
+export const NEAR_LOCK_GENTLE_SLATE_SPOTS_MAX = 2;
+
+export function isNearLockGentleWindow(
+  windowEndMs: number | undefined,
+  nowMs: number,
+  thresholdMs: number = NEAR_LOCK_GENTLE_WINDOW_MS,
+): boolean {
+  if (windowEndMs == null) {
+    return false;
+  }
+  const left = windowEndMs - nowMs;
+  return left > 0 && left <= thresholdMs;
+}
+
+export function isNearLockGentleSlate(
+  progressUnavailable: boolean | undefined,
+  gamesRemaining: number,
+  maxSpotsRemaining: number = NEAR_LOCK_GENTLE_SLATE_SPOTS_MAX,
+): boolean {
+  if (progressUnavailable) {
+    return false;
+  }
+  return gamesRemaining > 0 && gamesRemaining <= maxSpotsRemaining;
+}
+
+/**
+ * One-line gentle warning for the Bio Ball game contest strip (null when not applicable).
+ */
+export function contestStripNearLockLine(
+  slate: {
+    postContestPhase?: boolean;
+    windowEnded?: boolean;
+    progressUnavailable?: boolean;
+    gamesRemaining: number;
+    windowEndMs?: number;
+  } | null,
+  nowMs: number,
+): string | null {
+  if (!slate) {
+    return null;
+  }
+  if (slate.postContestPhase || slate.windowEnded) {
+    return null;
+  }
+
+  const windowNear = isNearLockGentleWindow(slate.windowEndMs, nowMs);
+  const slateNear = isNearLockGentleSlate(
+    slate.progressUnavailable,
+    slate.gamesRemaining,
+  );
+
+  if (!windowNear && !slateNear) {
+    return null;
+  }
+
+  const we = slate.windowEndMs;
+  const lockPhrase =
+    we != null && we > nowMs ? formatTimeUntil(we, nowMs) : null;
+
+  if (windowNear && slateNear && lockPhrase) {
+    const spots = slate.gamesRemaining;
+    const spotWord = spots === 1 ? 'spot' : 'spots';
+    return `Near lock — play stops in ${lockPhrase}, with ${spots} slate ${spotWord} left. Finish up soon.`;
+  }
+  if (windowNear && lockPhrase) {
+    return `Near lock — play stops in ${lockPhrase}. Finish games when you can.`;
+  }
+  const spots = slate.gamesRemaining;
+  const spotWord = spots === 1 ? 'spot' : 'spots';
+  return `Near lock — only ${spots} slate ${spotWord} left before play locks.`;
+}
 
 const PIPELINE_LABELS = [
   'Upcoming',
@@ -39,33 +115,38 @@ export function pipelineCaption(
   windowStartMs: number,
   windowEndMs: number,
   nowMs: number,
+  simulatedDryRunCopy = true,
 ): string {
   switch (status) {
     case 'scheduled':
-      return 'Not open for entry yet. Times on this card are when the contest is planned to run.';
+      return 'Not open for entry — times above are planned.';
     case 'open': {
       if (nowMs < windowStartMs) {
-        return 'Contest is open for entry; the play window has not started yet.';
+        return 'Open for entry — play hasn’t started.';
       }
       if (nowMs < windowEndMs) {
-        return 'Play window is active — your Bio Ball games in this period count toward the slate.';
+        return 'Play active — rounds in this window count on your slate.';
       }
-      return 'Play window has ended. The contest may move to scoring when the server processes results.';
+      return 'Play ended — contest moves to scoring when ready.';
     }
     case 'scoring':
-      return 'Standings and dry-run payouts are being calculated.';
+      return simulatedDryRunCopy
+        ? 'Scoring — standings and estimated payouts (not real money).'
+        : 'Scoring — standings and payouts.';
     case 'paid':
-      return 'This contest is complete. Dry-run payout lines are final (not real money).';
+      return simulatedDryRunCopy
+        ? 'Complete — estimated payouts below (not real money).'
+        : 'Complete — final standings and payouts below.';
     case 'cancelled':
-      return 'This contest was cancelled.';
+      return 'Cancelled.';
     default:
       return '';
   }
 }
 
-/** Relative time until `targetMs`, for display (e.g. "2d 4h" or "45m"). */
+/** Relative time until `targetMs` (e.g. "2d 4h", "45m"). */
 export function formatTimeUntil(targetMs: number, nowMs: number): string {
-  let ms = Math.max(0, targetMs - nowMs);
+  const ms = Math.max(0, targetMs - nowMs);
   const sec = Math.floor(ms / 1000);
   const min = Math.floor(sec / 60);
   const hr = Math.floor(min / 60);
@@ -82,10 +163,6 @@ export function formatTimeUntil(targetMs: number, nowMs: number): string {
   return '<1m';
 }
 
-/**
- * Primary countdown line under the window (before / during play window).
- * Returns null when no countdown is useful.
- */
 export function primaryCountdownLine(
   status: string,
   windowStartMs: number,
@@ -103,12 +180,12 @@ export function primaryCountdownLine(
   }
   if (status === 'open') {
     if (nowMs < windowStartMs) {
-      return `Play opens in ${formatTimeUntil(windowStartMs, nowMs)}`;
+      return `Play starts in ${formatTimeUntil(windowStartMs, nowMs)}`;
     }
     if (nowMs < windowEndMs) {
-      return `Play window closes in ${formatTimeUntil(windowEndMs, nowMs)}`;
+      return `Play locks in ${formatTimeUntil(windowEndMs, nowMs)}`;
     }
-    return 'Play window ended — waiting for scoring';
+    return 'Play ended — awaiting scoring';
   }
   return null;
 }

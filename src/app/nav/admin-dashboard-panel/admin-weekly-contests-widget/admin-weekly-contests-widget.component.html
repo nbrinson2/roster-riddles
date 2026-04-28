@@ -2,9 +2,9 @@
   <section class="awc-create" aria-labelledby="awc-create-heading">
     <h4 id="awc-create-heading" class="awc-create-title">Create contest</h4>
     <p class="awc-muted awc-create-lead">
-      The server assigns a unique contest id when you create (for example
-      <code>bb-1730000000000-a1b2c3d4</code>). Documents use <code>gameMode: bio-ball</code> and
-      schema v1 — see <code>docs/weekly-contests/weekly-contests-schema-contests.md</code>.
+      Each new contest gets a unique id (for example
+      <code>bb-1730000000000-a1b2c3d4</code>). Contests are Bio Ball weekly format. For every field
+      you can set here, see the weekly contests schema in the product docs.
     </p>
     <p *ngIf="lastCreatedContestId" class="awc-created">
       Created <code class="awc-created-id">{{ lastCreatedContestId }}</code>
@@ -72,7 +72,7 @@
         />
       </label>
       <label class="awc-field">
-        <span class="awc-label">Simulated prize pool (USD, optional)</span>
+        <span class="awc-label">Prize pool shown to players (USD, optional)</span>
         <input
           class="awc-input"
           type="number"
@@ -106,7 +106,7 @@
           name="createMaxEntries"
           min="1"
           step="1"
-          placeholder="UI display; enforcement TBD"
+          placeholder="Optional; shown on contest cards when set"
           autocomplete="off"
         />
       </label>
@@ -151,7 +151,7 @@
             (click)="submitRunScoring(row.contestId)"
           >
             {{
-              runScoringBusyId === row.contestId ? 'Running scoring…' : 'Run scoring job'
+              runScoringBusyId === row.contestId ? 'Running scoring…' : 'Run scoring'
             }}
           </button>
           <button
@@ -163,8 +163,8 @@
           >
             {{
               payoutExecuteBusyId === row.contestId
-                ? 'Running payout…'
-                : 'Execute prize payout'
+                ? 'Sending payouts…'
+                : 'Send prize payouts'
             }}
           </button>
           <button
@@ -178,7 +178,7 @@
           </button>
         </div>
         <p *ngIf="row.status === 'paid'" class="awc-muted awc-payout-hint">
-          Executes Stripe transfers when payments are enabled — same as internal payout execute.
+          When contest payments are on, sends winner payouts through Stripe to connected accounts.
         </p>
         <p
           *ngIf="runScoringOk?.contestId === row.contestId"
@@ -222,11 +222,11 @@
             <input type="checkbox" [(ngModel)]="forceTransition" name="force-{{ row.contestId }}" />
             <span>Force</span>
             <span class="awc-hint"
-              >(e.g. open→scoring before window end, or paid→scoring/cancelled — see runbook)</span
+              >(Overrides normal timing only when policy allows — see the operator runbook.)</span
             >
           </label>
           <label class="awc-field">
-            <span class="awc-label">Note (optional, logs)</span>
+            <span class="awc-label">Note (optional, saved in the audit log)</span>
             <input
               class="awc-input"
               type="text"
@@ -243,7 +243,7 @@
             [disabled]="transitionSubmitting"
             (click)="submitTransition(row.contestId)"
           >
-            {{ transitionSubmitting ? 'Applying…' : 'Apply transition' }}
+            {{ transitionSubmitting ? 'Applying…' : 'Apply status change' }}
           </button>
         </div>
       </li>
