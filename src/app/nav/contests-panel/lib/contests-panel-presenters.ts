@@ -58,6 +58,7 @@ export function formatPaidContestCardMeta(
 
 export function payoutDryRunTransparencyLine(
   px: ContestPayoutView,
+  simulatedDryRunCopy = true,
 ): string | null {
   if (px.loading) {
     return null;
@@ -68,8 +69,12 @@ export function payoutDryRunTransparencyLine(
   const n = px.lineCount;
   const places =
     n === 0
-      ? 'No payout lines were published for this dry-run yet.'
-      : `This dry-run lists ${n} paid place${n === 1 ? '' : 's'}.`;
+      ? simulatedDryRunCopy
+        ? 'No payout lines were published for this dry-run yet.'
+        : 'No payout lines were published yet.'
+      : simulatedDryRunCopy
+        ? `This dry-run lists ${n} paid place${n === 1 ? '' : 's'}.`
+        : `This payout lists ${n} place${n === 1 ? '' : 's'}.`;
   const cur = px.currencyLabel.trim();
   const curPart = cur
     ? ` Amounts use ${cur}; figures are rounded to whole cents.`
@@ -99,6 +104,7 @@ export function contestClosureWhyHeading(
 
 export function contestClosureWhyLines(
   v: ParsedFinalResultsView | undefined,
+  simulatedPayoutCopy = true,
 ): string[] {
   if (!v || v.loading) {
     return [];
@@ -106,7 +112,9 @@ export function contestClosureWhyLines(
   const lines: string[] = [];
   if (v.yourRank != null && v.yourRank > 1) {
     lines.push(
-      'Simulated payouts go to the top ranks only. Your finish reflects contest wins on this slate, then tie-breakers when wins tie.',
+      simulatedPayoutCopy
+        ? 'Simulated payouts go to the top ranks only. Your finish reflects contest wins on this slate, then tie-breakers when wins tie.'
+        : 'Prizes go to the top ranks according to the published rules. Your finish reflects contest wins on this slate, then tie-breakers when wins tie.',
     );
   }
   if (v.youMissingFromStandings) {

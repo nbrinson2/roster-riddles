@@ -28,7 +28,11 @@ import {
   type ContestDocument,
 } from 'src/app/shared/models/contest.model';
 import type { ContestEntryDocument } from 'src/app/shared/models/contest-entry.model';
-import { buildContestValuePropLine } from 'src/app/shared/contest/contest-value-prop';
+import {
+  buildContestValuePropLine,
+  type ContestCopyOptions,
+} from 'src/app/shared/contest/contest-value-prop';
+import { environment } from 'src/environment';
 
 /** Full-width phase line on the Bio Ball weekly contest strip. */
 export const WEEKLY_CONTEST_STRIP_PHASE_OPEN = 'Open · play counts';
@@ -60,13 +64,21 @@ export interface WeeklyContestSlateUi {
   windowEnded?: boolean;
 }
 
+function slateContestCopyOpts(): ContestCopyOptions {
+  return { simulatedLabels: environment.simulatedContestsUiEnabled };
+}
+
 function slateValuePropLine(contest: ContestDocument, we: Timestamp): string {
-  return buildContestValuePropLine({
-    windowEnd: we.toDate(),
-    prizePoolCents: contest.prizePoolCents,
-    entryFeeCents: contest.entryFeeCents,
-    maxEntries: contest.maxEntries,
-  });
+  return buildContestValuePropLine(
+    {
+      windowEnd: we.toDate(),
+      prizePoolCents: contest.prizePoolCents,
+      entryFeeCents: contest.entryFeeCents,
+      maxEntries: contest.maxEntries,
+    },
+    Date.now(),
+    slateContestCopyOpts(),
+  );
 }
 
 function toTimestamp(value: unknown): Timestamp | null {

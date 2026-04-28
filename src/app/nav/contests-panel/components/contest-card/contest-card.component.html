@@ -235,7 +235,7 @@
     </ng-container>
 
     <div *ngIf="row.status === 'paid'" class="cc-payout-block">
-      <h3 class="cc-rules-heading">Dry-run payout</h3>
+      <h3 class="cc-rules-heading">{{ payoutSectionHeading() }}</h3>
       <ng-container *ngIf="payout as px">
         <p *ngIf="px.loading" class="cc-payout-loading">Loading…</p>
         <p *ngIf="!px.loading && px.winnerText" class="cc-payout-winner">

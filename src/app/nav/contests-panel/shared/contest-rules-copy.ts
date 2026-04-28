@@ -7,6 +7,10 @@
 export const CONTEST_DRY_RUN_PAYOUT_COPY =
   'Dry run — no real money. Any prize or payout figures are simulated for testing only; nothing is charged or paid out.';
 
+/** Hero note when simulated / dry-run disclaimers are off (`simulatedContestsUiEnabled: false`). */
+export const CONTEST_LIVE_WEEKLY_HERO_COPY =
+  'Prizes, fees, and rules are set per contest — check each card before joining.';
+
 /** Static HTML with the long-form player-facing rules (served from `/assets/...`). */
 export const CONTEST_FULL_RULES_HREF = 'assets/contests/weekly-contests-rules.html';
 

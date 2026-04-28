@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import {
   buildContestScheduleLine,
+  type ContestCopyOptions,
   formatContestEntryFeeSegment,
   formatContestWindowBoundaryLabel,
   formatPayoutUsdLabel,
@@ -85,6 +86,8 @@ export class ContestCardComponent {
   @Input() finalResults: ParsedFinalResultsView | undefined;
   @Input() entryInfo: ContestEntryRowState | undefined;
   @Input({ required: true }) contestsPaymentsEnabled!: boolean;
+  /** Dry-run / “simulated” copy vs live-oriented wording (`environment.simulatedContestsUiEnabled`). */
+  @Input({ required: true }) simulatedContestsUiEnabled!: boolean;
   @Input() checkoutAwaitContestId: string | null = null;
   @Input() joinError: string | null = null;
   @Input() joinSuccess: ContestJoinSuccessView | null = null;
@@ -128,12 +131,20 @@ export class ContestCardComponent {
   }
 
   protected contestScheduleLine(row: ContestListRow): string {
-    return buildContestScheduleLine({
-      windowEnd: row.windowEnd,
-      prizePoolCents: row.prizePoolCents,
-      entryFeeCents: row.entryFeeCents,
-      maxEntries: row.maxEntries,
-    });
+    return buildContestScheduleLine(
+      {
+        windowEnd: row.windowEnd,
+        prizePoolCents: row.prizePoolCents,
+        entryFeeCents: row.entryFeeCents,
+        maxEntries: row.maxEntries,
+      },
+      this.nowMs,
+      this.cardContestCopyOpts(),
+    );
+  }
+
+  private cardContestCopyOpts(): ContestCopyOptions {
+    return { simulatedLabels: this.simulatedContestsUiEnabled };
   }
 
   protected formatNonPaidCardMeta(row: ContestListRow): string {
@@ -258,6 +269,7 @@ export class ContestCardComponent {
       row.windowStart.getTime(),
       row.windowEnd.getTime(),
       this.nowMs,
+      this.simulatedContestsUiEnabled,
     );
   }
 
@@ -305,7 +317,11 @@ export class ContestCardComponent {
   }
 
   protected payoutTransparencyLine(px: ContestPayoutView): string | null {
-    return payoutDryRunTransparencyLine(px);
+    return payoutDryRunTransparencyLine(px, this.simulatedContestsUiEnabled);
+  }
+
+  protected payoutSectionHeading(): string {
+    return this.simulatedContestsUiEnabled ? 'Dry-run payout' : 'Payout';
   }
 
   protected closureWhyHeading(): string {
@@ -313,7 +329,10 @@ export class ContestCardComponent {
   }
 
   protected closureWhyLines(): string[] {
-    return contestClosureWhyLines(this.finalResults);
+    return contestClosureWhyLines(
+      this.finalResults,
+      this.simulatedContestsUiEnabled,
+    );
   }
 
   protected closureWhyBlockVisible(row: ContestListRow): boolean {
@@ -354,10 +373,9 @@ export class ContestCardComponent {
     if (row.status !== 'paid') {
       return null;
     }
-    return paidResultDelight(
-      this.finalResults,
-      this.enteredContest(row),
-    );
+    return paidResultDelight(this.finalResults, this.enteredContest(row), {
+      simulatedDelight: this.simulatedContestsUiEnabled,
+    });
   }
 
   protected engagementCardIcon(row: ContestListRow): string {
@@ -375,7 +393,10 @@ export class ContestCardComponent {
 
   /** Pre-join summary card (fee, lock, slate, prize, rules) — same cues as schedule/prize lines elsewhere. */
   protected preJoinEntryFeeLine(row: ContestListRow): string {
-    return formatContestEntryFeeSegment(row.entryFeeCents);
+    return formatContestEntryFeeSegment(
+      row.entryFeeCents,
+      this.cardContestCopyOpts(),
+    );
   }
 
   protected preJoinLockLine(row: ContestListRow): string {
@@ -394,6 +415,8 @@ export class ContestCardComponent {
     ) {
       return formatPayoutUsdLabel(row.prizePoolCents);
     }
-    return 'No published prize pool (simulated)';
+    return this.simulatedContestsUiEnabled
+      ? 'No published prize pool (simulated)'
+      : 'No published prize pool';
   }
 }

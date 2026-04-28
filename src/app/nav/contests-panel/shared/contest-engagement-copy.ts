@@ -87,6 +87,7 @@ export function scheduledWarmupLine(
 export function paidResultDelight(
   fr: ParsedFinalResultsView | undefined,
   entered: boolean,
+  opts?: { simulatedDelight?: boolean },
 ): PaidDelightView | null {
   if (!fr || fr.loading || !entered) {
     return null;
@@ -94,12 +95,17 @@ export function paidResultDelight(
   if (fr.youMissingFromStandings || fr.yourRank == null || fr.entrants < 1) {
     return null;
   }
+  const sim = opts?.simulatedDelight !== false;
   const r = fr.yourRank;
   if (r === 1) {
     return {
       tier: 'winner',
-      headline: 'You finished 1st — this week’s simulated winner.',
-      sub: 'Payouts here are dry-run only; your slate still took the top spot.',
+      headline: sim
+        ? 'You finished 1st — this week’s simulated winner.'
+        : 'You finished 1st — top spot on this slate.',
+      sub: sim
+        ? 'Payouts here are dry-run only; your slate still took the top spot.'
+        : null,
     };
   }
   if (r <= 3) {

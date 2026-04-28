@@ -39,6 +39,7 @@ export function pipelineCaption(
   windowStartMs: number,
   windowEndMs: number,
   nowMs: number,
+  simulatedDryRunCopy = true,
 ): string {
   switch (status) {
     case 'scheduled':
@@ -53,9 +54,13 @@ export function pipelineCaption(
       return 'Play window has ended. The contest may move to scoring when the server processes results.';
     }
     case 'scoring':
-      return 'Standings and dry-run payouts are being calculated.';
+      return simulatedDryRunCopy
+        ? 'Standings and dry-run payouts are being calculated.'
+        : 'Standings and payouts are being calculated.';
     case 'paid':
-      return 'This contest is complete. Dry-run payout lines are final (not real money).';
+      return simulatedDryRunCopy
+        ? 'This contest is complete. Dry-run payout lines are final (not real money).'
+        : 'This contest is complete. Final standings and payout lines are published below.';
     case 'cancelled':
       return 'This contest was cancelled.';
     default:

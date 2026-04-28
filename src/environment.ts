@@ -42,6 +42,12 @@ export const environment = {
    */
   weeklyContestsUiEnabled: true,
   /**
+   * When false, omit simulated / dry-run contest UX (hero disclaimer, “Simulated prizes” strip taglines,
+   * “(simulated)” entry-fee phrasing, dry-run payout headings). Weekly contests UI still follows
+   * `weeklyContestsUiEnabled`. Staging/prod: `SIMULATED_CONTESTS_UI_ENABLED` via `generate-env-prod.mjs`.
+   */
+  simulatedContestsUiEnabled: false,
+  /**
    * Phase 0 — “Weekly contest” segment in the leaderboard sidenav panel (live table comes in Phase 1).
    * Requires `weeklyContestsUiEnabled`. Staging/prod: `LEADERBOARD_CONTEST_TAB_ENABLED` via `generate-env-prod.mjs` (omit or not `false` = on).
    */

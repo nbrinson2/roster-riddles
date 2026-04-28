@@ -1,7 +1,7 @@
 <div class="contests-panel">
   <contests-panel-hero
     [heroTagline]="heroTagline"
-    [dryRunCopy]="dryRunCopy"
+    [dryRunCopy]="contestHeroSecondaryNote"
     [realMoneyPaymentsCopy]="realMoneyPaymentsCopy"
   ></contests-panel-hero>
 
@@ -53,6 +53,7 @@
         [finalResults]="finalResultsByContestId[row.contestId]"
         [entryInfo]="entryInfoByContestId[row.contestId]"
         [contestsPaymentsEnabled]="contestsPaymentsEnabled"
+        [simulatedContestsUiEnabled]="simulatedContestsUiEnabled"
         [checkoutAwaitContestId]="checkoutAwaitPaymentContestId"
         [joinError]="joinError"
         [joinSuccess]="joinSuccess"

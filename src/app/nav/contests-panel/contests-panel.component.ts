@@ -16,6 +16,7 @@ import { WeeklyContestSlateService } from 'src/app/shared/services/weekly-contes
 import {
   CONTEST_DRY_RUN_PAYOUT_COPY,
   CONTEST_FULL_RULES_HREF,
+  CONTEST_LIVE_WEEKLY_HERO_COPY,
 } from './shared/contest-rules-copy';
 import { CONTEST_HERO_TAGLINE } from './shared/contest-engagement-copy';
 import type { ParsedFinalResultsView } from './shared/contest-results-closure';
@@ -64,7 +65,14 @@ export type { ContestListRow } from './lib/contests-panel.types';
 export class ContestsPanelComponent implements OnInit, OnDestroy {
   @Output() readonly requestSignIn = new EventEmitter<void>();
 
-  protected readonly dryRunCopy = CONTEST_DRY_RUN_PAYOUT_COPY;
+  protected get contestHeroSecondaryNote(): string {
+    return environment.simulatedContestsUiEnabled
+      ? CONTEST_DRY_RUN_PAYOUT_COPY
+      : CONTEST_LIVE_WEEKLY_HERO_COPY;
+  }
+
+  protected readonly simulatedContestsUiEnabled =
+    environment.simulatedContestsUiEnabled;
   protected readonly fullRulesHref = CONTEST_FULL_RULES_HREF;
   protected readonly heroTagline = CONTEST_HERO_TAGLINE;
 

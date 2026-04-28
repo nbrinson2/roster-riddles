@@ -12,6 +12,7 @@ import { RosterSelectionService } from './bio-ball/services/roster-selection/ros
 import { Header } from './shared/common-attribute-header/common-attribute-header.component';
 import { NicknameStreakPlayer } from './nickname-streak/models/nickname-streak.models';
 import { BIO_GAME_CONTEST_STRIP_CONTEXT_LINE } from '../nav/contests-panel/shared/contest-engagement-copy';
+import { environment } from 'src/environment';
 import {
   WeeklyContestSlateService,
   type WeeklyContestSlateUi,
@@ -26,6 +27,13 @@ import {
 export class GameComponent {
   /** Template: `GameType.CAREER_PATH` etc. */
   protected readonly GameType = GameType;
+
+  /** Muted strip line under “not in an open contest” — simulated vs neutral when contests are “live” UI. */
+  protected get contestStripNoEntryValueLine(): string {
+    return environment.simulatedContestsUiEnabled
+      ? 'Simulated prizes · No entry fee · See prize and lock times on each contest card'
+      : 'See prizes, fees, and lock times on each contest card';
+  }
 
   private readonly gameService = inject<GameService<GamePlayer>>(GAME_SERVICE);
   private readonly slideUpService = inject(SlideUpService);

@@ -61,6 +61,10 @@ const leaderboardsUiEnabled = process.env.LEADERBOARDS_UI_ENABLED !== 'false';
 /** Story C2 — omit weekly contests drawer when WEEKLY_CONTESTS_UI_ENABLED=false */
 const weeklyContestsUiEnabled = process.env.WEEKLY_CONTESTS_UI_ENABLED !== 'false';
 
+/** Simulated / dry-run messaging — omit when SIMULATED_CONTESTS_UI_ENABLED=false */
+const simulatedContestsUiEnabled =
+  process.env.SIMULATED_CONTESTS_UI_ENABLED !== 'false';
+
 /**
  * Phase 0 — omit “Weekly contest” tab inside the leaderboard panel when LEADERBOARD_CONTEST_TAB_ENABLED=false.
  * Independent of the contests drawer (`WEEKLY_CONTESTS_UI_ENABLED`).
@@ -137,6 +141,7 @@ export const environment = {
   leaderboardUseFirestoreSnapshot: ${leaderboardUseFirestoreSnapshot},
   leaderboardsUiEnabled: ${leaderboardsUiEnabled},
   weeklyContestsUiEnabled: ${weeklyContestsUiEnabled},
+  simulatedContestsUiEnabled: ${simulatedContestsUiEnabled},
   leaderboardContestTabEnabled: ${leaderboardContestTabEnabled},
   contestLiveLeaderboardPollIntervalMs: ${contestLiveLeaderboardPollIntervalMs},
   adminDashboardUiEnabled: ${adminDashboardUiEnabled},
