@@ -28,6 +28,9 @@ export class GameComponent {
   /** Template: `GameType.CAREER_PATH` etc. */
   protected readonly GameType = GameType;
 
+  /** Matches contests panel / hero when `simulatedContestsUiEnabled` (dashed accent on strip). */
+  protected readonly simulatedContestsUi = environment.simulatedContestsUiEnabled;
+
   /** Muted strip — simulated vs live builds (`simulatedContestsUiEnabled`). */
   protected get contestStripNoEntryValueLine(): string {
     return environment.simulatedContestsUiEnabled
@@ -55,6 +58,12 @@ export class GameComponent {
   /** Pairs the strip with the nav calendar so users know where “my contests” lives. */
   protected readonly contestStripCalendarContextLine =
     BIO_GAME_CONTEST_STRIP_CONTEXT_LINE;
+
+  /**
+   * Native tooltip on slate progress — what counts as one finished game for the counter.
+   */
+  protected readonly contestSlateProgressFinishedTooltip =
+    'What counts as a finished game: a win, a loss, or abandoning after you’ve made at least one guess.';
 
   /**
    * Bio Ball contest strip: signed-out CTA, signed-in but no active entry, or active slate stats.

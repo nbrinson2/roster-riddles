@@ -21,22 +21,27 @@
           <div
             *ngIf="strip.variant === 'active'"
             class="game-contest-banner"
+            [class.game-contest-banner--simulated]="simulatedContestsUi"
             [class.game-contest-banner--mobile-expanded]="contestStripMobileExpanded"
             role="region"
             [attr.aria-label]="
-              'Slate for this board only; calendar tab has every contest. ' +
+              'Contest games on this board only — the Contests tab lists every contest. ' +
               strip.slate.phaseStripLabel +
               '. ' +
               strip.slate.contestTitle
             "
           >
             <div class="game-contest-banner__desktop">
-              <div class="game-contest-banner__stack">
+              <div class="game-contest-banner__stack game-contest-banner__stack--dense">
                 <div class="game-contest-banner__inner">
                   <div class="game-contest-banner__badge">
                     <span class="material-symbols-outlined" aria-hidden="true">emoji_events</span>
                     <span>Contest</span>
                   </div>
+                  <span
+                    class="game-contest-banner__phase game-contest-banner__phase--inline"
+                    [attr.title]="strip.slate.phaseStripLabel"
+                    >{{ strip.slate.phaseStripLabelAbbrev }}</span>
                   <p class="game-contest-banner__title">{{ strip.slate.contestTitle }}</p>
                   <div
                     *ngIf="
@@ -44,14 +49,21 @@
                       !strip.slate.progressUnavailable &&
                       !strip.slate.windowEnded
                     "
-                    class="game-contest-banner__stats"
+                    class="game-contest-banner__progress-chip game-contest-banner__stats--tipped"
+                    [attr.title]="contestSlateProgressFinishedTooltip"
                   >
-                    <span class="game-contest-banner__emph"
-                      >{{ strip.slate.gamesUsed }}/{{ strip.slate.leagueGamesN }}</span
-                    >
-                    <span class="game-contest-banner__dot" aria-hidden="true">·</span>
-                    <span class="game-contest-banner__emph">{{ strip.slate.gamesRemaining }}</span>
-                    left<span *ngIf="strip.slate.gamesRemaining === 0"> · slate full</span>
+                    <span class="game-contest-banner__progress-chip-text">
+                      <span class="game-contest-banner__emph">{{ strip.slate.gamesUsed }}</span>
+                      of
+                      <span class="game-contest-banner__emph">{{
+                        strip.slate.leagueGamesN
+                      }}</span>
+                      games used
+                    </span>
+                    <span
+                      class="material-symbols-outlined game-contest-banner__progress-hint"
+                      aria-hidden="true"
+                    >help</span>
                   </div>
                   <div
                     *ngIf="strip.slate.windowEnded && !strip.slate.postContestPhase"
@@ -70,16 +82,20 @@
                     Count unavailable
                   </div>
                 </div>
-                <p class="game-contest-banner__phase">{{ strip.slate.phaseStripLabel }}</p>
                 <p
-                  class="game-contest-banner__value"
-                  [title]="strip.slate.valuePropLine"
-                  [attr.aria-label]="'Contest summary: ' + strip.slate.valuePropLine"
+                  class="game-contest-banner__meta-line"
+                  [attr.aria-label]="
+                    strip.slate.valuePropLine + ' ' + contestStripCalendarContextLine
+                  "
                 >
-                  {{ strip.slate.valuePropLine }}
-                </p>
-                <p class="game-contest-banner__context">
-                  {{ contestStripCalendarContextLine }}
+                  <span
+                    class="game-contest-banner__meta-primary"
+                    [title]="strip.slate.valuePropLine"
+                    >{{ strip.slate.valuePropLine }}</span>
+                  <span class="game-contest-banner__meta-sep" aria-hidden="true"> · </span>
+                  <span class="game-contest-banner__meta-note">{{
+                    contestStripCalendarContextLine
+                  }}</span>
                 </p>
               </div>
             </div>
@@ -90,9 +106,10 @@
                   <span>Contest</span>
                 </div>
                 <span class="game-contest-banner__title">{{ strip.slate.contestTitle }}</span>
-                <span class="game-contest-banner__phase-abbr" aria-hidden="true">{{
-                  strip.slate.phaseStripLabelAbbrev
-                }}</span>
+                <span
+                  class="game-contest-banner__phase game-contest-banner__phase--inline"
+                  [attr.title]="strip.slate.phaseStripLabel"
+                  >{{ strip.slate.phaseStripLabelAbbrev }}</span>
                 <div
                   *ngIf="
                     !strip.slate.postContestPhase &&
@@ -102,10 +119,7 @@
                   class="game-contest-banner__stats"
                 >
                   <span class="game-contest-banner__emph"
-                    >{{ strip.slate.gamesUsed }}/{{ strip.slate.leagueGamesN }}</span
-                  >
-                  <span class="game-contest-banner__dot" aria-hidden="true">·</span>
-                  <span class="game-contest-banner__emph">{{ strip.slate.gamesRemaining }}</span>
+                    >{{ strip.slate.gamesUsed }}/{{ strip.slate.leagueGamesN }}</span>
                 </div>
                 <div
                   *ngIf="strip.slate.windowEnded && !strip.slate.postContestPhase"
@@ -143,16 +157,28 @@
                 *ngIf="contestStripMobileExpanded"
                 class="game-contest-banner__mobile-detail"
               >
-                <p class="game-contest-banner__phase">{{ strip.slate.phaseStripLabel }}</p>
                 <p
-                  class="game-contest-banner__value"
-                  [title]="strip.slate.valuePropLine"
-                  [attr.aria-label]="'Contest summary: ' + strip.slate.valuePropLine"
+                  class="game-contest-banner__meta-line game-contest-banner__meta-line--wrap"
+                  [attr.aria-label]="
+                    strip.slate.phaseStripLabel +
+                    '. ' +
+                    strip.slate.valuePropLine +
+                    ' ' +
+                    contestStripCalendarContextLine
+                  "
                 >
-                  {{ strip.slate.valuePropLine }}
-                </p>
-                <p class="game-contest-banner__context">
-                  {{ contestStripCalendarContextLine }}
+                  <span class="game-contest-banner__meta-phase-mobile">{{
+                    strip.slate.phaseStripLabel
+                  }}</span>
+                  <span class="game-contest-banner__meta-sep" aria-hidden="true"> · </span>
+                  <span
+                    class="game-contest-banner__meta-primary"
+                    [title]="strip.slate.valuePropLine"
+                    >{{ strip.slate.valuePropLine }}</span>
+                  <span class="game-contest-banner__meta-sep" aria-hidden="true"> · </span>
+                  <span class="game-contest-banner__meta-note">{{
+                    contestStripCalendarContextLine
+                  }}</span>
                 </p>
               </div>
             </div>
@@ -171,15 +197,20 @@
               "
               class="game-contest-banner__sr-only"
             >
-              Couldn’t refresh your slate progress just now. You’re still entered — try again in a
-              moment.
+              Couldn’t refresh your contest game count just now. You’re still entered — try again
+              in a moment.
             </p>
             <p
-              *ngIf="!strip.slate.windowEnded && !strip.slate.postContestPhase"
+              *ngIf="
+                !strip.slate.windowEnded &&
+                !strip.slate.postContestPhase &&
+                !strip.slate.progressUnavailable
+              "
               class="game-contest-banner__sr-only"
             >
-              Each finished round (win, loss, or abandon after a guess) uses one slate slot, in
-              order, while this contest is open.
+              Progress: {{ strip.slate.gamesUsed }} of {{ strip.slate.leagueGamesN }} games used.
+              A finished game is a win, a loss, or abandoning after at least one guess. Games count
+              in order while this contest is open.
             </p>
             <p *ngIf="strip.slate.postContestPhase" class="game-contest-banner__sr-only">
               This contest is no longer open for play. Check the calendar for standings and
@@ -189,6 +220,7 @@
           <div
             *ngIf="strip.variant === 'no_entry'"
             class="game-contest-banner game-contest-banner--muted"
+            [class.game-contest-banner--simulated]="simulatedContestsUi"
             [class.game-contest-banner--mobile-expanded]="contestStripMobileExpanded"
             role="region"
             aria-label="Weekly contests — open the calendar tab for your full contest list"
@@ -254,6 +286,7 @@
           <div
             *ngIf="strip.variant === 'sign_in'"
             class="game-contest-banner game-contest-banner--muted"
+            [class.game-contest-banner--simulated]="simulatedContestsUi"
             role="region"
             aria-label="Sign in for weekly contests — calendar lists contests after you sign in"
           >
@@ -272,6 +305,7 @@
           <div
             *ngIf="strip.variant === 'verify_email'"
             class="game-contest-banner game-contest-banner--muted"
+            [class.game-contest-banner--simulated]="simulatedContestsUi"
             [class.game-contest-banner--mobile-expanded]="contestStripMobileExpanded"
             role="region"
             aria-label="Verify email for weekly contests — calendar lists contests after verification"

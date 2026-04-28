@@ -34,11 +34,15 @@ import {
 } from 'src/app/shared/contest/contest-value-prop';
 import { environment } from 'src/environment';
 
-/** Full-width phase line on the Bio Ball weekly contest strip. */
-export const WEEKLY_CONTEST_STRIP_PHASE_OPEN = 'Open · play counts';
+/**
+ * Full phase copy for tooltips / screen readers (strip shows abbrev in the title row).
+ */
+export const WEEKLY_CONTEST_STRIP_PHASE_OPEN =
+  'In play — each finished game counts in order (win, loss, or quit after a guess).';
 export const WEEKLY_CONTEST_STRIP_PHASE_WINDOW_CLOSED =
-  'Window closed · ranking soon';
-export const WEEKLY_CONTEST_STRIP_PHASE_FINAL = 'Final results';
+  'Play window ended — standings update next.';
+export const WEEKLY_CONTEST_STRIP_PHASE_FINAL =
+  'Contest finished — open Contests for results.';
 
 /** Live mini-league progress for the active open contest the user joined (Bio Ball). */
 export interface WeeklyContestSlateUi {
