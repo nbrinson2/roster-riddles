@@ -82,6 +82,17 @@
                     Count unavailable
                   </div>
                 </div>
+                <div
+                  *ngIf="contestNearLockLine$ | async as nearLock"
+                  class="game-contest-banner__near-lock"
+                  role="status"
+                >
+                  <span
+                    class="material-symbols-outlined game-contest-banner__near-lock-icon"
+                    aria-hidden="true"
+                    >schedule</span>
+                  <span class="game-contest-banner__near-lock-text">{{ nearLock }}</span>
+                </div>
                 <p
                   class="game-contest-banner__meta-line"
                   [attr.aria-label]="
@@ -152,6 +163,17 @@
                     contestStripMobileExpanded ? 'expand_less' : 'expand_more'
                   }}</span>
                 </button>
+              </div>
+              <div
+                *ngIf="contestNearLockLine$ | async as nearLock"
+                class="game-contest-banner__near-lock"
+                role="status"
+              >
+                <span
+                  class="material-symbols-outlined game-contest-banner__near-lock-icon"
+                  aria-hidden="true"
+                  >schedule</span>
+                <span class="game-contest-banner__near-lock-text">{{ nearLock }}</span>
               </div>
               <div
                 *ngIf="contestStripMobileExpanded"

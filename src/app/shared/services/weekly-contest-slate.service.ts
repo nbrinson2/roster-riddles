@@ -66,6 +66,8 @@ export interface WeeklyContestSlateUi {
   progressUnavailable?: boolean;
   /** Play window [windowStart, windowEnd) has ended; contest may still be `open` until scoring. */
   windowEnded?: boolean;
+  /** Play window end — used for near-lock timing on the game strip. */
+  windowEndMs?: number;
 }
 
 function slateContestCopyOpts(): ContestCopyOptions {
@@ -205,6 +207,7 @@ function buildPostContestStripSlate(
     valuePropLine: we ? slateValuePropLine(contest, we) : '',
     progressUnavailable: true,
     windowEnded: true,
+    windowEndMs: we ? we.toMillis() : undefined,
   };
 }
 
@@ -570,6 +573,7 @@ export class WeeklyContestSlateService {
           valuePropLine: slateValuePropLine(ended.contest, weEnded),
           progressUnavailable: true,
           windowEnded: true,
+          windowEndMs: weEnded.toMillis(),
         });
         this.attachContestLifecycleWatch(db, ended.contestId);
         return;
@@ -629,6 +633,7 @@ export class WeeklyContestSlateService {
           phaseStripLabelAbbrev: openAbbrev,
           valuePropLine: slateValuePropLine(picked.contest, we),
           progressUnavailable: false,
+          windowEndMs: we.toMillis(),
         });
       },
       (err) => {
@@ -646,6 +651,7 @@ export class WeeklyContestSlateService {
           phaseStripLabelAbbrev: openAbbrev,
           valuePropLine: slateValuePropLine(picked.contest, we),
           progressUnavailable: true,
+          windowEndMs: we.toMillis(),
         });
       },
     );

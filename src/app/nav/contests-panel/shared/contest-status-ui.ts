@@ -5,6 +5,82 @@
 /** Warn when play window ends within this many ms. */
 export const LOCK_SOON_MS = 24 * 60 * 60 * 1000;
 
+/** Game strip “near lock” — gentle warning when few hours remain before window end. */
+export const NEAR_LOCK_GENTLE_WINDOW_MS = 6 * 60 * 60 * 1000;
+
+/** Game strip — warn when this many slate slots or fewer remain (still open). */
+export const NEAR_LOCK_GENTLE_SLATE_SPOTS_MAX = 2;
+
+export function isNearLockGentleWindow(
+  windowEndMs: number | undefined,
+  nowMs: number,
+  thresholdMs: number = NEAR_LOCK_GENTLE_WINDOW_MS,
+): boolean {
+  if (windowEndMs == null) {
+    return false;
+  }
+  const left = windowEndMs - nowMs;
+  return left > 0 && left <= thresholdMs;
+}
+
+export function isNearLockGentleSlate(
+  progressUnavailable: boolean | undefined,
+  gamesRemaining: number,
+  maxSpotsRemaining: number = NEAR_LOCK_GENTLE_SLATE_SPOTS_MAX,
+): boolean {
+  if (progressUnavailable) {
+    return false;
+  }
+  return gamesRemaining > 0 && gamesRemaining <= maxSpotsRemaining;
+}
+
+/**
+ * One-line gentle warning for the Bio Ball game contest strip (null when not applicable).
+ */
+export function contestStripNearLockLine(
+  slate: {
+    postContestPhase?: boolean;
+    windowEnded?: boolean;
+    progressUnavailable?: boolean;
+    gamesRemaining: number;
+    windowEndMs?: number;
+  } | null,
+  nowMs: number,
+): string | null {
+  if (!slate) {
+    return null;
+  }
+  if (slate.postContestPhase || slate.windowEnded) {
+    return null;
+  }
+
+  const windowNear = isNearLockGentleWindow(slate.windowEndMs, nowMs);
+  const slateNear = isNearLockGentleSlate(
+    slate.progressUnavailable,
+    slate.gamesRemaining,
+  );
+
+  if (!windowNear && !slateNear) {
+    return null;
+  }
+
+  const we = slate.windowEndMs;
+  const lockPhrase =
+    we != null && we > nowMs ? formatTimeUntil(we, nowMs) : null;
+
+  if (windowNear && slateNear && lockPhrase) {
+    const spots = slate.gamesRemaining;
+    const spotWord = spots === 1 ? 'spot' : 'spots';
+    return `Near lock — play stops in ${lockPhrase}, with ${spots} slate ${spotWord} left. Finish up soon.`;
+  }
+  if (windowNear && lockPhrase) {
+    return `Near lock — play stops in ${lockPhrase}. Finish games when you can.`;
+  }
+  const spots = slate.gamesRemaining;
+  const spotWord = spots === 1 ? 'spot' : 'spots';
+  return `Near lock — only ${spots} slate ${spotWord} left before play locks.`;
+}
+
 const PIPELINE_LABELS = [
   'Upcoming',
   'Open',

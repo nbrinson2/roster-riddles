@@ -75,6 +75,38 @@ $mobile-breakpoint: 600px;
     gap: 2px;
   }
 
+  .game-contest-banner__near-lock {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin: 4px 0 0;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    line-height: 1.4;
+    color: rgba(255, 224, 195, 0.94);
+    background: rgba(255, 150, 70, 0.1);
+    border: 1px solid rgba(255, 185, 110, 0.28);
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .game-contest-banner__near-lock-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 15px;
+    opacity: 0.8;
+    color: rgba(255, 200, 150, 0.95);
+  }
+
+  .game-contest-banner__near-lock-text {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
   .game-contest-banner__value {
     margin: 0;
     padding: 0 0 1px;
