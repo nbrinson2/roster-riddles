@@ -70,13 +70,13 @@ export function payoutDryRunTransparencyLine(
   const places =
     n === 0
       ? simulatedDryRunCopy
-        ? 'Simulated payout — no lines yet.'
+        ? 'Estimated payouts — nothing listed yet.'
         : 'No payout lines yet.'
       : simulatedDryRunCopy
-        ? `Simulated payout — ${n} paid place${n === 1 ? '' : 's'}.`
+        ? `Estimated payouts — ${n} place${n === 1 ? '' : 's'}.`
         : `Payout — ${n} place${n === 1 ? '' : 's'}.`;
   const cur = px.currencyLabel.trim();
-  const curPart = cur ? ` ${cur}; whole cents.` : ' Whole cents.';
+  const curPart = cur ? ` (${cur}, rounded to cents)` : ' Rounded to whole cents.';
   return `${places}${curPart}`;
 }
 
@@ -111,8 +111,8 @@ export function contestClosureWhyLines(
   if (v.yourRank != null && v.yourRank > 1) {
     lines.push(
       simulatedPayoutCopy
-        ? 'Simulated payouts: top ranks only — wins on this slate, then tie-breaks.'
-        : 'Prizes: top ranks per rules — wins on this slate, then tie-breaks.',
+        ? 'Estimated payouts (practice): top ranks only — slate wins, then tie-breaks.'
+        : 'Prizes go to top ranks per the rules — slate wins, then tie-breaks.',
     );
   }
   if (v.youMissingFromStandings) {

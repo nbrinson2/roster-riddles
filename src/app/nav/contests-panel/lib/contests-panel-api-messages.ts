@@ -26,7 +26,7 @@ export function mapContestJoinErrorMessage(err: HttpErrorResponse): string {
     return 'Too many join attempts. Wait a moment and try again.';
   }
   if (err.status === 503) {
-    return 'Contest join is unavailable (server not configured).';
+    return 'Contest joining isn’t available right now. Try again later.';
   }
   if (err.status === 409 && code === 'already_in_open_contest') {
     return typeof msg === 'string'
@@ -39,7 +39,7 @@ export function mapContestJoinErrorMessage(err: HttpErrorResponse): string {
       : 'This contest requires paid entry — use checkout from the contests panel.';
   }
   if (err.status === 0) {
-    return 'Could not reach the server. Is the API running?';
+    return 'Can’t connect right now. Check your connection and try again.';
   }
   switch (code) {
     case 'join_window_closed':
@@ -47,11 +47,11 @@ export function mapContestJoinErrorMessage(err: HttpErrorResponse): string {
     case 'contest_not_open':
       return 'This contest is not open for new entries.';
     case 'wrong_game_mode':
-      return 'This contest is not available for Bio Ball in this build.';
+      return 'This contest isn’t available for Bio Ball.';
     case 'contest_not_found':
       return 'That contest no longer exists.';
     case 'validation_error':
-      return typeof msg === 'string' ? msg : 'Invalid request.';
+      return typeof msg === 'string' ? msg : 'Something wasn’t valid. Please try again.';
     case 'rate_limited':
       return 'Too many join attempts. Try again shortly.';
     default:
@@ -76,12 +76,12 @@ export function mapContestCheckoutErrorMessage(err: HttpErrorResponse): string {
   if (err.status === 503 && code === 'contest_payments_disabled') {
     return typeof msg === 'string'
       ? msg
-      : 'Paid entry is not enabled on this server.';
+      : 'Paid entry isn’t turned on for contests yet.';
   }
   if (err.status === 503) {
     return typeof msg === 'string'
       ? msg
-      : 'Checkout is unavailable (server configuration).';
+      : 'Checkout isn’t available right now. Try again later.';
   }
   if (err.status === 409 && code === 'already_in_open_contest') {
     return typeof msg === 'string'
@@ -94,10 +94,10 @@ export function mapContestCheckoutErrorMessage(err: HttpErrorResponse): string {
       : 'You already have an entry (or checkout in progress) for this contest.';
   }
   if (err.status === 502 && code === 'stripe_checkout_failed') {
-    return 'Stripe could not start checkout. Try again in a moment.';
+    return 'Checkout couldn’t start. Try again in a moment.';
   }
   if (err.status === 0) {
-    return 'Could not reach the server. Is the API running?';
+    return 'Can’t connect right now. Check your connection and try again.';
   }
   switch (code) {
     case 'contest_no_entry_fee':
@@ -107,11 +107,11 @@ export function mapContestCheckoutErrorMessage(err: HttpErrorResponse): string {
     case 'contest_not_open':
       return 'This contest is not open for new entries.';
     case 'wrong_game_mode':
-      return 'This contest is not available for Bio Ball in this build.';
+      return 'This contest isn’t available for Bio Ball.';
     case 'contest_not_found':
       return 'That contest no longer exists.';
     case 'validation_error':
-      return typeof msg === 'string' ? msg : 'Invalid request.';
+      return typeof msg === 'string' ? msg : 'Something wasn’t valid. Please try again.';
     default:
       return typeof msg === 'string'
         ? msg

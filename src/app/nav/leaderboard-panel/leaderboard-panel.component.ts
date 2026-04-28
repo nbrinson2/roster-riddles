@@ -609,7 +609,7 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
 
   private mapContestLiveStandingsError(err: HttpErrorResponse): string {
     if (err.status === 0) {
-      return 'Could not reach the server. Is the API running?';
+      return 'Can’t connect right now. Check your connection and try again.';
     }
     const body = err.error as
       | { error?: { code?: string; message?: string } }
@@ -629,9 +629,9 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
       return 'Too many requests. Try again shortly.';
     }
     if (err.status === 503) {
-      return 'Server is not configured for this request.';
+      return 'Standings aren’t available right now. Try again later.';
     }
-    return 'Could not load contest standings.';
+    return 'Couldn’t load standings. Try again.';
   }
 
   private stopContestLivePoll(): void {
@@ -704,13 +704,13 @@ export class LeaderboardPanelComponent implements OnInit, OnDestroy {
 
   private mapError(err: HttpErrorResponse): string {
     if (err.status === 503) {
-      return 'Leaderboard is unavailable (server not configured).';
+      return 'Leaderboards aren’t available right now. Try again later.';
     }
     if (err.status === 0) {
-      return 'Could not reach the server. Is the API running?';
+      return 'Can’t connect right now. Check your connection and try again.';
     }
     const body = err.error as { error?: { message?: string } } | null;
     const msg = body?.error?.message;
-    return typeof msg === 'string' ? msg : 'Could not load leaderboard.';
+    return typeof msg === 'string' ? msg : 'Couldn’t load the leaderboard.';
   }
 }

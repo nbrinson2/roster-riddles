@@ -115,7 +115,7 @@
     <p *ngIf="formatEntryFeeUsd(row) as fee" class="cc-entry-fee">
       <strong>Entry fee:</strong> {{ fee }}
       <ng-container *ngIf="!contestRequiresPayment(row)">
-        — free join; paid checkout off in this build.</ng-container
+        — free join only; paid checkout isn’t available here.</ng-container
       >
     </p>
 

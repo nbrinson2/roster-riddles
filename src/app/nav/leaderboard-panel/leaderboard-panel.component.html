@@ -101,15 +101,9 @@
         >sports_baseball</span
       >
       <ng-container *ngIf="useSnapshotMode; else emptyFromStats">
-        <p>No rows in the precomputed snapshot for this board.</p>
+        <p>No rankings for this board yet.</p>
         <p class="lb-empty-hint">
-          Wins are stored on each user’s stats document. This mode only shows
-          documents under
-          <code class="lb-mono">leaderboards/snapshots/boards</code>. To list
-          rankings from live stats via the server API, set
-          <code class="lb-mono">leaderboardUseFirestoreSnapshot</code> to
-          <code class="lb-mono">false</code> in
-          <code class="lb-mono">src/environment.ts</code> and run the API.
+          Check back after games are played, or try another leaderboard scope.
         </p>
       </ng-container>
       <ng-template #emptyFromStats>

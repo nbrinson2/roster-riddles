@@ -43,13 +43,13 @@ export function getContestRulesShortBullets(
       'Bio Ball only — other modes never count.',
       'A slate game is one finished Bio Ball round (win, loss, or abandon after a guess) in the play window, on or after you joined. Your slate is the first N such games in time order (N = slate size).',
       'Only wins on that slate count toward contest wins.',
-      'Ties: full slates beat partial; within a tier, Phase 4 tie-break (wins, losses, abandons, uid).',
-      'Simulated contests: no real-money entry or payout; refunds follow operator notices if cancelled.',
+      'Ties: full slates beat partial; within a tier, published tie-break order (wins, losses, abandons, then stable player order).',
+      'Simulated contests: no real-money entry or payout; if a contest is cancelled, follow announcements from the organizers.',
     ];
   }
 
   return [
-    `Rules version ${String(rulesVersion)} is not bundled in this build — confirm policy with the operator before joining.`,
+    `Rules version ${String(rulesVersion)} isn’t included in this app — confirm the latest rules with support before joining.`,
   ];
 }
 
@@ -62,14 +62,14 @@ export function getContestEligibilityBullets(
 ): string[] {
   const lines: string[] = [
     'Verified email required (Profile → resend link if needed).',
-    'At most one open Bio Ball contest at a time (server-enforced).',
+    'You can only join one open Bio Ball contest at a time.',
     `Score uses up to ${leagueGamesN} qualifying games in order after you join, inside the play window on this card.`,
-    'Times use your device timezone; operator edits apply before you join.',
-    'After join, eligibility uses the window and slate size stored on the contest doc.',
+    'Times use your device timezone; if the schedule changes before you join, you’ll see it here.',
+    'After you join, eligibility follows the window and slate size saved for this contest.',
   ];
   if (maxEntries != null && maxEntries > 0) {
     lines.push(
-      `Operator may cap entrants (up to ${maxEntries}); enforcement follows server policy.`,
+      `Up to ${maxEntries} entrants may be allowed — see this contest’s details.`,
     );
   }
   return lines;
@@ -89,13 +89,13 @@ export function getContestRulesNarrative(
   if (vKey === 1) {
     return [
       'Bio Ball only — other modes do not count.',
-      'Mini-league slate: up to N completed games in the contest window, in server order after you join. Only wins on that slate count.',
+      'Mini-league slate: up to N completed games in the contest window, in time order after you join. Only wins on that slate count.',
       'Window is half-open [start, end).',
       'Reschedules before open appear on this card — check times before joining.',
-      'Tie-breaking: Phase 4 ordering (wins, slate losses, abandons, uid; partial below full).',
+      'Tie-breaking: published ordering (wins, slate losses, abandons, then stable player order; partial slates below full).',
       'Labels may reference US Eastern; this app shows your local timezone.',
     ].join('\n\n');
   }
 
-  return `Rules version ${String(rulesVersion)} is not bundled in this build. Join only if you accept the operator’s current contest policy.`;
+  return `Rules version ${String(rulesVersion)} isn’t included in this app. Join only if you accept the current contest policy.`;
 }

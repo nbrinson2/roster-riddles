@@ -51,16 +51,16 @@ export function pipelineCaption(
       if (nowMs < windowEndMs) {
         return 'Play active — rounds in this window count on your slate.';
       }
-      return 'Play ended — moves to scoring when the server is ready.';
+      return 'Play ended — contest moves to scoring when ready.';
     }
     case 'scoring':
       return simulatedDryRunCopy
-        ? 'Scoring — standings & simulated payout lines.'
-        : 'Scoring — standings & payouts.';
+        ? 'Scoring — standings and estimated payouts (not real money).'
+        : 'Scoring — standings and payouts.';
     case 'paid':
       return simulatedDryRunCopy
-        ? 'Final — simulated payout below (not real money).'
-        : 'Final — standings & payouts below.';
+        ? 'Complete — estimated payouts below (not real money).'
+        : 'Complete — final standings and payouts below.';
     case 'cancelled':
       return 'Cancelled.';
     default:

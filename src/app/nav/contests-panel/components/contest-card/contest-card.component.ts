@@ -321,7 +321,7 @@ export class ContestCardComponent {
   }
 
   protected payoutSectionHeading(): string {
-    return this.simulatedContestsUiEnabled ? 'Dry-run payout' : 'Payout';
+    return this.simulatedContestsUiEnabled ? 'Estimated payouts' : 'Payouts';
   }
 
   protected closureWhyHeading(): string {

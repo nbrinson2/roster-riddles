@@ -115,27 +115,28 @@ export function paidResultDelight(
 }
 
 /**
- * Single hero note for the dashed yellow panel — combines calendar framing, sim/live disclaimer,
- * and optional Stripe line (replaces separate canonical box + red Stripe row).
+ * Single hero note for the dashed yellow panel — copy differs for simulated vs live builds.
  */
 export function buildContestHeroUnifiedNote(args: {
   simulatedContestsUiEnabled: boolean;
   contestsPaymentsEnabled: boolean;
 }): string {
-  const parts: string[] = [
-    'Browse & join in this calendar — your full contest list.',
-  ];
-  parts.push(
-    args.simulatedContestsUiEnabled
-      ? 'Simulated — not real money; fees, prizes, and rules on each card.'
-      : 'Fees, prizes, and rules on each card.',
-  );
-  if (args.contestsPaymentsEnabled) {
-    parts.push(
-      args.simulatedContestsUiEnabled
-        ? 'Paid entry: Stripe Checkout (test or live keys); payouts may be simulated previews.'
-        : 'Paid entry: Stripe Checkout (test or live keys per server).',
-    );
+  const calendar =
+    'This calendar is your full contest roster — browse and join here.';
+
+  if (args.simulatedContestsUiEnabled) {
+    const body =
+      'Simulated contests — practice only; no real-money movement unless clearly marked. Each card shows fees, prizes, and rules.';
+    if (!args.contestsPaymentsEnabled) {
+      return `${calendar} ${body}`;
+    }
+    return `${calendar} ${body} Paid entry uses Stripe Checkout; payout totals shown may be previews in simulated contests.`;
   }
-  return parts.join(' ');
+
+  const bodyLive =
+    'Fees, prizes, and rules are listed per contest — open a card for full detail.';
+  if (!args.contestsPaymentsEnabled) {
+    return `${calendar} ${bodyLive}`;
+  }
+  return `${calendar} ${bodyLive} Paid contests collect entry fees through secure checkout (Stripe).`;
 }
