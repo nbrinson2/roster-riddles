@@ -44,6 +44,11 @@ import {
   joinDisabledReasonForContest,
 } from '../../lib/contests-panel-join-window.util';
 import {
+  formatEnteredRulesAckLine,
+  POST_JOIN_SLATE_GAMES_LINE,
+  POST_JOIN_WHERE_PROGRESS_LINE,
+} from '../../lib/contests-panel-join-messages';
+import {
   contestClosureWhyBlockVisible,
   contestClosureWhyHeading,
   contestClosureWhyLines,
@@ -57,6 +62,7 @@ import {
 } from '../../lib/contests-panel-presenters';
 import type {
   ContestEntryRowState,
+  ContestJoinSuccessView,
   ContestListRow,
   ContestPayoutView,
 } from '../../lib/contests-panel.types';
@@ -69,6 +75,9 @@ import type { ContestStatus } from 'src/app/shared/models/contest.model';
   standalone: false,
 })
 export class ContestCardComponent {
+  protected readonly postJoinSlateGamesLine = POST_JOIN_SLATE_GAMES_LINE;
+  protected readonly postJoinWhereProgressLine = POST_JOIN_WHERE_PROGRESS_LINE;
+
   @Input({ required: true }) row!: ContestListRow;
   @Input({ required: true }) expanded = false;
   @Input({ required: true }) nowMs!: number;
@@ -78,7 +87,7 @@ export class ContestCardComponent {
   @Input({ required: true }) contestsPaymentsEnabled!: boolean;
   @Input() checkoutAwaitContestId: string | null = null;
   @Input() joinError: string | null = null;
-  @Input() joinSuccess: string | null = null;
+  @Input() joinSuccess: ContestJoinSuccessView | null = null;
   @Input() rulesCheckbox = false;
   @Input() joinSubmitting = false;
   @Input() loggedIn = false;
@@ -192,6 +201,39 @@ export class ContestCardComponent {
       this.checkoutAwaitContestId === row.contestId &&
       !this.entryCountsAsConfirmedEntrant(row)
     );
+  }
+
+  /** Entered, paid or free — rules ack + slate + where to track (not while checkout still confirming). */
+  protected showPostJoinBlock(row: ContestListRow): boolean {
+    return (
+      this.entryRulesVersion != null &&
+      this.entryCountsAsConfirmedEntrant(row) &&
+      !this.confirmingPayment(row)
+    );
+  }
+
+  protected postJoinHeadline(): string {
+    if (this.joinSuccess?.headline === 'already') {
+      return 'You’re already in';
+    }
+    return 'You’re in';
+  }
+
+  protected postJoinRulesLine(row: ContestListRow): string {
+    if (this.joinSuccess) {
+      return this.joinSuccess.rulesLine;
+    }
+    if (this.entryRulesVersion != null) {
+      return formatEnteredRulesAckLine(
+        this.entryRulesVersion,
+        row.rulesVersion,
+      );
+    }
+    return '';
+  }
+
+  protected postJoinIcon(): string {
+    return this.joinSuccess ? 'celebration' : 'check_circle';
   }
 
   protected onJoinClick(): void {

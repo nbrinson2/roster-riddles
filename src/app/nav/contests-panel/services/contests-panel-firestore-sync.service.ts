@@ -32,6 +32,7 @@ import {
 import {
   MAX_COMPLETED_CONTESTS,
   type ContestEntryRowState,
+  type ContestJoinSuccessView,
   type ContestListRow,
   type ContestPayoutView,
 } from '../lib/contests-panel.types';
@@ -52,7 +53,7 @@ export interface ContestsPanelFirestoreUiState {
   expandedContestId: string | null;
   rulesCheckbox: boolean;
   joinError: string | null;
-  joinSuccess: string | null;
+  joinSuccess: ContestJoinSuccessView | null;
   checkoutAwaitPaymentContestId: string | null;
 }
 

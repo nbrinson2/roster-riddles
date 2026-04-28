@@ -251,20 +251,6 @@
     </div>
 
     <div
-      *ngIf="entryRulesVersion != null"
-      class="cc-entry-banner"
-      role="status"
-    >
-      <span class="material-symbols-outlined" aria-hidden="true"
-        >check_circle</span
-      >
-      <div>
-        <strong>You are entered.</strong>
-        Rules accepted version {{ entryRulesVersion }} (stored on your entry).
-      </div>
-    </div>
-
-    <div
       *ngIf="confirmingPayment(row)"
       class="cc-confirming-payment"
       role="status"
@@ -278,11 +264,23 @@
       </div>
     </div>
 
-    <div *ngIf="joinSuccess" class="cc-success cc-success--delight" role="status">
-      <span class="material-symbols-outlined" aria-hidden="true"
-        >celebration</span
+    <div
+      *ngIf="showPostJoinBlock(row)"
+      class="cc-post-join"
+      [class.cc-post-join--delight]="joinSuccess"
+      role="status"
+    >
+      <span
+        class="material-symbols-outlined cc-post-join__icon"
+        aria-hidden="true"
+        >{{ postJoinIcon() }}</span
       >
-      <span class="cc-success-text">{{ joinSuccess }}</span>
+      <div class="cc-post-join__body">
+        <p class="cc-post-join__title">{{ postJoinHeadline() }}</p>
+        <p class="cc-post-join__rules">{{ postJoinRulesLine(row) }}</p>
+        <p class="cc-post-join__explainer">{{ postJoinSlateGamesLine }}</p>
+        <p class="cc-post-join__where">{{ postJoinWhereProgressLine }}</p>
+      </div>
     </div>
     <div *ngIf="joinError" class="cc-join-error" role="alert">
       {{ joinError }}

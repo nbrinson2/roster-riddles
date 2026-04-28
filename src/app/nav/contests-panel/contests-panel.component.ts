@@ -33,7 +33,7 @@ import {
 } from './services/contests-panel-firestore-sync.service';
 import {
   CONTEST_JOIN_USE_CHECKOUT_WHEN_FEE,
-  formatContestJoinSuccessMessage,
+  formatContestJoinSuccessView,
 } from './lib/contests-panel-join-messages';
 import {
   canAttemptJoinContest,
@@ -47,6 +47,7 @@ import {
   type ContestCheckoutSessionResponse,
   type ContestEntryRowState,
   type ContestJoinResponse,
+  type ContestJoinSuccessView,
   type ContestListRow,
   type ContestPayoutView,
 } from './lib/contests-panel.types';
@@ -80,7 +81,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
   protected rulesCheckbox = false;
   protected joinSubmitting = false;
   protected joinError: string | null = null;
-  protected joinSuccess: string | null = null;
+  protected joinSuccess: ContestJoinSuccessView | null = null;
 
   /**
    * After Stripe Checkout success redirect; cleared when entry shows `paymentStatus === paid`
@@ -238,7 +239,7 @@ export class ContestsPanelComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.joinSubmitting = false;
-          this.joinSuccess = formatContestJoinSuccessMessage(res);
+          this.joinSuccess = formatContestJoinSuccessView(res);
           this.entryInfoByContestId[row.contestId] = {
             loaded: true,
             entered: true,

@@ -69,3 +69,9 @@ export interface ContestCheckoutSessionResponse {
   url: string;
   sessionId: string;
 }
+
+/** Recent free-join HTTP response — drives headline wording and delight styling until cleared. */
+export interface ContestJoinSuccessView {
+  headline: 'joined' | 'already';
+  rulesLine: string;
+}
