@@ -95,6 +95,13 @@
           {{ resultsEntryPrizeLine(row) }}
         </dd>
       </div>
+      <div *ngIf="stripePrizeRail() as rail" class="cc-results-entry__row">
+        <dt class="cc-results-entry__dt">Prize status</dt>
+        <dd class="cc-results-entry__dd cc-results-entry__dd--stripe">
+          <span class="cc-results-entry__stripe-line">{{ rail.headline }}</span>
+          <span class="cc-results-entry__stripe-detail">{{ rail.detail }}</span>
+        </dd>
+      </div>
     </dl>
   </div>
 
@@ -277,6 +284,10 @@
 
     <div *ngIf="row.status === 'paid'" class="cc-payout-block">
       <h3 class="cc-rules-heading">{{ payoutSectionHeading() }}</h3>
+      <div *ngIf="stripePrizeRail() as rail" class="cc-stripe-prize-rail" role="status">
+        <p class="cc-stripe-prize-rail__head">{{ rail.headline }}</p>
+        <p class="cc-stripe-prize-rail__detail">{{ rail.detail }}</p>
+      </div>
       <ng-container *ngIf="payout as px">
         <p *ngIf="px.loading" class="cc-payout-loading">Loading…</p>
         <p *ngIf="!px.loading && px.winnerText" class="cc-payout-winner">

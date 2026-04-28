@@ -1,5 +1,6 @@
 import type { ContestEntryPaymentStatus } from 'src/app/shared/models/contest-entry.model';
 import type { ContestStatus } from 'src/app/shared/models/contest.model';
+import type { ContestPayoutFinalAggregateStatus } from 'src/app/shared/models/contest-payout-final.model';
 
 /** Max `paid` contests shown (most recent by window end), in addition to all open + scheduled. */
 export const MAX_COMPLETED_CONTESTS = 5;
@@ -14,13 +15,29 @@ export interface ContestEntryRowState {
   paymentStatus?: ContestEntryPaymentStatus | null;
 }
 
-/** Dry-run payout snapshot for one contest card. */
+/**
+ * Live Stripe prize execution (`contests/{id}/payouts/final`), separate from dry-run preview amounts.
+ */
+export interface ContestStripePrizeFinalState {
+  loading: boolean;
+  /** Set after first snapshot (used with {@link docExists}). */
+  loaded?: boolean;
+  /** False when `payouts/final` is absent — executor has not written yet. */
+  docExists?: boolean;
+  notRealMoney?: boolean;
+  aggregateStatus?: ContestPayoutFinalAggregateStatus;
+  anyLinePendingOrProcessing?: boolean;
+  hasLines?: boolean;
+}
+
+/** Dry-run payout snapshot + optional live Stripe fulfillment for one contest card. */
 export interface ContestPayoutView {
   loading: boolean;
   winnerText: string | null;
   otherLines: string[];
   lineCount: number;
   currencyLabel: string;
+  stripePrizeFinal?: ContestStripePrizeFinalState;
 }
 
 /** Row for list + detail (Firestore + id). */

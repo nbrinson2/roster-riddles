@@ -62,6 +62,10 @@ import {
   formatResultsEntryTieNote,
   payoutDryRunTransparencyLine,
 } from '../../lib/contests-panel-presenters';
+import {
+  stripePrizeRailCopy,
+  type StripePrizeRailCopy,
+} from '../../lib/contests-panel-stripe-prize-rail';
 import type {
   ContestEntryRowState,
   ContestJoinSuccessView,
@@ -341,6 +345,16 @@ export class ContestCardComponent {
     return formatResultsEntryPrizeLine(
       row,
       this.payout,
+      this.simulatedContestsUiEnabled,
+    );
+  }
+
+  /** Live Stripe Connect timing — “Prize processing” vs “Prizes paid”. */
+  protected stripePrizeRail(): StripePrizeRailCopy | null {
+    return stripePrizeRailCopy(
+      this.row,
+      this.payout,
+      this.contestsPaymentsEnabled,
       this.simulatedContestsUiEnabled,
     );
   }
