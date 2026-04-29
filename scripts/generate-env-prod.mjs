@@ -81,9 +81,9 @@ const leaderboardContestTabEnabled =
 const adminDashboardUiEnabled = process.env.ADMIN_DASHBOARD_UI_ENABLED !== 'false';
 
 /**
- * Story P5-D2 — paid entry UX in the SPA (Stripe Checkout redirect).
+ * Story P5-D2 / GL-C1 — paid entry UX in the SPA (Stripe Checkout redirect).
  * Enabled only when the build explicitly sets `CONTESTS_PAYMENTS_ENABLED=true`
- * (applies to staging and production builds).
+ * (applies to staging and production builds). `cloudbuild.yaml` defaults `_CONTESTS_PAYMENTS_ENABLED` to `true`.
  */
 const contestsPaymentsEnabled = process.env.CONTESTS_PAYMENTS_ENABLED === 'true';
 

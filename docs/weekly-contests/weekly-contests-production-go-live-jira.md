@@ -4,7 +4,7 @@
 
 **Not in scope for this file:** Re-implementing Phase 5/6 features; use [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) and [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) for feature completion.
 
-**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
+**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
 
 **Suggested labels:** `weekly-contests`, `production`, `stripe`, `payments`, `launch`
 
@@ -113,16 +113,19 @@
 |-------|-------|
 | **Type** | Story |
 | **Summary** | Set **`CONTESTS_PAYMENTS_ENABLED=true`** in Cloud Build / CI for **production** Angular builds so `environment.contestsPaymentsEnabled` is true (see [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs)). |
+| **Deliverable** | **[weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md)** (wiring summary + verification); repo defaults documented in **[cloudbuild.yaml](../../cloudbuild.yaml)** (`_CONTESTS_PAYMENTS_ENABLED: 'true'`) |
 
 **Description**
 
-- Without this, checkout buttons and paid-entry flows stay hidden even if the API is enabled.
-- Coordinate timing with Story GL-D1 so users never see paid UI while API rejects checkout (`503 contest_payments_disabled`).
+- Without **`CONTESTS_PAYMENTS_ENABLED=true`** at **Angular build** time, checkout buttons and paid-entry flows stay hidden even if the API is enabled.
+- **Default:** [`cloudbuild.yaml`](../../cloudbuild.yaml) sets **`_CONTESTS_PAYMENTS_ENABLED: 'true'`** and passes it to Docker **`CONTESTS_PAYMENTS_ENABLED`** so **`generate-env-prod.mjs`** emits **`contestsPaymentsEnabled: true`** unless the trigger overrides it.
+- Coordinate timing with Story **GL-D1** so users never see paid UI while API rejects checkout (**503** `contest_payments_disabled`).
 
 **Acceptance criteria**
 
-- [ ] Production artifact inspected (search built `main-*.js` or sourcemap) for `contestsPaymentsEnabled: true` **or** verify generated `environment.prod.ts` in CI artifact.
-- [ ] Staging build remains configurable independently.
+- [ ] Production Cloud Build trigger keeps **`_CONTESTS_PAYMENTS_ENABLED`** **`true`** (or explicitly sets it) — recorded in [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) § Verification **or** in ticket notes.
+- [ ] Production artifact inspected (search built **`main-*.js`** or sourcemap for **`contestsPaymentsEnabled`**) **or** verify generated **`environment.prod.ts`** / build log from CI.
+- [ ] Staging remains independently configurable (**separate trigger** / **`_DEPLOYMENT=staging`**; optional **`_CONTESTS_PAYMENTS_ENABLED=false`**).
 
 ---
 
@@ -352,7 +355,7 @@ Kill switch **GL-G2** should be rehearsed before **GL-G1**.
 
 | Variable / knob | Where | Prod live notes |
 |-----------------|-------|-----------------|
-| `CONTESTS_PAYMENTS_ENABLED` | Server **and** Angular CI | Must be **`true`** for paid UX + API ([generate-env-prod.mjs](../../scripts/generate-env-prod.mjs)) |
+| `CONTESTS_PAYMENTS_ENABLED` | Server **and** Angular CI | Must be **`true`** for paid UX + API ([generate-env-prod.mjs](../../scripts/generate-env-prod.mjs); Cloud Build default [GL-C1](weekly-contests-gl-c1-production-paid-ui-build.md)) |
 | `STRIPE_SECRET_KEY` | Server | **`sk_live_…`** |
 | `STRIPE_PUBLISHABLE_KEY` | Angular CI → `environment.prod.ts` | **`pk_live_…`** |
 | `STRIPE_WEBHOOK_SECRET` | Server | Live endpoint signing secret |

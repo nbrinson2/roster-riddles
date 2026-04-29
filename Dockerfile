@@ -30,7 +30,7 @@ ARG STRIPE_PUBLISHABLE_KEY=
 ARG FIRESTORE_DATABASE_ID=roster-riddles
 # Story AD-4 — Angular bundle: omit admin affordance when false (see scripts/generate-env-prod.mjs)
 ARG ADMIN_DASHBOARD_UI_ENABLED=
-# Story P5 — staging Angular paid UX when `true`; production bundle always omits paid UX (see generate-env-prod.mjs)
+# Story P5 / GL-C1 — Angular `contestsPaymentsEnabled` when `true` at build (`generate-env-prod.mjs`). Cloud Build passes `true` by default (`cloudbuild.yaml`); local Docker builds omitting this arg stay `false`.
 ARG CONTESTS_PAYMENTS_ENABLED=false
 # Optional — max signed-in session in days (`0`/`off` = none). See `generate-env-prod.mjs` / `AuthSessionExpiryService`.
 ARG AUTH_SESSION_MAX_DAYS=

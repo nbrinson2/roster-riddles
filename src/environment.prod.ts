@@ -20,7 +20,10 @@ export const environment = {
   /** Overwritten by `generate-env-prod.mjs` — production defaults to false (live-oriented contest UX). */
   simulatedContestsUiEnabled: false,
   adminDashboardUiEnabled: true,
-  /** Production: always false in CI output (`generate-env-prod.mjs`). Paid entry UX stays off until policy changes. */
+  /**
+   * Checked-in placeholder before `generate-env-prod.mjs`. CI overwrites from `CONTESTS_PAYMENTS_ENABLED`
+   * (Cloud Build defaults `true` — see `weekly-contests-gl-c1-production-paid-ui-build.md`). Local `ng build --configuration production` without generating env keeps paid UX off.
+   */
   contestsPaymentsEnabled: false,
   /** Overwritten by `generate-env-prod.mjs` from `AUTH_SESSION_MAX_DAYS` (prod default 3 days if unset). */
   authSessionMaxMs: 3 * 24 * 60 * 60 * 1000,

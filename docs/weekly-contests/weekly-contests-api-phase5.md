@@ -70,7 +70,7 @@ Base origin from **`CONTESTS_CHECKOUT_APP_ORIGIN`** (no trailing slash), e.g. `h
 
 ## Angular client (Story P5-D2)
 
-- **Feature flag:** `environment.contestsPaymentsEnabled` — set at build from **`CONTESTS_PAYMENTS_ENABLED`** (same meaning as Express; see `scripts/generate-env-prod.mjs`). Local dev: set `contestsPaymentsEnabled: true` in `src/environment.ts` when testing paid entry.
+- **Feature flag:** `environment.contestsPaymentsEnabled` — set at build from **`CONTESTS_PAYMENTS_ENABLED`** (same meaning as Express; see `scripts/generate-env-prod.mjs`). Production Cloud Build defaults **`true`** ([weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md)). Local dev: set `contestsPaymentsEnabled: true` in `src/environment.ts` when testing paid entry.
 - **Paid path:** contests with `entryFeeCents > 0` show **Pay & enter**, call `POST .../checkout-session`, then **`window.location.href = session.url`** (full redirect to Stripe).
 - **Return URL:** server sends users to `/bio-ball/mlb?checkout=success|cancel&contestId=…`; the contests panel strips query params and, on success, shows **Confirming payment…** until Firestore `entries/{uid}.paymentStatus === paid` (written by webhook P5-E).
 - **`stripePublishableKey`:** not required for Checkout redirect (no Stripe.js on the client). Optional for future Elements.

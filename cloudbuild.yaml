@@ -102,7 +102,7 @@ substitutions:
   _FIREBASE_MEASUREMENT_ID: ''
   # Story AD-4 — optional; omit or empty = admin UI enabled (same as LEADERBOARDS_UI_ENABLED pattern)
   _ADMIN_DASHBOARD_UI_ENABLED: ''
-  # Story P5 — default on for production builds/deploys; override to `false` per trigger/environment if needed.
+  # Story P5 / GL-C1 — Angular `contestsPaymentsEnabled` + Cloud Run runtime; default on for prod builds/deploys. Override to `false` per trigger if hiding paid UX (coordinate with API).
   _CONTESTS_PAYMENTS_ENABLED: 'true'
   _AUTH_SESSION_MAX_DAYS: ''
 
