@@ -4,7 +4,7 @@
 
 **Not in scope for this file:** Re-implementing Phase 5/6 features; use [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) and [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) for feature completion.
 
-**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
+**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
 
 **Suggested labels:** `weekly-contests`, `production`, `stripe`, `payments`, `launch`
 
@@ -64,11 +64,18 @@
 |-------|-------|
 | **Type** | Story |
 | **Summary** | Execute [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md) end-to-end; archive evidence (screenshots, Stripe event ids, Firestore paths). |
+| **Deliverable** | Completed **[weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md)** (template → filled evidence) |
+
+**Description**
+
+- Use **team-shared staging** with **fixed** SPA + API + webhook URLs ([stripe.md](../payments/stripe.md) — `CONTESTS_CHECKOUT_APP_ORIGIN`).
+- Run all sections of the Phase 5 staging runbook; attach **`npm run test:server`** green on the release candidate where applicable.
 
 **Acceptance criteria**
 
-- [ ] All exit criteria in Phase 5 Jira table verified with **test mode** Stripe.
-- [ ] Webhook endpoint documented (Dashboard URL or CLI session id); **`processedStripeEvents`** idempotency observed under replay test.
+- [ ] All Phase 5 exit criteria in [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) verified with **test mode** Stripe on shared staging — recorded in evidence doc §5.
+- [ ] Webhook endpoint documented (Dashboard URL **or** Stripe CLI forward) — evidence doc §3.
+- [ ] **`processedStripeEvents`** idempotency observed under replay test — evidence doc §4.
 
 ---
 

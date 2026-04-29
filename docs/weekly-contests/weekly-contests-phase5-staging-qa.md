@@ -8,6 +8,10 @@
 
 **Automated (Story P5-H3):** `npm run test:server:phase5-payments` exercises mock Stripe payloads, success-webhook idempotency, and the paid vs free join matrix (the same files are also run by **`npm run test:server`**).
 
+### Production go-live — Story GL-B1 (shared staging, stable URLs)
+
+Before enabling **live** Stripe keys in production, repeat **this entire runbook** on **shared staging** using **stable URLs** for the SPA, API, and webhooks (not only `localhost`). Record proof in **[weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md)** ([weekly-contests-production-go-live-jira.md](weekly-contests-production-go-live-jira.md) — Epic **GL-B**).
+
 ---
 
 ## Preconditions
