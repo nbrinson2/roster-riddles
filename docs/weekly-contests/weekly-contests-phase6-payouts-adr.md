@@ -25,7 +25,7 @@ Paid **prizes** (not just entry fees) typically implicate **sweepstakes / gambli
 | Gate | Owner | Record |
 |------|--------|--------|
 | **Regions + rules copy** | Product + Legal | ToS, contest rules, refund / void policy — extend Phase 0 checklist in [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) §Phase 0 before enabling live prize rails. |
-| **Winner KYC / tax** | Finance + Legal | Thresholds for **1099** / **W-9** / Stripe **1099-K** posture — **implementation deferred** below; **policy must exist** before live. |
+| **Winner KYC / tax** | Finance + Legal | Thresholds for **1099** / **W-9** / Stripe **1099-K** posture — **implementation deferred** below; **v1 policy** (ops + support scripts): **[weekly-contests-tax-winner-reporting-posture.md](weekly-contests-tax-winner-reporting-posture.md)** (Story **GL-A2**). **Policy must be acknowledged** before live. |
 
 **Engineering does not substitute** for the above sign-off.
 
@@ -180,7 +180,7 @@ Stripe object ids and event types are **illustrative** — exact names must matc
 | Topic | Stance |
 |--------|--------|
 | **Multi-currency**, FX, crypto | **Out of scope** |
-| **Automatic tax withholding / 1099 filing** | **Out of scope** — requires finance tooling; document thresholds in Phase 0 |
+| **Automatic tax withholding / 1099 filing** | **Out of scope** — requires finance tooling; **ops + support posture (v1):** [weekly-contests-tax-winner-reporting-posture.md](weekly-contests-tax-winner-reporting-posture.md) (Story **GL-A2**) |
 | **Split pots**, **multi-rank** prize tables | **Out of scope** until dry-run builder + ADR updated |
 | **Client-initiated transfers** | **Forbidden** — server / operator only |
 | **Storing bank / tax IDs in Firestore** | **Forbidden** — Stripe holds sensitive KYC data |

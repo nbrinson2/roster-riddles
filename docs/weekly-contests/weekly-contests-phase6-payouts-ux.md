@@ -137,8 +137,9 @@ If product enables email (Firebase Extension, SendGrid, etc.), keep **parity** w
 | “Did I win money?” | User’s row in `payouts/dryRun.lines` for `contestId` | “You placed **rank X**. Your line shows **$Y.YY** intended prize, or **$0** if no prize for that rank.” |
 | “Why no payout yet?” | `contests.prizePayoutStatus`, user Connect summary | “The contest shows **processing / on hold**. If you haven’t finished **one-time setup**, open the app → **Profile → Prizes**.” |
 | “Is it stuck?” | `prizePayoutStatus === held` or execution doc `failed` | “I see a **pause** on our side. I’m escalating to **payouts** — you’ll get an update by **[SLA]**.” |
+| “1099 / tax forms / W-9?” | None in app — Stripe holds KYC | Use **[weekly-contests-tax-winner-reporting-posture.md](weekly-contests-tax-winner-reporting-posture.md)** §5 scripts; **do not** invent thresholds. |
 
-**Escalate to Stripe / finance** when: reversal, dispute, wrong amount, or ledger mismatch — [Phase 6 ADR](weekly-contests-phase6-payouts-adr.md) void / correction section; disputes / chargebacks: [weekly-contests-phase6-disputes-runbook.md](weekly-contests-phase6-disputes-runbook.md) (P6-F2).
+**Escalate to Stripe / finance** when: reversal, dispute, wrong amount, ledger mismatch, or **any** tax liability question beyond §5 — [Phase 6 ADR](weekly-contests-phase6-payouts-adr.md) void / correction section; disputes / chargebacks: [weekly-contests-phase6-disputes-runbook.md](weekly-contests-phase6-disputes-runbook.md) (P6-F2). **Tax / 1099 posture (v1):** [weekly-contests-tax-winner-reporting-posture.md](weekly-contests-tax-winner-reporting-posture.md) (Story **GL-A2**).
 
 ---
 
@@ -164,5 +165,6 @@ If product enables email (Firebase Extension, SendGrid, etc.), keep **parity** w
 ## References
 
 - [weekly-contests-phase6-payouts-adr.md](weekly-contests-phase6-payouts-adr.md) — includes **Stripe Connect (Express)** model (P6-B1)  
+- [weekly-contests-tax-winner-reporting-posture.md](weekly-contests-tax-winner-reporting-posture.md) — **1099 / tax** support scripts & ops (Story **GL-A2**)  
 - [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) — Phase 6  
 - [leaderboards-duplicate-accounts-f2.md](../leaderboards/leaderboards-duplicate-accounts-f2.md) — verified email policy (optional for prizes)  

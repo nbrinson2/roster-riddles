@@ -20,7 +20,7 @@
 | **Prizes** | Outbound prize transfers via Stripe Connect (Express) per Phase 6 ADR |
 | **Published surfaces** | Printable weekly contest rules asset above; contest cards / Bio Ball strip copy; hero/disclaimer text tied to `simulatedContestsUiEnabled` vs live builds |
 
-**Out of scope here (track separately):** operational runbooks, Stripe Dashboard configuration, tax automation ([Story GL-A2](weekly-contests-production-go-live-jira.md#story-gl-a2--tax--1099--winner-reporting-posture-document-only-v1)), engineering-only staging QA ([Epic GL-B](weekly-contests-production-go-live-jira.md#epic-gl-b--staging-proof-before-prod-keys)).
+**Out of scope here (track separately):** operational runbooks, Stripe Dashboard configuration; **tax / 1099 posture** is documented in **[weekly-contests-tax-winner-reporting-posture.md](weekly-contests-tax-winner-reporting-posture.md)** ([Story GL-A2](weekly-contests-production-go-live-jira.md#story-gl-a2--tax--1099--winner-reporting-posture-document-only-v1)). Engineering-only staging QA: [Epic GL-B](weekly-contests-production-go-live-jira.md#epic-gl-b--staging-proof-before-prod-keys).
 
 ---
 
@@ -55,7 +55,7 @@ Sign only when **Section 2** is complete to your satisfaction for your domain.
 
 | Role | Name | Date (ISO) | Notes |
 |------|------|------------|-------|
-| **Finance / Tax** | | | Threshold posture per Phase 6 Phase 0 gate; may defer detail to [GL-A2](weekly-contests-production-go-live-jira.md#story-gl-a2--tax--1099--winner-reporting-posture-document-only-v1) |
+| **Finance / Tax** | | | Review **[weekly-contests-tax-winner-reporting-posture.md](weekly-contests-tax-winner-reporting-posture.md)** (GL-A2) + annual Stripe reporting checklist |
 
 ---
 

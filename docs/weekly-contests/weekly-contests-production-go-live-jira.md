@@ -42,6 +42,7 @@
 |-------|-------|
 | **Type** | Story |
 | **Summary** | Document threshold triggers and operational plan for winner tax reporting (even if automation is deferred). |
+| **Deliverable** | **[weekly-contests-tax-winner-reporting-posture.md](weekly-contests-tax-winner-reporting-posture.md)** |
 
 **Description**
 
@@ -50,7 +51,8 @@
 
 **Acceptance criteria**
 
-- [ ] One-page addendum under `docs/weekly-contests/` or ADR cross-link; linked from ops runbook.
+- [x] One-page addendum: **[weekly-contests-tax-winner-reporting-posture.md](weekly-contests-tax-winner-reporting-posture.md)**.
+- [x] Cross-links from [stripe.md](../payments/stripe.md) (Connect) and [weekly-contests-phase6-payouts-ux.md](weekly-contests-phase6-payouts-ux.md) (Support playbook).
 
 ---
 

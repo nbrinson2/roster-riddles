@@ -80,6 +80,7 @@ When you add server-side Stripe calls, set **`STRIPE_SECRET_KEY`** on the **stag
 ### Operational links
 
 - Stripe docs: **Connect onboarding** (Express), **Transfers**, **Account Links**.
+- **Tax / 1099 / winner reporting (v1, document-only):** [weekly-contests-tax-winner-reporting-posture.md](../weekly-contests/weekly-contests-tax-winner-reporting-posture.md) (Story **GL-A2**). Stripe: [Connect tax reporting](https://docs.stripe.com/connect/tax-reporting).
 - Support runbook (copy / UX): [weekly-contests-phase6-payouts-ux.md](../weekly-contests/weekly-contests-phase6-payouts-ux.md).
 - Staging QA (Connect + transfer E2E): [weekly-contests-phase6-staging-qa.md](../weekly-contests/weekly-contests-phase6-staging-qa.md) (Story **P6-I1**).
 - Disputes / chargebacks (entry fee vs prize): [weekly-contests-phase6-disputes-runbook.md](../weekly-contests/weekly-contests-phase6-disputes-runbook.md) (Story **P6-F2**).

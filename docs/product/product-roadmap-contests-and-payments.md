@@ -15,6 +15,8 @@
 
 **Production sign-off template (paid entry + prizes):** before Stripe **live** keys, complete **[weekly-contests-phase0-production-sign-off.md](../weekly-contests/weekly-contests-phase0-production-sign-off.md)** (Story GL-A1).
 
+**Tax / 1099 / winner reporting (document-only v1):** **[weekly-contests-tax-winner-reporting-posture.md](../weekly-contests/weekly-contests-tax-winner-reporting-posture.md)** (Story GL-A2).
+
 ---
 
 ## Phase 1 — Identity and sessions (login)
