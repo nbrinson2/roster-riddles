@@ -15,11 +15,13 @@ describe('stripe-server (Story P5-C1)', () => {
   const savedPayments = process.env.CONTESTS_PAYMENTS_ENABLED;
   const savedKey = process.env.STRIPE_SECRET_KEY;
   const savedWebhook = process.env.STRIPE_WEBHOOK_SECRET;
+  const savedCheckoutOrigin = process.env.CONTESTS_CHECKOUT_APP_ORIGIN;
 
   afterEach(() => {
     process.env.CONTESTS_PAYMENTS_ENABLED = savedPayments;
     process.env.STRIPE_SECRET_KEY = savedKey;
     process.env.STRIPE_WEBHOOK_SECRET = savedWebhook;
+    process.env.CONTESTS_CHECKOUT_APP_ORIGIN = savedCheckoutOrigin;
     resetStripeClientForTests();
   });
 
@@ -42,24 +44,35 @@ describe('stripe-server (Story P5-C1)', () => {
 
   it('getStripeHealthFields exposes payments flag and key mode without secrets', () => {
     delete process.env.STRIPE_WEBHOOK_SECRET;
+    delete process.env.CONTESTS_CHECKOUT_APP_ORIGIN;
     process.env.CONTESTS_PAYMENTS_ENABLED = 'false';
     process.env.STRIPE_SECRET_KEY = 'sk_test_12345678901234567890123456789012';
     assert.deepEqual(getStripeHealthFields(), {
       contestsPaymentsEnabled: false,
       stripeSecretKeyMode: null,
       stripeWebhookSecretConfigured: false,
+      contestsCheckoutAppOriginConfigured: false,
+    });
+    process.env.CONTESTS_CHECKOUT_APP_ORIGIN = 'https://example.com';
+    assert.deepEqual(getStripeHealthFields(), {
+      contestsPaymentsEnabled: false,
+      stripeSecretKeyMode: null,
+      stripeWebhookSecretConfigured: false,
+      contestsCheckoutAppOriginConfigured: true,
     });
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test_12345678901234567890123456789012';
     assert.deepEqual(getStripeHealthFields(), {
       contestsPaymentsEnabled: false,
       stripeSecretKeyMode: null,
       stripeWebhookSecretConfigured: true,
+      contestsCheckoutAppOriginConfigured: true,
     });
     process.env.CONTESTS_PAYMENTS_ENABLED = 'true';
     assert.deepEqual(getStripeHealthFields(), {
       contestsPaymentsEnabled: true,
       stripeSecretKeyMode: 'test',
       stripeWebhookSecretConfigured: true,
+      contestsCheckoutAppOriginConfigured: true,
     });
   });
 

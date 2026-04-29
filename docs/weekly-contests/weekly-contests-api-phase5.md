@@ -64,7 +64,7 @@ Success and cancel URLs point at:
 
 `/bio-ball/mlb?contestId=<id>&checkout=success|cancel`
 
-Base origin from **`CONTESTS_CHECKOUT_APP_ORIGIN`** (no trailing slash), e.g. `http://localhost:4300` for `ng serve` behind the usual proxy.
+Base origin from **`CONTESTS_CHECKOUT_APP_ORIGIN`** (no trailing slash), e.g. `http://localhost:4300` for `ng serve` behind the usual proxy. Production: [weekly-contests-gl-d3-checkout-redirect-origin.md](weekly-contests-gl-d3-checkout-redirect-origin.md) (Story **GL-D3**).
 
 ---
 

@@ -4,7 +4,7 @@
 
 **Not in scope for this file:** Re-implementing Phase 5/6 features; use [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) and [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) for feature completion.
 
-**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md) (GL-D1 API payments flag), [weekly-contests-gl-d2-stripe-webhook-live.md](weekly-contests-gl-d2-stripe-webhook-live.md) (GL-D2 live webhooks), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
+**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md) (GL-D1 API payments flag), [weekly-contests-gl-d2-stripe-webhook-live.md](weekly-contests-gl-d2-stripe-webhook-live.md) (GL-D2 live webhooks), [weekly-contests-gl-d3-checkout-redirect-origin.md](weekly-contests-gl-d3-checkout-redirect-origin.md) (GL-D3 checkout origin), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
 
 **Suggested labels:** `weekly-contests`, `production`, `stripe`, `payments`, `launch`
 
@@ -225,10 +225,19 @@
 |-------|-------|
 | **Type** | Story |
 | **Summary** | Set **`CONTESTS_CHECKOUT_APP_ORIGIN=https://rosterriddles.com`** (no trailing slash) [or actual canonical prod origin] for Checkout success/cancel URLs ([contest-checkout.http.js](../../server/contests/contest-checkout.http.js)). |
+| **Deliverable** | **[weekly-contests-gl-d3-checkout-redirect-origin.md](weekly-contests-gl-d3-checkout-redirect-origin.md)** (origin rules, URL shape, verification) |
+
+**Description**
+
+- Server builds **`success_url`** / **`cancel_url`** as **`{origin}/bio-ball/mlb?contestId=…&checkout=success|cancel`** — see [weekly-contests-gl-d3-checkout-redirect-origin.md](weekly-contests-gl-d3-checkout-redirect-origin.md).
+- Set **`CONTESTS_CHECKOUT_APP_ORIGIN`** on **Cloud Run** (not baked into Angular); default **`cloudbuild.yaml`** deploy does **not** set this var — configure on the service so it survives deploys.
+- **`GET /health`** includes **`contestsCheckoutAppOriginConfigured`** when the origin env is non-empty.
 
 **Acceptance criteria**
 
-- [ ] Paid join completes redirect to **`/bio-ball/...`** with expected query params; no mixed-content or wrong-host redirects.
+- [ ] **`CONTESTS_CHECKOUT_APP_ORIGIN`** set to canonical prod **`https://…`** (no trailing slash) on production Cloud Run — recorded in ticket or [weekly-contests-gl-d3-checkout-redirect-origin.md](weekly-contests-gl-d3-checkout-redirect-origin.md) notes.
+- [ ] **`GET /health`** shows **`contestsCheckoutAppOriginConfigured":true`** after deploy.
+- [ ] Paid join completes redirect to **`/bio-ball/mlb?...`** with **`checkout=success`** (or cancel flow **`checkout=cancel`**); no mixed-content or wrong-host redirects.
 
 ---
 
@@ -382,7 +391,7 @@ Kill switch **GL-G2** should be rehearsed before **GL-G1**.
 | `STRIPE_SECRET_KEY` | Server | **`sk_live_…`** |
 | `STRIPE_PUBLISHABLE_KEY` | Angular CI → `environment.prod.ts` | **`pk_live_…`** ([GL-C3](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md)) |
 | `STRIPE_WEBHOOK_SECRET` | Server | Live **`whsec_…`** ([GL-D2](weekly-contests-gl-d2-stripe-webhook-live.md)) |
-| `CONTESTS_CHECKOUT_APP_ORIGIN` | Server | Canonical HTTPS origin, no trailing slash |
+| `CONTESTS_CHECKOUT_APP_ORIGIN` | Server | Canonical **`https://…`** ([GL-D3](weekly-contests-gl-d3-checkout-redirect-origin.md)) |
 | `SIMULATED_CONTESTS_UI_ENABLED` | Angular CI | Prod: **`true`** only when explicit ([GL-C2](weekly-contests-gl-c2-simulated-contests-ui-build.md)); default empty / omitted |
 | `PAYOUT_OPERATOR_SECRET` / `CONTESTS_OPERATOR_SECRET` | Server | Payout execute / automation |
 | `CONTEST_PAYOUT_BALANCE_GUARD_ENABLED` | Server | Optional prod parity |

@@ -71,7 +71,7 @@ app.use(express.json());
 
 const MLB_API = 'https://statsapi.mlb.com/api/v1';
 
-/** Public — load balancers / uptime checks (Stripe flags are non-secret — Stories GL-D1 / GL-D2). */
+/** Public — load balancers / uptime checks (Stripe flags are non-secret — Stories GL-D1 / GL-D2 / GL-D3). */
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', ...getStripeHealthFields() });
 });

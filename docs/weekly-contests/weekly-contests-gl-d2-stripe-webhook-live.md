@@ -38,7 +38,7 @@ Use the Dashboard **event picker** to match the sections above; duplicate subscr
 ## Verification (acceptance)
 
 1. **Dashboard:** Developers → Webhooks → your **live** endpoint → **Send test event** (or wait for a real event) → delivery shows **2xx**. Misconfigured signing secret typically yields **400** invalid signature or **503** if secret unset.
-2. **`GET /health`:** Response includes **`stripeWebhookSecretConfigured":true`** when **`STRIPE_WEBHOOK_SECRET`** resolves (boolean only — no `whsec` value). See [`getStripeHealthFields`](../../server/payments/stripe-server.js) (Story GL-D1 / GL-D2).
+2. **`GET /health`:** Response includes **`stripeWebhookSecretConfigured":true`** when **`STRIPE_WEBHOOK_SECRET`** resolves (boolean only — no `whsec` value). Other Stripe readiness flags may appear (e.g. **`contestsCheckoutAppOriginConfigured`** — GL-D3). See [`getStripeHealthFields`](../../server/payments/stripe-server.js) (Stories GL-D1–D3).
 3. **Idempotency:** After a successful contest payment webhook, confirm **`processedStripeEvents/{eventId}`** in Firestore; resend the same event from the Dashboard → **200** without duplicate **`ledgerEntries`** / entry side effects ([weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md) § Verification).
 
 ## References
