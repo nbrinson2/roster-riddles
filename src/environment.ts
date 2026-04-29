@@ -21,7 +21,7 @@ export const environment = {
   baseUrl: '',
   /** Set to `false` to skip gameplay telemetry POSTs without changing feature flags. */
   sendGameplayEvents: true,
-  /** Stripe.js publishable key (`pk_test_…`); baked at CI build via `STRIPE_PUBLISHABLE_KEY` for staging/prod. */
+  /** Stripe.js publishable key (`pk_test_…` / `pk_live_…`); baked at CI via `STRIPE_PUBLISHABLE_KEY` — see `weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md`. */
   stripePublishableKey: '',
   /**
    * Story E1 — optional HTTP poll of `GET /api/v1/leaderboards` (ms). `0` = off.

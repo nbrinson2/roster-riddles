@@ -7,7 +7,7 @@
 # Optional: _CONTESTS_PAYMENTS_ENABLED (default `true`) — Express + Angular paid entry toggle for the built/deployed target.
 # Optional: _SIMULATED_CONTESTS_UI_ENABLED (default empty) — GL-C2; set `true` only to opt in to dashed simulated strip on prod builds (see weekly-contests-gl-c2-simulated-contests-ui-build.md).
 # Optional: _AUTH_SESSION_MAX_DAYS — Angular `authSessionMaxMs` (see generate-env-prod.mjs). `0`/`off` = no forced logout. Prod default 3d if unset; staging default 0 if unset.
-# Optional Stripe (Phase 1): _STRIPE_PUBLISHABLE_KEY — test (`pk_test_`) for staging trigger, live (`pk_live_`) for prod only (see docs/stripe.md)
+# Optional Stripe (Phase 1 / GL-C3): _STRIPE_PUBLISHABLE_KEY — test (`pk_test_`) for staging trigger; live (`pk_live_`) on prod trigger (see docs/stripe.md, weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md)
 #
 # Also set: _AR_HOSTNAME, _AR_PROJECT_ID, _AR_REPOSITORY, _AR_IMAGE_PATH (Artifact Registry
 # image path under the repo — Cloud Run “deploy from source” often uses

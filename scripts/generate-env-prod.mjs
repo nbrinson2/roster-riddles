@@ -50,6 +50,7 @@ const firestoreDatabaseId = isStaging
   ? '(default)'
   : (process.env.FIRESTORE_DATABASE_ID ?? 'roster-riddles').trim();
 
+/** GL-C3 — `pk_live_…` / `pk_test_…` only; never secret keys (passed via Docker / Cloud Build `_STRIPE_PUBLISHABLE_KEY`). */
 const stripePublishableKey = process.env.STRIPE_PUBLISHABLE_KEY ?? '';
 
 /** Firestore onSnapshot on B2 snapshot docs (E1). Prod: true; staging/dev: false. */

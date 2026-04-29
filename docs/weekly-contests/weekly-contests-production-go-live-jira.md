@@ -4,7 +4,7 @@
 
 **Not in scope for this file:** Re-implementing Phase 5/6 features; use [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) and [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) for feature completion.
 
-**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
+**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
 
 **Suggested labels:** `weekly-contests`, `production`, `stripe`, `payments`, `launch`
 
@@ -157,11 +157,19 @@
 |-------|-------|
 | **Type** | Story |
 | **Summary** | Inject **`pk_live_…`** via CI into **`environment.prod.ts`** (`stripePublishableKey`) for Checkout / Elements surfaces that require it. |
+| **Deliverable** | **[weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md)** (security, wiring, verification); **`_STRIPE_PUBLISHABLE_KEY`** on the **production** Cloud Build trigger |
+
+**Description**
+
+- **`STRIPE_PUBLISHABLE_KEY`** → **`environment.stripePublishableKey`** via [`generate-env-prod.mjs`](../../scripts/generate-env-prod.mjs); Docker **`STRIPE_PUBLISHABLE_KEY`** / Cloud Build **`_STRIPE_PUBLISHABLE_KEY`** ([`cloudbuild.yaml`](../../cloudbuild.yaml)).
+- **Production** trigger: set **`pk_live_…`** when enabling live client Stripe usage; **staging** trigger: **`pk_test_…`** only ([docs/payments/stripe.md](../payments/stripe.md)).
+- **Never** bake **`sk_*`** into Angular — server-only ([weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) § Security).
 
 **Acceptance criteria**
 
-- [ ] No secret keys in client bundle (publishable only).
-- [ ] Smoke test: load Bio Ball with contests drawer open — no console errors from Stripe.js initialization where applicable.
+- [ ] **`STRIPE_SECRET_KEY`** / webhook secrets **not** present in built SPA assets — verify by inspection (publishable **`pk_`** only).
+- [ ] Production trigger **`_STRIPE_PUBLISHABLE_KEY`** set to **`pk_live_…`** before relying on client Stripe.js — evidence per [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) § Verification.
+- [ ] Smoke: load Bio Ball (or home with contests drawer), confirm **no** Stripe console errors **where** the app initializes Stripe.js against **`environment.stripePublishableKey`**; if no client Stripe path exists yet, artifact grep / CI log suffices.
 
 ---
 
@@ -365,7 +373,7 @@ Kill switch **GL-G2** should be rehearsed before **GL-G1**.
 |-----------------|-------|-----------------|
 | `CONTESTS_PAYMENTS_ENABLED` | Server **and** Angular CI | Must be **`true`** for paid UX + API ([generate-env-prod.mjs](../../scripts/generate-env-prod.mjs); Cloud Build default [GL-C1](weekly-contests-gl-c1-production-paid-ui-build.md)) |
 | `STRIPE_SECRET_KEY` | Server | **`sk_live_…`** |
-| `STRIPE_PUBLISHABLE_KEY` | Angular CI → `environment.prod.ts` | **`pk_live_…`** |
+| `STRIPE_PUBLISHABLE_KEY` | Angular CI → `environment.prod.ts` | **`pk_live_…`** ([GL-C3](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md)) |
 | `STRIPE_WEBHOOK_SECRET` | Server | Live endpoint signing secret |
 | `CONTESTS_CHECKOUT_APP_ORIGIN` | Server | Canonical HTTPS origin, no trailing slash |
 | `SIMULATED_CONTESTS_UI_ENABLED` | Angular CI | Prod: **`true`** only when explicit ([GL-C2](weekly-contests-gl-c2-simulated-contests-ui-build.md)); default empty / omitted |

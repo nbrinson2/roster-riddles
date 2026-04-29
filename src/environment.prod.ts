@@ -11,6 +11,7 @@ export const environment = {
   deployment: 'production' as DeploymentEnvironment,
   firestoreDatabaseId: "roster-riddles",
   baseUrl: "",
+  /** Overwritten by `generate-env-prod.mjs` from `STRIPE_PUBLISHABLE_KEY` — prod trigger should use `pk_live_…` ([`weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md`](../docs/weekly-contests/weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md)). */
   stripePublishableKey: "",
   sendGameplayEvents: true,
   leaderboardPollIntervalMs: 0,
