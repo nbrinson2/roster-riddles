@@ -54,6 +54,8 @@ When you add server-side Stripe calls, set **`STRIPE_SECRET_KEY`** on the **stag
 
 **Checkout redirect origin (Story GL-D3):** set **`CONTESTS_CHECKOUT_APP_ORIGIN`** on Cloud Run to the same origin users use for the SPA; **`GET /health`** includes **`contestsCheckoutAppOriginConfigured`**. See [weekly-contests-gl-d3-checkout-redirect-origin.md](../weekly-contests/weekly-contests-gl-d3-checkout-redirect-origin.md).
 
+**Prize payout operator secrets (Story GL-D4, not Stripe keys):** provision **`PAYOUT_OPERATOR_SECRET`** and/or **`CONTESTS_OPERATOR_SECRET`** for internal **`POST /api/internal/.../payouts/execute`** — **`GET /health`** includes **`contestsPayoutExecuteSecretConfigured`**. See [weekly-contests-gl-d4-operator-secrets-payout-execute.md](../weekly-contests/weekly-contests-gl-d4-operator-secrets-payout-execute.md).
+
 ---
 
 ## Stripe Connect (Phase 6 — winner payouts)

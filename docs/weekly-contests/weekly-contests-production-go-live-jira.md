@@ -4,7 +4,7 @@
 
 **Not in scope for this file:** Re-implementing Phase 5/6 features; use [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) and [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) for feature completion.
 
-**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md) (GL-D1 API payments flag), [weekly-contests-gl-d2-stripe-webhook-live.md](weekly-contests-gl-d2-stripe-webhook-live.md) (GL-D2 live webhooks), [weekly-contests-gl-d3-checkout-redirect-origin.md](weekly-contests-gl-d3-checkout-redirect-origin.md) (GL-D3 checkout origin), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
+**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md) (GL-D1 API payments flag), [weekly-contests-gl-d2-stripe-webhook-live.md](weekly-contests-gl-d2-stripe-webhook-live.md) (GL-D2 live webhooks), [weekly-contests-gl-d3-checkout-redirect-origin.md](weekly-contests-gl-d3-checkout-redirect-origin.md) (GL-D3 checkout origin), [weekly-contests-gl-d4-operator-secrets-payout-execute.md](weekly-contests-gl-d4-operator-secrets-payout-execute.md) (GL-D4 payout operator secrets), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
 
 **Suggested labels:** `weekly-contests`, `production`, `stripe`, `payments`, `launch`
 
@@ -247,11 +247,19 @@
 |-------|-------|
 | **Type** | Story |
 | **Summary** | Provision **`PAYOUT_OPERATOR_SECRET`** or **`CONTESTS_OPERATOR_SECRET`** (per ops docs) in prod for **`POST /api/internal/.../payouts/execute`** and automation hooks ([contest-payout-automation.http.js](../../server/contests/contest-payout-automation.http.js)). |
+| **Deliverable** | **[weekly-contests-gl-d4-operator-secrets-payout-execute.md](weekly-contests-gl-d4-operator-secrets-payout-execute.md)** (secret resolution, routes, HTTP outcomes, runbooks) |
+
+**Description**
+
+- **`getPayoutExecuteSecret()`** prefers **`PAYOUT_OPERATOR_SECRET`**, then **`CONTESTS_OPERATOR_SECRET`** ([`contest-internal-auth.js`](../../server/lib/contest-internal-auth.js)).
+- If **neither** is set, payout execute / automation return **503** `server_misconfigured`; with secret configured, missing/wrong Bearer → **401**, valid auth → **200** when the rest of the request is valid ([weekly-contests-gl-d4-operator-secrets-payout-execute.md](weekly-contests-gl-d4-operator-secrets-payout-execute.md) § HTTP outcomes).
+- **`GET /health`** includes **`contestsPayoutExecuteSecretConfigured`** (boolean).
 
 **Acceptance criteria**
 
-- [ ] Secrets stored only in Secret Manager / encrypted env — not in repo.
-- [ ] Dry-run call from bastion returns **401** without secret, **200** with valid secret on staging clone before prod.
+- [ ] Secrets stored only in Secret Manager / encrypted env — **not** in repo.
+- [ ] **`GET /health`** shows **`contestsPayoutExecuteSecretConfigured":true`** after provisioning.
+- [ ] On an environment where the secret **is** configured: **`POST …/payouts/execute`** returns **401** with **no** / wrong **`Authorization`**; returns **200** (or non-auth business error) with valid Bearer **or** returns **503** if secrets were never configured — see [weekly-contests-gl-d4-operator-secrets-payout-execute.md](weekly-contests-gl-d4-operator-secrets-payout-execute.md) § Verification.
 
 ---
 
@@ -393,5 +401,5 @@ Kill switch **GL-G2** should be rehearsed before **GL-G1**.
 | `STRIPE_WEBHOOK_SECRET` | Server | Live **`whsec_…`** ([GL-D2](weekly-contests-gl-d2-stripe-webhook-live.md)) |
 | `CONTESTS_CHECKOUT_APP_ORIGIN` | Server | Canonical **`https://…`** ([GL-D3](weekly-contests-gl-d3-checkout-redirect-origin.md)) |
 | `SIMULATED_CONTESTS_UI_ENABLED` | Angular CI | Prod: **`true`** only when explicit ([GL-C2](weekly-contests-gl-c2-simulated-contests-ui-build.md)); default empty / omitted |
-| `PAYOUT_OPERATOR_SECRET` / `CONTESTS_OPERATOR_SECRET` | Server | Payout execute / automation |
+| `PAYOUT_OPERATOR_SECRET` / `CONTESTS_OPERATOR_SECRET` | Server | Payout execute / automation ([GL-D4](weekly-contests-gl-d4-operator-secrets-payout-execute.md)) |
 | `CONTEST_PAYOUT_BALANCE_GUARD_ENABLED` | Server | Optional prod parity |

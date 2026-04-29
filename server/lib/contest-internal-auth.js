@@ -35,7 +35,7 @@ export function getContestsOperatorOrCronSecret() {
 }
 
 /**
- * Phase 6 P6-D2 — prize payout execute hook. Dedicated secret wins; else operator secret.
+ * Phase 6 P6-D2 / Story GL-D4 — prize payout execute + automation. Dedicated secret wins; else operator secret.
  */
 export function getPayoutExecuteSecret() {
   return (
