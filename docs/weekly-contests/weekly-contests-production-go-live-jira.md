@@ -4,7 +4,7 @@
 
 **Not in scope for this file:** Re-implementing Phase 5/6 features; use [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) and [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) for feature completion.
 
-**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
+**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
 
 **Suggested labels:** `weekly-contests`, `production`, `stripe`, `payments`, `launch`
 
@@ -135,11 +135,19 @@
 |-------|-------|
 | **Type** | Story |
 | **Summary** | Confirm **`SIMULATED_CONTESTS_UI_ENABLED`** for prod builds: **`unset` or not `true`** → live-oriented strip/card copy ([generate-env-prod.mjs](../../scripts/generate-env-prod.mjs) production branch); opt-in **`true`** only for dry-run branded environments. |
+| **Deliverable** | **[weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md)** (behavior + verification); optional **`_SIMULATED_CONTESTS_UI_ENABLED`** in **[cloudbuild.yaml](../../cloudbuild.yaml)** / **[Dockerfile](../../Dockerfile)** |
+
+**Description**
+
+- **Production** Angular output sets **`simulatedContestsUiEnabled`** to **`true`** only when **`SIMULATED_CONTESTS_UI_ENABLED===`'true'`** at build time — see [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md).
+- **Staging** defaults to simulated UX unless the var is **`false`** (shared staging QA).
+- Coordinate with product so marketing / legal expectations match live-oriented copy on production.
 
 **Acceptance criteria**
 
-- [ ] Prod build uses dashed “simulated” strip **only** when explicitly requested.
-- [ ] `.env.example` and internal runbook match behavior.
+- [ ] Production Cloud Build leaves **`_SIMULATED_CONTESTS_UI_ENABLED`** **empty** or **`false`** (or unset substitution so default applies) for normal prod — recorded in ticket notes **or** [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) § Verification.
+- [ ] Prod artifact shows **`simulatedContestsUiEnabled`** falsy unless a trigger explicitly opts in — grep **`dist/`** / sourcemap **or** generated env step log.
+- [ ] [`.env.example`](../../.env.example) documents prod vs staging semantics (**already present**); [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) matches **`generate-env-prod.mjs`**.
 
 ---
 
@@ -360,6 +368,6 @@ Kill switch **GL-G2** should be rehearsed before **GL-G1**.
 | `STRIPE_PUBLISHABLE_KEY` | Angular CI → `environment.prod.ts` | **`pk_live_…`** |
 | `STRIPE_WEBHOOK_SECRET` | Server | Live endpoint signing secret |
 | `CONTESTS_CHECKOUT_APP_ORIGIN` | Server | Canonical HTTPS origin, no trailing slash |
-| `SIMULATED_CONTESTS_UI_ENABLED` | Angular CI | Omit / **`false`** for live-oriented UI (prod default in generator) |
+| `SIMULATED_CONTESTS_UI_ENABLED` | Angular CI | Prod: **`true`** only when explicit ([GL-C2](weekly-contests-gl-c2-simulated-contests-ui-build.md)); default empty / omitted |
 | `PAYOUT_OPERATOR_SECRET` / `CONTESTS_OPERATOR_SECRET` | Server | Payout execute / automation |
 | `CONTEST_PAYOUT_BALANCE_GUARD_ENABLED` | Server | Optional prod parity |

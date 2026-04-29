@@ -17,7 +17,7 @@ export const environment = {
   leaderboardUseFirestoreSnapshot: false,
   leaderboardsUiEnabled: true,
   weeklyContestsUiEnabled: true,
-  /** Overwritten by `generate-env-prod.mjs` — production defaults to false (live-oriented contest UX). */
+  /** Overwritten by `generate-env-prod.mjs` — production defaults to false unless `SIMULATED_CONTESTS_UI_ENABLED=true` (`weekly-contests-gl-c2-simulated-contests-ui-build.md`). */
   simulatedContestsUiEnabled: false,
   adminDashboardUiEnabled: true,
   /**

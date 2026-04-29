@@ -39,6 +39,7 @@ Never commit keys. Never put **secret** keys in the Angular app — only **publi
 - **`.env.example`** — lists `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` / `CONTESTS_PAYMENTS_ENABLED` as comments (no values).
 - **`src/environment.ts`** — `stripePublishableKey: ''` until CI supplies `STRIPE_PUBLISHABLE_KEY` at build time.
 - **`scripts/generate-env-prod.mjs`** — emits `stripePublishableKey` from `STRIPE_PUBLISHABLE_KEY` (optional; empty if unset).
+- **`SIMULATED_CONTESTS_UI_ENABLED`** — Angular-only; dashed simulated contest strip defaults **off** on production builds unless explicitly `true` — [weekly-contests-gl-c2-simulated-contests-ui-build.md](../weekly-contests/weekly-contests-gl-c2-simulated-contests-ui-build.md) (Story **GL-C2**).
 - **`Dockerfile` (build stage)** — optional `ARG STRIPE_PUBLISHABLE_KEY` for the Angular bundle.
 - **`cloudbuild.yaml`** — optional `_STRIPE_PUBLISHABLE_KEY` substitution passed as build-arg (defaults to empty).
 

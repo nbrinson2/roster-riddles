@@ -44,7 +44,8 @@ export const environment = {
   /**
    * When false, omit simulated / dry-run contest UX (hero disclaimer, “Simulated prizes” strip taglines,
    * “(simulated)” entry-fee phrasing, dry-run payout headings). Weekly contests UI still follows
-   * `weeklyContestsUiEnabled`. Staging/prod: `SIMULATED_CONTESTS_UI_ENABLED` via `generate-env-prod.mjs`.
+   * `weeklyContestsUiEnabled`. Staging/prod: `SIMULATED_CONTESTS_UI_ENABLED` via `generate-env-prod.mjs`
+   * (prod defaults off — see `weekly-contests-gl-c2-simulated-contests-ui-build.md`).
    */
   simulatedContestsUiEnabled: false,
   /**

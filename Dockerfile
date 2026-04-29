@@ -32,6 +32,8 @@ ARG FIRESTORE_DATABASE_ID=roster-riddles
 ARG ADMIN_DASHBOARD_UI_ENABLED=
 # Story P5 / GL-C1 — Angular `contestsPaymentsEnabled` when `true` at build (`generate-env-prod.mjs`). Cloud Build passes `true` by default (`cloudbuild.yaml`); local Docker builds omitting this arg stay `false`.
 ARG CONTESTS_PAYMENTS_ENABLED=false
+# GL-C2 — dashed “simulated” strip / card copy. Prod: only when `true`; staging default handled in `generate-env-prod.mjs`. Empty = production live-oriented UX.
+ARG SIMULATED_CONTESTS_UI_ENABLED=
 # Optional — max signed-in session in days (`0`/`off` = none). See `generate-env-prod.mjs` / `AuthSessionExpiryService`.
 ARG AUTH_SESSION_MAX_DAYS=
 
@@ -48,6 +50,7 @@ ENV DEPLOYMENT=$DEPLOYMENT \
     FIRESTORE_DATABASE_ID=$FIRESTORE_DATABASE_ID \
     ADMIN_DASHBOARD_UI_ENABLED=$ADMIN_DASHBOARD_UI_ENABLED \
     CONTESTS_PAYMENTS_ENABLED=$CONTESTS_PAYMENTS_ENABLED \
+    SIMULATED_CONTESTS_UI_ENABLED=$SIMULATED_CONTESTS_UI_ENABLED \
     AUTH_SESSION_MAX_DAYS=$AUTH_SESSION_MAX_DAYS
 
 # Fail fast with a clear message if Cloud Build did not pass --build-arg (see cloudbuild.yaml + trigger substitutions)

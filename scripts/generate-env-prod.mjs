@@ -62,8 +62,8 @@ const leaderboardsUiEnabled = process.env.LEADERBOARDS_UI_ENABLED !== 'false';
 const weeklyContestsUiEnabled = process.env.WEEKLY_CONTESTS_UI_ENABLED !== 'false';
 
 /**
- * Simulated / dry-run contest strip + card copy.
- * - **Production:** off unless `SIMULATED_CONTESTS_UI_ENABLED=true` (explicit opt-in).
+ * Simulated / dry-run contest strip + card copy (GL-C2).
+ * - **Production:** off unless `SIMULATED_CONTESTS_UI_ENABLED=true` (explicit opt-in). Optional Docker / Cloud Build `_SIMULATED_CONTESTS_UI_ENABLED`.
  * - **Staging:** on unless `SIMULATED_CONTESTS_UI_ENABLED=false`.
  */
 const simulatedContestsUiEnabled = isStaging
