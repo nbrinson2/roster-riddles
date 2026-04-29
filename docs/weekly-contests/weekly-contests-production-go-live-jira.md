@@ -4,7 +4,7 @@
 
 **Not in scope for this file:** Re-implementing Phase 5/6 features; use [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) and [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) for feature completion.
 
-**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
+**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
 
 **Suggested labels:** `weekly-contests`, `production`, `stripe`, `payments`, `launch`
 
@@ -84,12 +84,24 @@
 | Field | Value |
 |-------|-------|
 | **Type** | Story |
-| **Summary** | Execute [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md); at least one successful **`payouts/final`** path with **`transfer.*`** webhook verification. |
+| **Summary** | Execute [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md) end-to-end on shared staging; archive Connect onboarding, execute, **`tr_…`**, and webhook proof. |
+| **Deliverable** | Completed **[weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md)** (template → filled evidence) |
+
+**Description**
+
+- Use **team-shared staging** with **fixed** SPA + API + webhook URLs ([stripe.md](../payments/stripe.md) — `CONTESTS_CHECKOUT_APP_ORIGIN`; Connect env vars per [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md) Preconditions).
+- Complete **Express** onboarding for a winner test user; run scoring → **`paid`** → **payout execute** so **`payouts/final`** contains at least one real **`tr_…`** in test mode (or a documented intentional **`skipped`** line).
+- Verify **`transfer.*`** / optional **`payout.*`** webhooks and consistency across Stripe Dashboard, **`payouts/final`**, and **`ledgerEntries`**.
+- Run **§6** refund and/or void-after-prize drill as in the runbook.
+- Confirm **`npm run test:server`** green on the release candidate.
 
 **Acceptance criteria**
 
-- [ ] Winner Connect onboarding complete in test; execute returns **200** or documented intentional skip.
-- [ ] **`npm run test:server`** green on branch tagged for release.
+- [ ] All substantive Phase 6 checks in evidence doc **§6** (aligned with runbook [§8 Sign-off](weekly-contests-phase6-staging-qa.md#8-sign-off-copy-to-ticket--release-doc)) verified on **test mode** Stripe — recorded with ids/links.
+- [ ] Webhook endpoint documented (Dashboard URL **or** Stripe CLI forward); evidence shows **`account.updated`** and **`transfer.*`** deliveries succeeding — evidence doc **§3**.
+- [ ] At least one **`tr_…`** on **`payouts/final`** with matching Stripe Connect **Transfers** row — evidence doc **§4**.
+- [ ] **`processedStripeEvents`** idempotency observed under replay test for at least one webhook — evidence doc **§5**.
+- [ ] **`npm run test:server`** green on branch tagged for release — link in evidence doc **§2**.
 
 ---
 

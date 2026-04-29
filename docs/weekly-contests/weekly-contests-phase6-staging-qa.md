@@ -10,6 +10,10 @@
 
 **Capacity:** Firestore read/write and Stripe call counts per run are summarized in [weekly-contests-ops-p6-payout-execute.md — Load and cost (P6-I2)](weekly-contests-ops-p6-payout-execute.md#load-and-cost-story-p6-i2).
 
+### Production go-live — Story GL-B2 (shared staging, Connect + transfer E2E)
+
+Before enabling **live** prize payouts in production, repeat **this entire runbook** on **shared staging** using **stable URLs** for the SPA, API, and webhooks (not only `localhost`). Record proof in **[weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md)** ([weekly-contests-production-go-live-jira.md](weekly-contests-production-go-live-jira.md) — Epic **GL-B**).
+
 ---
 
 ## Preconditions
