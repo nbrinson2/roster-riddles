@@ -80,6 +80,7 @@ steps:
       # Public web app + SPA; remove or use IAM if the service must stay private.
       - --allow-unauthenticated
       - --quiet
+      # GL-D1 — API contest payments + Stripe startup validation; keep in sync with Angular build-arg (GL-C1).
       - --update-env-vars=CONTESTS_PAYMENTS_ENABLED=$_CONTESTS_PAYMENTS_ENABLED
 
 # Defaults for local `gcloud builds submit`; the trigger overrides these with your console values.

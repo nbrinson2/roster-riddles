@@ -47,7 +47,10 @@ import {
 import { requireFirebaseAuth } from './server/middleware/require-auth.js';
 import { requireAdmin } from './server/middleware/require-admin.js';
 import { requestIdMiddleware } from './server/middleware/request-id.middleware.js';
-import { validateStripeConfigAtStartup } from './server/payments/stripe-server.js';
+import {
+  getStripeHealthFields,
+  validateStripeConfigAtStartup,
+} from './server/payments/stripe-server.js';
 import { postStripeConnectOnboarding } from './server/payments/stripe-connect-onboarding.http.js';
 import { postStripeWebhook } from './server/payments/stripe-webhook.http.js';
 
@@ -68,9 +71,9 @@ app.use(express.json());
 
 const MLB_API = 'https://statsapi.mlb.com/api/v1';
 
-/** Public — load balancers / uptime checks */
+/** Public — load balancers / uptime checks (Stripe flags are non-secret — Story GL-D1). */
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({ status: 'ok', ...getStripeHealthFields() });
 });
 
 // API routes (must be registered before static / SPA fallback)

@@ -48,6 +48,8 @@ Never commit keys. Never put **secret** keys in the Angular app — only **publi
 
 When you add server-side Stripe calls, set **`STRIPE_SECRET_KEY`** on the **staging** and **production** services separately (staging = test key, prod = live key). Do not bake secret keys into the Docker image; use **secrets** or **environment variables** configured in the Cloud Run console / Terraform.
 
+**Contest payments flag (Story GL-D1):** set **`CONTESTS_PAYMENTS_ENABLED=true`** on the service when enabling paid entry server-side; **`GET /health`** exposes **`contestsPaymentsEnabled`** and **`stripeSecretKeyMode`** (non-secret). See [weekly-contests-gl-d1-api-contest-payments-enabled.md](../weekly-contests/weekly-contests-gl-d1-api-contest-payments-enabled.md).
+
 ---
 
 ## Stripe Connect (Phase 6 — winner payouts)

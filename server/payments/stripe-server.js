@@ -102,6 +102,22 @@ export function sendStripeServiceUnavailable(res) {
   });
 }
 
+/**
+ * Safe snapshot for `GET /health` — no secret values (Story GL-D1).
+ * When payments are enabled but no key is resolved, `stripeSecretKeyMode` is **null** (should not happen after startup validation).
+ *
+ * @returns {{ contestsPaymentsEnabled: boolean, stripeSecretKeyMode: 'test' | 'live' | 'unknown' | null }}
+ */
+export function getStripeHealthFields() {
+  const enabled = isContestsPaymentsEnabled();
+  if (!enabled) {
+    return { contestsPaymentsEnabled: false, stripeSecretKeyMode: null };
+  }
+  const key = resolveSecretFromEnv('STRIPE_SECRET_KEY');
+  const mode = key ? getStripeSecretKeyMode(key) : null;
+  return { contestsPaymentsEnabled: true, stripeSecretKeyMode: mode };
+}
+
 /** @internal */
 export function resetStripeClientForTests() {
   stripeSingleton = null;

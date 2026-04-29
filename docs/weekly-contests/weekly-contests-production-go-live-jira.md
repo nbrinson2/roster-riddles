@@ -4,7 +4,7 @@
 
 **Not in scope for this file:** Re-implementing Phase 5/6 features; use [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) and [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) for feature completion.
 
-**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
+**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md) (GL-D1 API payments flag), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
 
 **Suggested labels:** `weekly-contests`, `production`, `stripe`, `payments`, `launch`
 
@@ -181,16 +181,18 @@
 |-------|-------|
 | **Type** | Story |
 | **Summary** | Set server env **`CONTESTS_PAYMENTS_ENABLED=true`** in production so Checkout session creation, webhooks, Connect routes, and payout execute gates succeed ([stripe-server.js](../../server/payments/stripe-server.js)). |
+| **Deliverable** | **[weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md)** (runtime wiring + verification); Cloud Run env via **[cloudbuild.yaml](../../cloudbuild.yaml)** **`CONTESTS_PAYMENTS_ENABLED`** deploy flag |
 
 **Description**
 
 - Startup validation requires **`STRIPE_SECRET_KEY`** when payments enabled — provision **`sk_live_…`** in Secret Manager / runtime env.
-- Coordinate rollout with GL-C1 to avoid mismatched UX.
+- Coordinate rollout with **GL-C1** so Angular **`contestsPaymentsEnabled`** and API gates stay aligned.
+- **`GET /health`** returns **`contestsPaymentsEnabled`** and **`stripeSecretKeyMode`** (`test` \| `live` \| `unknown` \| `null`) — no secret values ([`index.js`](../../index.js), [`getStripeHealthFields`](../../server/payments/stripe-server.js)).
 
 **Acceptance criteria**
 
-- [ ] Deploy startup logs show Stripe initialized (no `exit(1)` from `validateStripeConfigAtStartup`).
-- [ ] **`GET`** health or config probe documents payments enabled (without leaking secrets).
+- [ ] Deploy startup logs show **`stripe_client_initialized`** (no **`exit(1)`** from **`validateStripeConfigAtStartup`** when payments + secret key are correctly set).
+- [ ] **`GET /health`** JSON includes **`contestsPaymentsEnabled`** and **`stripeSecretKeyMode`** — verify against [weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md) § Verification.
 
 ---
 
@@ -371,7 +373,7 @@ Kill switch **GL-G2** should be rehearsed before **GL-G1**.
 
 | Variable / knob | Where | Prod live notes |
 |-----------------|-------|-----------------|
-| `CONTESTS_PAYMENTS_ENABLED` | Server **and** Angular CI | Must be **`true`** for paid UX + API ([generate-env-prod.mjs](../../scripts/generate-env-prod.mjs); Cloud Build default [GL-C1](weekly-contests-gl-c1-production-paid-ui-build.md)) |
+| `CONTESTS_PAYMENTS_ENABLED` | Server **and** Angular CI | Must be **`true`** for paid UX + API — SPA [GL-C1](weekly-contests-gl-c1-production-paid-ui-build.md), Cloud Run [GL-D1](weekly-contests-gl-d1-api-contest-payments-enabled.md) |
 | `STRIPE_SECRET_KEY` | Server | **`sk_live_…`** |
 | `STRIPE_PUBLISHABLE_KEY` | Angular CI → `environment.prod.ts` | **`pk_live_…`** ([GL-C3](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md)) |
 | `STRIPE_WEBHOOK_SECRET` | Server | Live endpoint signing secret |

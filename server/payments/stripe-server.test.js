@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { afterEach, describe, it } from 'node:test';
 import {
   getStripeClient,
+  getStripeHealthFields,
   getStripeSecretKeyMode,
   isContestsPaymentsEnabled,
   resetStripeClientForTests,
@@ -35,6 +36,20 @@ describe('stripe-server (Story P5-C1)', () => {
     assert.equal(isContestsPaymentsEnabled(), false);
     delete process.env.CONTESTS_PAYMENTS_ENABLED;
     assert.equal(isContestsPaymentsEnabled(), false);
+  });
+
+  it('getStripeHealthFields exposes payments flag and key mode without secrets', () => {
+    process.env.CONTESTS_PAYMENTS_ENABLED = 'false';
+    process.env.STRIPE_SECRET_KEY = 'sk_test_12345678901234567890123456789012';
+    assert.deepEqual(getStripeHealthFields(), {
+      contestsPaymentsEnabled: false,
+      stripeSecretKeyMode: null,
+    });
+    process.env.CONTESTS_PAYMENTS_ENABLED = 'true';
+    assert.deepEqual(getStripeHealthFields(), {
+      contestsPaymentsEnabled: true,
+      stripeSecretKeyMode: 'test',
+    });
   });
 
   it('resolves STRIPE_SECRET_KEY from a gitignored file path', () => {
