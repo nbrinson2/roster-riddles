@@ -50,7 +50,7 @@ Lock **product + engineering** before Connect work:
 **Acceptance criteria**
 
 - [x] ADR merged with **state machine** for contest-level payout status (`none` \| `scheduled` \| `in_progress` \| `completed` \| `failed` \| `held`).
-- [x] Explicit **link** to Phase 0 legal sign-off for real-money prizes.
+- [x] Explicit **link** to Phase 0 legal sign-off for real-money prizes — **[weekly-contests-phase0-production-sign-off.md](weekly-contests-phase0-production-sign-off.md)** (Story GL-A1).
 - [x] Table: **event** → **Stripe API** → **Firestore writes** → **ledger line type** (new `lineType` values enumerated).
 
 **Dependencies**

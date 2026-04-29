@@ -13,6 +13,8 @@
 - **Choose payment + payout provider:** Stripe (Connect for marketplace-style payouts to winners) is a typical path; alternatives exist but the pattern is similar: collect → hold → distribute with audit logs.
 - **Success metrics:** e.g. “login works,” “stats accurate,” “leaderboard updates within X minutes,” “payout completes within Y days.”
 
+**Production sign-off template (paid entry + prizes):** before Stripe **live** keys, complete **[weekly-contests-phase0-production-sign-off.md](../weekly-contests/weekly-contests-phase0-production-sign-off.md)** (Story GL-A1).
+
 ---
 
 ## Phase 1 — Identity and sessions (login)

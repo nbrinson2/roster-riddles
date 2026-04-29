@@ -50,7 +50,7 @@ Lock engineering decisions before large implementation:
 - [x] New ADR merged under `docs/` with status machine for **`paymentStatus`** (or equivalent) on `contests/{id}/entries/{uid}`.
 - [x] Explicit **free path**: when `entryFeeCents` is 0 or absent, no Stripe calls; aligns with Phase 4 join.
 - [x] Links to Phase 0 legal docs / ToS placeholders as “must ship before prod live keys”.
-- [ ] Review sign-off table (product + engineering + legal) completed in ADR *(fill names/dates when reviewed)*.
+- [ ] Review **[weekly-contests-phase0-production-sign-off.md](weekly-contests-phase0-production-sign-off.md)** (product + engineering + legal + checklist C1–C8) *(Story GL-A1; replaces sign-off table-only note)*.
 
 **Dependencies**
 

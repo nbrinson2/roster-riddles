@@ -29,6 +29,8 @@ Paid **prizes** (not just entry fees) typically implicate **sweepstakes / gambli
 
 **Engineering does not substitute** for the above sign-off.
 
+**Record:** Complete **[weekly-contests-phase0-production-sign-off.md](weekly-contests-phase0-production-sign-off.md)** (Story **GL-A1**) before enabling live prize payouts.
+
 ---
 
 ## Decision summary

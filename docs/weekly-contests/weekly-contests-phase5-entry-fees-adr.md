@@ -153,11 +153,10 @@ Related posture: [leaderboards-prize-verification-f3.md](../leaderboards/leaderb
 
 ## Sign-off
 
-| Role | Name | Date | Notes |
-|------|------|------|-------|
-| Product | | | Checkout-first; USD cents; free path unchanged |
-| Engineering | | | Webhook-authoritative; no PAN; idempotent events |
-| Legal / Compliance | | | Required before **live** Stripe — regions, ToS, refunds |
+**Canonical Phase 0 production sign-off** (paid entry **and** prizes, checklist C1–C8, waiver register):  
+**[weekly-contests-phase0-production-sign-off.md](weekly-contests-phase0-production-sign-off.md)**
+
+Fill that document before Stripe **live** keys. The ADR-specific intent remains: **Checkout-first**, **USD cents**, **free path unchanged**, **webhook-authoritative** payment state, **no PAN** storage ([stripe.md](../payments/stripe.md)).
 
 ---
 
