@@ -4,7 +4,7 @@
 
 **Not in scope for this file:** Re-implementing Phase 5/6 features; use [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) and [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) for feature completion.
 
-**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md) (GL-D1 API payments flag), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
+**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md) (GL-D1 API payments flag), [weekly-contests-gl-d2-stripe-webhook-live.md](weekly-contests-gl-d2-stripe-webhook-live.md) (GL-D2 live webhooks), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
 
 **Suggested labels:** `weekly-contests`, `production`, `stripe`, `payments`, `launch`
 
@@ -202,15 +202,20 @@
 |-------|-------|
 | **Type** | Story |
 | **Summary** | Register **`POST /api/v1/webhooks/stripe`** on **live** Stripe Dashboard; set **`STRIPE_WEBHOOK_SECRET`** (`whsec_…`) in prod server env. |
+| **Deliverable** | **[weekly-contests-gl-d2-stripe-webhook-live.md](weekly-contests-gl-d2-stripe-webhook-live.md)** (live endpoint checklist + verification) |
 
 **Description**
 
 - Subscribe to events required for Phase 5 + 6: contest payment success/failure/refund paths; Connect **`account.updated`**; prize **`transfer.*`** / **`payout.*`** per [weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md).
+- **Live** signing secret must match the **live** Dashboard endpoint (not test-mode **`whsec_…`**).
+- **`GET /health`** exposes **`stripeWebhookSecretConfigured`** (boolean) when secret resolves — see [weekly-contests-gl-d2-stripe-webhook-live.md](weekly-contests-gl-d2-stripe-webhook-live.md) § Verification.
 
 **Acceptance criteria**
 
-- [ ] Webhook delivery tab shows **2xx** for test deliveries after deploy.
-- [ ] Idempotency collections (`processedStripeEvents`) receive live traffic without duplicate ledger rows in smoke test.
+- [ ] **Live** Stripe Dashboard: webhook URL **`https://<prod-host>/api/v1/webhooks/stripe`**, required events subscribed — recorded in ticket or GL-D2 doc notes.
+- [ ] **`STRIPE_WEBHOOK_SECRET`** set on production Cloud Run (live **`whsec_…`**); **`GET /health`** shows **`stripeWebhookSecretConfigured":true`**.
+- [ ] Webhook **Send test event** (or real event) shows **2xx** delivery after deploy.
+- [ ] Idempotency: **`processedStripeEvents`** smoke — replay same **`evt_…`** → no duplicate ledger rows ([weekly-contests-phase5-webhooks.md](weekly-contests-phase5-webhooks.md)).
 
 ---
 
@@ -376,7 +381,7 @@ Kill switch **GL-G2** should be rehearsed before **GL-G1**.
 | `CONTESTS_PAYMENTS_ENABLED` | Server **and** Angular CI | Must be **`true`** for paid UX + API — SPA [GL-C1](weekly-contests-gl-c1-production-paid-ui-build.md), Cloud Run [GL-D1](weekly-contests-gl-d1-api-contest-payments-enabled.md) |
 | `STRIPE_SECRET_KEY` | Server | **`sk_live_…`** |
 | `STRIPE_PUBLISHABLE_KEY` | Angular CI → `environment.prod.ts` | **`pk_live_…`** ([GL-C3](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md)) |
-| `STRIPE_WEBHOOK_SECRET` | Server | Live endpoint signing secret |
+| `STRIPE_WEBHOOK_SECRET` | Server | Live **`whsec_…`** ([GL-D2](weekly-contests-gl-d2-stripe-webhook-live.md)) |
 | `CONTESTS_CHECKOUT_APP_ORIGIN` | Server | Canonical HTTPS origin, no trailing slash |
 | `SIMULATED_CONTESTS_UI_ENABLED` | Angular CI | Prod: **`true`** only when explicit ([GL-C2](weekly-contests-gl-c2-simulated-contests-ui-build.md)); default empty / omitted |
 | `PAYOUT_OPERATOR_SECRET` / `CONTESTS_OPERATOR_SECRET` | Server | Payout execute / automation |

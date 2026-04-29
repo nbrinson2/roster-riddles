@@ -9,7 +9,7 @@
 | Layer | Behavior |
 |-------|----------|
 | **`server/payments/stripe-server.js`** | **`isContestsPaymentsEnabled()`** — **`true`** only when **`process.env.CONTESTS_PAYMENTS_ENABLED === 'true'`**. **`validateStripeConfigAtStartup()`** — if enabled and **`STRIPE_SECRET_KEY`** missing → JSON error log and **`process.exit(1)`**. First **`getStripeClient()`** logs **`stripe_client_initialized`** with **`stripeSecretKeyMode`** (`test` \| `live` \| `unknown`). |
-| **`index.js`** | Calls **`validateStripeConfigAtStartup()`** before **`listen`**. **`GET /health`** includes **`contestsPaymentsEnabled`** and **`stripeSecretKeyMode`** (non-secret — Story GL-D1 acceptance). |
+| **`index.js`** | Calls **`validateStripeConfigAtStartup()`** before **`listen`**. **`GET /health`** includes **`contestsPaymentsEnabled`**, **`stripeSecretKeyMode`**, and **`stripeWebhookSecretConfigured`** (booleans / mode only — Stories GL-D1 / GL-D2). |
 | **`cloudbuild.yaml`** | **`gcloud run deploy … --update-env-vars=CONTESTS_PAYMENTS_ENABLED=$_CONTESTS_PAYMENTS_ENABLED`** — default **`_CONTESTS_PAYMENTS_ENABLED: 'true'`** aligns API with Angular when using the same substitution ([GL-C1](weekly-contests-gl-c1-production-paid-ui-build.md)). |
 
 ## Secrets
@@ -24,9 +24,9 @@ Match **server** **`CONTESTS_PAYMENTS_ENABLED`** with **Angular** **`contestsPay
 ## Verification (acceptance)
 
 1. **Startup:** After deploy, logs contain **`stripe_client_initialized`** with **`stripeSecretKeyMode":"live"`** (prod) or **`test`** (staging) — not **`exit(1)`** from **`validateStripeConfigAtStartup`**.
-2. **Health:** **`GET /health`** returns JSON including **`"contestsPaymentsEnabled":true`** and **`"stripeSecretKeyMode"`** (`test` \| `live` \| `unknown` \| **`null`** when payments off). Example:
+2. **Health:** **`GET /health`** returns JSON including **`contestsPaymentsEnabled`**, **`stripeSecretKeyMode`** (`test` \| `live` \| `unknown` \| **`null`** when payments off), and **`stripeWebhookSecretConfigured`** ( **`true`** when **`STRIPE_WEBHOOK_SECRET`** resolves — GL-D2). Example:
    ```json
-   {"status":"ok","contestsPaymentsEnabled":true,"stripeSecretKeyMode":"live"}
+   {"status":"ok","contestsPaymentsEnabled":true,"stripeSecretKeyMode":"live","stripeWebhookSecretConfigured":true}
    ```
 
 ## References
@@ -35,3 +35,4 @@ Match **server** **`CONTESTS_PAYMENTS_ENABLED`** with **Angular** **`contestsPay
 - [`index.js`](../../index.js)
 - [`cloudbuild.yaml`](../../cloudbuild.yaml)
 - [`docs/payments/stripe.md`](../payments/stripe.md)
+- [weekly-contests-gl-d2-stripe-webhook-live.md](weekly-contests-gl-d2-stripe-webhook-live.md) — webhook signing secret (GL-D2)

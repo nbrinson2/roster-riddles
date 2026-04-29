@@ -103,19 +103,35 @@ export function sendStripeServiceUnavailable(res) {
 }
 
 /**
- * Safe snapshot for `GET /health` — no secret values (Story GL-D1).
+ * Safe snapshot for `GET /health` — no secret values (Story GL-D1 / GL-D2).
  * When payments are enabled but no key is resolved, `stripeSecretKeyMode` is **null** (should not happen after startup validation).
  *
- * @returns {{ contestsPaymentsEnabled: boolean, stripeSecretKeyMode: 'test' | 'live' | 'unknown' | null }}
+ * @returns {{
+ *   contestsPaymentsEnabled: boolean,
+ *   stripeSecretKeyMode: 'test' | 'live' | 'unknown' | null,
+ *   stripeWebhookSecretConfigured: boolean,
+ * }}
  */
 export function getStripeHealthFields() {
+  const webhookSecret = resolveSecretFromEnv('STRIPE_WEBHOOK_SECRET');
+  const stripeWebhookSecretConfigured = Boolean(
+    typeof webhookSecret === 'string' && webhookSecret.trim() !== '',
+  );
   const enabled = isContestsPaymentsEnabled();
   if (!enabled) {
-    return { contestsPaymentsEnabled: false, stripeSecretKeyMode: null };
+    return {
+      contestsPaymentsEnabled: false,
+      stripeSecretKeyMode: null,
+      stripeWebhookSecretConfigured,
+    };
   }
   const key = resolveSecretFromEnv('STRIPE_SECRET_KEY');
   const mode = key ? getStripeSecretKeyMode(key) : null;
-  return { contestsPaymentsEnabled: true, stripeSecretKeyMode: mode };
+  return {
+    contestsPaymentsEnabled: true,
+    stripeSecretKeyMode: mode,
+    stripeWebhookSecretConfigured,
+  };
 }
 
 /** @internal */
