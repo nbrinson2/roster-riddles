@@ -4,7 +4,7 @@
 
 **Not in scope for this file:** Re-implementing Phase 5/6 features; use [weekly-contests-phase5-payments-jira.md](weekly-contests-phase5-payments-jira.md) and [weekly-contests-phase6-payouts-jira.md](weekly-contests-phase6-payouts-jira.md) for feature completion.
 
-**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md) (GL-D1 API payments flag), [weekly-contests-gl-d2-stripe-webhook-live.md](weekly-contests-gl-d2-stripe-webhook-live.md) (GL-D2 live webhooks), [weekly-contests-gl-d3-checkout-redirect-origin.md](weekly-contests-gl-d3-checkout-redirect-origin.md) (GL-D3 checkout origin), [weekly-contests-gl-d4-operator-secrets-payout-execute.md](weekly-contests-gl-d4-operator-secrets-payout-execute.md) (GL-D4 payout operator secrets), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
+**Related:** [product-roadmap-contests-and-payments.md](../product/product-roadmap-contests-and-payments.md) Phase 0, [weekly-contests-phase5-staging-qa.md](weekly-contests-phase5-staging-qa.md), [weekly-contests-gl-b1-phase5-staging-evidence.md](weekly-contests-gl-b1-phase5-staging-evidence.md) (GL-B1 evidence template), [weekly-contests-phase6-staging-qa.md](weekly-contests-phase6-staging-qa.md), [weekly-contests-gl-b2-phase6-staging-evidence.md](weekly-contests-gl-b2-phase6-staging-evidence.md) (GL-B2 evidence template), [weekly-contests-gl-c1-production-paid-ui-build.md](weekly-contests-gl-c1-production-paid-ui-build.md) (GL-C1 wiring + verification), [weekly-contests-gl-c2-simulated-contests-ui-build.md](weekly-contests-gl-c2-simulated-contests-ui-build.md) (GL-C2 simulated UX defaults), [weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md](weekly-contests-gl-c3-stripe-publishable-key-prod-bundle.md) (GL-C3 publishable key), [weekly-contests-gl-d1-api-contest-payments-enabled.md](weekly-contests-gl-d1-api-contest-payments-enabled.md) (GL-D1 API payments flag), [weekly-contests-gl-d2-stripe-webhook-live.md](weekly-contests-gl-d2-stripe-webhook-live.md) (GL-D2 live webhooks), [weekly-contests-gl-d3-checkout-redirect-origin.md](weekly-contests-gl-d3-checkout-redirect-origin.md) (GL-D3 checkout origin), [weekly-contests-gl-d4-operator-secrets-payout-execute.md](weekly-contests-gl-d4-operator-secrets-payout-execute.md) (GL-D4 payout operator secrets), [weekly-contests-gl-d5-platform-balance-guard.md](weekly-contests-gl-d5-platform-balance-guard.md) (GL-D5 balance guard), [stripe.md](../payments/stripe.md), [generate-env-prod.mjs](../../scripts/generate-env-prod.mjs), [`.env.example`](../../.env.example).
 
 **Suggested labels:** `weekly-contests`, `production`, `stripe`, `payments`, `launch`
 
@@ -269,10 +269,18 @@
 |-------|-------|
 | **Type** | Story |
 | **Summary** | Decide **`CONTEST_PAYOUT_BALANCE_GUARD_ENABLED`** for prod and document minimum platform balance monitoring ([weekly-contests-ops-p6-payout-execute.md](weekly-contests-ops-p6-payout-execute.md)). |
+| **Deliverable** | **[weekly-contests-gl-d5-platform-balance-guard.md](weekly-contests-gl-d5-platform-balance-guard.md)** (decision notes, **409** playbook, monitoring); behavior detail remains in [weekly-contests-ops-p6-payout-execute.md](weekly-contests-ops-p6-payout-execute.md) |
+
+**Description**
+
+- **`CONTEST_PAYOUT_BALANCE_GUARD_ENABLED=true`** enables **P6-E1** pre-transfer **`balance.retrieve`** and **409** `insufficient_platform_balance` when USD **available** < planned prize total ([`contest-payout-platform-balance.js`](../../server/contests/contest-payout-platform-balance.js)).
+- **`GET /health`** exposes **`contestPayoutBalanceGuardEnabled`** (boolean).
 
 **Acceptance criteria**
 
-- [ ] Runbook states what operators do on **409 `insufficient_platform_balance`**.
+- [ ] Production/staging decision recorded (enable guard vs omit / **`false`**) — ticket or GL-D5 doc.
+- [ ] Runbook states what operators do on **409 `insufficient_platform_balance`** — [weekly-contests-gl-d5-platform-balance-guard.md](weekly-contests-gl-d5-platform-balance-guard.md) § Operators.
+- [ ] Minimum monitoring expectation noted — GL-D5 § Monitoring.
 
 ---
 
@@ -402,4 +410,4 @@ Kill switch **GL-G2** should be rehearsed before **GL-G1**.
 | `CONTESTS_CHECKOUT_APP_ORIGIN` | Server | Canonical **`https://…`** ([GL-D3](weekly-contests-gl-d3-checkout-redirect-origin.md)) |
 | `SIMULATED_CONTESTS_UI_ENABLED` | Angular CI | Prod: **`true`** only when explicit ([GL-C2](weekly-contests-gl-c2-simulated-contests-ui-build.md)); default empty / omitted |
 | `PAYOUT_OPERATOR_SECRET` / `CONTESTS_OPERATOR_SECRET` | Server | Payout execute / automation ([GL-D4](weekly-contests-gl-d4-operator-secrets-payout-execute.md)) |
-| `CONTEST_PAYOUT_BALANCE_GUARD_ENABLED` | Server | Optional prod parity |
+| `CONTEST_PAYOUT_BALANCE_GUARD_ENABLED` | Server | **`true`** = P6-E1 guard ([GL-D5](weekly-contests-gl-d5-platform-balance-guard.md)) |

@@ -48,6 +48,7 @@ import { requireFirebaseAuth } from './server/middleware/require-auth.js';
 import { requireAdmin } from './server/middleware/require-admin.js';
 import { requestIdMiddleware } from './server/middleware/request-id.middleware.js';
 import { getPayoutExecuteSecret } from './server/lib/contest-internal-auth.js';
+import { isContestPayoutBalanceGuardEnabled } from './server/contests/contest-payout-platform-balance.js';
 import {
   getStripeHealthFields,
   validateStripeConfigAtStartup,
@@ -72,12 +73,13 @@ app.use(express.json());
 
 const MLB_API = 'https://statsapi.mlb.com/api/v1';
 
-/** Public — load balancers / uptime checks (Stripe + operator readiness flags are non-secret — Stories GL-D1–D4). */
+/** Public — load balancers / uptime checks (Stripe + operator readiness flags are non-secret — Stories GL-D1–D5). */
 app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'ok',
     ...getStripeHealthFields(),
     contestsPayoutExecuteSecretConfigured: Boolean(getPayoutExecuteSecret()),
+    contestPayoutBalanceGuardEnabled: isContestPayoutBalanceGuardEnabled(),
   });
 });
 

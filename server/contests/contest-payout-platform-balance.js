@@ -1,6 +1,7 @@
 /**
- * Phase 6 Story P6-E1 — optional Stripe platform balance check before prize transfers.
+ * Phase 6 Story P6-E1 / Story GL-D5 — optional Stripe platform balance check before prize transfers.
  * @see docs/weekly-contests/weekly-contests-phase6-payouts-jira.md (P6-E1)
+ * @see docs/weekly-contests/weekly-contests-gl-d5-platform-balance-guard.md (GL-D5)
  */
 import {
   entryEligibleForAutomatedPrizePayout,

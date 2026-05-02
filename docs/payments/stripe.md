@@ -56,6 +56,8 @@ When you add server-side Stripe calls, set **`STRIPE_SECRET_KEY`** on the **stag
 
 **Prize payout operator secrets (Story GL-D4, not Stripe keys):** provision **`PAYOUT_OPERATOR_SECRET`** and/or **`CONTESTS_OPERATOR_SECRET`** for internal **`POST /api/internal/.../payouts/execute`** — **`GET /health`** includes **`contestsPayoutExecuteSecretConfigured`**. See [weekly-contests-gl-d4-operator-secrets-payout-execute.md](../weekly-contests/weekly-contests-gl-d4-operator-secrets-payout-execute.md).
 
+**Platform balance guard (Story GL-D5):** optional **`CONTEST_PAYOUT_BALANCE_GUARD_ENABLED=true`** — pre-flight **`balance.retrieve`** before prize transfers; **`GET /health`** includes **`contestPayoutBalanceGuardEnabled`**. See [weekly-contests-gl-d5-platform-balance-guard.md](../weekly-contests/weekly-contests-gl-d5-platform-balance-guard.md).
+
 ---
 
 ## Stripe Connect (Phase 6 — winner payouts)
