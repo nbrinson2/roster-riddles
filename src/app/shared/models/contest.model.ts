@@ -41,6 +41,8 @@ export interface ContestDocument {
    * Amounts are informational; Phase 4 remains dry-run — see UI copy.
    */
   prizePoolCents?: number;
+  /** First-place amount in cents (dry-run / payout); defaults from pool on admin create when pool set. */
+  winnerAmountCents?: number;
   entryFeeCents?: number;
   maxEntries?: number;
 }

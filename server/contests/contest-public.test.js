@@ -26,6 +26,24 @@ describe('mapContestDocumentToPublic', () => {
     assert.ok(typeof row.windowStart === 'string');
   });
 
+  it('includes winnerAmountCents when set', () => {
+    const ts = Timestamp.fromMillis(Date.now());
+    const row = mapContestDocumentToPublic('c2', {
+      schemaVersion: 1,
+      status: 'open',
+      gameMode: CONTEST_PUBLIC_GAME_MODE_BIO_BALL,
+      rulesVersion: 1,
+      leagueGamesN: 10,
+      windowStart: ts,
+      windowEnd: ts,
+      prizePoolCents: 500,
+      winnerAmountCents: 500,
+    });
+    assert.ok(row);
+    assert.equal(row.winnerAmountCents, 500);
+    assert.equal(row.prizePoolCents, 500);
+  });
+
   it('returns null for non bio-ball', () => {
     const r = mapContestDocumentToPublic('x', {
       status: 'open',

@@ -18,6 +18,7 @@ export interface AdminContestPublicRow {
   createdAt?: string;
   updatedAt?: string;
   prizePoolCents?: number;
+  winnerAmountCents?: number;
   entryFeeCents?: number;
   maxEntries?: number;
 }
@@ -52,6 +53,8 @@ export interface AdminContestCreateBody {
   rulesVersion?: number | string;
   title?: string;
   prizePoolCents?: number;
+  /** When omitted but `prizePoolCents` is set, server sets winner = pool. */
+  winnerAmountCents?: number;
   entryFeeCents?: number;
   maxEntries?: number;
 }

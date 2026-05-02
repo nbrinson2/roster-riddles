@@ -50,6 +50,12 @@ const adminCreateBodySchema = z
     title: z.string().max(200).optional(),
     /** Optional UI / dry-run display (cents). */
     prizePoolCents: z.number().int().min(0).max(100_000_000).optional(),
+    /**
+     * First-place payout in cents for dry-run / execute. When omitted but `prizePoolCents` is set,
+     * the server stores `winnerAmountCents = prizePoolCents` so scoring does not fall back to the
+     * global default ($100) and exceed a small pool.
+     */
+    winnerAmountCents: z.number().int().min(0).max(100_000_000).optional(),
     entryFeeCents: z.number().int().min(0).max(10_000_000).optional(),
     maxEntries: z.number().int().min(1).max(10_000_000).optional(),
   })
@@ -248,6 +254,7 @@ export async function postAdminContestCreate(req, res) {
     rulesVersion: rulesVersionIn,
     title: titleIn,
     prizePoolCents: prizePoolCentsIn,
+    winnerAmountCents: winnerAmountCentsIn,
     entryFeeCents: entryFeeCentsIn,
     maxEntries: maxEntriesIn,
   } = bodyParse.data;
@@ -305,6 +312,36 @@ export async function postAdminContestCreate(req, res) {
 
   const titleTrim =
     typeof titleIn === 'string' && titleIn.trim() ? titleIn.trim() : '';
+
+  /** @type {number | undefined} */
+  let winnerAmountToWrite;
+  if (typeof prizePoolCentsIn === 'number') {
+    if (typeof winnerAmountCentsIn === 'number') {
+      if (winnerAmountCentsIn > prizePoolCentsIn) {
+        logContestReadLine({
+          requestId,
+          outcome: 'winner_exceeds_pool',
+          httpStatus: 400,
+          latencyMs: Date.now() - startMs,
+          route: 'admin_create',
+          contestId,
+          uid,
+        });
+        return res.status(400).json({
+          error: {
+            code: 'validation_error',
+            message:
+              'winnerAmountCents cannot be greater than prizePoolCents.',
+          },
+        });
+      }
+      winnerAmountToWrite = winnerAmountCentsIn;
+    } else {
+      winnerAmountToWrite = prizePoolCentsIn;
+    }
+  } else if (typeof winnerAmountCentsIn === 'number') {
+    winnerAmountToWrite = winnerAmountCentsIn;
+  }
 
   let db;
   try {
@@ -364,6 +401,9 @@ export async function postAdminContestCreate(req, res) {
         source: 'admin_api_create_v1',
       },
       ...(typeof prizePoolCentsIn === 'number' ? { prizePoolCents: prizePoolCentsIn } : {}),
+      ...(typeof winnerAmountToWrite === 'number'
+        ? { winnerAmountCents: winnerAmountToWrite }
+        : {}),
       ...(typeof entryFeeCentsIn === 'number' ? { entryFeeCents: entryFeeCentsIn } : {}),
       ...(typeof maxEntriesIn === 'number' ? { maxEntries: maxEntriesIn } : {}),
     });

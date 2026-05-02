@@ -154,6 +154,23 @@ export async function runContestScoringJob({ db, contestId, scoringJobId, reques
     },
   );
 
+  if (standings.length === 0) {
+    logContestScoringLine({
+      requestId,
+      contestId,
+      phase: 'score',
+      outcome: 'no_scorable_entries',
+      scoringJobId: jobId,
+    });
+    return {
+      ok: false,
+      code: 'no_scorable_entries',
+      message:
+        'No standings could be built: there are no entries, or every entry is missing or has an invalid joinedAt timestamp.',
+      httpStatus: 400,
+    };
+  }
+
   const tieResolution = buildTieResolutionAudit({
     tieBreakPolicy: TIE_BREAK_POLICY,
     leagueGamesN,
@@ -182,7 +199,42 @@ export async function runContestScoringJob({ db, contestId, scoringJobId, reques
     tieResolution,
   };
 
-  const dryRunLines = buildPayoutLinesFromFinal(finalDoc, undefined, contest);
+  let dryRunLines;
+  try {
+    dryRunLines = buildPayoutLinesFromFinal(finalDoc, undefined, contest);
+  } catch (e) {
+    const name = e instanceof Error ? e.message : String(e);
+    if (name === 'payout_exceeds_prize_pool_cap') {
+      logContestScoringLine({
+        requestId,
+        contestId,
+        phase: 'score',
+        outcome: 'payout_exceeds_prize_pool',
+        scoringJobId: jobId,
+      });
+      return {
+        ok: false,
+        code: 'payout_exceeds_prize_pool',
+        message:
+          'Dry-run payout totals would exceed prizePoolCents on the contest. Adjust the pool or winner amount and retry.',
+        httpStatus: 400,
+      };
+    }
+    logContestScoringLine({
+      requestId,
+      contestId,
+      phase: 'score',
+      outcome: 'payout_compute_failed',
+      scoringJobId: jobId,
+      message: name.slice(0, 400),
+    });
+    return {
+      ok: false,
+      code: 'internal_error',
+      message: 'Dry-run payout computation failed.',
+      httpStatus: 500,
+    };
+  }
 
   const dryRunDoc = {
     schemaVersion: 1,

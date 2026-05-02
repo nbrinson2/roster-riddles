@@ -41,6 +41,7 @@ export function mapContestDocumentToPublic(contestId, data) {
     typeof data.schemaVersion === 'number' ? data.schemaVersion : 1;
 
   const prizePoolCents = data.prizePoolCents;
+  const winnerAmountCents = data.winnerAmountCents;
   const entryFeeCents = data.entryFeeCents;
   const maxEntries = data.maxEntries;
 
@@ -60,6 +61,11 @@ export function mapContestDocumentToPublic(contestId, data) {
     Number.isFinite(prizePoolCents) &&
     prizePoolCents >= 0
       ? { prizePoolCents }
+      : {}),
+    ...(typeof winnerAmountCents === 'number' &&
+    Number.isFinite(winnerAmountCents) &&
+    winnerAmountCents >= 0
+      ? { winnerAmountCents }
       : {}),
     ...(typeof entryFeeCents === 'number' &&
     Number.isFinite(entryFeeCents) &&
