@@ -449,6 +449,7 @@ export async function postContestJoin(req, res) {
     rulesAcceptedVersion: rulesVersion ?? 1,
     joinedAt: FieldValue.serverTimestamp(),
     displayNameSnapshot: displayName,
+    paymentStatus: 'free',
     ...(clientRequestId ? { clientRequestId } : {}),
   };
 

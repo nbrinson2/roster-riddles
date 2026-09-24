@@ -122,4 +122,30 @@ describe('computePlannedPrizeTransferTotalCents (P6-E1)', () => {
       0,
     );
   });
+
+  it('counts legacy free entry (no paymentStatus) when contest has no entry fee', () => {
+    const lines = [{ rank: 1, uid: 'a', amountCents: 500 }];
+    assert.equal(
+      computePlannedPrizeTransferTotalCents(
+        lines,
+        [snap(true, {})],
+        [snap(true, readyUser)],
+        0,
+      ),
+      500,
+    );
+  });
+
+  it('excludes legacy entry without paymentStatus when contest has an entry fee', () => {
+    const lines = [{ rank: 1, uid: 'a', amountCents: 500 }];
+    assert.equal(
+      computePlannedPrizeTransferTotalCents(
+        lines,
+        [snap(true, {})],
+        [snap(true, readyUser)],
+        100,
+      ),
+      0,
+    );
+  });
 });

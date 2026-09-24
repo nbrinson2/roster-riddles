@@ -6,6 +6,7 @@ import { randomBytes } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import Stripe from 'stripe';
 import { assertValidContestLedgerEntryPayload } from '../payments/contest-ledger-entry-validate.js';
+import { getEntryFeeCentsFromContest } from './contest-entry-fee.js';
 import { buildPayoutLinesFromFinal } from './contest-payout-compute.js';
 import {
   entryEligibleForAutomatedPrizePayout,
@@ -291,6 +292,8 @@ export async function runContestPayoutExecuteJob({
     payoutJobIdInput?.trim() ||
     `payout_exec_${Date.now()}_${randomBytes(6).toString('hex')}`;
 
+  const contestEntryFeeCents = getEntryFeeCentsFromContest(contest);
+
   const scoringJobIdRaw = resultsFinal.scoringJobId;
   const scoringJobId =
     typeof scoringJobIdRaw === 'string' && scoringJobIdRaw.trim() !== ''
@@ -311,6 +314,7 @@ export async function runContestPayoutExecuteJob({
       baseLines,
       entrySnaps,
       userSnaps,
+      contestEntryFeeCents,
     );
     if (requiredUsdCents > 0) {
       /** @type {import('stripe').Stripe.Balance} */
@@ -390,7 +394,7 @@ export async function runContestPayoutExecuteJob({
       continue;
     }
 
-    if (!entryEligibleForAutomatedPrizePayout(entrySnap)) {
+    if (!entryEligibleForAutomatedPrizePayout(entrySnap, { contestEntryFeeCents })) {
       executionLines.push({
         rank: line.rank,
         uid: line.uid,

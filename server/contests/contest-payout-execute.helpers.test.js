@@ -19,10 +19,32 @@ describe('entryEligibleForAutomatedPrizePayout (P6-D2)', () => {
     assert.equal(entryEligibleForAutomatedPrizePayout(snap(true, { paymentStatus: 'free' })), true);
   });
 
-  it('denies missing or bad paymentStatus', () => {
+  it('denies missing or bad paymentStatus when contest has an entry fee', () => {
     assert.equal(entryEligibleForAutomatedPrizePayout(snap(false, {})), false);
-    assert.equal(entryEligibleForAutomatedPrizePayout(snap(true, { paymentStatus: 'pending' })), false);
-    assert.equal(entryEligibleForAutomatedPrizePayout(snap(true, {})), false);
+    assert.equal(
+      entryEligibleForAutomatedPrizePayout(snap(true, { paymentStatus: 'pending' }), {
+        contestEntryFeeCents: 100,
+      }),
+      false,
+    );
+    assert.equal(
+      entryEligibleForAutomatedPrizePayout(snap(true, {}), { contestEntryFeeCents: 100 }),
+      false,
+    );
+  });
+
+  it('allows legacy free join (no paymentStatus) when contest has no entry fee', () => {
+    assert.equal(entryEligibleForAutomatedPrizePayout(snap(true, {}), {}), true);
+    assert.equal(
+      entryEligibleForAutomatedPrizePayout(snap(true, {}), { contestEntryFeeCents: 0 }),
+      true,
+    );
+    assert.equal(
+      entryEligibleForAutomatedPrizePayout(snap(true, { paymentStatus: null }), {
+        contestEntryFeeCents: 0,
+      }),
+      true,
+    );
   });
 });
 

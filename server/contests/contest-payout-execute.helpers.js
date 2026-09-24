@@ -5,14 +5,25 @@
 
 /**
  * @param {import('firebase-admin/firestore').DocumentSnapshot} entrySnap
+ * @param {{ contestEntryFeeCents?: number }} [opts]
+ *   When the contest has no entry fee (`contestEntryFeeCents` ≤ 0 or omitted), entries created before
+ *   Phase 5 may omit `paymentStatus` entirely — treat that like a free join for payout eligibility.
  */
-export function entryEligibleForAutomatedPrizePayout(entrySnap) {
+export function entryEligibleForAutomatedPrizePayout(entrySnap, opts = {}) {
   if (!entrySnap.exists) {
     return false;
   }
   const d = entrySnap.data();
   const ps = d && typeof d === 'object' ? /** @type {{ paymentStatus?: unknown }} */ (d).paymentStatus : undefined;
-  return ps === 'paid' || ps === 'free';
+  if (ps === 'paid' || ps === 'free') {
+    return true;
+  }
+  const fee = opts.contestEntryFeeCents;
+  const hasEntryFee = typeof fee === 'number' && Number.isFinite(fee) && fee > 0;
+  if (!hasEntryFee && (ps === undefined || ps === null)) {
+    return true;
+  }
+  return false;
 }
 
 /**

@@ -7,6 +7,7 @@ import { randomBytes } from 'node:crypto';
 import { FieldValue } from 'firebase-admin/firestore';
 import Stripe from 'stripe';
 import { assertValidContestLedgerEntryPayload } from '../payments/contest-ledger-entry-validate.js';
+import { getEntryFeeCentsFromContest } from './contest-entry-fee.js';
 import {
   computeContestPayoutFinalAggregateStatus,
 } from './contest-payout-execute.job.js';
@@ -397,6 +398,8 @@ export async function runContestPayoutRetryFailedLinesAuthorized({
     };
   }
 
+  const contestEntryFeeCents = getEntryFeeCentsFromContest(contest);
+
   if (!finalSnap.exists) {
     return {
       httpStatus: 409,
@@ -509,6 +512,7 @@ export async function runContestPayoutRetryFailedLinesAuthorized({
       toRetry,
       entrySnapsForPlan,
       userSnapsForPlan,
+      contestEntryFeeCents,
     );
     if (requiredUsdCents > 0) {
       try {
@@ -567,7 +571,7 @@ export async function runContestPayoutRetryFailedLinesAuthorized({
       continue;
     }
 
-    if (!entryEligibleForAutomatedPrizePayout(entrySnap)) {
+    if (!entryEligibleForAutomatedPrizePayout(entrySnap, { contestEntryFeeCents })) {
       working[idx] = {
         ...working[idx],
         status: 'skipped',

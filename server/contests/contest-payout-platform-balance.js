@@ -22,16 +22,22 @@ export function isContestPayoutBalanceGuardEnabled() {
  * @param {{ rank: number; uid: string; amountCents: number }[]} baseLines
  * @param {import('firebase-admin/firestore').DocumentSnapshot[]} entrySnaps
  * @param {import('firebase-admin/firestore').DocumentSnapshot[]} userSnaps
+ * @param {number} [contestEntryFeeCents] — `getEntryFeeCentsFromContest(contest)`; used for legacy free-entry payout eligibility.
  * @returns {number}
  */
-export function computePlannedPrizeTransferTotalCents(baseLines, entrySnaps, userSnaps) {
+export function computePlannedPrizeTransferTotalCents(
+  baseLines,
+  entrySnaps,
+  userSnaps,
+  contestEntryFeeCents = 0,
+) {
   let total = 0;
   for (let i = 0; i < baseLines.length; i++) {
     const line = baseLines[i];
     if (line.amountCents <= 0) {
       continue;
     }
-    if (!entryEligibleForAutomatedPrizePayout(entrySnaps[i])) {
+    if (!entryEligibleForAutomatedPrizePayout(entrySnaps[i], { contestEntryFeeCents })) {
       continue;
     }
     if (!userConnectReadyForPayoutTransfer(userSnaps[i])) {

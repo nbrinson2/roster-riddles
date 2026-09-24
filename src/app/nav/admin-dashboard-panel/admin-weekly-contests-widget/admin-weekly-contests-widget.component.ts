@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import {
   AdminContestCreateBody,
+  AdminContestPayoutExecuteResponse,
   AdminContestPublicRow,
   AdminWeeklyContestsApiService,
 } from 'src/app/shared/services/admin-weekly-contests-api.service';
@@ -237,21 +238,39 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.payoutExecuteBusyId = null;
-          const idempotent =
-            res.outcome === 'payout_final_already_succeeded'
-              ? ' Payouts were already complete (no new transfers).'
-              : '';
-          const agg =
-            typeof res.aggregateStatus === 'string'
-              ? ` Status: ${res.aggregateStatus}.`
-              : '';
           const job =
             typeof res.payoutJobId === 'string'
               ? ` Reference: ${res.payoutJobId}.`
               : '';
+
+          if (res.outcome === 'payout_final_already_succeeded') {
+            this.payoutExecuteError = null;
+            this.payoutExecuteErrorContestId = null;
+            this.payoutExecuteOk = {
+              contestId,
+              text: `Prize payouts finished.${job} Payouts were already complete (no new transfers.)`.trim(),
+            };
+            this.loadList(false);
+            return;
+          }
+
+          const agg = res.aggregateStatus;
+          if (agg === 'failed' || agg === 'partial_failure') {
+            this.payoutExecuteOk = null;
+            this.payoutExecuteErrorContestId = contestId;
+            this.payoutExecuteError =
+              this.formatPayoutExecuteIncompleteMessage(res, job);
+            this.loadList(false);
+            return;
+          }
+
+          this.payoutExecuteError = null;
+          this.payoutExecuteErrorContestId = null;
+          const aggText =
+            typeof agg === 'string' ? ` Status: ${agg}.` : '';
           this.payoutExecuteOk = {
             contestId,
-            text: `Prize payouts finished.${job}${agg}${idempotent}`.trim(),
+            text: `Prize payouts finished.${job}${aggText}`.trim(),
           };
           this.loadList(false);
         },
@@ -429,6 +448,65 @@ export class AdminWeeklyContestsWidgetComponent implements OnInit, OnDestroy {
         : 'Move the contest to Scoring before running this step.';
     }
     return typeof msg === 'string' ? msg : 'Scoring didn’t finish. Try again or read the message above.';
+  }
+
+  /**
+   * HTTP 200 but `aggregateStatus` is not full success — explain from first money line.
+   */
+  private formatPayoutExecuteIncompleteMessage(
+    res: AdminContestPayoutExecuteResponse,
+    jobRef: string,
+  ): string {
+    const agg = res.aggregateStatus ?? 'unknown';
+    const lines = res.lines;
+    if (Array.isArray(lines)) {
+      for (const raw of lines) {
+        if (!raw || typeof raw !== 'object') {
+          continue;
+        }
+        const o = raw as Record<string, unknown>;
+        const amount = o['amountCents'];
+        const status = o['status'];
+        if (typeof amount !== 'number' || amount <= 0) {
+          continue;
+        }
+        if (status !== 'failed' && status !== 'skipped') {
+          continue;
+        }
+        const fc =
+          typeof o['failureCode'] === 'string' && o['failureCode'].trim()
+            ? o['failureCode'].trim()
+            : '';
+        const hint = this.describePayoutLineFailure(fc);
+        return (
+          `Prize transfers did not complete successfully (aggregate: ${agg}).${jobRef}` +
+          ` ${hint}`.trim()
+        );
+      }
+    }
+    return (
+      `Prize transfers did not complete successfully (aggregate: ${agg}).${jobRef}` +
+      ` Check Firestore contests/{id}/payouts/final and the Stripe Dashboard for details.`
+    ).trim();
+  }
+
+  private describePayoutLineFailure(failureCode: string): string {
+    if (!failureCode) {
+      return 'See payouts/final line status and Stripe for the underlying error.';
+    }
+    if (failureCode === 'connect_not_ready_for_transfer') {
+      return (
+        'The winner’s Stripe Connect account is not ready to receive transfers ' +
+        '(complete Connect onboarding, charges enabled, and a valid destination account).'
+      );
+    }
+    if (failureCode === 'entry_not_eligible_for_payout') {
+      return (
+        'The winner’s contest entry is not eligible for automated payout ' +
+        '(for example entry fee not paid, payment still pending, or refunded).'
+      );
+    }
+    return `Stripe reported: ${failureCode}. Check Stripe logs and Connect account state.`;
   }
 
   private mapPayoutExecuteError(err: HttpErrorResponse): string {
